@@ -406,4 +406,12 @@ for (const [pattern, message] of auctionServerExpectations) {
   if (!pattern.test(server)) throw new Error(message);
 }
 
+if (/data-action="buyRough"/.test(main)) {
+  throw new Error("main.js should no longer expose direct buyRough auction purchase buttons");
+}
+
+for (const token of ["submitAuctionBid", "代理上限", "提交暗标", "myBids"]) {
+  if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");

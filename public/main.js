@@ -236,6 +236,25 @@ function auctionStoneBoard(rough) {
   `;
 }
 
+function myBidFor(roughId) {
+  return (state.auction?.myBids || []).find((bid) => bid.roughId === roughId);
+}
+
+function renderAuctionBidControls(rough) {
+  const bid = myBidFor(rough.id);
+  return `
+    <div class="bid-controls">
+      <label>密封投标
+        <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.amount || rough.price}">
+      </label>
+      <label>代理上限
+        <input data-proxy-max="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.proxyMax || bid?.amount || rough.price}">
+      </label>
+      <button data-action="submitAuctionBid" data-payload="${escapeHtml(rough.id)}">${bid ? "修改暗标" : "提交暗标"}</button>
+    </div>
+  `;
+}
+
 function expertClueChips(rough) {
   const clues = Array.isArray(rough.expertClues) ? rough.expertClues : [];
   if (!clues.length) return "";
@@ -560,14 +579,19 @@ function renderPipeline() {
 
 function renderAuction() {
   const { me } = state;
-  const affordable = state.roughPool.filter((rough) => rough.price <= me.cash).length;
-  const opened = state.roughPool.reduce((sum, rough) => sum + windowCount(rough), 0);
+  const auction = state.auction;
+  const roughs = auction?.roughs?.length ? auction.roughs : state.roughPool;
+  const affordable = roughs.filter((rough) => rough.price <= me.cash).length;
+  const opened = roughs.reduce((sum, rough) => sum + windowCount(rough), 0);
+  const phaseLabel = { preview: "预展", bidding: "密封投标", settled: "开标" }[auction?.phase] || "密封投标";
   els.auctionBrief.innerHTML = `
-    <span>可拍 ${affordable}/${state.roughPool.length}</span>
+    <span>${phaseLabel}</span>
+    <span>我的暗标 ${auction?.myBids?.length || 0}</span>
+    <span>可拍 ${affordable}/${roughs.length}</span>
     <span>已公开开窗 ${opened} 处</span>
     <span>开窗费为当前价 6%</span>
   `;
-  els.roughPool.innerHTML = state.roughPool.map((rough) => {
+  els.roughPool.innerHTML = roughs.map((rough) => {
     const windowFee = Math.round(rough.price * 0.06);
     return `
       <article class="rough-card ${rough.price > me.cash ? "locked" : ""}">
@@ -584,8 +608,8 @@ function renderAuction() {
           <p class="card-meta">保证金参考 ${formatMoney(rough.deposit)}</p>
           <div class="card-actions">
             <button class="secondary" data-action="requestWindow" data-payload="${rough.id}" ${windowFee > me.cash || windowCount(rough) >= 6 ? "disabled" : ""}>按点开窗 ${formatMoney(windowFee)}</button>
-            <button data-action="buyRough" data-payload="${rough.id}" ${rough.price > me.cash ? "disabled" : ""}>拍下</button>
           </div>
+          ${renderAuctionBidControls(rough)}
         </div>
       </article>
     `;
@@ -838,6 +862,17 @@ document.body.addEventListener("click", (event) => {
       .map((select) => select.value)
       .filter(Boolean);
     socket.emit("completeOrder", { orderId: payload, braceletIds: values });
+    return;
+  }
+
+  if (action === "submitAuctionBid") {
+    const amountInput = document.querySelector(`[data-bid-amount="${CSS.escape(payload)}"]`);
+    const proxyInput = document.querySelector(`[data-proxy-max="${CSS.escape(payload)}"]`);
+    socket.emit("submitAuctionBid", {
+      roughId: payload,
+      amount: amountInput?.value,
+      proxyMax: proxyInput?.value || amountInput?.value
+    });
     return;
   }
 
