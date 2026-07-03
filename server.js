@@ -322,6 +322,8 @@ function makePlayer(playerId) {
 }
 
 function normalizePlayer(player) {
+  player.cash = Number.isFinite(Number(player.cash)) ? player.cash : 30000;
+  player.rep = Number.isFinite(Number(player.rep)) ? player.rep : 0;
   player.rough ||= [];
   player.polishingJobs ||= player.cuttingJobs || [];
   player.cuttingJobs = [];
@@ -376,6 +378,14 @@ function qualityByKey(key) {
 function getPlayer(socket) {
   const playerId = state.sockets.get(socket.id);
   return state.players.get(playerId);
+}
+
+function isPlayerOnline(player) {
+  if (!player) return false;
+  for (const playerId of state.sockets.values()) {
+    if (playerId === player.id) return true;
+  }
+  return false;
 }
 
 function itemValue(item) {
@@ -824,6 +834,7 @@ function processPolishingJobs() {
   let changed = false;
   for (const player of state.players.values()) {
     normalizePlayer(player);
+    if (!isPlayerOnline(player)) continue;
     const ready = player.polishingJobs.filter((job) => job.readyAt <= Date.now());
     if (!ready.length) continue;
     player.polishingJobs = player.polishingJobs.filter((job) => job.readyAt > Date.now());
@@ -840,6 +851,7 @@ function processPolishingJobs() {
 
 function settleOfflinePlayer(player, now = Date.now()) {
   normalizePlayer(player);
+  const offlineSince = player.lastSeenAt || now;
   const events = [];
   const ready = player.polishingJobs.filter((job) => job.readyAt <= now);
   if (ready.length) {
@@ -848,7 +860,9 @@ function settleOfflinePlayer(player, now = Date.now()) {
       const polished = revealPolishedRough(job.rough);
       player.rough.push(polished);
       player.rep += Math.max(1, Math.round(polished.rep * 0.45));
-      events.push({ type: "production", text: `${polished.name} 加工完成`, income: 0, expense: 0 });
+      if (job.readyAt > offlineSince && job.readyAt <= now) {
+        events.push({ type: "production", text: `${polished.name} 加工完成`, income: 0, expense: 0 });
+      }
       addNews(`${player.name} 完成 ${polished.name} 加工，料性完全揭露。`, polished.score >= 4 ? "great" : "craft");
     }
   }

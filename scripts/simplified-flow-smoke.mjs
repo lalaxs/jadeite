@@ -21,6 +21,23 @@ function extractObjectEntry(source, key) {
   throw new Error(`unterminated object entry: ${key}`);
 }
 
+function extractFunctionBody(source, name) {
+  const start = source.indexOf(`function ${name}`);
+  if (start < 0) throw new Error(`missing function: ${name}`);
+  const open = source.indexOf("{", start);
+  if (open < 0) throw new Error(`missing function body: ${name}`);
+  let depth = 0;
+  for (let index = open; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(open, index + 1);
+    }
+  }
+  throw new Error(`unterminated function body: ${name}`);
+}
+
 const serverExpectations = [
   [/productMatchesOrder/, "server should use shared product/order matching rules"],
   [/makeExpertClues/, "server should attach expert appraisal clues to rough stones"],
@@ -280,6 +297,27 @@ const idleFrontendExpectations = [
 
 for (const [pattern, message] of idleFrontendExpectations) {
   if (!pattern.test(main)) throw new Error(message);
+}
+
+const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");
+if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*player\.cash\s*:\s*30000/.test(normalizePlayerBody)) {
+  throw new Error("normalizePlayer should initialize cash with a numeric default");
+}
+if (!/player\.rep\s*=\s*Number\.isFinite\(Number\(player\.rep\)\)\s*\?\s*player\.rep\s*:\s*0/.test(normalizePlayerBody)) {
+  throw new Error("normalizePlayer should initialize rep with a numeric default");
+}
+
+const processPolishingJobsBody = extractFunctionBody(server, "processPolishingJobs");
+if (!/(isPlayerOnline\(player\)|state\.sockets)/.test(processPolishingJobsBody) || !/continue/.test(processPolishingJobsBody)) {
+  throw new Error("processPolishingJobs should skip disconnected players before consuming jobs");
+}
+
+const settleOfflinePlayerBody = extractFunctionBody(server, "settleOfflinePlayer");
+if (!/const\s+offlineSince\s*=\s*player\.lastSeenAt\s*\|\|\s*now/.test(settleOfflinePlayerBody)) {
+  throw new Error("settleOfflinePlayer should read lastSeenAt before overwriting it");
+}
+if (!/readyAt\s*>\s*offlineSince/.test(settleOfflinePlayerBody)) {
+  throw new Error("settleOfflinePlayer should summarize only jobs completed during the offline interval");
 }
 
 console.log("Simplified rough-to-bracelet flow checks passed");
