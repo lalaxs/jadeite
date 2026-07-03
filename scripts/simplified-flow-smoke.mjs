@@ -51,6 +51,18 @@ if (/windows:\s*item\.windows\s*\|\|\s*\[\]/.test(publicStoneBody)) {
   throw new Error("publicStone masked visual should not expose raw item windows");
 }
 
+if (!/function publicSourceMaterial\b/.test(server)) {
+  throw new Error("server should sanitize product source material before public snapshots");
+}
+
+if (!/safeItem\.sourceMaterial\s*=\s*publicSourceMaterial\(safeItem\.sourceMaterial\)/.test(publicStoneBody)) {
+  throw new Error("publicStone should replace raw sourceMaterial with a public source material snapshot");
+}
+
+if (/sourceMaterial\s*:\s*\{[\s\S]*windows\s*:\s*rough\.windows\s*\|\|\s*\[\]/.test(publicStoneBody)) {
+  throw new Error("publicStone should not expose raw rough windows through nested sourceMaterial");
+}
+
 const forbiddenClientFlow = [
   "cutAnglePlanner",
   "data-angle-slider",
@@ -196,7 +208,7 @@ if (!/normalizeExtractionKits/.test(server) || !/expandKitPlacements/.test(serve
   throw new Error("server should normalize extraction kits and expand them into product outputs");
 }
 
-if (!/sourceMaterial\s*:/.test(server) || !/visual\s*:\s*rough\.visual/.test(server) || !/windows\s*:\s*rough\.windows/.test(server)) {
+if (!/sourceMaterial\s*:/.test(server) || !/visual\s*:\s*rough\.visual/.test(server)) {
   throw new Error("products extracted from polished rough should carry source material data for cutout rendering");
 }
 

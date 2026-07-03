@@ -76,10 +76,30 @@ function publicWindowReveal(win = {}) {
   return safe;
 }
 
+function publicSourceVisual(visual = {}) {
+  const safe = {};
+  for (const field of ["seed", "shape", "skin", "vein", "belt", "beltAngle", "crack", "crackAngle", "grain"]) {
+    if (visual[field] !== undefined) safe[field] = visual[field];
+  }
+  return safe;
+}
+
+function publicSourceMaterial(sourceMaterial = {}) {
+  if (!sourceMaterial || typeof sourceMaterial !== "object") return sourceMaterial;
+  const safe = {};
+  for (const field of ["roughId", "roughName", "placement", "templateSize", "mass", "qualityKey", "color"]) {
+    if (sourceMaterial[field] !== undefined) safe[field] = sourceMaterial[field];
+  }
+  if (Array.isArray(sourceMaterial.windows)) safe.windows = sourceMaterial.windows.map(publicWindowReveal);
+  if (sourceMaterial.visual && typeof sourceMaterial.visual === "object") safe.visual = publicSourceVisual(sourceMaterial.visual);
+  return safe;
+}
+
 function publicStone(item) {
   if (!item || typeof item !== "object") return item;
   const { trueQualityKey, visual, ...safeItem } = item;
   if (Array.isArray(safeItem.windows)) safeItem.windows = safeItem.windows.map(publicWindowReveal);
+  if (safeItem.sourceMaterial) safeItem.sourceMaterial = publicSourceMaterial(safeItem.sourceMaterial);
   const isRough = item.type === "rough" || Boolean(item.trueQualityKey);
   if (isRough && !item.revealed) {
     const rawWindows = item.windows ?? visual?.windows;
