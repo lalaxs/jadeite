@@ -29,9 +29,18 @@ function nextAiIndexForRough(rough, roughBids) {
   }, 0);
 }
 
+function publicWindowReveal(win = {}) {
+  const safe = {};
+  for (const field of ["id", "x", "y", "r", "seed", "skin", "vein", "hasBelt", "hasCrack"]) {
+    if (win[field] !== undefined) safe[field] = win[field];
+  }
+  return safe;
+}
+
 function publicRoughForAuction(rough) {
   const visual = rough.visual || {};
-  const windows = rough.windows ?? visual.windows;
+  const rawWindows = rough.windows ?? visual.windows;
+  const windows = Array.isArray(rawWindows) ? rawWindows.map(publicWindowReveal) : undefined;
   const publicVisual = {
     masked: true
   };

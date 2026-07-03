@@ -77,12 +77,33 @@ const sensitiveRound = {
       hint: "hidden high value clue",
       value: 78000,
       trueValue: 92000,
-      windows: [{ x: 24, y: 42, radius: 8 }],
+      windows: [{
+        id: "win-1",
+        x: 24,
+        y: 42,
+        r: 8,
+        seed: 9001,
+        skin: "#66736b",
+        vein: "#62a87b",
+        hasBelt: true,
+        hasCrack: false,
+        translucency: 0.82,
+        cotton: 0.14,
+        hiddenScore: 99
+      }],
       visual: {
         seed: 4242,
         shape: "chunk",
         maskTone: "#4f5550",
-        windows: [{ x: 12, y: 18, radius: 5 }],
+        windows: [{
+          id: "visual-win-1",
+          x: 12,
+          y: 18,
+          r: 5,
+          translucency: 0.5,
+          cotton: 0.2,
+          hiddenScore: 77
+        }],
         bestAngle: 34,
         suggestedAngle: 28,
         translucency: 0.82,
@@ -101,9 +122,25 @@ assert.equal(sensitiveRough.visual.seed, 4242);
 assert.equal(sensitiveRough.visual.shape, "chunk");
 assert.equal(sensitiveRough.visual.masked, true);
 assert.equal(sensitiveRough.visual.maskTone, "#4f5550");
-assert.deepEqual(sensitiveRough.visual.windows, sensitiveRound.roughs[0].windows);
+assert.deepEqual(sensitiveRough.windows, [{
+  id: "win-1",
+  x: 24,
+  y: 42,
+  r: 8,
+  seed: 9001,
+  skin: "#66736b",
+  vein: "#62a87b",
+  hasBelt: true,
+  hasCrack: false
+}]);
+assert.deepEqual(sensitiveRough.visual.windows, sensitiveRough.windows);
 for (const field of ["bestAngle", "suggestedAngle", "translucency", "cotton"]) {
   assert.equal(Object.hasOwn(sensitiveRough.visual, field), false);
+}
+for (const win of [...sensitiveRough.windows, ...sensitiveRough.visual.windows]) {
+  for (const field of ["translucency", "cotton", "hiddenScore", "bestAngle", "suggestedAngle", "value", "trueValue"]) {
+    assert.equal(Object.hasOwn(win, field), false);
+  }
 }
 
 const tieSettled = settleAuctionRound(
