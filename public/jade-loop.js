@@ -45,14 +45,17 @@ export function productionDuration(stage, profile = "normal") {
 export function ledgerEntry(kind, amount, note, meta = {}) {
   const rawAmount = money(amount);
   const signed = kind === "expense" ? -rawAmount : rawAmount;
+  const at = Number(meta.at ?? Date.now());
+  const source = meta.source || kind;
+  const itemId = meta.itemId;
   return {
-    id: meta.id || `${kind}-${meta.at || Date.now()}-${Math.abs(signed)}`,
+    id: meta.id || `${kind}-${at}-${source}-${itemId || "none"}-${Math.abs(signed)}`,
     kind,
-    source: meta.source || kind,
+    source,
     amount: signed,
     note: String(note || kind),
-    itemId: meta.itemId,
-    at: Number(meta.at || Date.now())
+    itemId,
+    at
   };
 }
 
@@ -99,9 +102,9 @@ export function livestreamOutcome(product = {}, options = {}) {
 
 export function reportSummary(entries = [], inventory = [], now = Date.now()) {
   const totals = cashFlowTotals(entries);
-  const sources = {};
+  const incomeSources = {};
   for (const entry of entries.filter((item) => item.amount > 0)) {
-    sources[entry.source || "income"] = (sources[entry.source || "income"] || 0) + entry.amount;
+    incomeSources[entry.source || "income"] = (incomeSources[entry.source || "income"] || 0) + entry.amount;
   }
   const inventoryValue = inventory.reduce((sum, item) => sum + Number(item.value || item.price || 0), 0);
   const staleCount = inventory.filter((item) => Number(item.createdAt || now) <= now - 5 * 24 * 60 * 60 * 1000).length;
@@ -110,5 +113,5 @@ export function reportSummary(entries = [], inventory = [], now = Date.now()) {
   if (staleCount > 0) advice.push("存在滞销库存，可安排自动直播或降价挂牌。");
   if (totals.income === 0) advice.push("暂无收入记录，先处理可售成品或等待订单刷新。");
   if (!advice.length) advice.push("现金流健康，可以评估下一轮公盘机会。");
-  return { ...totals, sources, inventoryValue: money(inventoryValue), staleCount, advice };
+  return { ...totals, sources: incomeSources, incomeSources, inventoryValue: money(inventoryValue), staleCount, advice };
 }

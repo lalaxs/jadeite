@@ -23,6 +23,18 @@ const spend = ledgerEntry("expense", 6200, "公盘保证金", { source: "auction
 assert.equal(income.amount, 18000);
 assert.equal(spend.amount, -6200);
 
+const originalNow = Date.now;
+let nowCall = 0;
+Date.now = () => 1000 + nowCall++;
+const generated = ledgerEntry("income", 1200, "测试流水", { source: "manual", itemId: "piece-1" });
+Date.now = originalNow;
+assert.equal(generated.at, 1000);
+assert.equal(generated.id, "income-1000-manual-piece-1-1200");
+assert.equal(
+  ledgerEntry("income", 1200, "自定义流水", { id: "custom-ledger-id", source: "manual", at: 9 }).id,
+  "custom-ledger-id"
+);
+
 const totals = cashFlowTotals([income, spend]);
 assert.equal(totals.income, 18000);
 assert.equal(totals.expense, 6200);
@@ -43,15 +55,13 @@ const conservative = livestreamOutcome(
   { id: "p1", value: 10000, score: 4, rep: 32 },
   { mode: "autoConservative", rep: 60, seed: 11 }
 );
-assert.equal(conservative.sold, true);
-assert.ok(conservative.price >= 8000 && conservative.price <= 12000);
+assert.deepEqual(conservative, { sold: true, price: 10753, mode: "autoConservative", multiplier: 1.075 });
 
 const aggressive = livestreamOutcome(
   { id: "p2", value: 10000, score: 2, rep: 8 },
   { mode: "autoAggressive", rep: 0, seed: 3 }
 );
-assert.equal(typeof aggressive.sold, "boolean");
-assert.ok(aggressive.price >= 0);
+assert.deepEqual(aggressive, { sold: false, price: 0, mode: "autoAggressive", multiplier: 1.148 });
 
 const report = reportSummary([
   ledgerEntry("income", 20000, "订单", { source: "order", at: 10 }),
@@ -64,7 +74,7 @@ const report = reportSummary([
 assert.equal(report.income, 28000);
 assert.equal(report.expense, 5000);
 assert.equal(report.net, 23000);
-assert.ok(report.sources.order > report.sources.livestream);
+assert.ok(report.incomeSources.order > report.incomeSources.livestream);
 assert.equal(report.staleCount, 1);
 assert.ok(report.advice.length >= 1);
 
