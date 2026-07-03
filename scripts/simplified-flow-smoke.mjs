@@ -40,6 +40,17 @@ for (const [pattern, message] of serverExpectations) {
   if (!pattern.test(server)) throw new Error(message);
 }
 
+const publicStoneStart = server.indexOf("function publicStone");
+const publicListingStart = server.indexOf("function publicListing");
+const publicStoneBody = server.slice(publicStoneStart, publicListingStart);
+if (!/function publicWindowReveal\b/.test(server)) {
+  throw new Error("server should whitelist public window reveal fields");
+}
+
+if (/windows:\s*item\.windows\s*\|\|\s*\[\]/.test(publicStoneBody)) {
+  throw new Error("publicStone masked visual should not expose raw item windows");
+}
+
 const forbiddenClientFlow = [
   "cutAnglePlanner",
   "data-angle-slider",

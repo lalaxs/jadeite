@@ -167,6 +167,20 @@ const malformedProxySettled = settleAuctionRound(
 );
 assert.equal(malformedProxySettled.results[0].price, 10000);
 
+const invalidAmountSettled = settleAuctionRound(
+  {
+    id: "invalid-amount-round",
+    roughs: [{ id: "invalid-r1", name: "Invalid amount rough", price: 10000 }],
+    bids: [
+      { playerId: "bad", roughId: "invalid-r1", amount: "bad", proxyMax: 999999, at: 1 },
+      { playerId: "valid", roughId: "invalid-r1", amount: 10000, proxyMax: 10000, at: 10 }
+    ]
+  },
+  { minIncrement: 100 }
+);
+assert.equal(invalidAmountSettled.results[0].winnerId, "valid");
+assert.notEqual(invalidAmountSettled.results[0].depositUsed, 0);
+
 const missingPlayerSettled = settleAuctionRound(
   {
     id: "missing-player-round",
@@ -230,9 +244,9 @@ const settledPrivacyView = publicAuctionSnapshot(
     ],
     bids: [],
     results: [
-      { roughId: "own-r1", winnerId: "p1", status: "won", price: 12000 },
-      { roughId: "other-r1", winnerId: "p2", status: "won", price: 13000 },
-      { roughId: "passed-r1", status: "passed", price: 0 },
+      { roughId: "own-r1", winnerId: "p1", status: "won", price: 12000, depositUsed: 2000, balanceDue: 10000, bids: 2, hidden: true, trueValue: 90000 },
+      { roughId: "other-r1", winnerId: "p2", status: "won", price: 13000, hidden: true },
+      { roughId: "passed-r1", status: "passed", price: 0, hidden: true, trueValue: 40000 },
       { roughId: "malformed-result-r1", status: "won", price: 999999 }
     ]
   },
@@ -240,5 +254,17 @@ const settledPrivacyView = publicAuctionSnapshot(
   2
 );
 assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "passed-r1"]);
+const ownResult = settledPrivacyView.results.find((result) => result.roughId === "own-r1");
+assert.equal(ownResult.winnerId, "p1");
+assert.equal(ownResult.depositUsed, 2000);
+assert.equal(ownResult.balanceDue, 10000);
+assert.equal(ownResult.bids, 2);
+const passedResult = settledPrivacyView.results.find((result) => result.roughId === "passed-r1");
+assert.equal(passedResult.status, "passed");
+for (const result of settledPrivacyView.results) {
+  for (const field of ["hidden", "trueValue", "value"]) {
+    assert.equal(Object.hasOwn(result, field), false);
+  }
+}
 
 console.log("Jade sealed auction checks passed");

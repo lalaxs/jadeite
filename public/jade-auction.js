@@ -37,6 +37,30 @@ function publicWindowReveal(win = {}) {
   return safe;
 }
 
+function settlementBidForRough(bid, roughId) {
+  if (!bid?.playerId || bid?.roughId !== roughId) return null;
+  const rawAmount = Number(bid.amount);
+  if (!Number.isFinite(rawAmount) || rawAmount <= 0) return null;
+  const amount = money(rawAmount);
+  if (amount <= 0) return null;
+  const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
+  return {
+    ...bid,
+    amount,
+    proxyMax,
+    at: settlementTime(bid.at)
+  };
+}
+
+function publicAuctionResult(result, playerId) {
+  const safe = {};
+  for (const field of ["roughId", "status", "price", "depositUsed", "balanceDue", "bids", "ai"]) {
+    if (result[field] !== undefined) safe[field] = result[field];
+  }
+  if (result.winnerId === playerId) safe.winnerId = result.winnerId;
+  return safe;
+}
+
 function publicRoughForAuction(rough) {
   const visual = rough.visual || {};
   const rawWindows = rough.windows ?? visual.windows;
@@ -123,16 +147,7 @@ export function aiBidsForRough(rough, existingBids = [], minBidderCount = 3) {
 export function settleAuctionRound(round, options = {}) {
   const minIncrement = money(options.minIncrement ?? 100);
   const results = (round.roughs || []).map((rough) => {
-    const bids = (round.bids || []).filter((bid) => bid?.playerId && bid?.roughId === rough.id).map((bid) => {
-      const amount = money(bid.amount);
-      const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
-      return {
-        ...bid,
-        amount,
-        proxyMax,
-        at: settlementTime(bid.at)
-      };
-    }).sort((a, b) => {
+    const bids = (round.bids || []).map((bid) => settlementBidForRough(bid, rough.id)).filter(Boolean).sort((a, b) => {
       const maxDiff = b.proxyMax - a.proxyMax;
       return maxDiff || a.at - b.at;
     });
@@ -176,6 +191,10 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
         deposit: bidDeposit(bid.amount),
         at: bid.at
       })),
-    results: phase === "settled" ? (round?.results || []).filter((result) => result.winnerId === playerId || result.status === "passed") : []
+    results: phase === "settled"
+      ? (round?.results || [])
+        .filter((result) => result.winnerId === playerId || result.status === "passed")
+        .map((result) => publicAuctionResult(result, playerId))
+      : []
   };
 }

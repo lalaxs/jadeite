@@ -68,23 +68,36 @@ function publicPlayer(player) {
   };
 }
 
+function publicWindowReveal(win = {}) {
+  const safe = {};
+  for (const field of ["id", "x", "y", "r", "seed", "skin", "vein", "hasBelt", "hasCrack"]) {
+    if (win[field] !== undefined) safe[field] = win[field];
+  }
+  return safe;
+}
+
 function publicStone(item) {
   if (!item || typeof item !== "object") return item;
   const { trueQualityKey, visual, ...safeItem } = item;
+  if (Array.isArray(safeItem.windows)) safeItem.windows = safeItem.windows.map(publicWindowReveal);
   const isRough = item.type === "rough" || Boolean(item.trueQualityKey);
   if (isRough && !item.revealed) {
+    const rawWindows = item.windows ?? visual?.windows;
+    const windows = Array.isArray(rawWindows) ? rawWindows.map(publicWindowReveal) : [];
+    safeItem.windows = windows;
     safeItem.hint = item.publicHint || `${item.name} · 只见皮壳轮廓`;
     safeItem.visual = {
       seed: visual?.seed,
       shape: visual?.shape,
       masked: true,
       maskTone: visual?.skinRoughness > 0.72 ? "#343936" : "#5b5f59",
-      windows: item.windows || []
+      windows
     };
     return safeItem;
   }
   if (visual) {
     const { bestAngle, ...safeVisual } = visual;
+    if (Array.isArray(safeVisual.windows)) safeVisual.windows = safeVisual.windows.map(publicWindowReveal);
     safeItem.visual = safeVisual;
   }
   return safeItem;
