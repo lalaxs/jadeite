@@ -29,10 +29,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
-const POLISH_FEE = 620;
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
 const TIMING = resolveTiming(TIMING_PROFILE);
-const POLISH_DURATION_MS = productionDuration("rough", TIMING_PROFILE);
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -126,7 +124,7 @@ function publicPlayer(player) {
     rep: Math.round(player.rep),
     satisfaction: Math.round(player.satisfaction),
     collectionPower: player.collection.reduce((sum, item) => sum + item.rep, 0),
-    inventoryCount: player.rough.length + player.polishingJobs.length + player.materials.length + player.slices.length + player.bracelets.length,
+    inventoryCount: player.rough.length + player.jobs.length + player.polishingJobs.length + player.materials.length + player.slices.length + player.bracelets.length,
     collectionCount: player.collection.length
   };
 }
@@ -193,16 +191,21 @@ function publicListing(listing) {
   };
 }
 
+function publicProductionJob(job) {
+  const { item, rough, ...safeJob } = job;
+  if (item) safeJob.item = publicStone(item);
+  if (rough) safeJob.rough = publicStone(rough);
+  return safeJob;
+}
+
 function privatePlayerSnapshot(player) {
   normalizePlayer(player);
   refreshPlayerReport(player);
   return {
     ...player,
+    jobs: player.jobs.map(publicProductionJob),
     rough: player.rough.map(publicStone),
-    polishingJobs: player.polishingJobs.map((job) => ({
-      ...job,
-      rough: publicStone(job.rough)
-    })),
+    polishingJobs: player.polishingJobs.map(publicProductionJob),
     materials: player.materials.map(publicStone),
     slices: player.slices.map(publicStone),
     bracelets: player.bracelets.map(publicStone),
@@ -469,6 +472,12 @@ function makePlayer(playerId) {
     lastSeenAt: Date.now(),
     reports: [],
     rough: [],
+    jobs: [],
+    externalMaterials: {
+      silverMount: 2,
+      goldMount: 0,
+      diamondChips: 0
+    },
     polishingJobs: [],
     materials: [],
     slices: [],
@@ -488,6 +497,8 @@ function normalizePlayer(player) {
   player.cash = Number.isFinite(Number(player.cash)) ? Number(player.cash) : 30000;
   player.rep = Number.isFinite(Number(player.rep)) ? Number(player.rep) : 0;
   player.rough ||= [];
+  player.jobs ||= [];
+  player.externalMaterials ||= { silverMount: 0, goldMount: 0, diamondChips: 0 };
   player.polishingJobs ||= player.cuttingJobs || [];
   player.cuttingJobs = [];
   player.materials ||= [];
@@ -585,6 +596,85 @@ function takeItem(player, type, itemId) {
   const index = bucket.findIndex((item) => item.id === itemId);
   if (index < 0) return null;
   return bucket.splice(index, 1)[0];
+}
+
+function startProductionJob(player, stage, item, options = {}) {
+  const stageCost = { rough: 620, refine: 900, inlay: 480 }[stage] || 620;
+  if (!spendCash(player, stageCost, `${options.label || stage}：${item.name}`, { source: "production", itemId: item.id })) {
+    return null;
+  }
+  const now = Date.now();
+  const job = {
+    id: randomUUID(),
+    type: "productionJob",
+    stage,
+    item,
+    options,
+    fee: stageCost,
+    startedAt: now,
+    readyAt: now + productionDuration(stage, TIMING_PROFILE)
+  };
+  player.jobs.push(job);
+  return job;
+}
+
+function extractProductsFromJob(job) {
+  const rough = job.item;
+  const normalizedKits = normalizeExtractionKits(job.options?.kits || []);
+  const placements = expandKitPlacements(normalizedKits);
+  const totalSlots = Math.max(1, placements.length);
+  const valueBase = Math.max(rough.value || rough.price, rough.price) / Math.max(2, totalSlots + 1);
+  return placements.map((placement) => {
+    const placementScore = scoreRoughPlacement(rough, placement);
+    const productMeta = kitProductMeta(placement);
+    return {
+      id: randomUUID(),
+      type: "bracelet",
+      kind: placement.layout,
+      name: `${rough.quality}${rough.color}${productMeta.label}`,
+      qualityKey: rough.qualityKey,
+      quality: rough.quality,
+      score: rough.score,
+      color: rough.color,
+      design: productMeta.label,
+      value: money(valueBase * productMeta.mult * placementScore),
+      rep: Math.max(1, Math.round((rough.rep * productMeta.rep * 0.35 + rough.score * 2) * clamp(placementScore, 0.72, 1.18))),
+      count: productMeta.count,
+      sourceRoughId: rough.id,
+      plan: placement,
+      sourceMaterial: {
+        roughId: rough.id,
+        roughName: rough.name,
+        visual: rough.visual,
+        windows: rough.windows || [],
+        placement,
+        templateSize: { w: placement.templateSize?.w, h: placement.templateSize?.h },
+        mass: rough.mass,
+        qualityKey: rough.qualityKey,
+        color: rough.color
+      },
+      placementScore: Math.round(placementScore * 100)
+    };
+  });
+}
+
+function completeProductionJob(player, job) {
+  if (job.stage === "rough") {
+    const polished = revealPolishedRough(job.item);
+    polished.stage = "material";
+    player.rough.push(polished);
+    player.rep += Math.max(1, Math.round(polished.rep * 0.45));
+    return { text: `${polished.name} 粗加工完成`, item: polished };
+  }
+  if (job.stage === "refine") {
+    const products = extractProductsFromJob(job);
+    player.bracelets.push(...products);
+    player.stats.craftCount += products.length;
+    return { text: `${job.item.name} 精加工完成`, item: job.item };
+  }
+  const finished = { ...job.item, inlaid: true, value: money((job.item.value || 0) * 1.18), name: `${job.item.name}镶嵌款` };
+  player.bracelets.push(finished);
+  return { text: `${finished.name} 镶嵌完成`, item: finished };
 }
 
 function addItem(player, item) {
@@ -1013,40 +1103,75 @@ function processCuttingJobs() {
   if (changed) broadcast();
 }
 
-function processPolishingJobs() {
+function normalizeProductionJob(job) {
+  if (job?.stage && job.item) return job;
+  if (job?.rough) {
+    return {
+      ...job,
+      type: "productionJob",
+      stage: "rough",
+      item: job.rough,
+      options: { label: "粗加工", ...(job.options || {}) }
+    };
+  }
+  return job;
+}
+
+function settleProductionJobsForPlayer(player, now = Date.now()) {
+  normalizePlayer(player);
+  const events = [];
+  const readyJobs = player.jobs.filter((job) => job.readyAt <= now);
+  const readyLegacyJobs = player.polishingJobs.filter((job) => job.readyAt <= now);
+  if (!readyJobs.length && !readyLegacyJobs.length) return events;
+
+  player.jobs = player.jobs.filter((job) => job.readyAt > now);
+  player.polishingJobs = player.polishingJobs.filter((job) => job.readyAt > now);
+
+  for (const rawJob of [...readyJobs, ...readyLegacyJobs]) {
+    const job = normalizeProductionJob(rawJob);
+    if (!job?.item) continue;
+    const result = completeProductionJob(player, job);
+    events.push({ type: "production", text: result.text, income: 0, expense: 0, readyAt: job.readyAt });
+    addNews(`${player.name} 的 ${result.text}。`, job.stage === "rough" && result.item?.score >= 4 ? "great" : "craft");
+  }
+
+  refreshPlayerReport(player, now);
+  return events;
+}
+
+function processProductionJobs(now = Date.now(), options = {}) {
+  const onlineOnly = options.onlineOnly !== false;
+  let changed = false;
+  for (const player of state.players.values()) {
+    normalizePlayer(player);
+    if (onlineOnly && !isPlayerOnline(player)) continue;
+    const events = settleProductionJobsForPlayer(player, now);
+    if (events.length) changed = true;
+  }
+  if (changed) broadcast();
+  return changed;
+}
+
+function processPolishingJobs(now = Date.now()) {
   let changed = false;
   for (const player of state.players.values()) {
     normalizePlayer(player);
     if (!isPlayerOnline(player)) continue;
-    const ready = player.polishingJobs.filter((job) => job.readyAt <= Date.now());
-    if (!ready.length) continue;
-    player.polishingJobs = player.polishingJobs.filter((job) => job.readyAt > Date.now());
-    ready.forEach((job) => {
-      const polished = revealPolishedRough(job.rough);
-      player.rough.push(polished);
-      player.rep += Math.max(1, Math.round(polished.rep * 0.45));
-      addNews(`${player.name} 完成 ${polished.name} 全料打磨，料性完全揭露。`, polished.score >= 4 ? "great" : "craft");
-    });
-    changed = true;
+    const events = settleProductionJobsForPlayer(player, now);
+    if (events.length) changed = true;
   }
   if (changed) broadcast();
+  return changed;
 }
 
 function settleOfflinePlayer(player, now = Date.now()) {
   normalizePlayer(player);
   const offlineSince = player.lastSeenAt || now;
   const events = [];
-  const ready = player.polishingJobs.filter((job) => job.readyAt <= now);
-  if (ready.length) {
-    player.polishingJobs = player.polishingJobs.filter((job) => job.readyAt > now);
-    for (const job of ready) {
-      const polished = revealPolishedRough(job.rough);
-      player.rough.push(polished);
-      player.rep += Math.max(1, Math.round(polished.rep * 0.45));
-      if (job.readyAt > offlineSince && job.readyAt <= now) {
-        events.push({ type: "production", text: `${polished.name} 加工完成`, income: 0, expense: 0 });
-      }
-      addNews(`${player.name} 完成 ${polished.name} 加工，料性完全揭露。`, polished.score >= 4 ? "great" : "craft");
+  const productionEvents = settleProductionJobsForPlayer(player, now);
+  for (const event of productionEvents) {
+    if (event.readyAt > offlineSince && event.readyAt <= now) {
+      events.push({ type: "production", text: event.text, income: 0, expense: 0 });
     }
   }
   player.orders = player.orders.filter((order) => order.expiresAt > now);
@@ -1112,19 +1237,12 @@ io.on("connection", (socket) => {
       player.rough.push(rough);
       return socket.emit("toast", "这块料已经全料打磨完成。");
     }
-    if (!spendCash(player, POLISH_FEE, `粗加工：${rough.name}`, { source: "production", itemId: rough.id })) {
+    const job = startProductionJob(player, "rough", rough, { label: "粗加工" });
+    if (!job) {
       player.rough.push(rough);
-      return socket.emit("toast", "加工费不够。");
+      return socket.emit("toast", "粗加工费用不够。");
     }
-    player.polishingJobs.push({
-      id: randomUUID(),
-      type: "polishingJob",
-      rough,
-      fee: POLISH_FEE,
-      startedAt: Date.now(),
-      readyAt: Date.now() + POLISH_DURATION_MS
-    });
-    addNews(`${player.name} 将 ${rough.name} 送入工坊全料打磨。`, "craft");
+    addNews(`${player.name} 将 ${rough.name} 送入粗加工。`, "craft");
     broadcast();
   });
 
@@ -1164,51 +1282,15 @@ io.on("connection", (socket) => {
       player.rough.push(rough);
       return socket.emit("toast", "套件位置互相重叠，重新摆一下。");
     }
-    const craftCost = normalizedKits.reduce((sum, kit) => sum + (EXTRACTION_KITS[kit.type]?.cost || 580), 0);
-    if (!spendCash(player, craftCost, `取件加工：${rough.name}`, { source: "production", itemId: rough.id })) {
+    const job = startProductionJob(player, "refine", rough, { label: "精加工", kits: normalizedKits });
+    if (!job) {
       player.rough.push(rough);
-      return socket.emit("toast", "取手镯加工费不够。");
+      return socket.emit("toast", "精加工费用不够。");
     }
-    const totalSlots = existingPlacements.length + placements.length;
-    const valueBase = Math.max(rough.value || rough.price, rough.price) / Math.max(2, totalSlots + 1);
-    const products = placements.map((placement) => {
-      const placementScore = scoreRoughPlacement(rough, placement);
-      const productMeta = kitProductMeta(placement);
-      return {
-        id: randomUUID(),
-        type: "bracelet",
-        kind: placement.layout,
-        name: `${rough.quality}${rough.color}${productMeta.label}`,
-        qualityKey: rough.qualityKey,
-        quality: rough.quality,
-        score: rough.score,
-        color: rough.color,
-        design: productMeta.label,
-        value: money(valueBase * productMeta.mult * placementScore * (0.92 + Math.random() * 0.18)),
-        rep: Math.max(1, Math.round((rough.rep * productMeta.rep * 0.35 + rough.score * 2) * clamp(placementScore, 0.72, 1.18))),
-        count: productMeta.count,
-        sourceRoughId: rough.id,
-        plan: placement,
-        sourceMaterial: {
-          roughId: rough.id,
-          roughName: rough.name,
-          visual: rough.visual,
-          windows: rough.windows || [],
-          placement,
-          templateSize: { w: placement.templateSize?.w, h: placement.templateSize?.h },
-          mass: rough.mass,
-          qualityKey: rough.qualityKey,
-          color: rough.color
-        },
-        placementScore: Math.round(placementScore * 100)
-      };
-    });
     rough.extractionKits = [...existingKits, ...normalizedKits].slice(0, 10);
     rough.braceletPlacements = rough.extractionKits;
-    player.rough.push(rough);
-    player.bracelets.push(...products);
-    player.stats.craftCount += products.length;
-    addNews(`${player.name} 从 ${rough.name} 按套件取出 ${products.length} 件成品。`, "craft");
+    job.item = rough;
+    addNews(`${player.name} 为 ${rough.name} 安排 ${normalizedKits.length} 件精加工。`, "craft");
     broadcast();
   });
 
@@ -1369,7 +1451,7 @@ function startServer() {
     broadcast();
   }, 25000);
 
-  setInterval(processPolishingJobs, 1000);
+  setInterval(processProductionJobs, 1000);
 
   return httpServer.listen(PORT, () => {
     console.log(`Jade Market Prototype running at http://localhost:${PORT}`);
@@ -1391,6 +1473,10 @@ export const __testHooks = {
   ensureAuctionRound,
   settleAuctionIfDue,
   snapshotFor,
+  startProductionJob,
+  completeProductionJob,
+  extractProductsFromJob,
+  processProductionJobs,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,

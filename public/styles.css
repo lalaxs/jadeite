@@ -816,6 +816,15 @@ select {
   gap: 10px;
 }
 
+.machine-top > div {
+  min-width: 0;
+}
+
+.machine-top strong,
+.machine-top .item-meta {
+  overflow-wrap: anywhere;
+}
+
 .machine-track {
   height: 8px;
   overflow: hidden;

@@ -149,6 +149,18 @@ function sumValue(items) {
   return items.reduce((sum, item) => sum + Number(item.value || item.price || 0), 0);
 }
 
+function productionJobsFor(me) {
+  return [
+    ...(me.jobs || []),
+    ...(me.polishingJobs || []).map((job) => ({
+      ...job,
+      stage: "rough",
+      item: job.item || job.rough,
+      options: { label: "粗加工", ...(job.options || {}) }
+    }))
+  ].filter((job) => job.item);
+}
+
 function currentReportSummary() {
   const me = state?.me || {};
   return me.reports?.[0] || reportSummary(me.ledger || [], [
@@ -525,7 +537,7 @@ function renderOverview() {
 
 function renderNextActions() {
   const { me } = state;
-  const polishingJobs = me.polishingJobs || [];
+  const productionJobs = productionJobsFor(me);
   const sealed = me.rough.filter((rough) => !rough.revealed);
   const revealed = me.rough.filter((rough) => rough.revealed);
   const completable = me.orders.filter((order) => matchingBracelets(order).length >= order.quantity);
@@ -540,8 +552,8 @@ function renderNextActions() {
     primary.push({ tone: "profit", title: "处理成品库存", meta: `${me.bracelets.length} 只手镯可接单、收藏、直播或挂牌`, action: viewButton("看成品", "workshop") });
   } else if (revealed.length) {
     primary.push({ tone: "craft", title: "在已揭露原料上取手镯", meta: `${revealed.length} 块料可直接摆放圈口取件`, action: viewButton("去取镯", "workshop") });
-  } else if (polishingJobs.length) {
-    primary.push({ tone: "craft", title: "全料打磨正在进行", meta: `${polishingJobs.length} 块原料等待揭露`, action: viewButton("看工坊", "workshop") });
+  } else if (productionJobs.length) {
+    primary.push({ tone: "craft", title: "加工正在进行", meta: `${productionJobs.length} 件粗加工、精加工或镶嵌等待完成`, action: viewButton("看工坊", "workshop") });
   } else if (sealed.length) {
     primary.push({ tone: "risk", title: "拍下的原料还没揭露", meta: `${sealed.length} 块原料需要全料打磨`, action: viewButton("去打磨", "workshop", "warn") });
   } else if (affordable.length) {
@@ -567,12 +579,12 @@ function renderNextActions() {
 
 function renderPipeline() {
   const { me } = state;
-  const polishingJobs = me.polishingJobs || [];
+  const productionJobs = productionJobsFor(me);
   const sealed = me.rough.filter((rough) => !rough.revealed);
   const revealed = me.rough.filter((rough) => rough.revealed);
   const stages = [
     ["暗料", sealed.length, sumValue(sealed), "待打磨"],
-    ["打磨", polishingJobs.length, sumValue(polishingJobs.map((job) => job.rough)), "等待揭露"],
+    ["加工", productionJobs.length, sumValue(productionJobs.map((job) => job.item)), "粗加工/精加工/镶嵌"],
     ["明料", revealed.length, sumValue(revealed), "可取镯"],
     ["成品", me.bracelets.length, sumValue(me.bracelets), "可变现"],
     ["藏品", me.collection.length, sumValue(me.collection), "涨声望"]
@@ -626,19 +638,20 @@ function renderAuction() {
 
 function renderWorkshop() {
   const { me } = state;
-  const polishingJobs = me.polishingJobs || [];
+  const productionJobs = productionJobsFor(me);
   const sealed = me.rough.filter((rough) => !rough.revealed);
   const revealed = me.rough.filter((rough) => rough.revealed);
-  els.roughCount.textContent = `${sealed.length}+${polishingJobs.length}`;
+  els.roughCount.textContent = `${sealed.length}+${productionJobs.length}`;
   els.materialCount.textContent = revealed.length;
   els.braceletCount.textContent = me.bracelets.length;
 
-  const jobRows = polishingJobs.map((job) => {
+  const productionRows = productionJobs.map((job) => {
     const remain = Math.max(0, Math.ceil((job.readyAt - Date.now()) / 1000));
     const progress = Math.min(100, Math.round((Date.now() - job.startedAt) / Math.max(1, job.readyAt - job.startedAt) * 100));
+    const label = { rough: "粗加工", refine: "精加工", inlay: "镶嵌" }[job.stage] || "加工";
     return `
       <div class="item-row machine-row">
-        <div class="machine-top">${stoneSvg(job.rough, "small")}<div><strong>${escapeHtml(job.rough.name)}</strong><p class="item-meta">全料打磨 · ${remain ? `还需 ${remain} 秒` : "即将揭露"}</p></div></div>
+        <div class="machine-top"><div><strong>${label}</strong><p class="item-meta">${escapeHtml(job.item.name)} · 还需 ${remain} 秒</p></div></div>
         <div class="machine-track"><span style="width:${progress}%"></span></div>
       </div>
     `;
@@ -651,11 +664,11 @@ function renderWorkshop() {
         <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">${formatMoney(item.price)}</span></div>
         <p class="item-meta">${escapeHtml(item.hint)} · ${item.mass}kg · 已开窗 ${item.visual?.windows?.length || 0} 处</p>
         <div class="row-actions">
-          <button class="warn" data-action="startPolish" data-payload="${item.id}">全料打磨 ¥620</button>
+          <button class="warn" data-action="startPolish" data-payload="${item.id}">粗加工 ¥620</button>
         </div>
       </div>
     `),
-    ...jobRows
+    ...productionRows
   ].join("") || empty("还没有原石，先去公盘拍一块。");
 
   els.materialInventory.innerHTML = revealed.map((item) => {

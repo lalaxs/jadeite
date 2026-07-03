@@ -12,9 +12,12 @@ const {
   ensureAuctionRound,
   settleAuctionIfDue,
   snapshotFor,
+  startProductionJob,
+  processProductionJobs,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,
+  revealPolishedRough,
   state
 } = __testHooks;
 
@@ -133,6 +136,68 @@ assert.equal(isPlayerOnline(realtimePlayer), true);
 processPolishingJobs();
 assert.equal(realtimePlayer.polishingJobs.length, 0);
 assert.equal(realtimePlayer.rough.length, 1);
+
+resetState();
+
+const stagedOfflinePlayer = makePlayer("staged-offline-player");
+normalizePlayer(stagedOfflinePlayer);
+stagedOfflinePlayer.lastSeenAt = 4_000;
+const stagedOfflineJob = startProductionJob(stagedOfflinePlayer, "rough", testRough("staged-offline-rough"), { label: "粗加工" });
+assert.ok(stagedOfflineJob);
+stagedOfflineJob.startedAt = 2_000;
+stagedOfflineJob.readyAt = 7_000;
+const stagedOfflineEvents = settleOfflinePlayer(stagedOfflinePlayer, offlineNow);
+assert.equal(stagedOfflineEvents.length, 1);
+assert.equal(stagedOfflinePlayer.jobs.length, 0);
+assert.equal(stagedOfflinePlayer.rough.length, 1);
+assert.equal(stagedOfflinePlayer.rough[0].revealed, true);
+assert.equal(stagedOfflinePlayer.offlineSummary.count, 1);
+
+resetState();
+
+const stagedRealtimePlayer = makePlayer("staged-realtime-player");
+normalizePlayer(stagedRealtimePlayer);
+state.players.set(stagedRealtimePlayer.id, stagedRealtimePlayer);
+const stagedRealtimeJob = startProductionJob(stagedRealtimePlayer, "rough", testRough("staged-realtime-rough"), { label: "粗加工" });
+stagedRealtimeJob.readyAt = Date.now() - 1;
+processProductionJobs();
+assert.equal(stagedRealtimePlayer.jobs.length, 1);
+assert.equal(stagedRealtimePlayer.rough.length, 0);
+state.sockets.set("socket-staged", stagedRealtimePlayer.id);
+processProductionJobs();
+assert.equal(stagedRealtimePlayer.jobs.length, 0);
+assert.equal(stagedRealtimePlayer.rough.length, 1);
+
+resetState();
+
+const refinePlayer = makePlayer("refine-player");
+normalizePlayer(refinePlayer);
+state.players.set(refinePlayer.id, refinePlayer);
+state.sockets.set("socket-refine", refinePlayer.id);
+const revealedRough = revealPolishedRough(testRough("refine-rough"));
+const refineJob = startProductionJob(refinePlayer, "refine", revealedRough, {
+  label: "精加工",
+  kits: [{ id: "kit-a", type: "bangle", x: 50, y: 50, ringSize: 56 }]
+});
+assert.ok(refineJob);
+refineJob.readyAt = Date.now() - 1;
+processProductionJobs();
+assert.equal(refinePlayer.jobs.length, 0);
+assert.equal(refinePlayer.bracelets.length, 1);
+assert.equal(refinePlayer.bracelets[0].sourceRoughId, revealedRough.id);
+assert.equal(refinePlayer.reports.length, 1);
+
+resetState();
+
+const jobPrivacyPlayer = makePlayer("job-privacy-player");
+normalizePlayer(jobPrivacyPlayer);
+state.players.set(jobPrivacyPlayer.id, jobPrivacyPlayer);
+const privateJob = startProductionJob(jobPrivacyPlayer, "rough", testRough("private-job-rough"), { label: "粗加工" });
+assert.ok(privateJob);
+const privateJobSnapshot = snapshotFor(jobPrivacyPlayer);
+assert.equal(privateJobSnapshot.me.jobs.length, 1);
+assert.equal(Object.hasOwn(privateJobSnapshot.me.jobs[0].item, "trueQualityKey"), false);
+assert.equal(Object.hasOwn(privateJobSnapshot.me.jobs[0].item, "trueValue"), false);
 
 resetState();
 

@@ -456,4 +456,18 @@ if (!/canRequestWindow\s*=\s*auction\?\.phase\s*===\s*"bidding"/.test(main) || !
   throw new Error("main.js should disable public window requests outside auction bidding");
 }
 
+const productionExpectations = [
+  [/jobs\s*:\s*\[\]/, "player state should include staged production jobs"],
+  [/startProductionJob/, "server should expose startProductionJob"],
+  [/completeProductionJob/, "server should complete staged production jobs"],
+  [/productionDuration/, "server should use shared production durations"],
+  [/粗加工/, "UI should show rough processing stage"],
+  [/精加工/, "UI should show refine processing stage"],
+  [/镶嵌/, "UI should show inlay processing stage"]
+];
+
+for (const [pattern, message] of productionExpectations) {
+  if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");
