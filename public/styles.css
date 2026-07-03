@@ -288,6 +288,46 @@ select {
   margin-top: 14px;
 }
 
+.offline-summary {
+  margin: 14px 0 12px;
+  padding-bottom: 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 26px rgba(17, 86, 70, 0.14);
+}
+
+.offline-summary .panel-head {
+  min-height: 42px;
+}
+
+.offline-totals,
+.offline-lines {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 0 14px;
+}
+
+.offline-totals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.offline-totals span {
+  border: 1px solid rgba(31, 155, 114, 0.18);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--jade-dark);
+  background: #edf8f2;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.offline-lines p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .action-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -639,6 +679,27 @@ select {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
+}
+
+.bid-controls {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bid-controls label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bid-controls input {
+  min-height: 32px;
+}
+
+.bid-controls button {
+  width: 100%;
 }
 
 .cut-board,

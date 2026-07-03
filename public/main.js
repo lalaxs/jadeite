@@ -84,6 +84,7 @@ const els = {
   satSignal: document.querySelector("#satSignal"),
   collection: document.querySelector("#collectionText"),
   collectionSignal: document.querySelector("#collectionSignal"),
+  offlineSummary: document.querySelector("#offlineSummary"),
   nextActions: document.querySelector("#nextActions"),
   pipeline: document.querySelector("#pipelineList"),
   players: document.querySelector("#playersList"),
@@ -161,17 +162,18 @@ function currentReportSummary() {
 function renderOfflineSummary() {
   const summary = state?.me?.offlineSummary;
   if (!summary || !Number(summary.count)) return "";
-  const lines = Array.isArray(summary.lines) ? summary.lines.slice(0, 3) : [];
-  const flow = [
-    summary.income ? `收入 ${formatMoney(summary.income)}` : "",
-    summary.expense ? `支出 ${formatMoney(summary.expense)}` : ""
-  ].filter(Boolean).join(" · ") || "无现金变动";
-  const detail = lines.length ? `${flow} · ${lines.map(escapeHtml).join(" · ")}` : flow;
+  const lines = Array.isArray(summary.lines) ? summary.lines : [];
   return `
-    <article class="action-card craft">
-      <div><h4>离线进展 ${Number(summary.count)} 项</h4><p>${detail}</p></div>
-      ${viewButton("看工坊", "workshop", "secondary")}
-    </article>
+    <section class="panel offline-summary">
+      <div class="panel-head"><h3>离线结算</h3><span>${Number(summary.count)} 件事已完成</span></div>
+      <div class="offline-totals">
+        <span>收入 ${formatMoney(summary.income)}</span>
+        <span>支出 ${formatMoney(summary.expense)}</span>
+      </div>
+      <div class="offline-lines">
+        ${lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -244,13 +246,15 @@ function renderAuctionBidControls(rough) {
   const bid = myBidFor(rough.id);
   const canBid = state.auction?.phase === "bidding";
   const disabled = canBid ? "" : "disabled";
+  const amount = bid?.amount || rough.price;
+  const proxyMax = bid?.proxyMax || bid?.amount || Math.round(rough.price * 1.18);
   return `
     <div class="bid-controls">
       <label>密封投标
-        <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.amount || rough.price}" ${disabled}>
+        <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${amount}" ${disabled}>
       </label>
       <label>代理上限
-        <input data-proxy-max="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.proxyMax || bid?.amount || rough.price}" ${disabled}>
+        <input data-proxy-max="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${proxyMax}" ${disabled}>
       </label>
       <button data-action="submitAuctionBid" data-payload="${escapeHtml(rough.id)}" ${disabled}>${bid ? "修改暗标" : "提交暗标"}</button>
     </div>
@@ -498,6 +502,7 @@ function paintJades() {
 }
 
 function renderOverview() {
+  els.offlineSummary.innerHTML = renderOfflineSummary();
   renderNextActions();
   renderPipeline();
   els.players.innerHTML = state.players.map((player, index) => `
@@ -552,12 +557,12 @@ function renderNextActions() {
     meta: `收入 ${formatMoney(report.income)} · 支出 ${formatMoney(report.expense)} · 净额 ${formatMoney(report.net)}`,
     action: ""
   });
-  els.nextActions.innerHTML = `${renderOfflineSummary()}${primary.map((item) => `
+  els.nextActions.innerHTML = primary.map((item) => `
     <article class="action-card ${item.tone}">
       <div><h4>${escapeHtml(item.title)}</h4><p>${escapeHtml(item.meta)}</p></div>
       ${item.action}
     </article>
-  `).join("")}`;
+  `).join("");
 }
 
 function renderPipeline() {

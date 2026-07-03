@@ -410,6 +410,21 @@ if (/data-action="buyRough"/.test(main)) {
   throw new Error("main.js should no longer expose direct buyRough auction purchase buttons");
 }
 
+const auctionUiExpectations = [
+  [/function renderOfflineSummary/, "main.js should render offline summary cards"],
+  [/function renderAuctionBidControls/, "main.js should render sealed bid controls"],
+  [/data-bid-amount/, "auction cards should include bid amount inputs"],
+  [/data-proxy-max/, "auction cards should include proxy max inputs"],
+  [/submitAuctionBid/, "auction controls should emit submitAuctionBid"],
+  [/代理上限/, "auction UI should label proxy bidding"],
+  [/密封投标/, "auction UI should communicate sealed bidding"],
+  [/开标/, "auction UI should show settlement language"]
+];
+
+for (const [pattern, message] of auctionUiExpectations) {
+  if (!pattern.test(main)) throw new Error(message);
+}
+
 for (const token of ["submitAuctionBid", "代理上限", "提交暗标", "myBids"]) {
   if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
 }
