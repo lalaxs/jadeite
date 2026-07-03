@@ -9,6 +9,7 @@ const {
   settleOfflinePlayer,
   submitAuctionBidForPlayer,
   requestAuctionWindowForPlayer,
+  ensureAuctionRound,
   settleAuctionIfDue,
   snapshotFor,
   processPolishingJobs,
@@ -246,6 +247,25 @@ assert.equal(settleAuctionIfDue(2_000), true);
 assert.equal(state.auction.results[0].status, "passed");
 assert.equal(state.auction.results[0].winnerId, undefined);
 assert.equal(state.roughPool.some((rough) => rough.id === lowAiRough.id), true);
+
+resetState();
+
+const generatedViewer = makePlayer("generated-viewer");
+normalizePlayer(generatedViewer);
+state.players.set(generatedViewer.id, generatedViewer);
+const generatedRound = ensureAuctionRound(50_000);
+const generatedIds = generatedRound.roughs.map((rough) => rough.id);
+assert.equal(generatedIds.length, 8);
+const generatedSnapshot = snapshotFor(generatedViewer, generatedRound.startsAt + 1);
+for (const rough of [...generatedSnapshot.roughPool, ...generatedSnapshot.auction.roughs]) {
+  assert.equal(Object.hasOwn(rough, "trueValue"), false);
+}
+assert.equal(settleAuctionIfDue(generatedRound.biddingEndsAt), true);
+assert.ok(state.auction.results.some((result) => result.status === "aiWon"));
+state.auction = null;
+const nextGeneratedRound = ensureAuctionRound(generatedRound.biddingEndsAt + 10_000);
+const nextGeneratedIds = nextGeneratedRound.roughs.map((rough) => rough.id);
+assert.ok(generatedIds.some((id) => !nextGeneratedIds.includes(id)));
 
 resetState();
 

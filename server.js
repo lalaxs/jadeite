@@ -160,7 +160,7 @@ function publicSourceMaterial(sourceMaterial = {}) {
 
 function publicStone(item) {
   if (!item || typeof item !== "object") return item;
-  const { trueQualityKey, visual, ...safeItem } = item;
+  const { trueQualityKey, trueValue, visual, ...safeItem } = item;
   if (Array.isArray(safeItem.windows)) safeItem.windows = safeItem.windows.map(publicWindowReveal);
   if (safeItem.sourceMaterial) safeItem.sourceMaterial = publicSourceMaterial(safeItem.sourceMaterial);
   const isRough = item.type === "rough" || Boolean(item.trueQualityKey);
@@ -251,13 +251,15 @@ function makeRoughStone() {
   const visibleQuality = qualities.find((item) => item.score === visibleScore);
   const basePrice = 900 + trueQuality.score * trueQuality.score * 720 + mass * 620;
   const noise = 0.68 + Math.random() * 0.88;
+  const price = money(basePrice * noise);
   return {
     id: randomUUID(),
     name: `${fog}${pick(["木那", "莫湾基", "会卡", "南齐", "后江"])}料`,
     publicHint: `${fog}皮壳 · ${confidence > 0.55 ? "轮廓饱满" : "皮壳起伏"}`,
     hint: `${visibleQuality.name}迹象 · ${confidence > 0.55 ? "皮壳紧致" : "裂纹需细看"}`,
     mass,
-    price: money(basePrice * noise),
+    price,
+    trueValue: money(price * (1.78 + trueQuality.score * 0.04)),
     deposit: money(basePrice * 0.18),
     risk: Math.round((1 - confidence + trueQuality.score * 0.07) * 100),
     expertClues: makeExpertClues(fog, trueQuality, confidence, mass),
