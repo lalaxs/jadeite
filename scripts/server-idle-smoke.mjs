@@ -175,17 +175,32 @@ normalizePlayer(refinePlayer);
 state.players.set(refinePlayer.id, refinePlayer);
 state.sockets.set("socket-refine", refinePlayer.id);
 const revealedRough = revealPolishedRough(testRough("refine-rough"));
+const firstRefineKit = { id: "kit-a", type: "bangle", x: 50, y: 50, ringSize: 56 };
 const refineJob = startProductionJob(refinePlayer, "refine", revealedRough, {
   label: "精加工",
-  kits: [{ id: "kit-a", type: "bangle", x: 50, y: 50, ringSize: 56 }]
+  kits: [firstRefineKit]
 });
 assert.ok(refineJob);
+revealedRough.extractionKits = [firstRefineKit];
+revealedRough.braceletPlacements = revealedRough.extractionKits;
 refineJob.readyAt = Date.now() - 1;
 processProductionJobs();
 assert.equal(refinePlayer.jobs.length, 0);
+assert.equal(refinePlayer.rough.length, 1);
+assert.equal(refinePlayer.rough[0].id, revealedRough.id);
+assert.equal(refinePlayer.rough[0].extractionKits.length, 1);
+assert.equal(refinePlayer.rough[0].braceletPlacements.length, 1);
 assert.equal(refinePlayer.bracelets.length, 1);
 assert.equal(refinePlayer.bracelets[0].sourceRoughId, revealedRough.id);
 assert.equal(refinePlayer.reports.length, 1);
+const secondRefineJob = startProductionJob(refinePlayer, "refine", refinePlayer.rough[0], {
+  label: "精加工",
+  kits: [{ id: "kit-b", type: "cabochon", x: 76, y: 76, ringSize: 56 }]
+});
+assert.ok(secondRefineJob);
+secondRefineJob.readyAt = Date.now() - 1;
+processProductionJobs();
+assert.equal(refinePlayer.rough.filter((rough) => rough.id === revealedRough.id).length, 1);
 
 resetState();
 

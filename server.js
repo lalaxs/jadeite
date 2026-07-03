@@ -622,7 +622,9 @@ function extractProductsFromJob(job) {
   const rough = job.item;
   const normalizedKits = normalizeExtractionKits(job.options?.kits || []);
   const placements = expandKitPlacements(normalizedKits);
-  const totalSlots = Math.max(1, placements.length);
+  const combinedKits = normalizeExtractionKits(rough.extractionKits || rough.braceletPlacements || []);
+  const combinedPlacements = expandKitPlacements(combinedKits.length ? combinedKits : normalizedKits);
+  const totalSlots = Math.max(1, combinedPlacements.length);
   const valueBase = Math.max(rough.value || rough.price, rough.price) / Math.max(2, totalSlots + 1);
   return placements.map((placement) => {
     const placementScore = scoreRoughPlacement(rough, placement);
@@ -658,6 +660,15 @@ function extractProductsFromJob(job) {
   });
 }
 
+function restoreRoughToInventory(player, rough) {
+  const existingIndex = player.rough.findIndex((item) => item.id === rough.id);
+  if (existingIndex >= 0) {
+    player.rough[existingIndex] = { ...player.rough[existingIndex], ...rough };
+    return;
+  }
+  player.rough.push(rough);
+}
+
 function completeProductionJob(player, job) {
   if (job.stage === "rough") {
     const polished = revealPolishedRough(job.item);
@@ -669,6 +680,7 @@ function completeProductionJob(player, job) {
   if (job.stage === "refine") {
     const products = extractProductsFromJob(job);
     player.bracelets.push(...products);
+    restoreRoughToInventory(player, job.item);
     player.stats.craftCount += products.length;
     return { text: `${job.item.name} 精加工完成`, item: job.item };
   }
