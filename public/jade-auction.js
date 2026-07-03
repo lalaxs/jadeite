@@ -11,6 +11,48 @@ function stableNumber(input = "") {
   return hash;
 }
 
+function finiteNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function settlementTime(value) {
+  return value == null ? Number.MAX_SAFE_INTEGER : finiteNumber(value, Number.MAX_SAFE_INTEGER);
+}
+
+function nextAiIndexForRough(rough, roughBids) {
+  const prefix = `ai-${rough.id}-`;
+  return roughBids.reduce((nextIndex, bid) => {
+    if (!bid.ai || typeof bid.playerId !== "string" || !bid.playerId.startsWith(prefix)) return nextIndex;
+    const suffix = Number(bid.playerId.slice(prefix.length));
+    return Number.isInteger(suffix) && suffix >= 0 ? Math.max(nextIndex, suffix + 1) : nextIndex;
+  }, 0);
+}
+
+function publicRoughForAuction(rough) {
+  const visual = rough.visual || {};
+  const windows = rough.windows ?? visual.windows;
+  const publicVisual = {
+    masked: true
+  };
+  if (visual.seed !== undefined) publicVisual.seed = visual.seed;
+  if (visual.shape !== undefined) publicVisual.shape = visual.shape;
+  if (visual.maskTone !== undefined) publicVisual.maskTone = visual.maskTone;
+  if (windows !== undefined) publicVisual.windows = windows;
+  return {
+    id: rough.id,
+    name: rough.name,
+    price: rough.price,
+    deposit: bidDeposit(rough.price),
+    mass: rough.mass,
+    hint: rough.publicHint,
+    risk: rough.risk,
+    expertClues: rough.expertClues,
+    windows,
+    visual: publicVisual
+  };
+}
+
 export function auctionPhase(round, now = Date.now()) {
   if (!round) return "empty";
   if (now < Number(round.startsAt ?? 0)) return "preview";
@@ -25,6 +67,7 @@ export function bidDeposit(amount) {
 export function upsertBid(round, bid) {
   const amount = money(bid.amount);
   const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
+  const atFallback = Date.now();
   const nextRound = {
     ...round,
     bids: (round.bids || []).filter((item) => !(item.playerId === bid.playerId && item.roughId === bid.roughId))
@@ -35,7 +78,7 @@ export function upsertBid(round, bid) {
     roughId: bid.roughId,
     amount,
     proxyMax,
-    at: Number(bid.at ?? Date.now()),
+    at: finiteNumber(bid.at ?? atFallback, atFallback),
     ai: Boolean(bid.ai)
   };
   nextRound.bids.push(nextBid);
@@ -50,10 +93,10 @@ export function upsertBid(round, bid) {
 export function aiBidsForRough(rough, existingBids = [], minBidderCount = 3) {
   const roughBids = existingBids.filter((bid) => bid.roughId === rough.id);
   const current = roughBids.length;
-  const existingAiCount = roughBids.filter((bid) => bid.ai).length;
+  const aiStartIndex = nextAiIndexForRough(rough, roughBids);
   const needed = Math.max(0, minBidderCount - current);
   return Array.from({ length: needed }, (_, index) => {
-    const aiIndex = existingAiCount + index;
+    const aiIndex = aiStartIndex + index;
     const seed = stableNumber(`${rough.id}-${aiIndex}`);
     const ratio = 0.6 + (seed % 36) / 100;
     const amount = money((rough.trueValue ?? rough.value ?? rough.price ?? 0) * ratio);
@@ -71,14 +114,14 @@ export function aiBidsForRough(rough, existingBids = [], minBidderCount = 3) {
 export function settleAuctionRound(round, options = {}) {
   const minIncrement = money(options.minIncrement ?? 100);
   const results = (round.roughs || []).map((rough) => {
-    const bids = (round.bids || []).filter((bid) => bid.roughId === rough.id).map((bid) => {
+    const bids = (round.bids || []).filter((bid) => bid?.playerId && bid?.roughId === rough.id).map((bid) => {
       const amount = money(bid.amount);
       const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
       return {
         ...bid,
         amount,
         proxyMax,
-        at: Number(bid.at ?? 0)
+        at: settlementTime(bid.at)
       };
     }).sort((a, b) => {
       const maxDiff = b.proxyMax - a.proxyMax;
@@ -114,18 +157,7 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
     phase,
     startsAt: round?.startsAt,
     biddingEndsAt: round?.biddingEndsAt,
-    roughs: (round?.roughs || []).map((rough) => ({
-      id: rough.id,
-      name: rough.name,
-      price: rough.price,
-      deposit: bidDeposit(rough.price),
-      mass: rough.mass,
-      hint: rough.hint,
-      risk: rough.risk,
-      expertClues: rough.expertClues,
-      windows: rough.windows,
-      visual: rough.visual
-    })),
+    roughs: (round?.roughs || []).map(publicRoughForAuction),
     myBids: (round?.bids || [])
       .filter((bid) => bid.playerId === playerId)
       .map((bid) => ({
@@ -135,6 +167,6 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
         deposit: bidDeposit(bid.amount),
         at: bid.at
       })),
-    results: phase === "settled" ? (round?.results || []).filter((result) => result.winnerId === playerId || !result.winnerId) : []
+    results: phase === "settled" ? (round?.results || []).filter((result) => result.winnerId === playerId || result.status === "passed") : []
   };
 }

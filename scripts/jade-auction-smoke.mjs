@@ -63,6 +63,49 @@ assert.equal(publicView.roughs[0].currentHighest, undefined);
 assert.equal(publicView.roughs[0].bidderCount, undefined);
 assert.deepEqual(publicView.results, []);
 
+const sensitiveRound = {
+  id: "sensitive-round",
+  startsAt: 1_000,
+  biddingEndsAt: 2_000,
+  roughs: [
+    {
+      id: "secret-r1",
+      name: "Secret rough",
+      price: 22000,
+      mass: 3.4,
+      publicHint: "皮壳完整，开窗有限",
+      hint: "hidden high value clue",
+      value: 78000,
+      trueValue: 92000,
+      windows: [{ x: 24, y: 42, radius: 8 }],
+      visual: {
+        seed: 4242,
+        shape: "chunk",
+        maskTone: "#4f5550",
+        windows: [{ x: 12, y: 18, radius: 5 }],
+        bestAngle: 34,
+        suggestedAngle: 28,
+        translucency: 0.82,
+        cotton: 0.14
+      }
+    }
+  ],
+  bids: []
+};
+const sensitiveView = publicAuctionSnapshot(sensitiveRound, "p1", 1500);
+const sensitiveRough = sensitiveView.roughs[0];
+assert.equal(sensitiveRough.hint, "皮壳完整，开窗有限");
+assert.equal(Object.hasOwn(sensitiveRough, "value"), false);
+assert.equal(Object.hasOwn(sensitiveRough, "trueValue"), false);
+assert.equal(sensitiveRough.visual.seed, 4242);
+assert.equal(sensitiveRough.visual.shape, "chunk");
+assert.equal(sensitiveRough.visual.masked, true);
+assert.equal(sensitiveRough.visual.maskTone, "#4f5550");
+assert.deepEqual(sensitiveRough.visual.windows, sensitiveRound.roughs[0].windows);
+for (const field of ["bestAngle", "suggestedAngle", "translucency", "cotton"]) {
+  assert.equal(Object.hasOwn(sensitiveRough.visual, field), false);
+}
+
 const tieSettled = settleAuctionRound(
   {
     id: "tie-round",
@@ -87,6 +130,32 @@ const malformedProxySettled = settleAuctionRound(
 );
 assert.equal(malformedProxySettled.results[0].price, 10000);
 
+const missingPlayerSettled = settleAuctionRound(
+  {
+    id: "missing-player-round",
+    roughs: [{ id: "missing-player-r1", name: "Missing player rough", price: 10000 }],
+    bids: [
+      { roughId: "missing-player-r1", amount: 999999, proxyMax: 999999, at: 1 },
+      { playerId: "valid", roughId: "missing-player-r1", amount: 10000, proxyMax: 10000, at: 10 }
+    ]
+  },
+  { minIncrement: 100 }
+);
+assert.equal(missingPlayerSettled.results[0].winnerId, "valid");
+
+const malformedTimeSettled = settleAuctionRound(
+  {
+    id: "malformed-time-round",
+    roughs: [{ id: "time-r1", name: "Time rough", price: 10000 }],
+    bids: [
+      { playerId: "bad-time", roughId: "time-r1", amount: 10000, proxyMax: 15000, at: "bad" },
+      { playerId: "finite-early", roughId: "time-r1", amount: 10000, proxyMax: 15000, at: 50 }
+    ]
+  },
+  { minIncrement: 100 }
+);
+assert.equal(malformedTimeSettled.results[0].winnerId, "finite-early");
+
 const zeroIncrementSettled = settleAuctionRound(
   {
     id: "zero-increment-round",
@@ -105,5 +174,34 @@ const existingAi = aiBidsForRough(round.roughs[1], [], 2);
 const repeatedAi = aiBidsForRough(round.roughs[1], existingAi, 3);
 const aiIds = [...existingAi, ...repeatedAi].map((bid) => bid.playerId);
 assert.equal(new Set(aiIds).size, aiIds.length);
+
+const nonContiguousAi = aiBidsForRough(round.roughs[1], [
+  { playerId: "ai-r2-7", roughId: "r2", amount: 7000, proxyMax: 7000, at: 1, ai: true }
+], 2);
+assert.equal(nonContiguousAi[0].playerId, "ai-r2-8");
+
+const settledPrivacyView = publicAuctionSnapshot(
+  {
+    id: "settled-privacy-round",
+    startsAt: 0,
+    biddingEndsAt: 1,
+    roughs: [
+      { id: "own-r1", name: "Own rough", price: 10000 },
+      { id: "other-r1", name: "Other rough", price: 10000 },
+      { id: "passed-r1", name: "Passed rough", price: 10000 },
+      { id: "malformed-result-r1", name: "Malformed result rough", price: 10000 }
+    ],
+    bids: [],
+    results: [
+      { roughId: "own-r1", winnerId: "p1", status: "won", price: 12000 },
+      { roughId: "other-r1", winnerId: "p2", status: "won", price: 13000 },
+      { roughId: "passed-r1", status: "passed", price: 0 },
+      { roughId: "malformed-result-r1", status: "won", price: 999999 }
+    ]
+  },
+  "p1",
+  2
+);
+assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "passed-r1"]);
 
 console.log("Jade sealed auction checks passed");
