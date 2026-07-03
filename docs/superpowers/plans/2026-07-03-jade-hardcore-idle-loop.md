@@ -65,7 +65,7 @@ assert.equal(totals.income, 18000);
 assert.equal(totals.expense, 6200);
 assert.equal(totals.net, 11800);
 assert.equal(repFromCashFlow("expense", 20000), 20);
-assert.equal(repFromCashFlow("livestream", 25000), 25);
+assert.equal(repFromCashFlow("livestream", 25000), 20);
 
 const summary = makeOfflineSummary([
   { type: "production", text: "粗加工完成", income: 0, expense: 0 },
