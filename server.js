@@ -728,6 +728,34 @@ function scheduleLivestream(player, productId, mode = "autoBalanced") {
   return job;
 }
 
+function sellLivestreamNow(player, productId, seed = Date.now()) {
+  normalizePlayer(player);
+  const product = takeItem(player, "bracelet", productId);
+  if (!product) return null;
+  const now = Date.now();
+  const priced = livestreamOutcome(product, { mode: "manual", rep: player.rep, seed });
+  const outcome = {
+    ...priced,
+    sold: true,
+    price: priced.price || money(Number(product.value || product.price || 0) * Math.max(1, priced.multiplier || 1))
+  };
+  earnCash(player, outcome.price, `直播成交：${product.name}`, { source: "livestream", itemId: product.id, at: now });
+  player.rep += Math.max(1, Math.round(product.rep * 0.18));
+  player.livestreamHistory.unshift({
+    id: randomUUID(),
+    type: "livestreamManual",
+    mode: "manual",
+    product,
+    outcome,
+    startedAt: now,
+    readyAt: now,
+    completedAt: now
+  });
+  player.livestreamHistory = player.livestreamHistory.slice(0, 20);
+  refreshPlayerReport(player, now);
+  return { product, outcome };
+}
+
 function addItem(player, item) {
   if (item.type === "rough") player.rough.push(item);
   if (item.type === "material") player.materials.push(item);
@@ -1431,18 +1459,9 @@ io.on("connection", (socket) => {
   socket.on("livestreamSell", (braceletId) => {
     const player = getPlayer(socket);
     if (!player) return;
-    const bracelet = takeItem(player, "bracelet", braceletId);
-    if (!bracelet) return;
-    const outcome = livestreamOutcome(bracelet, { mode: "manual", rep: player.rep, seed: Date.now() });
-    if (!outcome.sold) {
-      player.bracelets.push(bracelet);
-      socket.emit("toast", "这场直播未成交，成品已退回库存。");
-      return broadcast();
-    }
-    const finalPrice = money(outcome.price);
-    earnCash(player, finalPrice, `直播成交：${bracelet.name}`, { source: "livestream", itemId: bracelet.id });
-    player.rep += Math.max(1, Math.round(bracelet.rep * 0.18));
-    addNews(`${player.name} 直播卖出 ${bracelet.name}，成交 ${finalPrice}。`, "trade");
+    const sale = sellLivestreamNow(player, braceletId);
+    if (!sale) return;
+    addNews(`${player.name} 直播卖出 ${sale.product.name}，成交 ${sale.outcome.price}。`, "trade");
     broadcast();
   });
 
@@ -1592,6 +1611,7 @@ export const __testHooks = {
   startProductionJob,
   completeProductionJob,
   scheduleLivestream,
+  sellLivestreamNow,
   extractProductsFromJob,
   processProductionJobs,
   settleLivestreamJobsForPlayer,

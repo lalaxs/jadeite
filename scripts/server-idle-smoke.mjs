@@ -15,6 +15,7 @@ const {
   startProductionJob,
   processProductionJobs,
   scheduleLivestream,
+  sellLivestreamNow,
   processLivestreamJobs,
   processPolishingJobs,
   playerSocketCount,
@@ -92,6 +93,7 @@ resetState();
 assert.equal(typeof submitAuctionBidForPlayer, "function", "submitAuctionBidForPlayer should be testable");
 assert.equal(typeof requestAuctionWindowForPlayer, "function", "requestAuctionWindowForPlayer should be testable");
 assert.equal(typeof snapshotFor, "function", "snapshotFor should be testable");
+assert.equal(typeof sellLivestreamNow, "function", "sellLivestreamNow should preserve legacy livestreamSell compatibility");
 
 const cashPlayer = makePlayer("cash-player");
 normalizePlayer(cashPlayer);
@@ -290,6 +292,23 @@ assert.equal(offlineLivestreamPlayer.livestreamJobs.length, 0);
 assert.equal(offlineLivestreamPlayer.livestreamHistory.length, 1);
 assert.equal(offlineLivestreamPlayer.offlineSummary.count, 1);
 assert.equal(offlineLivestreamPlayer.offlineSummary.income, offlineLiveEvents[0].income);
+
+resetState();
+
+const manualLivestreamPlayer = makePlayer("manual-livestream-player");
+normalizePlayer(manualLivestreamPlayer);
+const manualProduct = testProduct("manual-live-product");
+const cashBeforeManualSale = manualLivestreamPlayer.cash;
+manualLivestreamPlayer.bracelets.push(manualProduct);
+const manualSale = sellLivestreamNow(manualLivestreamPlayer, manualProduct.id, 12);
+assert.ok(manualSale);
+assert.equal(manualSale.outcome.sold, true);
+assert.equal(manualLivestreamPlayer.bracelets.length, 0);
+assert.equal(manualLivestreamPlayer.cash, cashBeforeManualSale + manualSale.outcome.price);
+assert.equal(manualLivestreamPlayer.ledger[0].source, "livestream");
+assert.equal(manualLivestreamPlayer.ledger[0].itemId, manualProduct.id);
+assert.equal(manualLivestreamPlayer.livestreamHistory.length, 1);
+assert.equal(manualLivestreamPlayer.livestreamHistory[0].outcome.sold, true);
 
 resetState();
 

@@ -788,7 +788,9 @@ function renderMarket() {
 function renderLivestream() {
   const products = state.me.bracelets || [];
   const jobs = state.me.livestreamJobs || [];
+  const livestreamHistory = state.me.livestreamHistory || [];
   const modeName = {
+    manual: "手动",
     autoConservative: "保守",
     autoBalanced: "均衡",
     autoAggressive: "激进"
@@ -818,6 +820,25 @@ function renderLivestream() {
       </article>
     `)
   ].join("") || empty("暂无可直播成品。");
+  if (livestreamHistory.length) {
+    els.livestream.innerHTML += `
+      <article class="rough-card livestream-history-card">
+        <h3>最近直播</h3>
+        <div class="fit-list">
+          ${livestreamHistory.slice(0, 6).map((entry) => {
+            const sold = Boolean(entry.outcome?.sold);
+            const status = sold ? `成交 ${formatMoney(entry.outcome.price)}` : "未成交退回";
+            return `
+              <div>
+                <strong>${escapeHtml(entry.product?.name || "成品")}</strong>
+                <span>${escapeHtml(modeName[entry.mode] || entry.mode || "自动")} · ${status}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </article>
+    `;
+  }
 }
 
 function renderReports() {

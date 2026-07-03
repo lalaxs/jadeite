@@ -1201,6 +1201,10 @@ select {
   background: linear-gradient(180deg, #fbfdfb, #eef7f2);
 }
 
+.livestream-history-card {
+  min-height: 160px;
+}
+
 .report-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

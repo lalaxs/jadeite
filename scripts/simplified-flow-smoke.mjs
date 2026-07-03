@@ -488,4 +488,9 @@ for (const [pattern, message] of liveReportExpectations) {
   if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
 }
 
+const renderLivestreamBody = extractFunctionBody(main, "renderLivestream");
+if (!/livestreamHistory/.test(renderLivestreamBody)) {
+  throw new Error("livestream page should render recent livestream history");
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");
