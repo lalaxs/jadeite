@@ -70,7 +70,7 @@ export function cashFlowTotals(entries = [], since = 0, until = Infinity) {
 
 export function repFromCashFlow(source, amount) {
   if (!["expense", "livestream"].includes(source)) return 0;
-  return Math.floor(money(amount) / 1000);
+  return Math.floor(money(amount) / 10000) * 10;
 }
 
 export function makeOfflineSummary(events = []) {
