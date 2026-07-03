@@ -97,9 +97,15 @@ export function bidDeposit(amount) {
   return money(amount * DEPOSIT_RATE);
 }
 
+function bidExposureAmount(bid = {}) {
+  const safeBid = bid && typeof bid === "object" ? bid : {};
+  const amount = money(safeBid.amount);
+  return Math.max(amount, money(safeBid.proxyMax ?? amount));
+}
+
 export function upsertBid(round, bid) {
   const amount = money(bid.amount);
-  const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
+  const proxyMax = bidExposureAmount({ amount, proxyMax: bid.proxyMax });
   const atFallback = Date.now();
   const nextRound = {
     ...round,
@@ -118,7 +124,7 @@ export function upsertBid(round, bid) {
   nextRound.bids.sort((a, b) => a.at - b.at);
   return {
     round: nextRound,
-    depositDelta: bidDeposit(amount) - bidDeposit(previous?.amount ?? 0),
+    depositDelta: bidDeposit(proxyMax) - bidDeposit(previous ? bidExposureAmount(previous) : 0),
     bid: nextBid
   };
 }
@@ -163,7 +169,7 @@ export function settleAuctionRound(round, options = {}) {
     const floor = Math.max(reserve, winner.amount);
     const justWin = runnerUp ? runnerUp.proxyMax + minIncrement : floor;
     const price = money(Math.max(floor, Math.min(winner.proxyMax, Math.max(floor, justWin))));
-    const depositUsed = bidDeposit(winner.amount);
+    const depositUsed = Math.min(price, bidDeposit(winner.proxyMax));
     return {
       roughId: rough.id,
       winnerId: winner.playerId,
@@ -192,7 +198,7 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
         roughId: bid.roughId,
         amount: bid.amount,
         proxyMax: bid.proxyMax,
-        deposit: bidDeposit(bid.amount),
+        deposit: bidDeposit(bidExposureAmount(bid)),
         at: bid.at
       })),
     results: phase === "settled"

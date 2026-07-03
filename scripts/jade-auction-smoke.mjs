@@ -29,7 +29,7 @@ const zeroTimeBid = upsertBid(round, { playerId: "p0", roughId: "r1", amount: 10
 assert.equal(zeroTimeBid.bid.at, 0);
 
 const first = upsertBid(round, { playerId: "p1", roughId: "r1", amount: 12000, proxyMax: 15000, at: 1200 });
-assert.equal(first.depositDelta, 2400);
+assert.equal(first.depositDelta, 3000);
 assert.equal(first.round.bids.length, 1);
 
 const second = upsertBid(first.round, { playerId: "p1", roughId: "r1", amount: 14000, proxyMax: 17000, at: 1300 });
@@ -38,7 +38,7 @@ assert.equal(second.round.bids[0].amount, 14000);
 assert.equal(second.round.bids[0].proxyMax, 17000);
 
 const lowered = upsertBid(second.round, { playerId: "p1", roughId: "r1", amount: 10000, at: 1350 });
-assert.equal(lowered.depositDelta, -800);
+assert.equal(lowered.depositDelta, -1400);
 
 const third = upsertBid(second.round, { playerId: "p2", roughId: "r1", amount: 16500, at: 1250 });
 const ai = aiBidsForRough(round.roughs[0], third.round.bids, 3);
@@ -49,13 +49,14 @@ const settled = settleAuctionRound({ ...third.round, bids: [...third.round.bids,
 const r1 = settled.results.find((result) => result.roughId === "r1");
 assert.equal(r1.winnerId, "p1");
 assert.equal(r1.price, 16600);
-assert.equal(r1.depositUsed, 2800);
-assert.equal(r1.balanceDue, 13800);
+assert.equal(r1.depositUsed, 3400);
+assert.equal(r1.balanceDue, 13200);
 
 const publicView = publicAuctionSnapshot(third.round, "p1", 1500);
 assert.equal(publicView.phase, "bidding");
 assert.equal(publicView.myBids.length, 1);
 assert.deepEqual(publicView.myBids.map((bid) => bid.roughId), ["r1"]);
+assert.equal(publicView.myBids[0].deposit, 3400);
 assert.equal(Object.hasOwn(publicView, "bids"), false);
 assert.equal(Object.hasOwn(publicView.roughs[0], "trueValue"), false);
 assert.equal(Object.hasOwn(publicView.roughs[0], "value"), false);
