@@ -1199,6 +1199,7 @@ setInterval(() => {
   processPolishingJobs();
   refreshRoughPool();
   for (const player of state.players.values()) {
+    if (!isPlayerOnline(player)) continue;
     player.orders = player.orders.filter((order) => order.expiresAt > Date.now());
     refillOrders(player);
     if (player.rep > 5) player.rep = Math.max(5, player.rep - 0.35);
