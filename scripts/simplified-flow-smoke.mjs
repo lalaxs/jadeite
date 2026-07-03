@@ -425,6 +425,25 @@ for (const [pattern, message] of auctionUiExpectations) {
   if (!pattern.test(main)) throw new Error(message);
 }
 
+const renderOfflineSummaryBody = extractFunctionBody(main, "renderOfflineSummary");
+if (/class="panel offline-summary"/.test(renderOfflineSummaryBody)) {
+  throw new Error("offline summary should render as an unframed block, not a nested panel");
+}
+
+const renderNextActionsBody = extractFunctionBody(main, "renderNextActions");
+if (/renderOfflineSummary\s*\(/.test(renderNextActionsBody)) {
+  throw new Error("renderNextActions should not embed the offline summary card");
+}
+
+const clickHandlerBody = extractBlockFrom(main, main.indexOf('document.body.addEventListener("click"'), "document click handler");
+const submitAuctionBidBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "submitAuctionBid")'), "submitAuctionBid client handler");
+if (!/data-bid-amount/.test(submitAuctionBidBody) || !/data-proxy-max/.test(submitAuctionBidBody)) {
+  throw new Error("submitAuctionBid should read both bid amount and proxy max inputs");
+}
+if (!/socket\.emit\("submitAuctionBid",\s*\{[\s\S]*roughId:\s*payload[\s\S]*amount:\s*[^,\n]+[\s\S]*proxyMax:\s*[^,\n}]+/.test(submitAuctionBidBody)) {
+  throw new Error("submitAuctionBid should emit roughId, amount, and proxyMax");
+}
+
 for (const token of ["submitAuctionBid", "代理上限", "提交暗标", "myBids"]) {
   if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
 }

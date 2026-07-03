@@ -164,8 +164,8 @@ function renderOfflineSummary() {
   if (!summary || !Number(summary.count)) return "";
   const lines = Array.isArray(summary.lines) ? summary.lines : [];
   return `
-    <section class="panel offline-summary">
-      <div class="panel-head"><h3>离线结算</h3><span>${Number(summary.count)} 件事已完成</span></div>
+    <section class="offline-summary">
+      <div class="offline-head"><h3>离线结算</h3><span>${Number(summary.count)} 件事已完成</span></div>
       <div class="offline-totals">
         <span>收入 ${formatMoney(summary.income)}</span>
         <span>支出 ${formatMoney(summary.expense)}</span>

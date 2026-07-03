@@ -289,23 +289,35 @@ select {
 }
 
 .offline-summary {
-  margin: 14px 0 12px;
-  padding-bottom: 12px;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 12px 26px rgba(17, 86, 70, 0.14);
+  margin: 12px 0 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 10px 0;
+  color: #fff;
 }
 
-.offline-summary .panel-head {
-  min-height: 42px;
+.offline-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.offline-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.offline-head span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
 }
 
 .offline-totals,
 .offline-lines {
   display: grid;
   gap: 6px;
-  margin-top: 10px;
-  padding: 0 14px;
+  margin-top: 8px;
 }
 
 .offline-totals {
@@ -313,18 +325,18 @@ select {
 }
 
 .offline-totals span {
-  border: 1px solid rgba(31, 155, 114, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 6px;
   padding: 8px;
-  color: var(--jade-dark);
-  background: #edf8f2;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.13);
   font-size: 13px;
   font-weight: 700;
 }
 
 .offline-lines p {
   margin: 0;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 13px;
 }
 
