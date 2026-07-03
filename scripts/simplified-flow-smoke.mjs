@@ -390,4 +390,20 @@ if (!/for\s*\(const player of state\.players\.values\(\)\)\s*\{[\s\S]*if\s*\(!is
   throw new Error("realtime order and reputation tick should skip offline players before mutating them");
 }
 
+const auctionServerExpectations = [
+  [/from "\.\/public\/jade-auction\.js"/, "server should import shared auction rules"],
+  [/auction\s*:\s*null/, "state should include current auction"],
+  [/function ensureAuctionRound/, "server should create auction rounds"],
+  [/function settleAuctionIfDue/, "server should settle due auction rounds"],
+  [/submitAuctionBid/, "server should expose submitAuctionBid"],
+  [/publicAuctionSnapshot/, "server snapshots should use public auction snapshots"],
+  [/aiBidsForRough/, "server settlement should fill missing bidders with AI"],
+  [/bidDeposit/, "server should calculate auction deposits through shared rules"],
+  [/settleAuctionRound/, "server should settle sealed bids through shared rules"]
+];
+
+for (const [pattern, message] of auctionServerExpectations) {
+  if (!pattern.test(server)) throw new Error(message);
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");

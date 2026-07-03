@@ -6,12 +6,20 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { productMatchesOrder } from "./public/jade-rules.js";
 import {
+  resolveTiming,
   productionDuration,
   ledgerEntry,
   repFromCashFlow,
   makeOfflineSummary,
   reportSummary
 } from "./public/jade-loop.js";
+import {
+  publicAuctionSnapshot,
+  bidDeposit,
+  upsertBid,
+  aiBidsForRough,
+  settleAuctionRound
+} from "./public/jade-auction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +31,7 @@ const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
 const POLISH_FEE = 620;
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
+const TIMING = resolveTiming(TIMING_PROFILE);
 const POLISH_DURATION_MS = productionDuration("rough", TIMING_PROFILE);
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -47,7 +56,8 @@ const state = {
   sockets: new Map(),
   roughPool: [],
   listings: [],
-  news: []
+  news: [],
+  auction: null
 };
 
 function pick(list) {
@@ -59,7 +69,8 @@ function clamp(value, min, max) {
 }
 
 function money(value) {
-  return Math.max(0, Math.round(value));
+  const amount = Number(value);
+  return Math.max(0, Math.round(Number.isFinite(amount) ? amount : 0));
 }
 
 function recordLedger(player, kind, amount, note, meta = {}) {
@@ -188,6 +199,7 @@ function snapshotFor(player) {
     me: privatePlayerSnapshot(player),
     roughPool: state.roughPool.map(publicStone),
     listings: state.listings.map(publicListing),
+    auction: publicAuctionSnapshot(ensureAuctionRound(), player.id),
     players: [...state.players.values()].map(publicPlayer).sort((a, b) => b.rep - a.rep),
     news: state.news
   };
@@ -290,6 +302,71 @@ function pickWeightedQuality() {
 
 function refreshRoughPool() {
   while (state.roughPool.length < 8) state.roughPool.push(makeRoughStone());
+}
+
+function ensureAuctionRound(now = Date.now()) {
+  if (state.auction && !state.auction.settledAt) return state.auction;
+  if (state.auction?.settledAt && now - state.auction.settledAt <= TIMING.auction.preview) return state.auction;
+  refreshRoughPool();
+  const startsAt = now;
+  const biddingEndsAt = now + TIMING.auction.bidding;
+  state.auction = {
+    id: randomUUID(),
+    status: "bidding",
+    startsAt,
+    biddingEndsAt,
+    settlesAt: biddingEndsAt,
+    roughs: state.roughPool.slice(0, 8),
+    bids: [],
+    results: []
+  };
+  addNews("新一轮公盘暗标开启，投标期间不显示最高价。", "info");
+  return state.auction;
+}
+
+function settleAuctionIfDue(now = Date.now()) {
+  const round = ensureAuctionRound(now);
+  if (round.settledAt || now < round.biddingEndsAt) return false;
+  const withAi = {
+    ...round,
+    bids: [
+      ...(round.bids || []),
+      ...round.roughs.flatMap((rough) => aiBidsForRough(rough, round.bids, 3))
+    ]
+  };
+  const settled = settleAuctionRound(withAi, { now, minIncrement: 100 });
+  state.auction = settled;
+  const humanWinners = new Set(settled.results
+    .filter((result) => result.winnerId && !result.ai)
+    .map((result) => `${result.roughId}:${result.winnerId}`));
+  for (const bid of settled.bids || []) {
+    if (bid.ai || humanWinners.has(`${bid.roughId}:${bid.playerId}`)) continue;
+    const bidder = state.players.get(bid.playerId);
+    const rough = settled.roughs.find((item) => item.id === bid.roughId);
+    if (!bidder || !rough) continue;
+    const refund = bidDeposit(bid.amount);
+    if (refund > 0) {
+      earnCash(bidder, refund, `退回保证金：${rough.name}`, { source: "auctionRefund", itemId: rough.id });
+    }
+  }
+  for (const result of settled.results) {
+    if (!result.winnerId || result.ai) continue;
+    const winner = state.players.get(result.winnerId);
+    const rough = settled.roughs.find((item) => item.id === result.roughId);
+    if (!winner || !rough) continue;
+    if (winner.cash < result.balanceDue) {
+      addNews(`${winner.name} 中标 ${rough.name} 后尾款不足，保证金被没收。`, "bad");
+      continue;
+    }
+    if (result.balanceDue > 0) {
+      spendCash(winner, result.balanceDue, `公盘尾款：${rough.name}`, { source: "auction", itemId: rough.id });
+    }
+    winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
+    state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
+    addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
+  }
+  refreshRoughPool();
+  return true;
 }
 
 function makePlayer(playerId) {
@@ -919,19 +996,28 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("buyRough", (roughId) => {
+  socket.on("submitAuctionBid", ({ roughId, amount, proxyMax }) => {
     const player = getPlayer(socket);
-    const index = state.roughPool.findIndex((rough) => rough.id === roughId);
-    if (!player || index < 0) return;
-    const rough = state.roughPool[index];
-    if (!spendCash(player, rough.price, `公盘成交：${rough.name}`, { source: "auction", itemId: rough.id })) {
-      return socket.emit("toast", "资金不足，拍不下这块料。");
+    if (!player) return;
+    const round = ensureAuctionRound();
+    const rough = round.roughs.find((item) => item.id === roughId);
+    if (!rough) return socket.emit("toast", "这块原石不在当前公盘。");
+    const bidAmount = money(amount);
+    if (bidAmount < rough.price) return socket.emit("toast", "暗标不能低于底价。");
+    const next = upsertBid(round, { playerId: player.id, roughId, amount: bidAmount, proxyMax, at: Date.now() });
+    if (next.depositDelta > 0 && !spendCash(player, next.depositDelta, `公盘保证金：${rough.name}`, { source: "auction", itemId: rough.id })) {
+      return socket.emit("toast", `保证金还需 ${next.depositDelta}。`);
     }
-    player.rough.push({ ...rough, type: "rough", owner: player.id, revealed: false, polished: false });
-    state.roughPool.splice(index, 1);
-    refreshRoughPool();
-    addNews(`${player.name} 在公盘拍下 ${rough.name}，成交 ${rough.price}。`, "trade");
+    if (next.depositDelta < 0) {
+      earnCash(player, Math.abs(next.depositDelta), `退回保证金：${rough.name}`, { source: "auctionRefund", itemId: rough.id });
+    }
+    state.auction = next.round;
+    addNews(`${player.name} 提交了 ${rough.name} 的密封投标。`, "info");
     broadcast();
+  });
+
+  socket.on("buyRough", () => {
+    socket.emit("toast", "公盘已改为暗标，请提交密封投标。");
   });
 
   socket.on("requestWindow", (payload) => {
@@ -1200,6 +1286,12 @@ function startServer() {
   setInterval(() => {
     processPolishingJobs();
     refreshRoughPool();
+    const now = Date.now();
+    settleAuctionIfDue(now);
+    if (state.auction?.settledAt && now - state.auction.settledAt > TIMING.auction.preview) {
+      state.auction = null;
+      ensureAuctionRound(now);
+    }
     for (const player of state.players.values()) {
       if (!isPlayerOnline(player)) continue;
       player.orders = player.orders.filter((order) => order.expiresAt > Date.now());
@@ -1224,6 +1316,8 @@ export const __testHooks = {
   spendCash,
   earnCash,
   settleOfflinePlayer,
+  ensureAuctionRound,
+  settleAuctionIfDue,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,
