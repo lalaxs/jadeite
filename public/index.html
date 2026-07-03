@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>翡翠街多人经营原型</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div>
+            <h1>翡翠街</h1>
+            <p>多人经营原型</p>
+          </div>
+        </div>
+
+        <section class="profile panel">
+          <label for="nameInput">掌柜招牌</label>
+          <div class="name-row">
+            <input id="nameInput" maxlength="10" />
+            <button id="saveNameBtn" title="保存招牌名">保存</button>
+          </div>
+          <div class="profile-note">
+            <span id="connectionText">连接中</span>
+            <strong id="rankText">未入榜</strong>
+          </div>
+        </section>
+
+        <nav class="tabs" id="tabs"></nav>
+      </aside>
+
+      <section class="main-stage">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">经营驾驶舱</p>
+            <h2 id="viewTitle">经营总览</h2>
+          </div>
+        </header>
+        <section class="kpi-strip" aria-label="关键资产">
+          <div class="kpi"><span>现金</span><strong id="cashText">-</strong><small id="cashSignal">-</small></div>
+          <div class="kpi"><span>声望</span><strong id="repText">-</strong><small id="repSignal">-</small></div>
+          <div class="kpi"><span>客户满意</span><strong id="satText">-</strong><small id="satSignal">-</small></div>
+          <div class="kpi"><span>藏宝阁</span><strong id="collectionText">-</strong><small id="collectionSignal">-</small></div>
+        </section>
+
+        <section class="view active" data-view="overview">
+          <div class="command-grid">
+            <section class="focus-panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">现在最该看</p>
+                  <h3>经营优先级</h3>
+                </div>
+              </div>
+              <div id="nextActions" class="action-stack"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h3>资产流水线</h3>
+                <span>从原石到现金</span>
+              </div>
+              <div id="pipelineList" class="pipeline-list"></div>
+            </section>
+          </div>
+          <div class="dashboard-grid">
+            <section class="panel">
+              <div class="panel-head"><h3>同行排名</h3><span>声望竞争</span></div>
+              <div id="playersList" class="rank-list compact"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><h3>市场战报</h3><span>切涨、成交、毁约</span></div>
+              <div id="newsList" class="news-list compact"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view="auction">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">公盘暗标</p>
+              <h3>拍原石</h3>
+            </div>
+          </div>
+          <div id="auctionBrief" class="brief-strip"></div>
+          <div id="roughPool" class="card-grid"></div>
+        </section>
+
+        <section class="view" data-view="workshop">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">打磨与取镯</p>
+              <h3>工坊</h3>
+            </div>
+          </div>
+          <div class="workbench">
+            <section class="panel">
+              <div class="panel-head"><h3>待打磨原料</h3><span id="roughCount">0</span></div>
+              <div id="roughInventory" class="item-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><h3>取镯规划</h3><span id="materialCount">0</span></div>
+              <div id="materialInventory" class="item-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><h3>成品库存</h3><span id="braceletCount">0</span></div>
+              <div id="braceletInventory" class="item-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view="orders">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">NPC 定制</p>
+              <h3>客户订单</h3>
+            </div>
+            <button id="refreshOrdersBtn" title="花 300 刷新客户">刷新客户</button>
+          </div>
+          <div id="orderBrief" class="brief-strip"></div>
+          <div id="ordersList" class="card-grid"></div>
+        </section>
+
+        <section class="view" data-view="market">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">玩家经济</p>
+              <h3>交易行</h3>
+            </div>
+          </div>
+          <div id="marketBrief" class="brief-strip"></div>
+          <div class="market-layout">
+            <section class="panel">
+              <div class="panel-head"><h3>我的可挂牌物品</h3><span>原石 / 料子 / 手镯</span></div>
+              <div id="mySellables" class="item-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><h3>市场挂单</h3><span id="listingCount">0</span></div>
+              <div id="marketListings" class="item-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view="collection">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">收藏与门面</p>
+              <h3>藏宝阁</h3>
+            </div>
+          </div>
+          <div id="collectionList" class="treasure-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
