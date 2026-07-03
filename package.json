@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "npm run test:loop && npm run test:auction && npm run test:rules && npm run test:renderer && npm run test:volume && npm run test:canvas && npm run test:flow",
+    "test": "npm run test:loop && npm run test:auction && npm run test:server-idle && npm run test:rules && npm run test:renderer && npm run test:volume && npm run test:canvas && npm run test:flow",
     "test:loop": "node scripts/jade-loop-smoke.mjs",
     "test:auction": "node scripts/jade-auction-smoke.mjs",
+    "test:server-idle": "node scripts/server-idle-smoke.mjs",
     "test:rules": "node scripts/jade-rules-smoke.mjs",
     "test:renderer": "node scripts/jade-renderer-smoke.mjs",
     "test:volume": "node scripts/jade-volume-smoke.mjs",

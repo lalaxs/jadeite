@@ -6,12 +6,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { productMatchesOrder } from "./public/jade-rules.js";
 import {
-  resolveTiming,
   productionDuration,
   ledgerEntry,
   repFromCashFlow,
   makeOfflineSummary,
-  livestreamOutcome,
   reportSummary
 } from "./public/jade-loop.js";
 
@@ -25,7 +23,6 @@ const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
 const POLISH_FEE = 620;
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
-const TIMING = resolveTiming(TIMING_PROFILE);
 const POLISH_DURATION_MS = productionDuration("rough", TIMING_PROFILE);
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -1192,23 +1189,47 @@ io.on("connection", (socket) => {
   });
 });
 
-refreshRoughPool();
-addNews("本地翡翠街开市，公盘、工坊、订单与交易行已开放。", "great");
+function isDirectRun() {
+  return Boolean(process.argv[1]) && path.resolve(process.argv[1]) === __filename;
+}
 
-setInterval(() => {
-  processPolishingJobs();
+function startServer() {
   refreshRoughPool();
-  for (const player of state.players.values()) {
-    if (!isPlayerOnline(player)) continue;
-    player.orders = player.orders.filter((order) => order.expiresAt > Date.now());
-    refillOrders(player);
-    if (player.rep > 5) player.rep = Math.max(5, player.rep - 0.35);
-  }
-  broadcast();
-}, 25000);
+  addNews("本地翡翠街开市，公盘、工坊、订单与交易行已开放。", "great");
 
-setInterval(processPolishingJobs, 1000);
+  setInterval(() => {
+    processPolishingJobs();
+    refreshRoughPool();
+    for (const player of state.players.values()) {
+      if (!isPlayerOnline(player)) continue;
+      player.orders = player.orders.filter((order) => order.expiresAt > Date.now());
+      refillOrders(player);
+      if (player.rep > 5) player.rep = Math.max(5, player.rep - 0.35);
+    }
+    broadcast();
+  }, 25000);
 
-httpServer.listen(PORT, () => {
-  console.log(`Jade Market Prototype running at http://localhost:${PORT}`);
-});
+  setInterval(processPolishingJobs, 1000);
+
+  return httpServer.listen(PORT, () => {
+    console.log(`Jade Market Prototype running at http://localhost:${PORT}`);
+  });
+}
+
+export const __testHooks = {
+  state,
+  makePlayer,
+  normalizePlayer,
+  recordLedger,
+  spendCash,
+  earnCash,
+  settleOfflinePlayer,
+  processPolishingJobs,
+  playerSocketCount,
+  isPlayerOnline,
+  revealPolishedRough,
+  inventoryForReport,
+  refreshPlayerReport
+};
+
+if (isDirectRun()) startServer();

@@ -385,7 +385,7 @@ if (!/state\.sockets\.delete\(socket\.id\)[\s\S]*playerSocketCount\(playerId\)\s
   throw new Error("disconnect should update lastSeenAt only on 1-to-0 socket transitions");
 }
 
-const realtimeTickBody = extractBlockFrom(server, server.indexOf("setInterval(() => {\n  processPolishingJobs();"), "realtime tick");
+const realtimeTickBody = extractBlockFrom(server, server.search(/setInterval\(\(\) => \{\s*processPolishingJobs\(\);\s*refreshRoughPool\(\);/), "realtime tick");
 if (!/for\s*\(const player of state\.players\.values\(\)\)\s*\{[\s\S]*if\s*\(!isPlayerOnline\(player\)\)\s*continue;[\s\S]*player\.orders\s*=/.test(realtimeTickBody)) {
   throw new Error("realtime order and reputation tick should skip offline players before mutating them");
 }
