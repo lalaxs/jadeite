@@ -11,6 +11,7 @@ import {
   ledgerEntry,
   repFromCashFlow,
   makeOfflineSummary,
+  livestreamOutcome,
   reportSummary
 } from "./public/jade-loop.js";
 import {
@@ -124,7 +125,7 @@ function publicPlayer(player) {
     rep: Math.round(player.rep),
     satisfaction: Math.round(player.satisfaction),
     collectionPower: player.collection.reduce((sum, item) => sum + item.rep, 0),
-    inventoryCount: player.rough.length + player.jobs.length + player.polishingJobs.length + player.materials.length + player.slices.length + player.bracelets.length,
+    inventoryCount: player.rough.length + player.jobs.length + player.polishingJobs.length + player.livestreamJobs.length + player.materials.length + player.slices.length + player.bracelets.length,
     collectionCount: player.collection.length
   };
 }
@@ -198,6 +199,12 @@ function publicProductionJob(job) {
   return safeJob;
 }
 
+function publicLivestreamJob(job) {
+  const { product, ...safeJob } = job;
+  if (product) safeJob.product = publicStone(product);
+  return safeJob;
+}
+
 function privatePlayerSnapshot(player) {
   normalizePlayer(player);
   refreshPlayerReport(player);
@@ -209,6 +216,8 @@ function privatePlayerSnapshot(player) {
     materials: player.materials.map(publicStone),
     slices: player.slices.map(publicStone),
     bracelets: player.bracelets.map(publicStone),
+    livestreamJobs: player.livestreamJobs.map(publicLivestreamJob),
+    livestreamHistory: player.livestreamHistory.map(publicLivestreamJob),
     collection: player.collection.map(publicStone)
   };
 }
@@ -482,6 +491,8 @@ function makePlayer(playerId) {
     materials: [],
     slices: [],
     bracelets: [],
+    livestreamJobs: [],
+    livestreamHistory: [],
     collection: [],
     orders: [],
     stats: {
@@ -504,6 +515,8 @@ function normalizePlayer(player) {
   player.materials ||= [];
   player.slices ||= [];
   player.bracelets ||= [];
+  player.livestreamJobs ||= [];
+  player.livestreamHistory ||= [];
   player.collection ||= [];
   player.orders ||= [];
   player.ledger ||= [];
@@ -524,12 +537,14 @@ function inventoryForReport(player) {
     ...(player.jobs || []),
     ...(player.polishingJobs || [])
   ].map((job) => job?.item || job?.rough).filter(Boolean);
+  const activeLivestreamProducts = (player.livestreamJobs || []).map((job) => job?.product).filter(Boolean);
   return [
     ...(player.rough || []),
     ...activeProductionItems,
     ...(player.materials || []),
     ...(player.slices || []),
-    ...(player.bracelets || [])
+    ...(player.bracelets || []),
+    ...activeLivestreamProducts
   ];
 }
 
@@ -692,6 +707,25 @@ function completeProductionJob(player, job) {
   const finished = { ...job.item, inlaid: true, value: money((job.item.value || 0) * 1.18), name: `${job.item.name}镶嵌款` };
   player.bracelets.push(finished);
   return { text: `${finished.name} 镶嵌完成`, item: finished };
+}
+
+function scheduleLivestream(player, productId, mode = "autoBalanced") {
+  normalizePlayer(player);
+  const product = takeItem(player, "bracelet", productId);
+  if (!product) return null;
+  const now = Date.now();
+  const duration = TIMING.livestream.min;
+  const job = {
+    id: randomUUID(),
+    type: "livestreamJob",
+    mode,
+    product,
+    startedAt: now,
+    readyAt: now + duration
+  };
+  player.livestreamJobs.push(job);
+  refreshPlayerReport(player, now);
+  return job;
 }
 
 function addItem(player, item) {
@@ -1169,6 +1203,48 @@ function processProductionJobs(now = Date.now(), options = {}) {
   return changed;
 }
 
+function settleLivestreamJobsForPlayer(player, now = Date.now()) {
+  normalizePlayer(player);
+  const events = [];
+  const ready = player.livestreamJobs.filter((job) => job.readyAt <= now);
+  if (!ready.length) return events;
+
+  player.livestreamJobs = player.livestreamJobs.filter((job) => job.readyAt > now);
+  for (const job of ready) {
+    if (!job?.product) continue;
+    const outcome = livestreamOutcome(job.product, { mode: job.mode, rep: player.rep, seed: job.readyAt });
+    if (outcome.sold) {
+      earnCash(player, outcome.price, `直播成交：${job.product.name}`, { source: "livestream", itemId: job.product.id, at: now });
+      const repGain = Math.max(1, Math.round(job.product.rep * 0.18));
+      player.rep += repGain;
+      events.push({ type: "livestream", text: `${job.product.name} 自动直播成交 ${outcome.price}`, income: outcome.price, expense: 0, readyAt: job.readyAt });
+      addNews(`${player.name} 自动直播卖出 ${job.product.name}，成交 ${outcome.price}。`, "trade");
+    } else {
+      player.bracelets.push(job.product);
+      events.push({ type: "livestream", text: `${job.product.name} 直播未成交，已退回库存`, income: 0, expense: 0, readyAt: job.readyAt });
+      addNews(`${player.name} 的 ${job.product.name} 直播未成交，已退回库存。`, "info");
+    }
+    player.livestreamHistory.unshift({ ...job, outcome, completedAt: now });
+    player.livestreamHistory = player.livestreamHistory.slice(0, 20);
+  }
+
+  refreshPlayerReport(player, now);
+  return events;
+}
+
+function processLivestreamJobs(now = Date.now(), options = {}) {
+  const onlineOnly = options.onlineOnly !== false;
+  let changed = false;
+  for (const player of state.players.values()) {
+    normalizePlayer(player);
+    if (onlineOnly && !isPlayerOnline(player)) continue;
+    const events = settleLivestreamJobsForPlayer(player, now);
+    if (events.length) changed = true;
+  }
+  if (changed) broadcast();
+  return changed;
+}
+
 function processPolishingJobs(now = Date.now()) {
   let changed = false;
   for (const player of state.players.values()) {
@@ -1189,6 +1265,12 @@ function settleOfflinePlayer(player, now = Date.now()) {
   for (const event of productionEvents) {
     if (event.readyAt > offlineSince && event.readyAt <= now) {
       events.push({ type: "production", text: event.text, income: 0, expense: 0 });
+    }
+  }
+  const livestreamEvents = settleLivestreamJobsForPlayer(player, now);
+  for (const event of livestreamEvents) {
+    if (event.readyAt > offlineSince && event.readyAt <= now) {
+      events.push({ type: "livestream", text: event.text, income: event.income, expense: event.expense });
     }
   }
   player.orders = player.orders.filter((order) => order.expiresAt > now);
@@ -1337,13 +1419,27 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
+  socket.on("scheduleLivestream", ({ productId, mode } = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const job = scheduleLivestream(player, productId, mode);
+    if (!job) return socket.emit("toast", "找不到可直播的成品。");
+    addNews(`${player.name} 安排 ${job.product.name} 自动直播。`, "trade");
+    broadcast();
+  });
+
   socket.on("livestreamSell", (braceletId) => {
     const player = getPlayer(socket);
     if (!player) return;
     const bracelet = takeItem(player, "bracelet", braceletId);
     if (!bracelet) return;
-    const heat = 0.78 + Math.random() * 0.54 + player.rep / 900;
-    const finalPrice = money(bracelet.value * heat);
+    const outcome = livestreamOutcome(bracelet, { mode: "manual", rep: player.rep, seed: Date.now() });
+    if (!outcome.sold) {
+      player.bracelets.push(bracelet);
+      socket.emit("toast", "这场直播未成交，成品已退回库存。");
+      return broadcast();
+    }
+    const finalPrice = money(outcome.price);
     earnCash(player, finalPrice, `直播成交：${bracelet.name}`, { source: "livestream", itemId: bracelet.id });
     player.rep += Math.max(1, Math.round(bracelet.rep * 0.18));
     addNews(`${player.name} 直播卖出 ${bracelet.name}，成交 ${finalPrice}。`, "trade");
@@ -1468,7 +1564,10 @@ function startServer() {
     broadcast();
   }, 25000);
 
-  setInterval(processProductionJobs, 1000);
+  setInterval(() => {
+    processProductionJobs();
+    processLivestreamJobs();
+  }, 1000);
 
   return httpServer.listen(PORT, () => {
     console.log(`Jade Market Prototype running at http://localhost:${PORT}`);
@@ -1492,8 +1591,11 @@ export const __testHooks = {
   snapshotFor,
   startProductionJob,
   completeProductionJob,
+  scheduleLivestream,
   extractProductsFromJob,
   processProductionJobs,
+  settleLivestreamJobsForPlayer,
+  processLivestreamJobs,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,

@@ -14,6 +14,8 @@ const {
   snapshotFor,
   startProductionJob,
   processProductionJobs,
+  scheduleLivestream,
+  processLivestreamJobs,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,
@@ -50,6 +52,21 @@ function auctionRough(id, overrides = {}) {
     price: 12000,
     trueValue: 7000,
     value: 7000,
+    ...overrides
+  };
+}
+
+function testProduct(id = "product-1", overrides = {}) {
+  return {
+    id,
+    type: "bracelet",
+    kind: "bracelet",
+    name: "测试冰种手镯",
+    quality: "冰种",
+    score: 3,
+    color: "晴水",
+    value: 10000,
+    rep: 20,
     ...overrides
   };
 }
@@ -215,6 +232,64 @@ const privateJobSnapshot = snapshotFor(jobPrivacyPlayer);
 assert.equal(privateJobSnapshot.me.jobs.length, 1);
 assert.equal(Object.hasOwn(privateJobSnapshot.me.jobs[0].item, "trueQualityKey"), false);
 assert.equal(Object.hasOwn(privateJobSnapshot.me.jobs[0].item, "trueValue"), false);
+
+resetState();
+
+const livestreamPlayer = makePlayer("livestream-player");
+normalizePlayer(livestreamPlayer);
+state.players.set(livestreamPlayer.id, livestreamPlayer);
+const liveProduct = testProduct("live-product");
+livestreamPlayer.bracelets.push(liveProduct);
+const liveJob = scheduleLivestream(livestreamPlayer, liveProduct.id, "autoBalanced");
+assert.ok(liveJob);
+assert.equal(livestreamPlayer.bracelets.length, 0);
+assert.equal(livestreamPlayer.livestreamJobs.length, 1);
+assert.ok(refreshPlayerReport(livestreamPlayer).inventoryValue >= liveProduct.value);
+liveJob.readyAt = 1;
+processLivestreamJobs(2);
+assert.equal(livestreamPlayer.livestreamJobs.length, 1);
+assert.equal(livestreamPlayer.ledger.length, 0);
+state.sockets.set("socket-live", livestreamPlayer.id);
+processLivestreamJobs(2);
+assert.equal(livestreamPlayer.livestreamJobs.length, 0);
+assert.equal(livestreamPlayer.livestreamHistory.length, 1);
+assert.equal(livestreamPlayer.livestreamHistory[0].outcome.sold, true);
+assert.equal(livestreamPlayer.ledger[0].source, "livestream");
+assert.equal(livestreamPlayer.ledger[0].amount, livestreamPlayer.livestreamHistory[0].outcome.price);
+
+resetState();
+
+const unsoldLivestreamPlayer = makePlayer("unsold-livestream-player");
+normalizePlayer(unsoldLivestreamPlayer);
+state.players.set(unsoldLivestreamPlayer.id, unsoldLivestreamPlayer);
+state.sockets.set("socket-unsold-live", unsoldLivestreamPlayer.id);
+const unsoldProduct = testProduct("unsold-live-product");
+unsoldLivestreamPlayer.bracelets.push(unsoldProduct);
+const unsoldLiveJob = scheduleLivestream(unsoldLivestreamPlayer, unsoldProduct.id, "autoBalanced");
+unsoldLiveJob.readyAt = 8;
+processLivestreamJobs(9);
+assert.equal(unsoldLivestreamPlayer.livestreamJobs.length, 0);
+assert.equal(unsoldLivestreamPlayer.bracelets.length, 1);
+assert.equal(unsoldLivestreamPlayer.bracelets[0].id, unsoldProduct.id);
+assert.equal(unsoldLivestreamPlayer.livestreamHistory[0].outcome.sold, false);
+
+resetState();
+
+const offlineLivestreamPlayer = makePlayer("offline-livestream-player");
+normalizePlayer(offlineLivestreamPlayer);
+offlineLivestreamPlayer.lastSeenAt = 4_000;
+state.players.set(offlineLivestreamPlayer.id, offlineLivestreamPlayer);
+const offlineLiveProduct = testProduct("offline-live-product");
+offlineLivestreamPlayer.bracelets.push(offlineLiveProduct);
+const offlineLiveJob = scheduleLivestream(offlineLivestreamPlayer, offlineLiveProduct.id, "autoBalanced");
+offlineLiveJob.readyAt = 4_500;
+const offlineLiveEvents = settleOfflinePlayer(offlineLivestreamPlayer, 5_000);
+assert.equal(offlineLiveEvents.length, 1);
+assert.equal(offlineLiveEvents[0].type, "livestream");
+assert.equal(offlineLivestreamPlayer.livestreamJobs.length, 0);
+assert.equal(offlineLivestreamPlayer.livestreamHistory.length, 1);
+assert.equal(offlineLivestreamPlayer.offlineSummary.count, 1);
+assert.equal(offlineLivestreamPlayer.offlineSummary.income, offlineLiveEvents[0].income);
 
 resetState();
 

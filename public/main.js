@@ -12,12 +12,14 @@ const playerId = sessionStorage.getItem("jade-player-id");
 const socket = io({ auth: { playerId } });
 
 const tabs = [
-  ["overview", "经营台", "盘"],
-  ["auction", "公盘", "石"],
-  ["workshop", "工坊", "作"],
-  ["orders", "客户", "单"],
-  ["market", "交易", "市"],
-  ["collection", "藏宝阁", "藏"]
+  ["overview", "工坊总览", "盘"],
+  ["auction", "公盘竞拍", "石"],
+  ["workshop", "加工坊", "作"],
+  ["market", "库存交易", "市"],
+  ["livestream", "直播卖货", "播"],
+  ["orders", "客户订单", "单"],
+  ["collection", "声望殿堂", "誉"],
+  ["reports", "经营报告", "报"]
 ];
 
 let state = null;
@@ -104,6 +106,8 @@ const els = {
   mySellables: document.querySelector("#mySellables"),
   marketListings: document.querySelector("#marketListings"),
   listingCount: document.querySelector("#listingCount"),
+  livestream: document.querySelector("#livestreamPanel"),
+  reports: document.querySelector("#reportsPanel"),
   collectionList: document.querySelector("#collectionList"),
   toast: document.querySelector("#toast")
 };
@@ -167,7 +171,8 @@ function currentReportSummary() {
     ...(me.rough || []),
     ...(me.materials || []),
     ...(me.slices || []),
-    ...(me.bracelets || [])
+    ...(me.bracelets || []),
+    ...(me.livestreamJobs || []).map((job) => job.product).filter(Boolean)
   ]);
 }
 
@@ -505,6 +510,8 @@ function render() {
   renderWorkshop();
   renderOrders();
   renderMarket();
+  renderLivestream();
+  renderReports();
   renderCollection();
   paintJades();
 }
@@ -702,7 +709,7 @@ function braceletRow(item) {
         ${route}
         <div class="row-actions">
           ${button("收藏", "collectBracelet", item.id)}
-          ${button("直播卖", "livestreamSell", item.id, "secondary")}
+          ${viewButton("去直播", "livestream", "secondary")}
         </div>
       </div>
     </div>
@@ -776,6 +783,58 @@ function renderMarket() {
       </div>
     `;
   }).join("") || empty("交易行还没有挂单。");
+}
+
+function renderLivestream() {
+  const products = state.me.bracelets || [];
+  const jobs = state.me.livestreamJobs || [];
+  const modeName = {
+    autoConservative: "保守",
+    autoBalanced: "均衡",
+    autoAggressive: "激进"
+  };
+  els.livestream.innerHTML = [
+    ...jobs.map((job) => {
+      const remain = Math.max(0, Math.ceil((job.readyAt - Date.now()) / 1000));
+      return `
+        <article class="rough-card livestream-job-card">
+          ${productCanvas(job.product)}
+          <h3>直播中</h3>
+          <p>${escapeHtml(job.product.name)} · ${escapeHtml(modeName[job.mode] || job.mode)}</p>
+          <p class="card-meta">预计 ${remain} 秒后自动结算，可离线完成</p>
+        </article>
+      `;
+    }),
+    ...products.map((item) => `
+      <article class="rough-card">
+        ${productCanvas(item)}
+        <h3>${escapeHtml(item.name)}</h3>
+        <p class="card-meta">估值 ${formatMoney(item.value)} · 自动直播可离线完成</p>
+        <div class="card-actions">
+          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoConservative">保守</button>
+          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoBalanced">均衡</button>
+          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoAggressive">激进</button>
+        </div>
+      </article>
+    `)
+  ].join("") || empty("暂无可直播成品。");
+}
+
+function renderReports() {
+  const report = currentReportSummary();
+  const advice = Array.isArray(report.advice) ? report.advice : [];
+  els.reports.innerHTML = `
+    <section class="panel report-card">
+      <div class="panel-head"><h3>核心财务</h3><span>当前周期</span></div>
+      <div class="report-metrics">
+        <div><span>收入</span><strong>${formatMoney(report.income)}</strong></div>
+        <div><span>支出</span><strong>${formatMoney(report.expense)}</strong></div>
+        <div><span>净利润</span><strong>${formatMoney(report.net)}</strong></div>
+        <div><span>库存占用</span><strong>${formatMoney(report.inventoryValue)}</strong></div>
+      </div>
+      <div class="fit-list">${advice.map((item) => `<div><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+    </section>
+  `;
 }
 
 function renderCollection() {
@@ -883,6 +942,11 @@ document.body.addEventListener("click", (event) => {
       .map((select) => select.value)
       .filter(Boolean);
     socket.emit("completeOrder", { orderId: payload, braceletIds: values });
+    return;
+  }
+
+  if (action === "scheduleLivestream") {
+    socket.emit("scheduleLivestream", { productId: payload, mode: target.dataset.mode });
     return;
   }
 

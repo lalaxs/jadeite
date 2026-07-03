@@ -1197,6 +1197,52 @@ select {
   gap: 8px;
 }
 
+.livestream-job-card {
+  background: linear-gradient(180deg, #fbfdfb, #eef7f2);
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.report-card {
+  padding-bottom: 14px;
+}
+
+.report-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
+.report-metrics div {
+  display: grid;
+  min-height: 74px;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfdfb;
+}
+
+.report-metrics span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.report-metrics strong {
+  color: var(--jade-dark);
+  font-size: 18px;
+}
+
+.report-card .fit-list {
+  margin: 0 14px;
+}
+
 .treasure-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -1291,7 +1337,8 @@ select {
   }
 
   .action-card,
-  .pipeline-step {
+  .pipeline-step,
+  .report-metrics {
     grid-template-columns: 1fr;
   }
 }

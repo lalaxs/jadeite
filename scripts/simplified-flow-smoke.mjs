@@ -471,4 +471,21 @@ for (const [pattern, message] of productionExpectations) {
   if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
 }
 
+const liveReportExpectations = [
+  [/livestreamJobs\s*:\s*\[\]/, "player state should track livestream jobs"],
+  [/scheduleLivestream/, "server should expose scheduleLivestream"],
+  [/processLivestreamJobs/, "server should process due livestream jobs"],
+  [/livestreamOutcome/, "server should use shared livestream outcomes"],
+  [/reportSummary/, "server and client should use report summaries"],
+  [/直播卖货/, "navigation should include livestream page"],
+  [/经营报告/, "navigation should include report page"],
+  [/autoConservative/, "UI should expose conservative auto livestream mode"],
+  [/autoBalanced/, "UI should expose balanced auto livestream mode"],
+  [/autoAggressive/, "UI should expose aggressive auto livestream mode"]
+];
+
+for (const [pattern, message] of liveReportExpectations) {
+  if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");
