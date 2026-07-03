@@ -125,6 +125,35 @@ function auctionHeldDeposit(bid = {}) {
   return bidDeposit(auctionBidExposure(bid));
 }
 
+function queueOfflineEvent(player, event) {
+  if (!player || isPlayerOnline(player)) return;
+  player.pendingOfflineEvents ||= [];
+  player.pendingOfflineEvents.push({
+    type: event.type || "system",
+    text: String(event.text || ""),
+    income: money(event.income),
+    expense: money(event.expense),
+    readyAt: Number(event.readyAt || Date.now())
+  });
+  player.pendingOfflineEvents = player.pendingOfflineEvents.slice(-40);
+}
+
+function consumePendingOfflineEvents(player, offlineSince, now) {
+  player.pendingOfflineEvents ||= [];
+  const consumed = [];
+  const future = [];
+  for (const event of player.pendingOfflineEvents) {
+    const readyAt = Number(event.readyAt || 0);
+    if (readyAt > offlineSince && readyAt <= now) {
+      consumed.push(event);
+    } else if (readyAt > now) {
+      future.push(event);
+    }
+  }
+  player.pendingOfflineEvents = future;
+  return consumed;
+}
+
 function publicPlayer(player) {
   normalizePlayer(player);
   return {
@@ -217,8 +246,9 @@ function publicLivestreamJob(job) {
 function privatePlayerSnapshot(player) {
   normalizePlayer(player);
   refreshPlayerReport(player);
+  const { pendingOfflineEvents, ...safePlayer } = player;
   return {
-    ...player,
+    ...safePlayer,
     jobs: player.jobs.map(publicProductionJob),
     rough: player.rough.map(publicStone),
     polishingJobs: player.polishingJobs.map(publicProductionJob),
@@ -389,6 +419,13 @@ function settleAuctionIfDue(now = Date.now()) {
     const refund = auctionHeldDeposit(bid);
     if (refund > 0) {
       releaseDeposit(bidder, refund, `退回保证金：${rough.name}`, { itemId: rough.id });
+      queueOfflineEvent(bidder, {
+        type: "auction",
+        text: `公盘未中标：${rough.name} 退回保证金 ${refund}`,
+        income: refund,
+        expense: 0,
+        readyAt: settled.settledAt
+      });
     }
   }
   for (const result of settled.results) {
@@ -409,6 +446,13 @@ function settleAuctionIfDue(now = Date.now()) {
     result.balanceDue = Math.max(0, money(result.price) - depositUsed);
     if (winner.cash < result.balanceDue) {
       addNews(`${winner.name} 中标 ${rough.name} 后尾款不足，保证金被没收。`, "bad");
+      queueOfflineEvent(winner, {
+        type: "auction",
+        text: `公盘中标：${rough.name} 尾款不足，保证金被没收`,
+        income: 0,
+        expense: 0,
+        readyAt: settled.settledAt
+      });
       result.status = "passed";
       result.price = 0;
       result.depositUsed = 0;
@@ -424,6 +468,13 @@ function settleAuctionIfDue(now = Date.now()) {
     }
     state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
     winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
+    queueOfflineEvent(winner, {
+      type: "auction",
+      text: `公盘中标：${rough.name} 成交 ${money(result.price)}，已入库`,
+      income: depositRefund,
+      expense: result.balanceDue,
+      readyAt: settled.settledAt
+    });
     refreshPlayerReport(winner);
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
@@ -513,6 +564,7 @@ function makePlayer(playerId) {
     livestreamHistory: [],
     collection: [],
     orders: [],
+    pendingOfflineEvents: [],
     stats: {
       cutCount: 0,
       craftCount: 0,
@@ -539,6 +591,7 @@ function normalizePlayer(player) {
   player.orders ||= [];
   player.ledger ||= [];
   player.offlineSummary ||= null;
+  player.pendingOfflineEvents ||= [];
   player.reports ||= [];
   player.lastSeenAt ||= Date.now();
   player.stats ||= {};
@@ -1308,26 +1361,6 @@ function processPolishingJobs(now = Date.now()) {
   return changed;
 }
 
-function auctionSettlementEventsForPlayer(player, offlineSince, now) {
-  const round = state.auction;
-  if (!round?.settledAt || round.settledAt <= offlineSince || round.settledAt > now) return [];
-  return (round.results || [])
-    .filter((result) => result.winnerId === player.id && result.status === "won")
-    .map((result) => {
-      const rough = round.roughs.find((item) => item.id === result.roughId);
-      const bid = (round.bids || []).find((item) => item.playerId === player.id && item.roughId === result.roughId);
-      const heldDeposit = auctionHeldDeposit(bid);
-      const depositUsed = Math.min(money(result.price), heldDeposit);
-      return {
-        type: "auction",
-        text: `公盘中标：${rough?.name || "原石"} 成交 ${money(result.price)}，已入库`,
-        income: Math.max(0, heldDeposit - depositUsed),
-        expense: Math.max(0, money(result.price) - depositUsed),
-        readyAt: round.settledAt
-      };
-    });
-}
-
 function settleOfflinePlayer(player, now = Date.now()) {
   normalizePlayer(player);
   const offlineSince = player.lastSeenAt || now;
@@ -1335,7 +1368,7 @@ function settleOfflinePlayer(player, now = Date.now()) {
   if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
     settleAuctionIfDue(now);
   }
-  events.push(...auctionSettlementEventsForPlayer(player, offlineSince, now));
+  events.push(...consumePendingOfflineEvents(player, offlineSince, now));
   const productionEvents = settleProductionJobsForPlayer(player, now);
   for (const event of productionEvents) {
     if (event.readyAt > offlineSince && event.readyAt <= now) {
@@ -1368,8 +1401,8 @@ io.on("connection", (socket) => {
 
   const player = state.players.get(playerId);
   const wasOnline = isPlayerOnline(player);
-  state.sockets.set(socket.id, playerId);
   if (!wasOnline) settleOfflinePlayer(player);
+  state.sockets.set(socket.id, playerId);
   socket.emit("hello", { playerId });
   broadcast();
 

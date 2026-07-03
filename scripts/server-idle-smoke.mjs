@@ -484,6 +484,31 @@ assert.equal(offlineAuctionWinner.offlineSummary, null);
 
 resetState();
 
+const rotatedOfflineAuctionWinner = makePlayer("rotated-offline-auction-winner");
+normalizePlayer(rotatedOfflineAuctionWinner);
+rotatedOfflineAuctionWinner.cash = 50000;
+rotatedOfflineAuctionWinner.lastSeenAt = 1_000;
+state.players.set(rotatedOfflineAuctionWinner.id, rotatedOfflineAuctionWinner);
+const rotatedOfflineAuctionRough = auctionRough("rotated-offline-auction-rough", { price: 1000, trueValue: 1000, value: 1000 });
+makeAuctionRound([rotatedOfflineAuctionRough], { biddingEndsAt: 2_000, settlesAt: 2_000 });
+bidResult = submitAuctionBidForPlayer(rotatedOfflineAuctionWinner, { roughId: rotatedOfflineAuctionRough.id, amount: 1000, proxyMax: 1000 }, 1_200);
+assert.equal(bidResult.ok, true);
+assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(rotatedOfflineAuctionWinner.rough.some((rough) => rough.id === rotatedOfflineAuctionRough.id), true);
+assert.equal(rotatedOfflineAuctionWinner.cash, 49000);
+state.auction = null;
+const rotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 5_000);
+assert.equal(rotatedOfflineAuctionEvents.length, 1);
+assert.equal(rotatedOfflineAuctionEvents[0].type, "auction");
+assert.match(rotatedOfflineAuctionEvents[0].text, /公盘/);
+assert.equal(rotatedOfflineAuctionWinner.offlineSummary.count, 1);
+assert.match(rotatedOfflineAuctionWinner.offlineSummary.lines[0], /公盘/);
+const duplicateRotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 5_001);
+assert.equal(duplicateRotatedOfflineAuctionEvents.length, 0);
+assert.equal(rotatedOfflineAuctionWinner.offlineSummary, null);
+
+resetState();
+
 const listedReportPlayer = makePlayer("listed-report-player");
 normalizePlayer(listedReportPlayer);
 const listedReportItem = testProduct("listed-report-product", { value: 15000 });

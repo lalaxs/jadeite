@@ -373,8 +373,8 @@ const connectionBody = extractBlockFrom(server, server.indexOf('io.on("connectio
 if (!/const\s+wasOnline\s*=\s*isPlayerOnline\(player\)/.test(connectionBody)) {
   throw new Error("connection should capture prior online state before registering the socket");
 }
-if (!/const\s+wasOnline[\s\S]*state\.sockets\.set\(socket\.id,\s*playerId\)[\s\S]*if\s*\(!wasOnline\)\s*settleOfflinePlayer\(player\)/.test(connectionBody)) {
-  throw new Error("connection should settle offline progress only on 0-to-1 socket transitions");
+if (!/const\s+wasOnline[\s\S]*if\s*\(!wasOnline\)\s*settleOfflinePlayer\(player\)[\s\S]*state\.sockets\.set\(socket\.id,\s*playerId\)/.test(connectionBody)) {
+  throw new Error("connection should settle offline progress on 0-to-1 socket transitions before registering the new socket");
 }
 
 const disconnectBody = extractSocketHandlerBody(connectionBody, "disconnect");
