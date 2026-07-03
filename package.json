@@ -1,0 +1,21 @@
+{
+  "name": "jade-market-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "npm run test:loop && npm run test:rules && npm run test:renderer && npm run test:volume && npm run test:canvas && npm run test:flow",
+    "test:loop": "node scripts/jade-loop-smoke.mjs",
+    "test:rules": "node scripts/jade-rules-smoke.mjs",
+    "test:renderer": "node scripts/jade-renderer-smoke.mjs",
+    "test:volume": "node scripts/jade-volume-smoke.mjs",
+    "test:canvas": "node scripts/canvas-only-smoke.mjs",
+    "test:flow": "node scripts/simplified-flow-smoke.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  }
+}
