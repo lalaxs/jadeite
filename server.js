@@ -73,6 +73,7 @@ function recordLedger(player, kind, amount, note, meta = {}) {
   const repSource = entry.kind === "expense" ? "expense" : entry.source;
   const repGain = repFromCashFlow(repSource, Math.abs(entry.amount));
   if (repGain) player.rep += repGain;
+  refreshPlayerReport(player);
   return entry;
 }
 
@@ -169,6 +170,7 @@ function publicListing(listing) {
 
 function privatePlayerSnapshot(player) {
   normalizePlayer(player);
+  refreshPlayerReport(player);
   return {
     ...player,
     rough: player.rough.map(publicStone),
@@ -322,8 +324,8 @@ function makePlayer(playerId) {
 }
 
 function normalizePlayer(player) {
-  player.cash = Number.isFinite(Number(player.cash)) ? player.cash : 30000;
-  player.rep = Number.isFinite(Number(player.rep)) ? player.rep : 0;
+  player.cash = Number.isFinite(Number(player.cash)) ? Number(player.cash) : 30000;
+  player.rep = Number.isFinite(Number(player.rep)) ? Number(player.rep) : 0;
   player.rough ||= [];
   player.polishingJobs ||= player.cuttingJobs || [];
   player.cuttingJobs = [];
@@ -343,6 +345,22 @@ function normalizePlayer(player) {
   player.stats.craftCount ||= 0;
   player.stats.orderCount ||= 0;
   player.stats.tradeCount ||= 0;
+}
+
+function inventoryForReport(player) {
+  return [
+    ...(player.rough || []),
+    ...(player.materials || []),
+    ...(player.slices || []),
+    ...(player.bracelets || [])
+  ];
+}
+
+function refreshPlayerReport(player, now = Date.now()) {
+  if (!player) return null;
+  player.ledger ||= [];
+  player.reports = [reportSummary(player.ledger, inventoryForReport(player), now)];
+  return player.reports[0];
 }
 
 function makeOrder(player) {
@@ -380,12 +398,16 @@ function getPlayer(socket) {
   return state.players.get(playerId);
 }
 
-function isPlayerOnline(player) {
-  if (!player) return false;
-  for (const playerId of state.sockets.values()) {
-    if (playerId === player.id) return true;
+function playerSocketCount(playerId) {
+  let count = 0;
+  for (const activePlayerId of state.sockets.values()) {
+    if (activePlayerId === playerId) count += 1;
   }
-  return false;
+  return count;
+}
+
+function isPlayerOnline(player) {
+  return Boolean(player?.id) && playerSocketCount(player.id) > 0;
 }
 
 function itemValue(item) {
@@ -870,7 +892,7 @@ function settleOfflinePlayer(player, now = Date.now()) {
   refillOrders(player);
   player.offlineSummary = events.length ? makeOfflineSummary(events) : null;
   player.lastSeenAt = now;
-  player.reports = [reportSummary(player.ledger, [...player.rough, ...player.materials, ...player.slices, ...player.bracelets], now)];
+  refreshPlayerReport(player, now);
   return events;
 }
 
@@ -885,8 +907,9 @@ io.on("connection", (socket) => {
   }
 
   const player = state.players.get(playerId);
-  settleOfflinePlayer(player);
+  const wasOnline = isPlayerOnline(player);
   state.sockets.set(socket.id, playerId);
+  if (!wasOnline) settleOfflinePlayer(player);
   socket.emit("hello", { playerId });
   broadcast();
 
@@ -1159,9 +1182,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    const player = getPlayer(socket);
-    if (player) player.lastSeenAt = Date.now();
+    const playerId = state.sockets.get(socket.id);
     state.sockets.delete(socket.id);
+    if (playerId && playerSocketCount(playerId) === 0) {
+      const player = state.players.get(playerId);
+      if (player) player.lastSeenAt = Date.now();
+    }
     broadcast();
   });
 });

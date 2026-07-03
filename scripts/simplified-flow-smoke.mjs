@@ -24,7 +24,8 @@ function extractObjectEntry(source, key) {
 function extractFunctionBody(source, name) {
   const start = source.indexOf(`function ${name}`);
   if (start < 0) throw new Error(`missing function: ${name}`);
-  const open = source.indexOf("{", start);
+  const signatureEnd = source.indexOf(")", start);
+  const open = source.indexOf("{", signatureEnd);
   if (open < 0) throw new Error(`missing function body: ${name}`);
   let depth = 0;
   for (let index = open; index < source.length; index += 1) {
@@ -36,6 +37,27 @@ function extractFunctionBody(source, name) {
     }
   }
   throw new Error(`unterminated function body: ${name}`);
+}
+
+function extractBlockFrom(source, start, label) {
+  if (start < 0) throw new Error(`missing block: ${label}`);
+  const open = source.indexOf("{", start);
+  if (open < 0) throw new Error(`missing block body: ${label}`);
+  let depth = 0;
+  for (let index = open; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(open, index + 1);
+    }
+  }
+  throw new Error(`unterminated block: ${label}`);
+}
+
+function extractSocketHandlerBody(source, eventName) {
+  const start = source.indexOf(`socket.on("${eventName}"`);
+  return extractBlockFrom(source, start, `socket handler: ${eventName}`);
 }
 
 const serverExpectations = [
@@ -300,16 +322,40 @@ for (const [pattern, message] of idleFrontendExpectations) {
 }
 
 const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");
-if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*player\.cash\s*:\s*30000/.test(normalizePlayerBody)) {
-  throw new Error("normalizePlayer should initialize cash with a numeric default");
+if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*Number\(player\.cash\)\s*:\s*30000/.test(normalizePlayerBody)) {
+  throw new Error("normalizePlayer should coerce cash to a numeric default");
 }
-if (!/player\.rep\s*=\s*Number\.isFinite\(Number\(player\.rep\)\)\s*\?\s*player\.rep\s*:\s*0/.test(normalizePlayerBody)) {
-  throw new Error("normalizePlayer should initialize rep with a numeric default");
+if (!/player\.rep\s*=\s*Number\.isFinite\(Number\(player\.rep\)\)\s*\?\s*Number\(player\.rep\)\s*:\s*0/.test(normalizePlayerBody)) {
+  throw new Error("normalizePlayer should coerce rep to a numeric default");
+}
+
+if (!/function inventoryForReport\b/.test(server)) {
+  throw new Error("server should build report inventory through one helper");
+}
+if (!/function refreshPlayerReport\b/.test(server)) {
+  throw new Error("server should refresh report summaries through one helper");
+}
+
+const recordLedgerBody = extractFunctionBody(server, "recordLedger");
+if (!/refreshPlayerReport\(player\)/.test(recordLedgerBody)) {
+  throw new Error("recordLedger should refresh reports after ledger changes");
+}
+
+const privatePlayerSnapshotBody = extractFunctionBody(server, "privatePlayerSnapshot");
+if (!/refreshPlayerReport\(player\)/.test(privatePlayerSnapshotBody)) {
+  throw new Error("privatePlayerSnapshot should guarantee a current report");
 }
 
 const processPolishingJobsBody = extractFunctionBody(server, "processPolishingJobs");
 if (!/(isPlayerOnline\(player\)|state\.sockets)/.test(processPolishingJobsBody) || !/continue/.test(processPolishingJobsBody)) {
   throw new Error("processPolishingJobs should skip disconnected players before consuming jobs");
+}
+if (!/function playerSocketCount\b/.test(server)) {
+  throw new Error("server should count active sockets per player");
+}
+const isPlayerOnlineBody = extractFunctionBody(server, "isPlayerOnline");
+if (!/playerSocketCount\(player\.id\)\s*>\s*0/.test(isPlayerOnlineBody)) {
+  throw new Error("isPlayerOnline should use active socket counts");
 }
 
 const settleOfflinePlayerBody = extractFunctionBody(server, "settleOfflinePlayer");
@@ -318,6 +364,25 @@ if (!/const\s+offlineSince\s*=\s*player\.lastSeenAt\s*\|\|\s*now/.test(settleOff
 }
 if (!/readyAt\s*>\s*offlineSince/.test(settleOfflinePlayerBody)) {
   throw new Error("settleOfflinePlayer should summarize only jobs completed during the offline interval");
+}
+if (!/refreshPlayerReport\(player,\s*now\)/.test(settleOfflinePlayerBody)) {
+  throw new Error("settleOfflinePlayer should refresh reports after offline settlement");
+}
+
+const connectionBody = extractBlockFrom(server, server.indexOf('io.on("connection"'), "connection handler");
+if (!/const\s+wasOnline\s*=\s*isPlayerOnline\(player\)/.test(connectionBody)) {
+  throw new Error("connection should capture prior online state before registering the socket");
+}
+if (!/const\s+wasOnline[\s\S]*state\.sockets\.set\(socket\.id,\s*playerId\)[\s\S]*if\s*\(!wasOnline\)\s*settleOfflinePlayer\(player\)/.test(connectionBody)) {
+  throw new Error("connection should settle offline progress only on 0-to-1 socket transitions");
+}
+
+const disconnectBody = extractSocketHandlerBody(connectionBody, "disconnect");
+if (!/const\s+playerId\s*=\s*state\.sockets\.get\(socket\.id\)/.test(disconnectBody)) {
+  throw new Error("disconnect should capture player id before deleting socket state");
+}
+if (!/state\.sockets\.delete\(socket\.id\)[\s\S]*playerSocketCount\(playerId\)\s*===\s*0[\s\S]*lastSeenAt\s*=\s*Date\.now\(\)/.test(disconnectBody)) {
+  throw new Error("disconnect should update lastSeenAt only on 1-to-0 socket transitions");
 }
 
 console.log("Simplified rough-to-bracelet flow checks passed");
