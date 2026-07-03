@@ -255,4 +255,31 @@ if (!/function placementFootprint\b/.test(server) || /a\.radius \+ b\.radius/.te
   throw new Error("server overlap detection should use template footprints instead of one circular radius per kit");
 }
 
+const idleServerExpectations = [
+  [/from "\.\/public\/jade-loop\.js"/, "server should import shared idle loop rules"],
+  [/ledger\s*:\s*\[\]/, "player state should include a ledger"],
+  [/offlineSummary/, "player state should include offline summary data"],
+  [/function recordLedger/, "server should record income and expenses through one helper"],
+  [/function spendCash/, "server should spend cash through one helper"],
+  [/function earnCash/, "server should earn cash through one helper"],
+  [/function settleOfflinePlayer/, "server should settle offline progress when players connect"],
+  [/lastSeenAt/, "server should track last seen timestamps"],
+  [/makeOfflineSummary/, "server should use shared offline summary formatting"],
+  [/repFromCashFlow/, "server should award reputation from qualifying cash flow"]
+];
+
+for (const [pattern, message] of idleServerExpectations) {
+  if (!pattern.test(server)) throw new Error(message);
+}
+
+const idleFrontendExpectations = [
+  [/offlineSummary/, "main.js should render offline summaries"],
+  [/renderOfflineSummary/, "main.js should have a focused offline summary renderer"],
+  [/reportSummary/, "main.js should render lightweight report summaries"]
+];
+
+for (const [pattern, message] of idleFrontendExpectations) {
+  if (!pattern.test(main)) throw new Error(message);
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");

@@ -1,4 +1,5 @@
 import { jadeCanvasMarkup, paintJadeCanvases } from "./jade-renderer.js";
+import { reportSummary } from "./jade-loop.js";
 import {
   analyzeRoughPlacement,
   productMatchesOrder,
@@ -145,6 +146,33 @@ function typeName(type, item = {}) {
 
 function sumValue(items) {
   return items.reduce((sum, item) => sum + Number(item.value || item.price || 0), 0);
+}
+
+function currentReportSummary() {
+  const me = state?.me || {};
+  return me.reports?.[0] || reportSummary(me.ledger || [], [
+    ...(me.rough || []),
+    ...(me.materials || []),
+    ...(me.slices || []),
+    ...(me.bracelets || [])
+  ]);
+}
+
+function renderOfflineSummary() {
+  const summary = state?.me?.offlineSummary;
+  if (!summary || !Number(summary.count)) return "";
+  const lines = Array.isArray(summary.lines) ? summary.lines.slice(0, 3) : [];
+  const flow = [
+    summary.income ? `收入 ${formatMoney(summary.income)}` : "",
+    summary.expense ? `支出 ${formatMoney(summary.expense)}` : ""
+  ].filter(Boolean).join(" · ") || "无现金变动";
+  const detail = lines.length ? `${flow} · ${lines.map(escapeHtml).join(" · ")}` : flow;
+  return `
+    <article class="action-card craft">
+      <div><h4>离线进展 ${Number(summary.count)} 项</h4><p>${detail}</p></div>
+      ${viewButton("看工坊", "workshop", "secondary")}
+    </article>
+  `;
 }
 
 function repTier(rep) {
@@ -476,6 +504,7 @@ function renderNextActions() {
   const revealed = me.rough.filter((rough) => rough.revealed);
   const completable = me.orders.filter((order) => matchingBracelets(order).length >= order.quantity);
   const affordable = state.roughPool.filter((rough) => rough.price <= me.cash).sort((a, b) => a.price - b.price);
+  const report = currentReportSummary();
   const primary = [];
 
   if (completable.length) {
@@ -496,12 +525,18 @@ function renderNextActions() {
   }
 
   primary.push({ tone: "info", title: "开窗信息全员可见", meta: "你花钱开的窗口，会影响所有人的竞拍判断", action: viewButton("看公盘", "auction", "secondary") });
-  els.nextActions.innerHTML = primary.map((item) => `
+  primary.push({
+    tone: report.net >= 0 ? "profit" : "risk",
+    title: "轻量现金流",
+    meta: `收入 ${formatMoney(report.income)} · 支出 ${formatMoney(report.expense)} · 净额 ${formatMoney(report.net)}`,
+    action: ""
+  });
+  els.nextActions.innerHTML = `${renderOfflineSummary()}${primary.map((item) => `
     <article class="action-card ${item.tone}">
       <div><h4>${escapeHtml(item.title)}</h4><p>${escapeHtml(item.meta)}</p></div>
       ${item.action}
     </article>
-  `).join("");
+  `).join("")}`;
 }
 
 function renderPipeline() {

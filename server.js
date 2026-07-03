@@ -5,6 +5,15 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { productMatchesOrder } from "./public/jade-rules.js";
+import {
+  resolveTiming,
+  productionDuration,
+  ledgerEntry,
+  repFromCashFlow,
+  makeOfflineSummary,
+  livestreamOutcome,
+  reportSummary
+} from "./public/jade-loop.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +24,9 @@ const io = new Server(httpServer);
 const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
 const POLISH_FEE = 620;
-const POLISH_DURATION_MS = 12000;
+const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
+const TIMING = resolveTiming(TIMING_PROFILE);
+const POLISH_DURATION_MS = productionDuration("rough", TIMING_PROFILE);
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -52,6 +63,32 @@ function clamp(value, min, max) {
 
 function money(value) {
   return Math.max(0, Math.round(value));
+}
+
+function recordLedger(player, kind, amount, note, meta = {}) {
+  player.ledger ||= [];
+  const entry = ledgerEntry(kind, amount, note, meta);
+  player.ledger.unshift(entry);
+  player.ledger = player.ledger.slice(0, 200);
+  const repSource = entry.kind === "expense" ? "expense" : entry.source;
+  const repGain = repFromCashFlow(repSource, Math.abs(entry.amount));
+  if (repGain) player.rep += repGain;
+  return entry;
+}
+
+function spendCash(player, amount, note, meta = {}) {
+  const cost = money(amount);
+  if (player.cash < cost) return false;
+  player.cash -= cost;
+  recordLedger(player, "expense", cost, note, meta);
+  return true;
+}
+
+function earnCash(player, amount, note, meta = {}) {
+  const income = money(amount);
+  player.cash += income;
+  recordLedger(player, "income", income, note, meta);
+  return income;
 }
 
 function publicPlayer(player) {
@@ -261,9 +298,13 @@ function makePlayer(playerId) {
   return {
     id: playerId,
     name: `新手掌柜${suffix}`,
-    cash: 28000,
-    rep: 8,
+    cash: 30000,
+    rep: 0,
     satisfaction: 72,
+    offlineSummary: null,
+    ledger: [],
+    lastSeenAt: Date.now(),
+    reports: [],
     rough: [],
     polishingJobs: [],
     materials: [],
@@ -289,6 +330,10 @@ function normalizePlayer(player) {
   player.bracelets ||= [];
   player.collection ||= [];
   player.orders ||= [];
+  player.ledger ||= [];
+  player.offlineSummary ||= null;
+  player.reports ||= [];
+  player.lastSeenAt ||= Date.now();
   player.stats ||= {};
   player.stats.cutCount ||= 0;
   player.stats.sliceCount ||= 0;
@@ -728,7 +773,7 @@ function resolveCuttingJob(player, job) {
 
   if (Math.random() < breakChance) {
     const salvage = money(rough.price * (0.08 + Math.random() * 0.2));
-    player.cash += salvage;
+    earnCash(player, salvage, `切垮回收：${rough.name}`, { source: "salvage", itemId: rough.id });
     player.rep = Math.max(0, player.rep - 2);
     addNews(`${player.name} 用${cutAngleName(job.angle)}切垮 ${rough.name}，只回收 ${salvage}。`, "bad");
     return;
@@ -793,6 +838,28 @@ function processPolishingJobs() {
   if (changed) broadcast();
 }
 
+function settleOfflinePlayer(player, now = Date.now()) {
+  normalizePlayer(player);
+  const events = [];
+  const ready = player.polishingJobs.filter((job) => job.readyAt <= now);
+  if (ready.length) {
+    player.polishingJobs = player.polishingJobs.filter((job) => job.readyAt > now);
+    for (const job of ready) {
+      const polished = revealPolishedRough(job.rough);
+      player.rough.push(polished);
+      player.rep += Math.max(1, Math.round(polished.rep * 0.45));
+      events.push({ type: "production", text: `${polished.name} 加工完成`, income: 0, expense: 0 });
+      addNews(`${player.name} 完成 ${polished.name} 加工，料性完全揭露。`, polished.score >= 4 ? "great" : "craft");
+    }
+  }
+  player.orders = player.orders.filter((order) => order.expiresAt > now);
+  refillOrders(player);
+  player.offlineSummary = events.length ? makeOfflineSummary(events) : null;
+  player.lastSeenAt = now;
+  player.reports = [reportSummary(player.ledger, [...player.rough, ...player.materials, ...player.slices, ...player.bracelets], now)];
+  return events;
+}
+
 io.on("connection", (socket) => {
   const requestedId = socket.handshake.auth?.playerId;
   const playerId = requestedId || randomUUID();
@@ -803,6 +870,8 @@ io.on("connection", (socket) => {
     addNews(`${player.name} 来到翡翠街。`);
   }
 
+  const player = state.players.get(playerId);
+  settleOfflinePlayer(player);
   state.sockets.set(socket.id, playerId);
   socket.emit("hello", { playerId });
   broadcast();
@@ -821,8 +890,9 @@ io.on("connection", (socket) => {
     const index = state.roughPool.findIndex((rough) => rough.id === roughId);
     if (!player || index < 0) return;
     const rough = state.roughPool[index];
-    if (player.cash < rough.price) return socket.emit("toast", "资金不足，拍不下这块料。");
-    player.cash -= rough.price;
+    if (!spendCash(player, rough.price, `公盘成交：${rough.name}`, { source: "auction", itemId: rough.id })) {
+      return socket.emit("toast", "资金不足，拍不下这块料。");
+    }
     player.rough.push({ ...rough, type: "rough", owner: player.id, revealed: false, polished: false });
     state.roughPool.splice(index, 1);
     refreshRoughPool();
@@ -836,8 +906,9 @@ io.on("connection", (socket) => {
     const rough = state.roughPool.find((item) => item.id === roughId);
     if (!player || !rough) return;
     const fee = money(rough.price * OPEN_WINDOW_RATE);
-    if (player.cash < fee) return socket.emit("toast", `开窗费需要 ${fee}。`);
-    player.cash -= fee;
+    if (!spendCash(player, fee, `开窗：${rough.name}`, { source: "window", itemId: rough.id })) {
+      return socket.emit("toast", `开窗费需要 ${fee}。`);
+    }
     rough.windows = [...(rough.windows || []), makeWindowReveal(rough, { x, y })].slice(0, 6);
     addNews(`${player.name} 花 ${fee} 为 ${rough.name} 请求开窗，公盘信息更新。`, "info");
     broadcast();
@@ -853,11 +924,10 @@ io.on("connection", (socket) => {
       player.rough.push(rough);
       return socket.emit("toast", "这块料已经全料打磨完成。");
     }
-    if (player.cash < POLISH_FEE) {
+    if (!spendCash(player, POLISH_FEE, `粗加工：${rough.name}`, { source: "production", itemId: rough.id })) {
       player.rough.push(rough);
-      return socket.emit("toast", "全料打磨工费不够。");
+      return socket.emit("toast", "加工费不够。");
     }
-    player.cash -= POLISH_FEE;
     player.polishingJobs.push({
       id: randomUUID(),
       type: "polishingJob",
@@ -907,11 +977,10 @@ io.on("connection", (socket) => {
       return socket.emit("toast", "套件位置互相重叠，重新摆一下。");
     }
     const craftCost = normalizedKits.reduce((sum, kit) => sum + (EXTRACTION_KITS[kit.type]?.cost || 580), 0);
-    if (player.cash < craftCost) {
+    if (!spendCash(player, craftCost, `取件加工：${rough.name}`, { source: "production", itemId: rough.id })) {
       player.rough.push(rough);
       return socket.emit("toast", "取手镯加工费不够。");
     }
-    player.cash -= craftCost;
     const totalSlots = existingPlacements.length + placements.length;
     const valueBase = Math.max(rough.value || rough.price, rough.price) / Math.max(2, totalSlots + 1);
     const products = placements.map((placement) => {
@@ -988,7 +1057,7 @@ io.on("connection", (socket) => {
     if (!bracelet) return;
     const heat = 0.78 + Math.random() * 0.54 + player.rep / 900;
     const finalPrice = money(bracelet.value * heat);
-    player.cash += finalPrice;
+    earnCash(player, finalPrice, `直播成交：${bracelet.name}`, { source: "livestream", itemId: bracelet.id });
     player.rep += Math.max(1, Math.round(bracelet.rep * 0.18));
     addNews(`${player.name} 直播卖出 ${bracelet.name}，成交 ${finalPrice}。`, "trade");
     broadcast();
@@ -1012,7 +1081,7 @@ io.on("connection", (socket) => {
     const repGain = qualityOk && onTime ? order.rep : Math.max(-8, -Math.round(order.rep * 0.35));
 
     selectedIds.forEach((id) => takeItem(player, "bracelet", id));
-    player.cash += finalPay;
+    earnCash(player, finalPay, `订单交付：${order.client}`, { source: "order", itemId: order.id });
     player.rep = Math.max(0, player.rep + repGain);
     player.satisfaction = clamp(player.satisfaction + (qualityOk && onTime ? 8 : -16), 0, 100);
     player.stats.orderCount += 1;
@@ -1051,10 +1120,11 @@ io.on("connection", (socket) => {
     const listing = state.listings[index];
     if (listing.ownerId === player.id) return socket.emit("toast", "不能购买自己的挂单。");
     const seller = state.players.get(listing.ownerId);
-    if (player.cash < listing.price) return socket.emit("toast", "资金不足。");
-    player.cash -= listing.price;
+    if (!spendCash(player, listing.price, `交易行购入：${listing.item.name}`, { source: "market", itemId: listing.item.id })) {
+      return socket.emit("toast", "资金不足。");
+    }
     if (seller) {
-      seller.cash += listing.price;
+      earnCash(seller, listing.price, `交易行成交：${listing.item.name}`, { source: "market", itemId: listing.item.id });
       seller.rep += 2;
       seller.stats.tradeCount += 1;
     }
@@ -1068,13 +1138,15 @@ io.on("connection", (socket) => {
   socket.on("refreshOrders", () => {
     const player = getPlayer(socket);
     if (!player) return;
-    player.cash = Math.max(0, player.cash - 300);
+    if (!spendCash(player, 300, "刷新客户", { source: "orderRefresh" })) return socket.emit("toast", "刷新客户需要 300。");
     player.orders = [];
     refillOrders(player);
     broadcast();
   });
 
   socket.on("disconnect", () => {
+    const player = getPlayer(socket);
+    if (player) player.lastSeenAt = Date.now();
     state.sockets.delete(socket.id);
     broadcast();
   });
