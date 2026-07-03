@@ -78,9 +78,11 @@ function recordLedger(player, kind, amount, note, meta = {}) {
   const entry = ledgerEntry(kind, amount, note, meta);
   player.ledger.unshift(entry);
   player.ledger = player.ledger.slice(0, 200);
-  const repSource = entry.kind === "expense" ? "expense" : entry.source;
-  const repGain = repFromCashFlow(repSource, Math.abs(entry.amount));
-  if (repGain) player.rep += repGain;
+  if (meta.repEligible !== false) {
+    const repSource = entry.kind === "expense" ? "expense" : entry.source;
+    const repGain = repFromCashFlow(repSource, Math.abs(entry.amount));
+    if (repGain) player.rep += repGain;
+  }
   refreshPlayerReport(player);
   return entry;
 }
@@ -97,6 +99,21 @@ function earnCash(player, amount, note, meta = {}) {
   const income = money(amount);
   player.cash += income;
   recordLedger(player, "income", income, note, meta);
+  return income;
+}
+
+function holdDeposit(player, amount, note, meta = {}) {
+  const cost = money(amount);
+  if (player.cash < cost) return false;
+  player.cash -= cost;
+  recordLedger(player, "expense", cost, note, { ...meta, source: meta.source || "auctionDeposit", repEligible: false });
+  return true;
+}
+
+function releaseDeposit(player, amount, note, meta = {}) {
+  const income = money(amount);
+  player.cash += income;
+  recordLedger(player, "income", income, note, { ...meta, source: meta.source || "auctionRefund", repEligible: false });
   return income;
 }
 
@@ -193,13 +210,15 @@ function privatePlayerSnapshot(player) {
   };
 }
 
-function snapshotFor(player) {
+function snapshotFor(player, now = Date.now()) {
   normalizePlayer(player);
+  settleAuctionIfDue(now);
+  const auction = ensureAuctionRound(now);
   return {
     me: privatePlayerSnapshot(player),
     roughPool: state.roughPool.map(publicStone),
     listings: state.listings.map(publicListing),
-    auction: publicAuctionSnapshot(ensureAuctionRound(), player.id),
+    auction: publicAuctionSnapshot(auction, player.id, now),
     players: [...state.players.values()].map(publicPlayer).sort((a, b) => b.rep - a.rep),
     news: state.news
   };
@@ -346,29 +365,71 @@ function settleAuctionIfDue(now = Date.now()) {
     if (!bidder || !rough) continue;
     const refund = bidDeposit(bid.amount);
     if (refund > 0) {
-      earnCash(bidder, refund, `退回保证金：${rough.name}`, { source: "auctionRefund", itemId: rough.id });
+      releaseDeposit(bidder, refund, `退回保证金：${rough.name}`, { itemId: rough.id });
     }
   }
   for (const result of settled.results) {
     if (!result.winnerId) continue;
     const rough = settled.roughs.find((item) => item.id === result.roughId);
     if (!rough) continue;
-    state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
-    if (result.ai) continue;
+    if (result.ai) {
+      state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
+      continue;
+    }
     const winner = state.players.get(result.winnerId);
     if (!winner) continue;
     if (winner.cash < result.balanceDue) {
       addNews(`${winner.name} 中标 ${rough.name} 后尾款不足，保证金被没收。`, "bad");
+      result.status = "passed";
+      result.price = 0;
+      result.depositUsed = 0;
+      result.balanceDue = 0;
+      delete result.winnerId;
       continue;
     }
     if (result.balanceDue > 0) {
       spendCash(winner, result.balanceDue, `公盘尾款：${rough.name}`, { source: "auction", itemId: rough.id });
     }
+    state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
     winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
   refreshRoughPool();
   return true;
+}
+
+function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  if (!payload || typeof payload !== "object") return { ok: false, message: "投标参数无效。" };
+  normalizePlayer(player);
+  if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
+    settleAuctionIfDue(now);
+  }
+  const round = ensureAuctionRound(now);
+  if (round.settledAt || now >= round.biddingEndsAt || round.status !== "bidding") {
+    return { ok: false, message: "本轮公盘已截止。" };
+  }
+  const roughId = payload.roughId;
+  const rough = round.roughs.find((item) => item.id === roughId);
+  if (!rough) return { ok: false, message: "这块原石不在当前公盘。" };
+  const bidAmount = money(payload.amount);
+  if (bidAmount < rough.price) return { ok: false, message: "暗标不能低于底价。" };
+  const next = upsertBid(round, {
+    playerId: player.id,
+    roughId,
+    amount: bidAmount,
+    proxyMax: payload.proxyMax,
+    at: now
+  });
+  if (next.depositDelta > 0 && !holdDeposit(player, next.depositDelta, `公盘保证金：${rough.name}`, { itemId: rough.id })) {
+    return { ok: false, message: `保证金还需 ${next.depositDelta}。` };
+  }
+  if (next.depositDelta < 0) {
+    releaseDeposit(player, Math.abs(next.depositDelta), `退回保证金：${rough.name}`, { itemId: rough.id });
+  }
+  state.auction = next.round;
+  addNews(`${player.name} 提交了 ${rough.name} 的密封投标。`, "info");
+  return { ok: true, message: "暗标已提交。", bid: next.bid, depositDelta: next.depositDelta };
 }
 
 function makePlayer(playerId) {
@@ -998,23 +1059,11 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("submitAuctionBid", ({ roughId, amount, proxyMax }) => {
+  socket.on("submitAuctionBid", (payload) => {
     const player = getPlayer(socket);
     if (!player) return;
-    const round = ensureAuctionRound();
-    const rough = round.roughs.find((item) => item.id === roughId);
-    if (!rough) return socket.emit("toast", "这块原石不在当前公盘。");
-    const bidAmount = money(amount);
-    if (bidAmount < rough.price) return socket.emit("toast", "暗标不能低于底价。");
-    const next = upsertBid(round, { playerId: player.id, roughId, amount: bidAmount, proxyMax, at: Date.now() });
-    if (next.depositDelta > 0 && !spendCash(player, next.depositDelta, `公盘保证金：${rough.name}`, { source: "auction", itemId: rough.id })) {
-      return socket.emit("toast", `保证金还需 ${next.depositDelta}。`);
-    }
-    if (next.depositDelta < 0) {
-      earnCash(player, Math.abs(next.depositDelta), `退回保证金：${rough.name}`, { source: "auctionRefund", itemId: rough.id });
-    }
-    state.auction = next.round;
-    addNews(`${player.name} 提交了 ${rough.name} 的密封投标。`, "info");
+    const result = submitAuctionBidForPlayer(player, payload);
+    if (!result.ok) return socket.emit("toast", result.message);
     broadcast();
   });
 
@@ -1317,9 +1366,13 @@ export const __testHooks = {
   recordLedger,
   spendCash,
   earnCash,
+  holdDeposit,
+  releaseDeposit,
   settleOfflinePlayer,
+  submitAuctionBidForPlayer,
   ensureAuctionRound,
   settleAuctionIfDue,
+  snapshotFor,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,

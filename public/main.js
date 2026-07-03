@@ -242,15 +242,17 @@ function myBidFor(roughId) {
 
 function renderAuctionBidControls(rough) {
   const bid = myBidFor(rough.id);
+  const canBid = state.auction?.phase === "bidding";
+  const disabled = canBid ? "" : "disabled";
   return `
     <div class="bid-controls">
       <label>密封投标
-        <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.amount || rough.price}">
+        <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.amount || rough.price}" ${disabled}>
       </label>
       <label>代理上限
-        <input data-proxy-max="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.proxyMax || bid?.amount || rough.price}">
+        <input data-proxy-max="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${bid?.proxyMax || bid?.amount || rough.price}" ${disabled}>
       </label>
-      <button data-action="submitAuctionBid" data-payload="${escapeHtml(rough.id)}">${bid ? "修改暗标" : "提交暗标"}</button>
+      <button data-action="submitAuctionBid" data-payload="${escapeHtml(rough.id)}" ${disabled}>${bid ? "修改暗标" : "提交暗标"}</button>
     </div>
   `;
 }
