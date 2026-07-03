@@ -18,6 +18,7 @@ const {
   playerSocketCount,
   isPlayerOnline,
   revealPolishedRough,
+  refreshPlayerReport,
   state
 } = __testHooks;
 
@@ -160,6 +161,7 @@ normalizePlayer(stagedRealtimePlayer);
 state.players.set(stagedRealtimePlayer.id, stagedRealtimePlayer);
 const stagedRealtimeJob = startProductionJob(stagedRealtimePlayer, "rough", testRough("staged-realtime-rough"), { label: "粗加工" });
 stagedRealtimeJob.readyAt = Date.now() - 1;
+assert.ok(refreshPlayerReport(stagedRealtimePlayer).inventoryValue >= stagedRealtimeJob.item.price);
 processProductionJobs();
 assert.equal(stagedRealtimePlayer.jobs.length, 1);
 assert.equal(stagedRealtimePlayer.rough.length, 0);

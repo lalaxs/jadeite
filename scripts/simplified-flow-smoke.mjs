@@ -463,7 +463,8 @@ const productionExpectations = [
   [/productionDuration/, "server should use shared production durations"],
   [/粗加工/, "UI should show rough processing stage"],
   [/精加工/, "UI should show refine processing stage"],
-  [/镶嵌/, "UI should show inlay processing stage"]
+  [/镶嵌/, "UI should show inlay processing stage"],
+  [/加工任务/, "workshop should label the active production queue separately from rough inventory"]
 ];
 
 for (const [pattern, message] of productionExpectations) {

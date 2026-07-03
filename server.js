@@ -520,8 +520,13 @@ function normalizePlayer(player) {
 }
 
 function inventoryForReport(player) {
+  const activeProductionItems = [
+    ...(player.jobs || []),
+    ...(player.polishingJobs || [])
+  ].map((job) => job?.item || job?.rough).filter(Boolean);
   return [
     ...(player.rough || []),
+    ...activeProductionItems,
     ...(player.materials || []),
     ...(player.slices || []),
     ...(player.bracelets || [])

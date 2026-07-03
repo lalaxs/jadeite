@@ -641,7 +641,7 @@ function renderWorkshop() {
   const productionJobs = productionJobsFor(me);
   const sealed = me.rough.filter((rough) => !rough.revealed);
   const revealed = me.rough.filter((rough) => rough.revealed);
-  els.roughCount.textContent = `${sealed.length}+${productionJobs.length}`;
+  els.roughCount.textContent = productionJobs.length ? `${sealed.length} 原石 · ${productionJobs.length} 加工任务` : sealed.length;
   els.materialCount.textContent = revealed.length;
   els.braceletCount.textContent = me.bracelets.length;
 
@@ -669,7 +669,7 @@ function renderWorkshop() {
       </div>
     `),
     ...productionRows
-  ].join("") || empty("还没有原石，先去公盘拍一块。");
+  ].join("") || empty("还没有原石或加工任务，先去公盘拍一块。");
 
   els.materialInventory.innerHTML = revealed.map((item) => {
     const kits = kitsFor(item.id);
