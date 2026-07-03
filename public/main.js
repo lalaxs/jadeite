@@ -586,6 +586,7 @@ function renderAuction() {
   const affordable = roughs.filter((rough) => rough.price <= me.cash).length;
   const opened = roughs.reduce((sum, rough) => sum + windowCount(rough), 0);
   const phaseLabel = { preview: "预展", bidding: "密封投标", settled: "开标" }[auction?.phase] || "密封投标";
+  const canRequestWindow = auction?.phase === "bidding";
   els.auctionBrief.innerHTML = `
     <span>${phaseLabel}</span>
     <span>我的暗标 ${auction?.myBids?.length || 0}</span>
@@ -609,7 +610,7 @@ function renderAuction() {
           <div class="price">${formatMoney(rough.price)}</div>
           <p class="card-meta">保证金参考 ${formatMoney(rough.deposit)}</p>
           <div class="card-actions">
-            <button class="secondary" data-action="requestWindow" data-payload="${rough.id}" ${windowFee > me.cash || windowCount(rough) >= 6 ? "disabled" : ""}>按点开窗 ${formatMoney(windowFee)}</button>
+            <button class="secondary" data-action="requestWindow" data-payload="${rough.id}" ${!canRequestWindow || windowFee > me.cash || windowCount(rough) >= 6 ? "disabled" : ""}>按点开窗 ${formatMoney(windowFee)}</button>
           </div>
           ${renderAuctionBidControls(rough)}
         </div>

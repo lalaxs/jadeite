@@ -392,6 +392,7 @@ function settleAuctionIfDue(now = Date.now()) {
     }
     state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
     winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
+    refreshPlayerReport(winner);
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
   refreshRoughPool();
@@ -430,6 +431,27 @@ function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
   state.auction = next.round;
   addNews(`${player.name} 提交了 ${rough.name} 的密封投标。`, "info");
   return { ok: true, message: "暗标已提交。", bid: next.bid, depositDelta: next.depositDelta };
+}
+
+function requestAuctionWindowForPlayer(player, payload, now = Date.now()) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  const { roughId, x, y } = normalizeWindowPayload(payload);
+  if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
+    settleAuctionIfDue(now);
+  }
+  const round = ensureAuctionRound(now);
+  if (round.settledAt || now >= round.biddingEndsAt || round.status !== "bidding") {
+    return { ok: false, message: "当前公盘已停止开窗。" };
+  }
+  const rough = round.roughs.find((item) => item.id === roughId);
+  if (!rough) return { ok: false, message: "这块原石不在当前公盘。" };
+  const fee = money(rough.price * OPEN_WINDOW_RATE);
+  if (!spendCash(player, fee, `开窗：${rough.name}`, { source: "window", itemId: rough.id })) {
+    return { ok: false, message: `开窗费需要 ${fee}。` };
+  }
+  rough.windows = [...(rough.windows || []), makeWindowReveal(rough, { x, y })].slice(0, 6);
+  addNews(`${player.name} 花 ${fee} 为 ${rough.name} 请求开窗，公盘信息更新。`, "info");
+  return { ok: true, message: "开窗完成。", rough };
 }
 
 function makePlayer(playerId) {
@@ -1073,15 +1095,8 @@ io.on("connection", (socket) => {
 
   socket.on("requestWindow", (payload) => {
     const player = getPlayer(socket);
-    const { roughId, x, y } = normalizeWindowPayload(payload);
-    const rough = state.roughPool.find((item) => item.id === roughId);
-    if (!player || !rough) return;
-    const fee = money(rough.price * OPEN_WINDOW_RATE);
-    if (!spendCash(player, fee, `开窗：${rough.name}`, { source: "window", itemId: rough.id })) {
-      return socket.emit("toast", `开窗费需要 ${fee}。`);
-    }
-    rough.windows = [...(rough.windows || []), makeWindowReveal(rough, { x, y })].slice(0, 6);
-    addNews(`${player.name} 花 ${fee} 为 ${rough.name} 请求开窗，公盘信息更新。`, "info");
+    const result = requestAuctionWindowForPlayer(player, payload);
+    if (!result.ok) return socket.emit("toast", result.message);
     broadcast();
   });
 
@@ -1370,6 +1385,7 @@ export const __testHooks = {
   releaseDeposit,
   settleOfflinePlayer,
   submitAuctionBidForPlayer,
+  requestAuctionWindowForPlayer,
   ensureAuctionRound,
   settleAuctionIfDue,
   snapshotFor,

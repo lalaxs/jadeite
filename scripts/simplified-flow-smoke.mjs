@@ -414,4 +414,12 @@ for (const token of ["submitAuctionBid", "代理上限", "提交暗标", "myBids
   if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
 }
 
+if (!/function requestAuctionWindowForPlayer/.test(server) || !/requestAuctionWindowForPlayer\(player,\s*payload\)/.test(server)) {
+  throw new Error("server should phase-gate public window requests through a focused helper");
+}
+
+if (!/canRequestWindow\s*=\s*auction\?\.phase\s*===\s*"bidding"/.test(main) || !/data-action="requestWindow"[\s\S]*!canRequestWindow/.test(main)) {
+  throw new Error("main.js should disable public window requests outside auction bidding");
+}
+
 console.log("Simplified rough-to-bracelet flow checks passed");

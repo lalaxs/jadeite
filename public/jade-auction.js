@@ -147,7 +147,11 @@ export function aiBidsForRough(rough, existingBids = [], minBidderCount = 3) {
 export function settleAuctionRound(round, options = {}) {
   const minIncrement = money(options.minIncrement ?? 100);
   const results = (round.roughs || []).map((rough) => {
-    const bids = (round.bids || []).map((bid) => settlementBidForRough(bid, rough.id)).filter(Boolean).sort((a, b) => {
+    const reserve = money(rough.price ?? 0);
+    const bids = (round.bids || [])
+      .map((bid) => settlementBidForRough(bid, rough.id))
+      .filter((bid) => bid && bid.proxyMax >= reserve)
+      .sort((a, b) => {
       const maxDiff = b.proxyMax - a.proxyMax;
       return maxDiff || a.at - b.at;
     });
@@ -156,7 +160,7 @@ export function settleAuctionRound(round, options = {}) {
     }
     const winner = bids[0];
     const runnerUp = bids[1];
-    const floor = Math.max(money(rough.price ?? 0), winner.amount);
+    const floor = Math.max(reserve, winner.amount);
     const justWin = runnerUp ? runnerUp.proxyMax + minIncrement : floor;
     const price = money(Math.max(floor, Math.min(winner.proxyMax, Math.max(floor, justWin))));
     const depositUsed = bidDeposit(winner.amount);
@@ -193,7 +197,7 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
       })),
     results: phase === "settled"
       ? (round?.results || [])
-        .filter((result) => result.winnerId === playerId || result.status === "passed")
+        .filter((result) => result.winnerId === playerId || result.status === "passed" || result.status === "aiWon" || result.ai)
         .map((result) => publicAuctionResult(result, playerId))
       : []
   };

@@ -8,6 +8,7 @@ const {
   earnCash,
   settleOfflinePlayer,
   submitAuctionBidForPlayer,
+  requestAuctionWindowForPlayer,
   settleAuctionIfDue,
   snapshotFor,
   processPolishingJobs,
@@ -67,6 +68,7 @@ function makeAuctionRound(roughs, overrides = {}) {
 resetState();
 
 assert.equal(typeof submitAuctionBidForPlayer, "function", "submitAuctionBidForPlayer should be testable");
+assert.equal(typeof requestAuctionWindowForPlayer, "function", "requestAuctionWindowForPlayer should be testable");
 assert.equal(typeof snapshotFor, "function", "snapshotFor should be testable");
 
 const cashPlayer = makePlayer("cash-player");
@@ -218,6 +220,7 @@ assert.equal(state.auction.results[0].status, "won");
 assert.equal(successPlayer.rough.some((rough) => rough.id === successRough.id), true);
 assert.equal(state.roughPool.some((rough) => rough.id === successRough.id), false);
 assert.equal(successPlayer.cash, 50000 - state.auction.results[0].price);
+assert.ok(successPlayer.reports[0].inventoryValue >= (successRough.value || successRough.price));
 
 resetState();
 
@@ -237,13 +240,43 @@ assert.equal(state.roughPool.some((rough) => rough.id === shortRough.id), true);
 
 resetState();
 
+const lowAiRough = auctionRough("low-ai-rough", { price: 20000, trueValue: 1000, value: 1000 });
+makeAuctionRound([lowAiRough]);
+assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(state.auction.results[0].status, "passed");
+assert.equal(state.auction.results[0].winnerId, undefined);
+assert.equal(state.roughPool.some((rough) => rough.id === lowAiRough.id), true);
+
+resetState();
+
 const snapshotPlayer = makePlayer("snapshot-player");
 normalizePlayer(snapshotPlayer);
 state.players.set(snapshotPlayer.id, snapshotPlayer);
-const snapshotRough = auctionRough("snapshot-rough", { price: 10000, trueValue: 1000, value: 1000 });
+const snapshotRough = auctionRough("snapshot-rough", { price: 10000, trueValue: 30000, value: 30000 });
 makeAuctionRound([snapshotRough], { biddingEndsAt: Date.now() - 1, settlesAt: Date.now() - 1 });
 const snapshot = snapshotFor(snapshotPlayer);
 assert.notEqual(snapshot.auction.phase === "settled" && state.auction.results.length === 0, true);
+assert.equal(snapshot.auction.phase, "settled");
+assert.equal(state.auction.results[0].status, "aiWon");
+assert.equal(snapshot.auction.results[0].status, "aiWon");
+assert.equal(snapshot.auction.results[0].winnerId, undefined);
+
+resetState();
+
+const windowPlayer = makePlayer("window-player");
+normalizePlayer(windowPlayer);
+windowPlayer.cash = 100000;
+state.players.set(windowPlayer.id, windowPlayer);
+const windowRough = auctionRough("window-rough", { price: 10000, trueValue: 30000, value: 30000 });
+makeAuctionRound([windowRough]);
+let windowResult = requestAuctionWindowForPlayer(windowPlayer, { roughId: windowRough.id, x: 50, y: 50 }, 1_200);
+assert.equal(windowResult.ok, true);
+assert.equal(windowRough.windows.length, 1);
+const cashAfterWindow = windowPlayer.cash;
+windowResult = requestAuctionWindowForPlayer(windowPlayer, { roughId: windowRough.id, x: 55, y: 55 }, 2_000);
+assert.equal(windowResult.ok, false);
+assert.equal(windowRough.windows.length, 1);
+assert.equal(windowPlayer.cash, cashAfterWindow);
 
 resetState();
 

@@ -167,6 +167,17 @@ const malformedProxySettled = settleAuctionRound(
 );
 assert.equal(malformedProxySettled.results[0].price, 10000);
 
+const belowReserveSettled = settleAuctionRound(
+  {
+    id: "below-reserve-round",
+    roughs: [{ id: "reserve-r1", name: "Reserve rough", price: 10000 }],
+    bids: [{ playerId: "low-ai", roughId: "reserve-r1", amount: 7000, proxyMax: 7000, at: 100, ai: true }]
+  },
+  { minIncrement: 100 }
+);
+assert.equal(belowReserveSettled.results[0].status, "passed");
+assert.equal(belowReserveSettled.results[0].winnerId, undefined);
+
 const invalidAmountSettled = settleAuctionRound(
   {
     id: "invalid-amount-round",
@@ -239,6 +250,7 @@ const settledPrivacyView = publicAuctionSnapshot(
     roughs: [
       { id: "own-r1", name: "Own rough", price: 10000 },
       { id: "other-r1", name: "Other rough", price: 10000 },
+      { id: "ai-r1", name: "AI rough", price: 10000 },
       { id: "passed-r1", name: "Passed rough", price: 10000 },
       { id: "malformed-result-r1", name: "Malformed result rough", price: 10000 }
     ],
@@ -246,6 +258,7 @@ const settledPrivacyView = publicAuctionSnapshot(
     results: [
       { roughId: "own-r1", winnerId: "p1", status: "won", price: 12000, depositUsed: 2000, balanceDue: 10000, bids: 2, hidden: true, trueValue: 90000 },
       { roughId: "other-r1", winnerId: "p2", status: "won", price: 13000, hidden: true },
+      { roughId: "ai-r1", winnerId: "ai-ai-r1-0", status: "aiWon", ai: true, price: 11000, depositUsed: 2200, balanceDue: 8800, hidden: true },
       { roughId: "passed-r1", status: "passed", price: 0, hidden: true, trueValue: 40000 },
       { roughId: "malformed-result-r1", status: "won", price: 999999 }
     ]
@@ -253,12 +266,16 @@ const settledPrivacyView = publicAuctionSnapshot(
   "p1",
   2
 );
-assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "passed-r1"]);
+assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "ai-r1", "passed-r1"]);
 const ownResult = settledPrivacyView.results.find((result) => result.roughId === "own-r1");
 assert.equal(ownResult.winnerId, "p1");
 assert.equal(ownResult.depositUsed, 2000);
 assert.equal(ownResult.balanceDue, 10000);
 assert.equal(ownResult.bids, 2);
+const aiResult = settledPrivacyView.results.find((result) => result.roughId === "ai-r1");
+assert.equal(aiResult.status, "aiWon");
+assert.equal(aiResult.ai, true);
+assert.equal(aiResult.winnerId, undefined);
 const passedResult = settledPrivacyView.results.find((result) => result.roughId === "passed-r1");
 assert.equal(passedResult.status, "passed");
 for (const result of settledPrivacyView.results) {
