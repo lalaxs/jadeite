@@ -795,7 +795,7 @@ function renderLivestream() {
     autoBalanced: "均衡",
     autoAggressive: "激进"
   };
-  els.livestream.innerHTML = [
+  const cards = [
     ...jobs.map((job) => {
       const remain = Math.max(0, Math.ceil((job.readyAt - Date.now()) / 1000));
       return `
@@ -819,9 +819,9 @@ function renderLivestream() {
         </div>
       </article>
     `)
-  ].join("") || empty("暂无可直播成品。");
+  ];
   if (livestreamHistory.length) {
-    els.livestream.innerHTML += `
+    cards.push(`
       <article class="rough-card livestream-history-card">
         <h3>最近直播</h3>
         <div class="fit-list">
@@ -837,8 +837,9 @@ function renderLivestream() {
           }).join("")}
         </div>
       </article>
-    `;
+    `);
   }
+  els.livestream.innerHTML = cards.join("") || empty("暂无可直播成品。");
 }
 
 function renderReports() {

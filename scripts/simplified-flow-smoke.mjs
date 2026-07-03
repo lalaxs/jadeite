@@ -492,5 +492,8 @@ const renderLivestreamBody = extractFunctionBody(main, "renderLivestream");
 if (!/livestreamHistory/.test(renderLivestreamBody)) {
   throw new Error("livestream page should render recent livestream history");
 }
+if (/\]\.join\(""\)\s*\|\|\s*empty\("暂无可直播成品。"\)[\s\S]*livestreamHistory/.test(renderLivestreamBody)) {
+  throw new Error("livestream page should not show the empty product state when history exists");
+}
 
 console.log("Simplified rough-to-bracelet flow checks passed");
