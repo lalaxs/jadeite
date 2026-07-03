@@ -7,6 +7,7 @@ const {
   spendCash,
   earnCash,
   settleOfflinePlayer,
+  settleAuctionIfDue,
   processPolishingJobs,
   playerSocketCount,
   isPlayerOnline,
@@ -19,6 +20,7 @@ function resetState() {
   state.roughPool.length = 0;
   state.listings.length = 0;
   state.news.length = 0;
+  state.auction = null;
 }
 
 function testRough(id = "rough-1") {
@@ -97,6 +99,25 @@ assert.equal(isPlayerOnline(realtimePlayer), true);
 processPolishingJobs();
 assert.equal(realtimePlayer.polishingJobs.length, 0);
 assert.equal(realtimePlayer.rough.length, 1);
+
+resetState();
+
+const aiWonRough = { ...testRough("ai-won-rough"), trueValue: 30000, value: 30000 };
+state.roughPool.push(aiWonRough);
+state.auction = {
+  id: "ai-round",
+  status: "bidding",
+  startsAt: 1_000,
+  biddingEndsAt: 2_000,
+  settlesAt: 2_000,
+  roughs: [aiWonRough],
+  bids: [],
+  results: []
+};
+
+assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(state.auction.results[0].status, "aiWon");
+assert.equal(state.roughPool.some((rough) => rough.id === aiWonRough.id), false);
 
 resetState();
 

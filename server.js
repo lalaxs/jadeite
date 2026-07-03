@@ -350,10 +350,13 @@ function settleAuctionIfDue(now = Date.now()) {
     }
   }
   for (const result of settled.results) {
-    if (!result.winnerId || result.ai) continue;
-    const winner = state.players.get(result.winnerId);
+    if (!result.winnerId) continue;
     const rough = settled.roughs.find((item) => item.id === result.roughId);
-    if (!winner || !rough) continue;
+    if (!rough) continue;
+    state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
+    if (result.ai) continue;
+    const winner = state.players.get(result.winnerId);
+    if (!winner) continue;
     if (winner.cash < result.balanceDue) {
       addNews(`${winner.name} 中标 ${rough.name} 后尾款不足，保证金被没收。`, "bad");
       continue;
@@ -362,7 +365,6 @@ function settleAuctionIfDue(now = Date.now()) {
       spendCash(winner, result.balanceDue, `公盘尾款：${rough.name}`, { source: "auction", itemId: rough.id });
     }
     winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
-    state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
   refreshRoughPool();
