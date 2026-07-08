@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 
 const server = readFileSync("server.js", "utf8");
 const main = readFileSync("public/main.js", "utf8");
@@ -485,6 +485,13 @@ const locationStyleExpectations = [
 
 for (const [pattern, message] of locationStyleExpectations) {
   if (!pattern.test(styles)) throw new Error(message);
+}
+
+for (const location of ["auction", "market", "orders", "collection", "reports", "livestream", "workshop"]) {
+  const imagePath = `public/assets/locations/${location}.jpg`;
+  if (!existsSync(imagePath)) throw new Error(`location art missing: ${imagePath}`);
+  if (statSync(imagePath).size < 100000) throw new Error(`location art looks too small or empty: ${imagePath}`);
+  if (!styles.includes(`/assets/locations/${location}.jpg`)) throw new Error(`styles.css should use generated location art for ${location}`);
 }
 
 if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {

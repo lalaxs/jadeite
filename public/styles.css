@@ -630,76 +630,40 @@ select {
   position: relative;
   z-index: 0;
   min-height: 220px;
-  background:
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(circle at 72% 18%, rgba(199, 137, 47, 0.36), transparent 20%),
-    linear-gradient(145deg, rgba(236, 251, 244, 0.34), rgba(15, 91, 72, 0.94));
+  background-image:
+    linear-gradient(145deg, rgba(235, 251, 244, 0.18), rgba(15, 91, 72, 0.3)),
+    var(--location-image);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: auto, auto, cover;
+  background-size: cover;
 }
 
 .location-art.auction {
-  background-image:
-    url("/assets/template-icons/bangle.png"),
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(circle at 72% 18%, rgba(199, 137, 47, 0.36), transparent 20%),
-    linear-gradient(145deg, rgba(236, 251, 244, 0.34), rgba(15, 91, 72, 0.94));
-  background-size: 44%, auto, auto, cover;
+  --location-image: url("/assets/locations/auction.jpg");
 }
 
 .location-art.market {
-  background-image:
-    url("/assets/template-icons/gourd.png"),
-    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.58), transparent 18%),
-    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.34), transparent 22%),
-    linear-gradient(135deg, rgba(237, 248, 242, 0.32), rgba(19, 104, 82, 0.94));
-  background-size: 40%, auto, auto, cover;
+  --location-image: url("/assets/locations/market.jpg");
 }
 
 .location-art.orders {
-  background-image:
-    url("/assets/template-icons/peace-buckle.png"),
-    radial-gradient(circle at 34% 20%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(circle at 76% 18%, rgba(72, 126, 169, 0.3), transparent 23%),
-    linear-gradient(140deg, rgba(239, 250, 245, 0.34), rgba(22, 112, 90, 0.94));
-  background-size: 42%, auto, auto, cover;
+  --location-image: url("/assets/locations/orders.jpg");
 }
 
 .location-art.collection {
-  background-image:
-    url("/assets/template-icons/guanyin.png"),
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.38), transparent 22%),
-    linear-gradient(145deg, rgba(244, 252, 248, 0.34), rgba(14, 86, 69, 0.94));
-  background-size: 40%, auto, auto, cover;
+  --location-image: url("/assets/locations/collection.jpg");
 }
 
 .location-art.reports {
-  background-image:
-    url("/assets/template-icons/blank-plaque.png"),
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.58), transparent 18%),
-    radial-gradient(circle at 70% 24%, rgba(199, 137, 47, 0.32), transparent 22%),
-    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(16, 92, 74, 0.94));
-  background-size: 46%, auto, auto, cover;
+  --location-image: url("/assets/locations/reports.jpg");
 }
 
 .location-art.livestream {
-  background-image:
-    url("/assets/template-icons/ruyi.png"),
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.6), transparent 18%),
-    radial-gradient(circle at 76% 20%, rgba(180, 81, 98, 0.28), transparent 22%),
-    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(18, 99, 79, 0.94));
-  background-size: 42%, auto, auto, cover;
+  --location-image: url("/assets/locations/livestream.jpg");
 }
 
 .location-art.workshop {
-  background-image:
-    url("/assets/template-icons/cabochon.png"),
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.34), transparent 22%),
-    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(14, 86, 69, 0.94));
-  background-size: 40%, auto, auto, cover;
+  --location-image: url("/assets/locations/workshop.jpg");
 }
 
 .location-copy {
