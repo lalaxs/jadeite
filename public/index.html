@@ -34,7 +34,6 @@
       <section class="main-stage">
         <header class="topbar">
           <div>
-            <p class="eyebrow">经营驾驶舱</p>
             <h2 id="viewTitle">经营总览</h2>
           </div>
           <div class="topbar-tools">
@@ -44,21 +43,12 @@
 
         <section class="view active" data-view="overview">
           <div class="home-layout">
+            <section class="rank-brief-strip" aria-label="排行简报">
+              <div id="rankBriefList" class="rank-brief-list"></div>
+            </section>
             <section class="location-board">
-              <div class="section-head">
-                <div>
-                  <p class="eyebrow">翡翠街</p>
-                  <h3>今天去哪儿</h3>
-                </div>
-              </div>
               <div id="locationCards" class="location-grid"></div>
             </section>
-            <aside class="home-rail" id="myRankRail" aria-label="我的排行">
-              <section class="panel my-rank-panel">
-                <div class="panel-head"><h3>我的排行</h3><span id="myRankMeta">当前名次</span></div>
-                <div id="myRankCard" class="my-rank-card"></div>
-              </section>
-            </aside>
           </div>
         </section>
 
@@ -114,7 +104,7 @@
           <div class="section-head">
             <div>
               <p class="eyebrow">玩家经济</p>
-              <h3>交易行</h3>
+              <h3>玩家交易行</h3>
             </div>
           </div>
           <div id="marketBrief" class="brief-strip"></div>
@@ -128,6 +118,20 @@
               <div id="marketListings" class="item-list"></div>
             </section>
           </div>
+        </section>
+
+        <section class="view" data-view="shop">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">功能建筑</p>
+              <h3>商铺</h3>
+            </div>
+          </div>
+          <div id="shopBrief" class="brief-strip"></div>
+          <section class="panel shop-panel">
+            <div class="panel-head"><h3>可购建筑与许可</h3><span>工坊 / 经营许可</span></div>
+            <div id="shopListings" class="item-list"></div>
+          </section>
         </section>
 
         <section class="view" data-view="livestream">

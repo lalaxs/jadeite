@@ -407,17 +407,20 @@ for (const [pattern, message] of idleFrontendExpectations) {
 const locationUiExpectations = [
   [/id="sidebarStatus"/, "index.html should expose a sidebar status container"],
   [/id="locationCards"/, "index.html should expose a location card container"],
-  [/id="myRankRail"/, "index.html should expose a compact personal ranking rail"],
-  [/id="myRankCard"/, "index.html should expose a personal ranking card"],
+  [/id="rankBriefList"/, "index.html should expose a compact top ranking brief row"],
   [/id="homeBtn"/, "index.html should expose a way back to the location homepage"],
+  [/data-view="shop"/, "index.html should expose the shop as a separate view"],
+  [/id="shopListings"/, "index.html should expose shop listings separately from player listings"],
   [/const locationDefinitions\s*=/, "main.js should define location cards separately from feature views"],
   [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
   [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
-  [/function renderMyRankRail\b/, "main.js should render only the player's own ranking on the overview"],
+  [/function renderRankBriefs\b/, "main.js should render ranking briefs on the overview"],
+  [/function renderShop\b/, "main.js should render purchasable building and permit listings in the shop"],
   [/function locationGate\b/, "main.js should centralize location lock logic"],
   [/function openLocationByView\b/, "main.js should gate location view transitions through openLocationByView"],
   [/公盘会场/, "location cards should include the public auction place"],
-  [/交易行/, "location cards should include the market place"],
+  [/玩家交易行/, "location cards should include the player trading market place"],
+  [/商铺/, "location cards should include the shop place"],
   [/客户茶室/, "location cards should include orders as a place"],
   [/经营账房/, "location cards should include reports as a place"],
   [/直播间/, "location cards should include livestream as a locked public place"],
@@ -443,8 +446,8 @@ if (!/locationDefinitions\.find\(\(item\)\s*=>\s*item\.view\s*===\s*view\)/.test
 if (!/const gate = locationGate\(location\)/.test(openLocationByViewBody)) {
   throw new Error("openLocationByView should gate resolved locations through locationGate");
 }
-if (!/location\?\.purchaseId/.test(openLocationByViewBody) || !/setView\("market"\)/.test(openLocationByViewBody)) {
-  throw new Error("openLocationByView should route locked purchasable locations to the market");
+if (!/location\?\.purchaseId/.test(openLocationByViewBody) || !/setView\("shop"\)/.test(openLocationByViewBody)) {
+  throw new Error("openLocationByView should route locked purchasable locations to the shop");
 }
 
 const openLocationActionBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "openLocation")'), "openLocation client handler");
@@ -475,8 +478,9 @@ const locationStyleExpectations = [
   [/\.status-metric/, "styles.css should style sidebar resource metrics"],
   [/\.reminder-row/, "styles.css should style reminder rows"],
   [/\.home-layout/, "styles.css should arrange places and personal ranking on the homepage"],
-  [/\.my-rank-panel/, "styles.css should compress personal ranking into a small rail"],
+  [/\.rank-brief-strip/, "styles.css should compress ranking into a small top row"],
   [/\.location-grid/, "styles.css should style the location card grid"],
+  [/grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/, "styles.css should show five location cards per row on desktop"],
   [/\.location-card\.locked/, "styles.css should style locked location cards"],
   [/\.location-art/, "styles.css should style image-led location cards"],
   [/\.location-card::before/, "styles.css should blend the primary color into place cards"],
@@ -487,7 +491,7 @@ for (const [pattern, message] of locationStyleExpectations) {
   if (!pattern.test(styles)) throw new Error(message);
 }
 
-for (const location of ["auction", "market", "orders", "collection", "reports", "livestream", "workshop"]) {
+for (const location of ["auction", "market", "shop", "orders", "collection", "reports", "livestream", "workshop"]) {
   const imagePath = `public/assets/locations/${location}.jpg`;
   if (!existsSync(imagePath)) throw new Error(`location art missing: ${imagePath}`);
   if (statSync(imagePath).size < 100000) throw new Error(`location art looks too small or empty: ${imagePath}`);
@@ -503,27 +507,37 @@ if (/id="timeHud"/.test(index) || /class="kpi-strip"/.test(index)) {
 if (/id="playersList"/.test(index) || /id="newsList"/.test(index) || /同行排名|市场战报/.test(index)) {
   throw new Error("overview should replace broad ranking/news panels with the compact personal ranking rail");
 }
+if (/经营驾驶舱|今天去哪儿/.test(index)) {
+  throw new Error("overview should not show the old top title and descriptive heading copy");
+}
 const renderOverviewBody = extractFunctionBody(main, "renderOverview");
 if (/rank-row|news-row|playersList|newsList/.test(renderOverviewBody)) {
   throw new Error("renderOverview should not render the old broad ranking or news panels");
 }
-const renderMyRankRailBody = extractFunctionBody(main, "renderMyRankRail");
-if (/repTier|collection|satisfaction|声望|藏品|满意/.test(renderMyRankRailBody)) {
-  throw new Error("my rank rail should not duplicate sidebar player status resources");
+if (!/renderRankBriefs\(\)/.test(renderOverviewBody)) {
+  throw new Error("renderOverview should render compact ranking briefs above location cards");
 }
 if (!/<section class="view" data-view="reports">[\s\S]*<h3>经营账房<\/h3>/.test(index)) {
   throw new Error("reports view heading should use the location naming: 经营账房");
 }
 
 const renderMarketBody = extractFunctionBody(main, "renderMarket");
-if (!/assetListings\s*\|\|\s*\[\]/.test(renderMarketBody)) {
-  throw new Error("renderMarket should normalize asset listings before rendering");
-}
 if (!/const listingRows\s*=/.test(renderMarketBody)) {
   throw new Error("renderMarket should build regular listing rows separately from asset listings");
 }
-if (!/const marketRows\s*=\s*assetRows\s*\+\s*listingRows/.test(renderMarketBody) || !/marketRows\s*\|\|\s*empty\("交易行还没有挂单。"\)/.test(renderMarketBody)) {
-  throw new Error("renderMarket should show the empty market state only when both asset and regular listings are absent");
+if (/assetListings|assetRows|buyAssetListing/.test(renderMarketBody)) {
+  throw new Error("renderMarket should only render player-to-player listings, not shop assets");
+}
+if (!/listingRows\s*\|\|\s*empty\("玩家交易行还没有挂单。"\)/.test(renderMarketBody)) {
+  throw new Error("renderMarket should show a player-market empty state when regular listings are absent");
+}
+
+const renderShopBody = extractFunctionBody(main, "renderShop");
+if (!/assetListings\s*\|\|\s*\[\]/.test(renderShopBody)) {
+  throw new Error("renderShop should normalize asset listings before rendering");
+}
+if (!/buyAssetListing/.test(renderShopBody) || !/shopListings/.test(renderShopBody)) {
+  throw new Error("renderShop should render asset purchases into the shop listings container");
 }
 
 const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");

@@ -476,38 +476,57 @@ select {
 
 .home-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 230px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
 }
 
-.home-rail {
+.main-stage.overview-mode .topbar {
+  display: none;
+}
+
+.rank-brief-strip {
+  display: flex;
+  justify-content: flex-end;
   min-width: 0;
 }
 
-.my-rank-panel {
-  position: sticky;
-  top: 16px;
-  overflow: hidden;
+.rank-brief-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 100%;
 }
 
-.my-rank-card {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-}
-
-.my-rank-number {
-  display: grid;
-  min-height: 74px;
-  place-items: center;
+.rank-brief-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  border: 1px solid rgba(23, 33, 29, 0.08);
   border-radius: 8px;
-  color: #fff;
-  background:
-    linear-gradient(145deg, rgba(17, 109, 88, 0.95), rgba(31, 155, 114, 0.82)),
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.36), transparent 34%);
-  font-size: 28px;
-  font-weight: 850;
+  padding: 3px 8px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 20px rgba(30, 54, 45, 0.06);
+  font-size: 11px;
+}
+
+.rank-brief-item strong,
+.rank-brief-item em {
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.rank-brief-item strong {
+  color: var(--ink);
+  font-weight: 760;
+}
+
+.rank-brief-item em {
+  color: var(--jade-dark);
+  font-weight: 820;
 }
 
 .panel-head,
@@ -576,16 +595,16 @@ select {
 
 .location-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .location-card {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(210px, 1fr) auto;
+  grid-template-rows: minmax(132px, 1fr) auto;
   gap: 0;
-  min-height: 360px;
+  min-height: 236px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.36);
   border-radius: 8px;
@@ -629,7 +648,7 @@ select {
 .location-art {
   position: relative;
   z-index: 0;
-  min-height: 220px;
+  min-height: 136px;
   background-image:
     linear-gradient(145deg, rgba(235, 251, 244, 0.18), rgba(15, 91, 72, 0.3)),
     var(--location-image);
@@ -644,6 +663,10 @@ select {
 
 .location-art.market {
   --location-image: url("/assets/locations/market.jpg");
+}
+
+.location-art.shop {
+  --location-image: url("/assets/locations/shop.jpg");
 }
 
 .location-art.orders {
@@ -670,19 +693,19 @@ select {
   position: relative;
   z-index: 2;
   display: grid;
-  gap: 8px;
-  padding: 18px;
+  gap: 6px;
+  padding: 12px;
 }
 
 .location-title {
-  font-size: 25px;
+  font-size: 18px;
   font-weight: 850;
 }
 
 .location-description {
   color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.42;
 }
 
 .asset-listing {
@@ -1546,10 +1569,6 @@ select {
   .command-grid,
   .workbench {
     grid-template-columns: 1fr;
-  }
-
-  .my-rank-panel {
-    position: static;
   }
 }
 

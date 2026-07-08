@@ -15,7 +15,8 @@ const viewLabels = {
   overview: "翡翠街",
   auction: "公盘会场",
   workshop: "我的工坊",
-  market: "交易行",
+  market: "玩家交易行",
+  shop: "商铺",
   livestream: "直播间",
   orders: "客户茶室",
   collection: "藏宝阁",
@@ -24,7 +25,8 @@ const viewLabels = {
 
 const locationDefinitions = [
   { id: "auction", view: "auction", label: "公盘会场", locationImage: "auction", type: "public", description: "暗标拍原石，开窗会公开信息。" },
-  { id: "market", view: "market", label: "交易行", locationImage: "market", type: "public", description: "买卖原石、成品和经营许可。" },
+  { id: "playerMarket", view: "market", label: "玩家交易行", locationImage: "market", type: "public", description: "玩家之间买卖翡翠中间物和成品。" },
+  { id: "shop", view: "shop", label: "商铺", locationImage: "shop", type: "public", description: "购买工坊、直播许可等功能建筑。" },
   { id: "orders", view: "orders", label: "客户茶室", locationImage: "orders", type: "public", description: "接定制单，换现金和口碑。" },
   { id: "collection", view: "collection", label: "藏宝阁", locationImage: "collection", type: "public", description: "收藏精品，提高门面声望。" },
   { id: "reports", view: "reports", label: "经营账房", locationImage: "reports", type: "public", description: "查看现金流、库存占用和建议。" },
@@ -86,13 +88,12 @@ const KIT_BOARD_UNIT_PX = 1.48;
 const els = {
   sidebarStatus: document.querySelector("#sidebarStatus"),
   locationCards: document.querySelector("#locationCards"),
+  rankBriefList: document.querySelector("#rankBriefList"),
   title: document.querySelector("#viewTitle"),
   homeBtn: document.querySelector("#homeBtn"),
   connection: document.querySelector("#connectionText"),
   nameInput: document.querySelector("#nameInput"),
   saveNameBtn: document.querySelector("#saveNameBtn"),
-  myRankCard: document.querySelector("#myRankCard"),
-  myRankMeta: document.querySelector("#myRankMeta"),
   auctionHalls: document.querySelector("#auctionHalls"),
   auctionBrief: document.querySelector("#auctionBrief"),
   auctionResults: document.querySelector("#auctionResults"),
@@ -110,6 +111,8 @@ const els = {
   mySellables: document.querySelector("#mySellables"),
   marketListings: document.querySelector("#marketListings"),
   listingCount: document.querySelector("#listingCount"),
+  shopBrief: document.querySelector("#shopBrief"),
+  shopListings: document.querySelector("#shopListings"),
   livestream: document.querySelector("#livestreamPanel"),
   reports: document.querySelector("#reportsPanel"),
   collectionList: document.querySelector("#collectionList"),
@@ -198,7 +201,7 @@ function reminderRows() {
   const jobs = productionJobsFor(me);
   const completable = (me.orders || []).filter((order) => matchingBracelets(order).length >= order.quantity);
   if (me.offlineSummary) reminders.push(["离线结算", `${me.offlineSummary.count} 件事已发生`]);
-  if (!me.assets?.workshopOwned) reminders.push(["工坊未开", "去交易行买下街角小工坊"]);
+  if (!me.assets?.workshopOwned) reminders.push(["工坊未开", "去商铺买下街角小工坊"]);
   if (!me.assets?.livestreamPermitOwned && (me.bracelets || []).length) reminders.push(["直播未开", "成品可卖，先买直播许可"]);
   if (completable.length) reminders.push(["订单可交", `${completable.length} 个客户能交付`]);
   if (jobs.length) reminders.push(["加工中", `${jobs.length} 个任务等待完成`]);
@@ -260,7 +263,7 @@ function renderLocationCards() {
     if (!gate.visible) return [];
     const action = gate.locked ? "lockedLocation" : "openLocation";
     return `
-      <button class="location-card ${gate.locked ? "locked" : ""} ${activeView === location.view ? "active" : ""}" data-location="${location.id}" data-action="${action}" data-payload="${location.id}" type="button" aria-label="${escapeHtml(location.label)}">
+      <button class="location-card ${gate.locked ? "locked" : ""} ${activeView === location.view ? "active" : ""}" data-location="${location.view}" data-action="${action}" data-payload="${location.id}" type="button" aria-label="${escapeHtml(location.label)}">
         <span class="location-art ${escapeHtml(location.locationImage)}" aria-hidden="true"></span>
         <span class="location-copy">
           <span class="location-title">${escapeHtml(location.label)}</span>
@@ -272,16 +275,27 @@ function renderLocationCards() {
   els.locationCards.innerHTML = cards.join("");
 }
 
-function renderMyRankRail() {
-  if (!els.myRankCard || !state?.me) return;
+function rankPosition(players, scoreFor, direction = "desc") {
+  const ordered = [...players].sort((left, right) => {
+    const diff = Number(scoreFor(right) || 0) - Number(scoreFor(left) || 0);
+    return direction === "desc" ? diff : -diff;
+  });
+  const index = ordered.findIndex((player) => player.id === state.me.id);
+  return index >= 0 ? index + 1 : null;
+}
+
+function renderRankBriefs() {
+  if (!els.rankBriefList || !state?.me) return;
   const players = Array.isArray(state.players) ? state.players : [];
-  const rankIndex = players.findIndex((player) => player.id === state.me.id);
-  const rankLabel = rankIndex >= 0 ? `第 ${rankIndex + 1}` : "未入榜";
-  const total = players.length;
-  if (els.myRankMeta) els.myRankMeta.textContent = total ? `${total} 位掌柜` : "当前名次";
-  els.myRankCard.innerHTML = `
-    <div class="my-rank-number">${escapeHtml(rankLabel)}</div>
-  `;
+  const briefs = [
+    ["声望榜", rankPosition(players, (player) => player.rep)],
+    ["现金榜", rankPosition(players, (player) => player.cash)],
+    ["藏品榜", rankPosition(players, (player) => player.collectionPower || player.collectionCount)],
+    ["库存榜", rankPosition(players, (player) => player.inventoryCount)]
+  ];
+  els.rankBriefList.innerHTML = briefs.map(([label, rank]) => `
+    <span class="rank-brief-item"><strong>${escapeHtml(label)}</strong><em>${rank ? `第${rank}名` : "未入榜"}</em></span>
+  `).join("");
 }
 
 function button(label, action, payload = "", className = "") {
@@ -311,14 +325,14 @@ function openLocationByView(view) {
   }
 
   if (location?.purchaseId) {
-    showToast(`${gate.reason || "尚未解锁"}，先去交易行购买。`);
-    setView("market");
+    showToast(`${gate.reason || "尚未解锁"}，先去商铺购买。`);
+    setView("shop");
     return;
   }
 
   if (!gate.visible) {
     showToast(gate.reason || "条件未满足。");
-    setView(location.ownershipKey ? "market" : "overview");
+    setView(location.ownershipKey ? "shop" : "overview");
     return;
   }
 
@@ -746,6 +760,7 @@ function setView(view) {
   document.querySelectorAll(".location-card").forEach((node) => node.classList.toggle("active", node.dataset.location === view));
   els.title.textContent = viewLabels[view] || "翡翠街";
   if (els.homeBtn) els.homeBtn.hidden = view === "overview";
+  document.querySelector(".main-stage")?.classList.toggle("overview-mode", view === "overview");
   if (state) paintJades();
 }
 
@@ -764,6 +779,7 @@ function render() {
   renderWorkshop();
   renderOrders();
   renderMarket();
+  renderShop();
   renderLivestream();
   renderReports();
   renderCollection();
@@ -776,7 +792,7 @@ function paintJades() {
 
 function renderOverview() {
   renderLocationCards();
-  renderMyRankRail();
+  renderRankBriefs();
 }
 
 function renderNextActions() {
@@ -1025,8 +1041,7 @@ function renderMarket() {
     ...state.me.bracelets.map((item) => ({ ...item, type: "bracelet" }))
   ];
   const ownListings = state.listings.filter((listing) => listing.ownerId === state.me.id);
-  const assetListings = state.assetListings || [];
-  els.marketBrief.innerHTML = `<span>我的可卖 ${sellables.length}</span><span>我的挂单 ${ownListings.length}</span><span>市场挂单 ${state.listings.length}</span><span>资产 ${assetListings.length}</span>`;
+  els.marketBrief.innerHTML = `<span>我的可卖 ${sellables.length}</span><span>我的挂单 ${ownListings.length}</span><span>玩家挂单 ${state.listings.length}</span>`;
   els.mySellables.innerHTML = sellables.map((item) => {
     const suggested = Math.round((item.value || item.price || 1000) * 1.18);
     return `
@@ -1041,13 +1056,6 @@ function renderMarket() {
     `;
   }).join("") || empty("暂无可挂牌物品。");
   els.listingCount.textContent = state.listings.length;
-  const assetRows = assetListings.map((listing) => `
-    <div class="item-row asset-listing">
-      <div class="item-title"><span>${escapeHtml(listing.name)}</span><span class="pill">${formatMoney(listing.price)}</span></div>
-      <p class="item-meta">${escapeHtml(listing.description)}</p>
-      <div class="card-actions"><button data-action="buyAssetListing" data-payload="${listing.id}">购买</button></div>
-    </div>
-  `).join("");
   const listingRows = state.listings.map((listing) => {
     const own = listing.ownerId === state.me.id;
     return `
@@ -1058,8 +1066,20 @@ function renderMarket() {
       </div>
     `;
   }).join("");
-  const marketRows = assetRows + listingRows;
-  els.marketListings.innerHTML = marketRows || empty("交易行还没有挂单。");
+  els.marketListings.innerHTML = listingRows || empty("玩家交易行还没有挂单。");
+}
+
+function renderShop() {
+  if (!els.shopListings || !state) return;
+  const assetListings = state.assetListings || [];
+  els.shopBrief.innerHTML = `<span>可购内容 ${assetListings.length}</span><span>工坊 ${state.me.assets?.workshopOwned ? "已拥有" : "未拥有"}</span><span>直播许可 ${state.me.assets?.livestreamPermitOwned ? "已拥有" : "未拥有"}</span>`;
+  els.shopListings.innerHTML = assetListings.map((listing) => `
+    <div class="item-row asset-listing">
+      <div class="item-title"><span>${escapeHtml(listing.name)}</span><span class="pill">${formatMoney(listing.price)}</span></div>
+      <p class="item-meta">${escapeHtml(listing.description)}</p>
+      <div class="card-actions"><button data-action="buyAssetListing" data-payload="${listing.id}">购买</button></div>
+    </div>
+  `).join("") || empty("商铺暂无可购买内容。");
 }
 
 function renderLivestream() {
