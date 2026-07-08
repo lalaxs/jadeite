@@ -407,10 +407,13 @@ for (const [pattern, message] of idleFrontendExpectations) {
 const locationUiExpectations = [
   [/id="sidebarStatus"/, "index.html should expose a sidebar status container"],
   [/id="locationCards"/, "index.html should expose a location card container"],
+  [/id="myRankRail"/, "index.html should expose a compact personal ranking rail"],
+  [/id="myRankCard"/, "index.html should expose a personal ranking card"],
   [/id="homeBtn"/, "index.html should expose a way back to the location homepage"],
   [/const locationDefinitions\s*=/, "main.js should define location cards separately from feature views"],
   [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
   [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
+  [/function renderMyRankRail\b/, "main.js should render only the player's own ranking on the overview"],
   [/function locationGate\b/, "main.js should centralize location lock logic"],
   [/function openLocationByView\b/, "main.js should gate location view transitions through openLocationByView"],
   [/公盘会场/, "location cards should include the public auction place"],
@@ -419,6 +422,7 @@ const locationUiExpectations = [
   [/经营账房/, "location cards should include reports as a place"],
   [/直播间/, "location cards should include livestream as a locked public place"],
   [/我的工坊/, "location cards should include the owned workshop place"],
+  [/locationImage/, "location cards should use image-led place cards"],
   [/workshopOwned/, "main.js should use server-owned workshop state"],
   [/livestreamPermitOwned/, "main.js should use server-owned livestream permit state"],
   [/buyAssetListing/, "main.js should emit asset purchase actions"]
@@ -451,6 +455,14 @@ if (/setView\(/.test(openLocationActionBody)) {
   throw new Error("openLocation actions should not call setView directly");
 }
 
+const lockedLocationActionBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "lockedLocation")'), "lockedLocation client handler");
+if (!/openLocationByView\(/.test(lockedLocationActionBody)) {
+  throw new Error("lockedLocation actions should navigate through openLocationByView");
+}
+if (/setView\(/.test(lockedLocationActionBody)) {
+  throw new Error("lockedLocation actions should not call setView directly");
+}
+
 if (!/openLocationByView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody)) {
   throw new Error("data-view-link navigation should use openLocationByView");
 }
@@ -462,9 +474,12 @@ const locationStyleExpectations = [
   [/\.sidebar-status/, "styles.css should style the player status sidebar"],
   [/\.status-metric/, "styles.css should style sidebar resource metrics"],
   [/\.reminder-row/, "styles.css should style reminder rows"],
+  [/\.home-layout/, "styles.css should arrange places and personal ranking on the homepage"],
+  [/\.my-rank-panel/, "styles.css should compress personal ranking into a small rail"],
   [/\.location-grid/, "styles.css should style the location card grid"],
   [/\.location-card\.locked/, "styles.css should style locked location cards"],
-  [/\.location-icon/, "styles.css should style location icons"],
+  [/\.location-art/, "styles.css should style image-led location cards"],
+  [/\.location-card::before/, "styles.css should blend the primary color into place cards"],
   [/\.asset-listing/, "styles.css should style purchasable asset listings"]
 ];
 
@@ -474,6 +489,20 @@ for (const [pattern, message] of locationStyleExpectations) {
 
 if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
   throw new Error("left sidebar should no longer expose the old tab navigation container");
+}
+if (/id="timeHud"/.test(index) || /class="kpi-strip"/.test(index)) {
+  throw new Error("the homepage should not duplicate sidebar time or resource information");
+}
+if (/id="playersList"/.test(index) || /id="newsList"/.test(index) || /同行排名|市场战报/.test(index)) {
+  throw new Error("overview should replace broad ranking/news panels with the compact personal ranking rail");
+}
+const renderOverviewBody = extractFunctionBody(main, "renderOverview");
+if (/rank-row|news-row|playersList|newsList/.test(renderOverviewBody)) {
+  throw new Error("renderOverview should not render the old broad ranking or news panels");
+}
+const renderMyRankRailBody = extractFunctionBody(main, "renderMyRankRail");
+if (/repTier|collection|satisfaction|声望|藏品|满意/.test(renderMyRankRailBody)) {
+  throw new Error("my rank rail should not duplicate sidebar player status resources");
 }
 if (!/<section class="view" data-view="reports">[\s\S]*<h3>经营账房<\/h3>/.test(index)) {
   throw new Error("reports view heading should use the location naming: 经营账房");
@@ -580,7 +609,6 @@ if (/data-action="buyRough"/.test(main)) {
 }
 
 const auctionUiExpectations = [
-  [/timeHud/, "main.js should update the global game-time HUD"],
   [/auctionHalls/, "main.js should render multiple public auction entrances"],
   [/auctionResults/, "main.js should render auction settlement results"],
   [/joinAuction/, "auction UI should let players register for the current round"],
@@ -601,7 +629,7 @@ for (const [pattern, message] of auctionUiExpectations) {
   if (!pattern.test(main)) throw new Error(message);
 }
 
-for (const token of ["timeHud", "auctionHalls", "auctionResults"]) {
+for (const token of ["auctionHalls", "auctionResults"]) {
   if (!index.includes(`id="${token}"`)) throw new Error(`index.html should include #${token}`);
 }
 

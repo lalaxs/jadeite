@@ -23,13 +23,13 @@ const viewLabels = {
 };
 
 const locationDefinitions = [
-  { id: "auction", view: "auction", label: "公盘会场", icon: "石", type: "public", summary: "暗标拍原石，开窗会公开信息。", cta: "去公盘" },
-  { id: "market", view: "market", label: "交易行", icon: "市", type: "public", summary: "买卖原石、成品和经营许可。", cta: "逛交易行" },
-  { id: "orders", view: "orders", label: "客户茶室", icon: "单", type: "public", summary: "接定制单，换现金和口碑。", cta: "看订单" },
-  { id: "collection", view: "collection", label: "藏宝阁", icon: "誉", type: "public", summary: "收藏精品，提高门面声望。", cta: "看藏品" },
-  { id: "reports", view: "reports", label: "经营账房", icon: "报", type: "public", summary: "查看现金流、库存占用和建议。", cta: "看账本" },
-  { id: "livestream", view: "livestream", label: "直播间", icon: "播", type: "lockedPublic", summary: "自动直播卖货，适合处理成品库存。", cta: "开直播", purchaseId: "livestream-permit" },
-  { id: "workshop", view: "workshop", label: "我的工坊", icon: "作", type: "ownedPrivate", summary: "打磨原石、取件、精加工。", cta: "进工坊", ownershipKey: "workshopOwned" }
+  { id: "auction", view: "auction", label: "公盘会场", locationImage: "auction", type: "public", description: "暗标拍原石，开窗会公开信息。" },
+  { id: "market", view: "market", label: "交易行", locationImage: "market", type: "public", description: "买卖原石、成品和经营许可。" },
+  { id: "orders", view: "orders", label: "客户茶室", locationImage: "orders", type: "public", description: "接定制单，换现金和口碑。" },
+  { id: "collection", view: "collection", label: "藏宝阁", locationImage: "collection", type: "public", description: "收藏精品，提高门面声望。" },
+  { id: "reports", view: "reports", label: "经营账房", locationImage: "reports", type: "public", description: "查看现金流、库存占用和建议。" },
+  { id: "livestream", view: "livestream", label: "直播间", locationImage: "livestream", type: "lockedPublic", description: "自动直播卖货，适合处理成品库存。", purchaseId: "livestream-permit" },
+  { id: "workshop", view: "workshop", label: "我的工坊", locationImage: "workshop", type: "ownedPrivate", description: "打磨原石、取件、精加工。", ownershipKey: "workshopOwned" }
 ];
 
 let state = null;
@@ -87,21 +87,12 @@ const els = {
   sidebarStatus: document.querySelector("#sidebarStatus"),
   locationCards: document.querySelector("#locationCards"),
   title: document.querySelector("#viewTitle"),
+  homeBtn: document.querySelector("#homeBtn"),
   connection: document.querySelector("#connectionText"),
   nameInput: document.querySelector("#nameInput"),
   saveNameBtn: document.querySelector("#saveNameBtn"),
-  rank: document.querySelector("#rankText"),
-  cash: document.querySelector("#cashText"),
-  cashSignal: document.querySelector("#cashSignal"),
-  rep: document.querySelector("#repText"),
-  repSignal: document.querySelector("#repSignal"),
-  sat: document.querySelector("#satText"),
-  satSignal: document.querySelector("#satSignal"),
-  collection: document.querySelector("#collectionText"),
-  collectionSignal: document.querySelector("#collectionSignal"),
-  timeHud: document.querySelector("#timeHud"),
-  players: document.querySelector("#playersList"),
-  news: document.querySelector("#newsList"),
+  myRankCard: document.querySelector("#myRankCard"),
+  myRankMeta: document.querySelector("#myRankMeta"),
   auctionHalls: document.querySelector("#auctionHalls"),
   auctionBrief: document.querySelector("#auctionBrief"),
   auctionResults: document.querySelector("#auctionResults"),
@@ -262,37 +253,35 @@ function locationGate(location) {
   return { visible: true, locked: false, reason: "" };
 }
 
-function locationMeta(location) {
-  const me = state?.me || {};
-  if (location.id === "auction") return auctionPhaseMeta().label;
-  if (location.id === "market") return `市场挂单 ${(state?.listings || []).length} · 资产 ${(state?.assetListings || []).length}`;
-  if (location.id === "orders") return `客户 ${(me.orders || []).length} · 满意 ${Math.round(me.satisfaction || 0)}%`;
-  if (location.id === "workshop") return `任务 ${productionJobsFor(me).length} · 原石 ${(me.rough || []).length}`;
-  if (location.id === "livestream") return `成品 ${(me.bracelets || []).length} · 许可 ${me.assets?.livestreamPermitOwned ? "已购" : "未购"}`;
-  if (location.id === "collection") return `藏品 ${(me.collection || []).length}`;
-  if (location.id === "reports") return `净额 ${formatMoney(currentReportSummary().net)}`;
-  return "";
-}
-
 function renderLocationCards() {
   if (!els.locationCards || !state) return;
   const cards = locationDefinitions.flatMap((location) => {
     const gate = locationGate(location);
     if (!gate.visible) return [];
+    const action = gate.locked ? "lockedLocation" : "openLocation";
     return `
-      <article class="location-card ${gate.locked ? "locked" : ""} ${activeView === location.view ? "active" : ""}" data-location="${location.id}">
-        <div class="location-icon" aria-hidden="true">${location.icon}</div>
-        <div>
-          <p class="eyebrow">${location.type === "ownedPrivate" ? "名下资产" : "公共地点"}</p>
-          <h3>${location.label}</h3>
-          <p class="location-summary">${location.summary}</p>
-          <p class="location-meta">${gate.locked ? gate.reason : locationMeta(location)}</p>
-        </div>
-        <button data-action="${gate.locked ? "lockedLocation" : "openLocation"}" data-payload="${location.id}" class="${gate.locked ? "secondary" : ""}">${gate.locked ? "查看条件" : location.cta}</button>
-      </article>
+      <button class="location-card ${gate.locked ? "locked" : ""} ${activeView === location.view ? "active" : ""}" data-location="${location.id}" data-action="${action}" data-payload="${location.id}" type="button" aria-label="${escapeHtml(location.label)}">
+        <span class="location-art ${escapeHtml(location.locationImage)}" aria-hidden="true"></span>
+        <span class="location-copy">
+          <span class="location-title">${escapeHtml(location.label)}</span>
+          <span class="location-description">${escapeHtml(location.description)}</span>
+        </span>
+      </button>
     `;
   });
   els.locationCards.innerHTML = cards.join("");
+}
+
+function renderMyRankRail() {
+  if (!els.myRankCard || !state?.me) return;
+  const players = Array.isArray(state.players) ? state.players : [];
+  const rankIndex = players.findIndex((player) => player.id === state.me.id);
+  const rankLabel = rankIndex >= 0 ? `第 ${rankIndex + 1}` : "未入榜";
+  const total = players.length;
+  if (els.myRankMeta) els.myRankMeta.textContent = total ? `${total} 位掌柜` : "当前名次";
+  els.myRankCard.innerHTML = `
+    <div class="my-rank-number">${escapeHtml(rankLabel)}</div>
+  `;
 }
 
 function button(label, action, payload = "", className = "") {
@@ -756,6 +745,7 @@ function setView(view) {
   document.querySelectorAll(".view").forEach((node) => node.classList.toggle("active", node.dataset.view === view));
   document.querySelectorAll(".location-card").forEach((node) => node.classList.toggle("active", node.dataset.location === view));
   els.title.textContent = viewLabels[view] || "翡翠街";
+  if (els.homeBtn) els.homeBtn.hidden = view === "overview";
   if (state) paintJades();
 }
 
@@ -767,20 +757,8 @@ function render() {
   if (!state) return;
   const { me } = state;
   els.nameInput.value = me.name;
-  els.cash.textContent = formatMoney(me.cash);
-  els.rep.textContent = Math.round(me.rep);
-  els.sat.textContent = `${Math.round(me.satisfaction)}%`;
-  els.collection.textContent = `${me.collection.length} 件`;
-  const rankIndex = state.players.findIndex((player) => player.id === me.id);
-  els.rank.textContent = rankIndex >= 0 ? `同行第 ${rankIndex + 1}` : "未入榜";
-  const cheapest = state.roughPool.reduce((best, item) => (!best || item.price < best.price ? item : best), null);
-  els.cashSignal.textContent = cheapest && me.cash >= cheapest.price ? `可拍最低 ${formatMoney(cheapest.price)}` : "先回笼现金";
-  els.repSignal.textContent = repTier(me.rep);
-  els.satSignal.textContent = me.satisfaction >= 80 ? "客户愿回头" : me.satisfaction >= 55 ? "保持交付" : "口碑危险";
-  els.collectionSignal.textContent = `门面 ${sumValue(me.collection).toLocaleString("zh-CN")}`;
 
   renderPlayerSidebar();
-  renderTimeHud();
   renderOverview();
   renderAuction();
   renderWorkshop();
@@ -796,34 +774,9 @@ function paintJades() {
   paintJadeCanvases();
 }
 
-function renderTimeHud() {
-  if (!state || !els.timeHud) return;
-  const auctionMeta = auctionPhaseMeta();
-  els.timeHud.innerHTML = `
-    <span>${gameClock()}</span>
-    <strong>${auctionMeta.label}</strong>
-    <span>${auctionMeta.clock} ${formatDuration(auctionMeta.remain)}</span>
-  `;
-}
-
 function renderOverview() {
   renderLocationCards();
-  els.players.innerHTML = state.players.map((player, index) => `
-    <div class="rank-row">
-      <div class="rank-badge">${index + 1}</div>
-      <div>
-        <strong>${escapeHtml(player.name)}</strong>
-        <p class="rank-meta">藏品 ${player.collectionCount} · 库存 ${player.inventoryCount} · 满意度 ${player.satisfaction}%</p>
-      </div>
-      <strong>${player.rep}</strong>
-    </div>
-  `).join("") || empty("暂无玩家");
-  els.news.innerHTML = state.news.map((item) => `
-    <div class="news-row ${item.tone}">
-      <strong>${escapeHtml(item.at)}</strong>
-      <p>${escapeHtml(item.text)}</p>
-    </div>
-  `).join("") || empty("还没有战报");
+  renderMyRankRail();
 }
 
 function renderNextActions() {
@@ -1373,7 +1326,7 @@ initShell();
 
 window.setInterval(() => {
   if (!state) return;
-  renderTimeHud();
+  renderPlayerSidebar();
   renderAuction();
   paintJades();
 }, 1000);

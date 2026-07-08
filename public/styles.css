@@ -229,43 +229,6 @@ select {
   margin-top: 7px;
 }
 
-.tabs {
-  display: grid;
-  gap: 8px;
-}
-
-.tab {
-  display: grid;
-  grid-template-columns: 28px 1fr;
-  align-items: center;
-  min-height: 42px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 0 12px;
-  color: var(--ink);
-  background: transparent;
-  text-align: left;
-}
-
-.tab:hover,
-.tab.active {
-  border-color: rgba(31, 155, 114, 0.25);
-  color: var(--jade-dark);
-  background: #edf7f2;
-}
-
-.tab-icon {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--jade-dark);
-  font-size: 12px;
-  font-weight: 800;
-}
-
 .main-stage {
   min-width: 0;
   padding: 24px;
@@ -297,63 +260,12 @@ select {
   white-space: nowrap;
 }
 
-.time-hud {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.time-hud span,
-.time-hud strong {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.time-hud strong {
-  color: var(--jade-dark);
-}
-
 .view {
   display: none;
 }
 
 .view.active {
   display: block;
-}
-
-.kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.kpi {
-  min-height: 84px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--shadow);
-}
-
-.kpi span,
-.kpi small {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.kpi strong {
-  display: block;
-  margin: 4px 0;
-  font-size: 24px;
 }
 
 .command-grid {
@@ -556,11 +468,46 @@ select {
   text-align: center;
 }
 
-.dashboard-grid,
 .market-layout {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
   gap: 16px;
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 16px;
+  align-items: start;
+}
+
+.home-rail {
+  min-width: 0;
+}
+
+.my-rank-panel {
+  position: sticky;
+  top: 16px;
+  overflow: hidden;
+}
+
+.my-rank-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.my-rank-number {
+  display: grid;
+  min-height: 74px;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background:
+    linear-gradient(145deg, rgba(17, 109, 88, 0.95), rgba(31, 155, 114, 0.82)),
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.36), transparent 34%);
+  font-size: 28px;
+  font-weight: 850;
 }
 
 .panel-head,
@@ -586,8 +533,6 @@ select {
   font-size: 24px;
 }
 
-.rank-list,
-.news-list,
 .item-list {
   display: grid;
   gap: 10px;
@@ -599,8 +544,6 @@ select {
   overflow: auto;
 }
 
-.rank-row,
-.news-row,
 .item-row,
 .order-card,
 .rough-card,
@@ -610,49 +553,15 @@ select {
   background: var(--panel);
 }
 
-.rank-row,
-.news-row,
 .item-row {
   padding: 11px;
 }
 
-.rank-row {
-  display: grid;
-  grid-template-columns: 34px 1fr auto;
-  align-items: center;
-  gap: 10px;
-}
-
-.rank-badge {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--gold);
-  font-weight: 800;
-}
-
-.rank-meta,
 .item-meta,
-.news-row p,
 .card-meta {
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 12px;
-}
-
-.news-row strong {
-  color: var(--jade-dark);
-}
-
-.news-row.bad strong {
-  color: var(--rose);
-}
-
-.news-row.great strong {
-  color: var(--gold);
 }
 
 .card-grid {
@@ -662,74 +571,154 @@ select {
 }
 
 .location-board {
-  margin-bottom: 16px;
+  min-width: 0;
 }
 
 .location-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
 }
 
 .location-card {
+  position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 12px;
-  min-height: 190px;
-  border: 1px solid var(--line);
+  grid-template-rows: minmax(210px, 1fr) auto;
+  gap: 0;
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.36);
   border-radius: 8px;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.9);
+  padding: 0;
+  color: #fff;
+  background:
+    linear-gradient(150deg, rgba(13, 84, 68, 0.98), rgba(31, 155, 114, 0.9)),
+    linear-gradient(45deg, #0e5a48, #35a67d);
+  letter-spacing: 0;
+  text-align: left;
   box-shadow: var(--shadow);
 }
 
-.location-card h3 {
-  margin: 4px 0 0;
-  font-size: 20px;
-  letter-spacing: 0;
+.location-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(16, 86, 70, 0.02) 0%, rgba(16, 86, 70, 0.28) 52%, rgba(16, 86, 70, 0.9) 100%),
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.28), transparent 28%);
+  pointer-events: none;
 }
 
-.location-card button {
-  grid-column: 1 / -1;
-  align-self: end;
+.location-card:hover {
+  background:
+    linear-gradient(150deg, rgba(11, 75, 61, 0.98), rgba(28, 144, 107, 0.92)),
+    linear-gradient(45deg, #0e5a48, #35a67d);
 }
 
 .location-card.active {
-  border-color: rgba(31, 155, 114, 0.48);
-  background: #edf7f2;
+  outline: 3px solid rgba(199, 137, 47, 0.7);
+  outline-offset: -3px;
 }
 
 .location-card.locked {
-  background: #f4f5f2;
-  opacity: 0.78;
+  filter: saturate(0.78);
+  opacity: 0.84;
 }
 
-.location-icon {
+.location-art {
+  position: relative;
+  z-index: 0;
+  min-height: 220px;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
+    radial-gradient(circle at 72% 18%, rgba(199, 137, 47, 0.36), transparent 20%),
+    linear-gradient(145deg, rgba(236, 251, 244, 0.34), rgba(15, 91, 72, 0.94));
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto, auto, cover;
+}
+
+.location-art.auction {
+  background-image:
+    url("/assets/template-icons/bangle.png"),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
+    radial-gradient(circle at 72% 18%, rgba(199, 137, 47, 0.36), transparent 20%),
+    linear-gradient(145deg, rgba(236, 251, 244, 0.34), rgba(15, 91, 72, 0.94));
+  background-size: 44%, auto, auto, cover;
+}
+
+.location-art.market {
+  background-image:
+    url("/assets/template-icons/gourd.png"),
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.58), transparent 18%),
+    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.34), transparent 22%),
+    linear-gradient(135deg, rgba(237, 248, 242, 0.32), rgba(19, 104, 82, 0.94));
+  background-size: 40%, auto, auto, cover;
+}
+
+.location-art.orders {
+  background-image:
+    url("/assets/template-icons/peace-buckle.png"),
+    radial-gradient(circle at 34% 20%, rgba(255, 255, 255, 0.62), transparent 18%),
+    radial-gradient(circle at 76% 18%, rgba(72, 126, 169, 0.3), transparent 23%),
+    linear-gradient(140deg, rgba(239, 250, 245, 0.34), rgba(22, 112, 90, 0.94));
+  background-size: 42%, auto, auto, cover;
+}
+
+.location-art.collection {
+  background-image:
+    url("/assets/template-icons/guanyin.png"),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
+    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.38), transparent 22%),
+    linear-gradient(145deg, rgba(244, 252, 248, 0.34), rgba(14, 86, 69, 0.94));
+  background-size: 40%, auto, auto, cover;
+}
+
+.location-art.reports {
+  background-image:
+    url("/assets/template-icons/blank-plaque.png"),
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.58), transparent 18%),
+    radial-gradient(circle at 70% 24%, rgba(199, 137, 47, 0.32), transparent 22%),
+    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(16, 92, 74, 0.94));
+  background-size: 46%, auto, auto, cover;
+}
+
+.location-art.livestream {
+  background-image:
+    url("/assets/template-icons/ruyi.png"),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.6), transparent 18%),
+    radial-gradient(circle at 76% 20%, rgba(180, 81, 98, 0.28), transparent 22%),
+    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(18, 99, 79, 0.94));
+  background-size: 42%, auto, auto, cover;
+}
+
+.location-art.workshop {
+  background-image:
+    url("/assets/template-icons/cabochon.png"),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
+    radial-gradient(circle at 74% 22%, rgba(199, 137, 47, 0.34), transparent 22%),
+    linear-gradient(145deg, rgba(238, 249, 242, 0.34), rgba(14, 86, 69, 0.94));
+  background-size: 40%, auto, auto, cover;
+}
+
+.location-copy {
+  position: relative;
+  z-index: 2;
   display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  color: #fff;
-  background: var(--jade-dark);
-  font-weight: 800;
+  gap: 8px;
+  padding: 18px;
 }
 
-.location-card.locked .location-icon {
-  background: var(--muted);
+.location-title {
+  font-size: 25px;
+  font-weight: 850;
 }
 
-.location-summary {
-  margin: 8px 0 0;
-  color: var(--ink);
+.location-description {
+  color: rgba(255, 255, 255, 0.82);
   font-size: 14px;
-  line-height: 1.45;
-}
-
-.location-meta {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 12px;
+  line-height: 1.5;
 }
 
 .asset-listing {
@@ -1588,12 +1577,15 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .dashboard-grid,
+  .home-layout,
   .market-layout,
   .command-grid,
-  .workbench,
-  .kpi-strip {
+  .workbench {
     grid-template-columns: 1fr;
+  }
+
+  .my-rank-panel {
+    position: static;
   }
 }
 
@@ -1618,7 +1610,8 @@ select {
   }
 
   .location-card {
-    grid-template-columns: 38px 1fr;
+    grid-template-rows: minmax(180px, 1fr) auto;
+    min-height: 300px;
   }
 
   .focus-panel h3,

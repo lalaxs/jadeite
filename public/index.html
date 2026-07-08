@@ -25,7 +25,6 @@
           </div>
           <div class="profile-note">
             <span id="connectionText">连接中</span>
-            <strong id="rankText">未入榜</strong>
           </div>
         </section>
 
@@ -40,35 +39,26 @@
           </div>
           <div class="topbar-tools">
             <button id="homeBtn" class="secondary home-button" data-action="openLocation" data-payload="overview">回街口</button>
-            <div id="timeHud" class="time-hud" aria-label="游戏时间"></div>
           </div>
         </header>
-        <section class="kpi-strip" aria-label="关键资产">
-          <div class="kpi"><span>现金</span><strong id="cashText">-</strong><small id="cashSignal">-</small></div>
-          <div class="kpi"><span>声望</span><strong id="repText">-</strong><small id="repSignal">-</small></div>
-          <div class="kpi"><span>客户满意</span><strong id="satText">-</strong><small id="satSignal">-</small></div>
-          <div class="kpi"><span>藏宝阁</span><strong id="collectionText">-</strong><small id="collectionSignal">-</small></div>
-        </section>
 
         <section class="view active" data-view="overview">
-          <section class="location-board">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">翡翠街</p>
-                <h3>今天去哪儿</h3>
+          <div class="home-layout">
+            <section class="location-board">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">翡翠街</p>
+                  <h3>今天去哪儿</h3>
+                </div>
               </div>
-            </div>
-            <div id="locationCards" class="location-grid"></div>
-          </section>
-          <div class="dashboard-grid">
-            <section class="panel">
-              <div class="panel-head"><h3>同行排名</h3><span>声望竞争</span></div>
-              <div id="playersList" class="rank-list compact"></div>
+              <div id="locationCards" class="location-grid"></div>
             </section>
-            <section class="panel">
-              <div class="panel-head"><h3>市场战报</h3><span>切涨、成交、毁约</span></div>
-              <div id="newsList" class="news-list compact"></div>
-            </section>
+            <aside class="home-rail" id="myRankRail" aria-label="我的排行">
+              <section class="panel my-rank-panel">
+                <div class="panel-head"><h3>我的排行</h3><span id="myRankMeta">当前名次</span></div>
+                <div id="myRankCard" class="my-rank-card"></div>
+              </section>
+            </aside>
           </div>
         </section>
 
