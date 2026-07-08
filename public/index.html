@@ -38,7 +38,10 @@
             <p class="eyebrow">经营驾驶舱</p>
             <h2 id="viewTitle">经营总览</h2>
           </div>
-          <div id="timeHud" class="time-hud" aria-label="游戏时间"></div>
+          <div class="topbar-tools">
+            <button id="homeBtn" class="secondary home-button" data-action="openLocation" data-payload="overview">回街口</button>
+            <div id="timeHud" class="time-hud" aria-label="游戏时间"></div>
+          </div>
         </header>
         <section class="kpi-strip" aria-label="关键资产">
           <div class="kpi"><span>现金</span><strong id="cashText">-</strong><small id="cashSignal">-</small></div>
@@ -146,7 +149,7 @@
 
         <section class="view" data-view="reports">
           <div class="section-head">
-            <div><p class="eyebrow">现金流</p><h3>经营报告</h3></div>
+            <div><p class="eyebrow">现金流</p><h3>经营账房</h3></div>
           </div>
           <div id="reportsPanel" class="report-grid"></div>
         </section>

@@ -1233,6 +1233,10 @@ document.body.addEventListener("click", (event) => {
   const payload = target.dataset.payload;
 
   if (action === "openLocation") {
+    if (payload === "overview") {
+      setView("overview");
+      return;
+    }
     const location = locationDefinitions.find((item) => item.id === payload);
     if (location) setView(location.view);
     return;

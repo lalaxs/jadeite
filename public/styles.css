@@ -284,6 +284,19 @@ select {
   font-size: 30px;
 }
 
+.topbar-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.home-button {
+  color: var(--jade-dark);
+  white-space: nowrap;
+}
+
 .time-hud {
   display: flex;
   align-items: center;
@@ -1593,6 +1606,10 @@ select {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .topbar-tools {
+    justify-content: flex-start;
   }
 
   .location-grid,

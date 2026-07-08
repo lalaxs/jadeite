@@ -407,6 +407,7 @@ for (const [pattern, message] of idleFrontendExpectations) {
 const locationUiExpectations = [
   [/id="sidebarStatus"/, "index.html should expose a sidebar status container"],
   [/id="locationCards"/, "index.html should expose a location card container"],
+  [/id="homeBtn"/, "index.html should expose a way back to the location homepage"],
   [/const locationDefinitions\s*=/, "main.js should define location cards separately from feature views"],
   [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
   [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
@@ -419,7 +420,8 @@ const locationUiExpectations = [
   [/我的工坊/, "location cards should include the owned workshop place"],
   [/workshopOwned/, "main.js should use server-owned workshop state"],
   [/livestreamPermitOwned/, "main.js should use server-owned livestream permit state"],
-  [/buyAssetListing/, "main.js should emit asset purchase actions"]
+  [/buyAssetListing/, "main.js should emit asset purchase actions"],
+  [/payload\s*===\s*"overview"/, "openLocation should support returning to the location homepage"]
 ];
 
 for (const [pattern, message] of locationUiExpectations) {
@@ -442,6 +444,9 @@ for (const [pattern, message] of locationStyleExpectations) {
 
 if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
   throw new Error("left sidebar should no longer expose the old tab navigation container");
+}
+if (!/<section class="view" data-view="reports">[\s\S]*<h3>经营账房<\/h3>/.test(index)) {
+  throw new Error("reports view heading should use the location naming: 经营账房");
 }
 
 const renderMarketBody = extractFunctionBody(main, "renderMarket");
