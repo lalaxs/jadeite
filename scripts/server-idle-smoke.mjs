@@ -17,6 +17,10 @@ const {
   processProductionJobs,
   scheduleLivestream,
   sellLivestreamNow,
+  assetListingsForPlayer,
+  buyAssetListingForPlayer,
+  playerOwnsWorkshop,
+  playerCanLivestream,
   processLivestreamJobs,
   processPolishingJobs,
   playerSocketCount,
@@ -131,6 +135,36 @@ assert.equal(existingEmptyPlayer.starterRoughGranted, true);
 existingEmptyPlayer.rough.length = 0;
 normalizePlayer(existingEmptyPlayer);
 assert.equal(existingEmptyPlayer.rough.length, 0);
+
+const assetPlayer = makeEmptyPlayer("asset-player");
+normalizePlayer(assetPlayer);
+assert.equal(assetPlayer.assets.workshopOwned, false);
+assert.equal(assetPlayer.assets.livestreamPermitOwned, false);
+assert.equal(playerOwnsWorkshop(assetPlayer), false);
+assert.equal(playerCanLivestream(assetPlayer), false);
+let assetListings = assetListingsForPlayer(assetPlayer);
+assert.deepEqual(assetListings.map((listing) => listing.id), ["starter-workshop", "livestream-permit"]);
+
+const cashBeforeWorkshop = assetPlayer.cash;
+const workshopPurchase = buyAssetListingForPlayer(assetPlayer, "starter-workshop");
+assert.equal(workshopPurchase.ok, true);
+assert.equal(assetPlayer.assets.workshopOwned, true);
+assert.equal(playerOwnsWorkshop(assetPlayer), true);
+assert.equal(assetPlayer.cash, cashBeforeWorkshop - 12000);
+assetListings = assetListingsForPlayer(assetPlayer);
+assert.deepEqual(assetListings.map((listing) => listing.id), ["livestream-permit"]);
+
+const repeatedWorkshopPurchase = buyAssetListingForPlayer(assetPlayer, "starter-workshop");
+assert.equal(repeatedWorkshopPurchase.ok, false);
+assert.match(repeatedWorkshopPurchase.message, /已经拥有/);
+
+const cashBeforePermit = assetPlayer.cash;
+const permitPurchase = buyAssetListingForPlayer(assetPlayer, "livestream-permit");
+assert.equal(permitPurchase.ok, true);
+assert.equal(assetPlayer.assets.livestreamPermitOwned, true);
+assert.equal(playerCanLivestream(assetPlayer), true);
+assert.equal(assetPlayer.cash, cashBeforePermit - 8000);
+assert.deepEqual(assetListingsForPlayer(assetPlayer), []);
 
 resetState();
 
@@ -323,6 +357,14 @@ normalizePlayer(livestreamPlayer);
 state.players.set(livestreamPlayer.id, livestreamPlayer);
 const liveProduct = testProduct("live-product");
 livestreamPlayer.bracelets.push(liveProduct);
+const gatedLivestreamPlayer = makeEmptyPlayer("gated-livestream-player");
+normalizePlayer(gatedLivestreamPlayer);
+const gatedLiveProduct = testProduct("gated-live-product");
+gatedLivestreamPlayer.bracelets.push(gatedLiveProduct);
+assert.equal(scheduleLivestream(gatedLivestreamPlayer, gatedLiveProduct.id, "autoBalanced"), null);
+assert.equal(gatedLivestreamPlayer.bracelets.length, 1);
+gatedLivestreamPlayer.assets.livestreamPermitOwned = true;
+livestreamPlayer.assets.livestreamPermitOwned = true;
 const liveJob = scheduleLivestream(livestreamPlayer, liveProduct.id, "autoBalanced");
 assert.ok(liveJob);
 assert.equal(livestreamPlayer.bracelets.length, 0);
@@ -348,6 +390,7 @@ state.players.set(unsoldLivestreamPlayer.id, unsoldLivestreamPlayer);
 state.sockets.set("socket-unsold-live", unsoldLivestreamPlayer.id);
 const unsoldProduct = testProduct("unsold-live-product");
 unsoldLivestreamPlayer.bracelets.push(unsoldProduct);
+unsoldLivestreamPlayer.assets.livestreamPermitOwned = true;
 const unsoldLiveJob = scheduleLivestream(unsoldLivestreamPlayer, unsoldProduct.id, "autoBalanced");
 unsoldLiveJob.readyAt = 8;
 processLivestreamJobs(9);
@@ -364,6 +407,7 @@ offlineLivestreamPlayer.lastSeenAt = 4_000;
 state.players.set(offlineLivestreamPlayer.id, offlineLivestreamPlayer);
 const offlineLiveProduct = testProduct("offline-live-product");
 offlineLivestreamPlayer.bracelets.push(offlineLiveProduct);
+offlineLivestreamPlayer.assets.livestreamPermitOwned = true;
 const offlineLiveJob = scheduleLivestream(offlineLivestreamPlayer, offlineLiveProduct.id, "autoBalanced");
 offlineLiveJob.readyAt = 4_500;
 const offlineLiveEvents = settleOfflinePlayer(offlineLivestreamPlayer, 5_000);
@@ -381,6 +425,7 @@ normalizePlayer(manualLivestreamPlayer);
 const manualProduct = testProduct("manual-live-product");
 const cashBeforeManualSale = manualLivestreamPlayer.cash;
 manualLivestreamPlayer.bracelets.push(manualProduct);
+manualLivestreamPlayer.assets.livestreamPermitOwned = true;
 const manualSale = sellLivestreamNow(manualLivestreamPlayer, manualProduct.id, 12);
 assert.ok(manualSale);
 assert.equal(manualSale.outcome.sold, true);

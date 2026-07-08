@@ -35,6 +35,22 @@ const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
 const DEFAULT_AUCTION_HALL_ID = "novice";
 const STARTER_ROUGH_COUNT = 3;
+const ASSET_LISTINGS = [
+  {
+    id: "starter-workshop",
+    type: "workshop",
+    name: "街角小工坊",
+    price: 12000,
+    description: "解锁自己的打磨与取件工位。"
+  },
+  {
+    id: "livestream-permit",
+    type: "livestreamPermit",
+    name: "直播经营许可",
+    price: 8000,
+    description: "解锁直播间和自动直播卖货。"
+  }
+];
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
 const TIMING = resolveTiming(TIMING_PROFILE);
 
@@ -143,6 +159,52 @@ function publicAuctionHalls(player) {
     unlocked: rep >= hall.requiredRep,
     active: hall.id === DEFAULT_AUCTION_HALL_ID
   }));
+}
+
+function normalizeAssets(player) {
+  player.assets ||= {};
+  player.assets.workshopOwned = Boolean(player.assets.workshopOwned);
+  player.assets.livestreamPermitOwned = Boolean(player.assets.livestreamPermitOwned);
+  return player.assets;
+}
+
+function playerOwnsWorkshop(player) {
+  normalizePlayer(player);
+  return Boolean(player.assets.workshopOwned);
+}
+
+function playerCanLivestream(player) {
+  normalizePlayer(player);
+  return Boolean(player.assets.livestreamPermitOwned);
+}
+
+function assetListingsForPlayer(player) {
+  normalizePlayer(player);
+  return ASSET_LISTINGS.filter((listing) => {
+    if (listing.type === "workshop") return !player.assets.workshopOwned;
+    if (listing.type === "livestreamPermit") return !player.assets.livestreamPermitOwned;
+    return false;
+  });
+}
+
+function buyAssetListingForPlayer(player, listingId) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  normalizePlayer(player);
+  const listing = ASSET_LISTINGS.find((item) => item.id === listingId);
+  if (!listing) return { ok: false, message: "资产挂单不存在。" };
+  if (listing.type === "workshop" && player.assets.workshopOwned) {
+    return { ok: false, message: "你已经拥有自己的工坊。" };
+  }
+  if (listing.type === "livestreamPermit" && player.assets.livestreamPermitOwned) {
+    return { ok: false, message: "你已经拥有直播经营许可。" };
+  }
+  if (!spendCash(player, listing.price, `购入资产：${listing.name}`, { source: "asset", itemId: listing.id })) {
+    return { ok: false, message: `购买 ${listing.name} 需要 ${listing.price}。` };
+  }
+  if (listing.type === "workshop") player.assets.workshopOwned = true;
+  if (listing.type === "livestreamPermit") player.assets.livestreamPermitOwned = true;
+  refreshPlayerReport(player);
+  return { ok: true, message: `${listing.name} 已归入名下。`, listing };
 }
 
 function queueOfflineEvent(player, event) {
@@ -295,6 +357,7 @@ function snapshotFor(player, now = Date.now()) {
     me: privatePlayerSnapshot(player),
     roughPool: state.roughPool.map(publicStone),
     listings: state.listings.map(publicListing),
+    assetListings: assetListingsForPlayer(player),
     auction: publicAuctionSnapshot(auction, player.id, now),
     auctionHalls: publicAuctionHalls(player),
     players: [...state.players.values()].map(publicPlayer).sort((a, b) => b.rep - a.rep),
@@ -640,6 +703,10 @@ function makePlayer(playerId) {
     cash: 30000,
     rep: 0,
     satisfaction: 72,
+    assets: {
+      workshopOwned: false,
+      livestreamPermitOwned: false
+    },
     offlineSummary: null,
     ledger: [],
     lastSeenAt: Date.now(),
@@ -673,6 +740,7 @@ function makePlayer(playerId) {
 function normalizePlayer(player) {
   player.cash = Number.isFinite(Number(player.cash)) ? Number(player.cash) : 30000;
   player.rep = Number.isFinite(Number(player.rep)) ? Number(player.rep) : 0;
+  normalizeAssets(player);
   player.rough ||= [];
   if (player.starterRoughGranted !== true && player.rough.length === 0) {
     player.rough.push(...makeStarterRoughs(player.id));
@@ -887,6 +955,7 @@ function completeProductionJob(player, job) {
 
 function scheduleLivestream(player, productId, mode = "autoBalanced") {
   normalizePlayer(player);
+  if (!playerCanLivestream(player)) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
   const now = Date.now();
@@ -906,6 +975,7 @@ function scheduleLivestream(player, productId, mode = "autoBalanced") {
 
 function sellLivestreamNow(player, productId, seed = Date.now()) {
   normalizePlayer(player);
+  if (!playerCanLivestream(player)) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
   const now = Date.now();
@@ -1553,6 +1623,7 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     if (!player) return;
     normalizePlayer(player);
+    if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先去交易行买下街角小工坊。");
     const rough = takeItem(player, "rough", roughId);
     if (!rough) return;
     if (rough.revealed) {
@@ -1582,6 +1653,7 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     if (!player) return;
     normalizePlayer(player);
+    if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先去交易行买下街角小工坊。");
     const rough = takeItem(player, "rough", roughId);
     if (!rough) return;
     if (!rough.revealed) {
@@ -1646,7 +1718,7 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     if (!player) return;
     const job = scheduleLivestream(player, productId, mode);
-    if (!job) return socket.emit("toast", "找不到可直播的成品。");
+    if (!job) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 安排 ${job.product.name} 自动直播。`, "trade");
     broadcast();
   });
@@ -1655,7 +1727,7 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     if (!player) return;
     const sale = sellLivestreamNow(player, braceletId);
-    if (!sale) return;
+    if (!sale) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 直播卖出 ${sale.product.name}，成交 ${sale.outcome.price}。`, "trade");
     broadcast();
   });
@@ -1707,6 +1779,16 @@ io.on("connection", (socket) => {
     state.listings = state.listings.slice(0, 40);
     addNews(`${player.name} 在交易行挂出 ${item.name}，标价 ${listingPrice}。`, "trade");
     broadcast();
+  });
+
+  socket.on("buyAssetListing", (listingId) => {
+    const player = getPlayer(socket);
+    const result = buyAssetListingForPlayer(player, listingId);
+    socket.emit("toast", result.message);
+    if (result.ok) {
+      addNews(`${player.name} 买下 ${result.listing.name}。`, "trade");
+      broadcast();
+    }
   });
 
   socket.on("buyListing", (listingId) => {
@@ -1806,6 +1888,10 @@ export const __testHooks = {
   completeProductionJob,
   scheduleLivestream,
   sellLivestreamNow,
+  assetListingsForPlayer,
+  buyAssetListingForPlayer,
+  playerOwnsWorkshop,
+  playerCanLivestream,
   extractProductsFromJob,
   normalizeExtractionKits,
   expandKitPlacements,
