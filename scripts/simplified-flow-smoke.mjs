@@ -412,6 +412,7 @@ const locationUiExpectations = [
   [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
   [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
   [/function locationGate\b/, "main.js should centralize location lock logic"],
+  [/function openLocationByView\b/, "main.js should gate location view transitions through openLocationByView"],
   [/公盘会场/, "location cards should include the public auction place"],
   [/交易行/, "location cards should include the market place"],
   [/客户茶室/, "location cards should include orders as a place"],
@@ -420,12 +421,41 @@ const locationUiExpectations = [
   [/我的工坊/, "location cards should include the owned workshop place"],
   [/workshopOwned/, "main.js should use server-owned workshop state"],
   [/livestreamPermitOwned/, "main.js should use server-owned livestream permit state"],
-  [/buyAssetListing/, "main.js should emit asset purchase actions"],
-  [/payload\s*===\s*"overview"/, "openLocation should support returning to the location homepage"]
+  [/buyAssetListing/, "main.js should emit asset purchase actions"]
 ];
 
 for (const [pattern, message] of locationUiExpectations) {
   if (!pattern.test(index) && !pattern.test(main)) throw new Error(message);
+}
+
+const clickHandlerBody = extractBlockFrom(main, main.indexOf('document.body.addEventListener("click"'), "document click handler");
+const openLocationByViewBody = extractFunctionBody(main, "openLocationByView");
+if (!/view\s*===\s*"overview"/.test(openLocationByViewBody) || !/setView\("overview"\)/.test(openLocationByViewBody)) {
+  throw new Error("openLocationByView should allow overview to open directly");
+}
+if (!/locationDefinitions\.find\(\(item\)\s*=>\s*item\.view\s*===\s*view\)/.test(openLocationByViewBody)) {
+  throw new Error("openLocationByView should resolve the target location from its view");
+}
+if (!/const gate = locationGate\(location\)/.test(openLocationByViewBody)) {
+  throw new Error("openLocationByView should gate resolved locations through locationGate");
+}
+if (!/location\?\.purchaseId/.test(openLocationByViewBody) || !/setView\("market"\)/.test(openLocationByViewBody)) {
+  throw new Error("openLocationByView should route locked purchasable locations to the market");
+}
+
+const openLocationActionBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "openLocation")'), "openLocation client handler");
+if (!/openLocationByView\(/.test(openLocationActionBody)) {
+  throw new Error("openLocation actions should navigate through openLocationByView");
+}
+if (/setView\(/.test(openLocationActionBody)) {
+  throw new Error("openLocation actions should not call setView directly");
+}
+
+if (!/openLocationByView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody)) {
+  throw new Error("data-view-link navigation should use openLocationByView");
+}
+if (/setView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody)) {
+  throw new Error("data-view-link navigation should not bypass location gating with direct setView");
 }
 
 const locationStyleExpectations = [
@@ -585,7 +615,6 @@ if (/renderOfflineSummary\s*\(/.test(renderNextActionsBody)) {
   throw new Error("renderNextActions should not embed the offline summary card");
 }
 
-const clickHandlerBody = extractBlockFrom(main, main.indexOf('document.body.addEventListener("click"'), "document click handler");
 const submitAuctionBidBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "submitAuctionBid")'), "submitAuctionBid client handler");
 if (!/data-bid-amount/.test(submitAuctionBidBody) || !/data-proxy-max/.test(submitAuctionBidBody)) {
   throw new Error("submitAuctionBid should read both bid amount and proxy max inputs");

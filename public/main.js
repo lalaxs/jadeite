@@ -303,6 +303,40 @@ function viewButton(label, view, className = "") {
   return `<button class="${className}" data-view-link="${view}">${label}</button>`;
 }
 
+function openLocationByView(view) {
+  if (view === "overview") {
+    setView("overview");
+    return;
+  }
+
+  const location = locationDefinitions.find((item) => item.view === view);
+  if (!location) {
+    setView("overview");
+    return;
+  }
+
+  const gate = locationGate(location);
+  if (gate.visible && !gate.locked) {
+    setView(location.view);
+    return;
+  }
+
+  if (location?.purchaseId) {
+    showToast(`${gate.reason || "尚未解锁"}，先去交易行购买。`);
+    setView("market");
+    return;
+  }
+
+  if (!gate.visible) {
+    showToast(gate.reason || "条件未满足。");
+    setView(location.ownershipKey ? "market" : "overview");
+    return;
+  }
+
+  showToast(gate.reason || "条件未满足。");
+  setView("overview");
+}
+
 function typeName(type, item = {}) {
   if (type === "bracelet") return {
     bracelet: "手镯",
@@ -1210,7 +1244,7 @@ document.body.addEventListener("pointercancel", () => {
 document.body.addEventListener("click", (event) => {
   const viewLink = event.target.closest("[data-view-link]");
   if (viewLink) {
-    setView(viewLink.dataset.viewLink);
+    openLocationByView(viewLink.dataset.viewLink);
     return;
   }
 
@@ -1233,23 +1267,14 @@ document.body.addEventListener("click", (event) => {
   const payload = target.dataset.payload;
 
   if (action === "openLocation") {
-    if (payload === "overview") {
-      setView("overview");
-      return;
-    }
     const location = locationDefinitions.find((item) => item.id === payload);
-    if (location) setView(location.view);
+    openLocationByView(location?.view || payload);
     return;
   }
 
   if (action === "lockedLocation") {
     const location = locationDefinitions.find((item) => item.id === payload);
-    if (location?.purchaseId) {
-      showToast("去交易行购买对应许可。");
-      setView("market");
-    } else {
-      showToast("条件未满足。");
-    }
+    openLocationByView(location?.view || payload);
     return;
   }
 
