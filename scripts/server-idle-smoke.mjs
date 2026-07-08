@@ -8,6 +8,7 @@ const {
   earnCash,
   settleOfflinePlayer,
   submitAuctionBidForPlayer,
+  joinAuctionForPlayer,
   requestAuctionWindowForPlayer,
   ensureAuctionRound,
   settleAuctionIfDue,
@@ -21,6 +22,9 @@ const {
   playerSocketCount,
   isPlayerOnline,
   revealPolishedRough,
+  normalizeExtractionKits,
+  expandKitPlacements,
+  placementsOverlap,
   refreshPlayerReport,
   state
 } = __testHooks;
@@ -88,14 +92,79 @@ function makeAuctionRound(roughs, overrides = {}) {
   return state.auction;
 }
 
+function makeEmptyPlayer(playerId) {
+  const player = makePlayer(playerId);
+  player.rough = [];
+  player.starterRoughGranted = true;
+  return player;
+}
+
 resetState();
 
 assert.equal(typeof submitAuctionBidForPlayer, "function", "submitAuctionBidForPlayer should be testable");
+assert.equal(typeof joinAuctionForPlayer, "function", "joinAuctionForPlayer should be testable");
 assert.equal(typeof requestAuctionWindowForPlayer, "function", "requestAuctionWindowForPlayer should be testable");
 assert.equal(typeof snapshotFor, "function", "snapshotFor should be testable");
 assert.equal(typeof sellLivestreamNow, "function", "sellLivestreamNow should preserve legacy livestreamSell compatibility");
 
-const cashPlayer = makePlayer("cash-player");
+const starterPlayer = makePlayer("starter-player");
+assert.equal(starterPlayer.rough.length, 3);
+assert.equal(starterPlayer.starterRoughGranted, true);
+assert.equal(new Set(starterPlayer.rough.map((rough) => rough.id)).size, 3);
+assert.ok(starterPlayer.rough.every((rough) => rough.type === "rough" && rough.owner === starterPlayer.id && rough.revealed === false));
+const starterSnapshot = snapshotFor(starterPlayer, 10);
+assert.equal(starterSnapshot.me.rough.length, 3);
+assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueValue"), false);
+assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueQualityKey"), false);
+
+const existingEmptyPlayer = {
+  id: "existing-empty-player",
+  name: "旧账号",
+  cash: 30000,
+  rep: 0,
+  satisfaction: 72,
+  rough: []
+};
+normalizePlayer(existingEmptyPlayer);
+assert.equal(existingEmptyPlayer.rough.length, 3);
+assert.equal(existingEmptyPlayer.starterRoughGranted, true);
+existingEmptyPlayer.rough.length = 0;
+normalizePlayer(existingEmptyPlayer);
+assert.equal(existingEmptyPlayer.rough.length, 0);
+
+resetState();
+
+const uiAuctionPlayer = makeEmptyPlayer("ui-auction-player");
+normalizePlayer(uiAuctionPlayer);
+state.players.set(uiAuctionPlayer.id, uiAuctionPlayer);
+const uiRound = ensureAuctionRound(100_000);
+assert.equal(uiRound.status, "registration");
+assert.equal(uiRound.startsAt, 400_000);
+assert.equal(uiRound.biddingEndsAt, 700_000);
+assert.equal(uiRound.settlementEndsAt, 730_000);
+const uiAuctionSnapshot = snapshotFor(uiAuctionPlayer, 100_100);
+assert.equal(uiAuctionSnapshot.auction.phase, "registration");
+assert.equal(uiAuctionSnapshot.auction.registered, false);
+assert.equal(uiAuctionSnapshot.auctionHalls.length, 5);
+assert.deepEqual(uiAuctionSnapshot.auctionHalls.map((hall) => hall.id), ["novice", "regular", "premium", "special", "legendary"]);
+assert.equal(uiAuctionSnapshot.auctionHalls[0].label, "新手公盘");
+const joinResult = joinAuctionForPlayer(uiAuctionPlayer, { hallId: "novice" }, 100_200);
+assert.equal(joinResult.ok, true);
+assert.equal(joinResult.deposit, 5000);
+assert.equal(uiAuctionPlayer.cash, 25000);
+const joinedAuctionSnapshot = snapshotFor(uiAuctionPlayer, 100_300);
+assert.equal(joinedAuctionSnapshot.auction.registered, true);
+assert.equal(joinedAuctionSnapshot.auction.registeredCount, 1);
+const blockedBid = submitAuctionBidForPlayer(uiAuctionPlayer, {
+  roughId: uiRound.roughs[0].id,
+  amount: uiRound.roughs[0].price
+}, uiRound.startsAt - 1);
+assert.equal(blockedBid.ok, false);
+assert.match(blockedBid.message, /竞价尚未开始/);
+
+resetState();
+
+const cashPlayer = makeEmptyPlayer("cash-player");
 normalizePlayer(cashPlayer);
 assert.equal(cashPlayer.cash, 30000);
 
@@ -110,7 +179,7 @@ assert.equal(cashPlayer.reports[0].income, 15000);
 assert.equal(cashPlayer.reports[0].expense, 10000);
 assert.equal(cashPlayer.reports[0].net, 5000);
 
-const offlinePlayer = makePlayer("offline-player");
+const offlinePlayer = makeEmptyPlayer("offline-player");
 normalizePlayer(offlinePlayer);
 const offlineNow = 10_000;
 offlinePlayer.lastSeenAt = 4_000;
@@ -134,7 +203,7 @@ assert.equal(duplicateEvents.length, 0);
 assert.equal(offlinePlayer.rough.length, 1);
 assert.equal(offlinePlayer.offlineSummary, null);
 
-const realtimePlayer = makePlayer("realtime-player");
+const realtimePlayer = makeEmptyPlayer("realtime-player");
 normalizePlayer(realtimePlayer);
 realtimePlayer.polishingJobs.push({
   id: "realtime-job",
@@ -159,7 +228,7 @@ assert.equal(realtimePlayer.rough.length, 1);
 
 resetState();
 
-const stagedOfflinePlayer = makePlayer("staged-offline-player");
+const stagedOfflinePlayer = makeEmptyPlayer("staged-offline-player");
 normalizePlayer(stagedOfflinePlayer);
 stagedOfflinePlayer.lastSeenAt = 4_000;
 const stagedOfflineJob = startProductionJob(stagedOfflinePlayer, "rough", testRough("staged-offline-rough"), { label: "粗加工" });
@@ -175,7 +244,7 @@ assert.equal(stagedOfflinePlayer.offlineSummary.count, 1);
 
 resetState();
 
-const stagedRealtimePlayer = makePlayer("staged-realtime-player");
+const stagedRealtimePlayer = makeEmptyPlayer("staged-realtime-player");
 normalizePlayer(stagedRealtimePlayer);
 state.players.set(stagedRealtimePlayer.id, stagedRealtimePlayer);
 const stagedRealtimeJob = startProductionJob(stagedRealtimePlayer, "rough", testRough("staged-realtime-rough"), { label: "粗加工" });
@@ -191,7 +260,7 @@ assert.equal(stagedRealtimePlayer.rough.length, 1);
 
 resetState();
 
-const refinePlayer = makePlayer("refine-player");
+const refinePlayer = makeEmptyPlayer("refine-player");
 normalizePlayer(refinePlayer);
 state.players.set(refinePlayer.id, refinePlayer);
 state.sockets.set("socket-refine", refinePlayer.id);
@@ -214,6 +283,16 @@ assert.equal(refinePlayer.rough[0].braceletPlacements.length, 1);
 assert.equal(refinePlayer.bracelets.length, 1);
 assert.equal(refinePlayer.bracelets[0].sourceRoughId, revealedRough.id);
 assert.equal(refinePlayer.reports.length, 1);
+assert.equal(typeof normalizeExtractionKits, "function", "normalizeExtractionKits should be testable");
+assert.equal(typeof expandKitPlacements, "function", "expandKitPlacements should be testable");
+assert.equal(typeof placementsOverlap, "function", "placementsOverlap should be testable");
+const existingVisualKit = { id: "existing-bangle", type: "bangle", x: 50, y: 50, ringSize: 56 };
+const distantVisualKit = { id: "distant-cabochon", type: "cabochon", x: 70, y: 50, ringSize: 56 };
+assert.equal(
+  placementsOverlap(expandKitPlacements(normalizeExtractionKits([existingVisualKit, distantVisualKit]))),
+  false,
+  "server overlap detection should match the UI-scaled kit footprint"
+);
 const secondRefineJob = startProductionJob(refinePlayer, "refine", refinePlayer.rough[0], {
   label: "精加工",
   kits: [{ id: "kit-b", type: "cabochon", x: 76, y: 76, ringSize: 56 }]
@@ -222,10 +301,12 @@ assert.ok(secondRefineJob);
 secondRefineJob.readyAt = Date.now() - 1;
 processProductionJobs();
 assert.equal(refinePlayer.rough.filter((rough) => rough.id === revealedRough.id).length, 1);
+assert.equal(refinePlayer.bracelets.length, 2);
+assert.equal(refinePlayer.bracelets[1].sourceRoughId, revealedRough.id);
 
 resetState();
 
-const jobPrivacyPlayer = makePlayer("job-privacy-player");
+const jobPrivacyPlayer = makeEmptyPlayer("job-privacy-player");
 normalizePlayer(jobPrivacyPlayer);
 state.players.set(jobPrivacyPlayer.id, jobPrivacyPlayer);
 const privateJob = startProductionJob(jobPrivacyPlayer, "rough", testRough("private-job-rough"), { label: "粗加工" });
@@ -237,7 +318,7 @@ assert.equal(Object.hasOwn(privateJobSnapshot.me.jobs[0].item, "trueValue"), fal
 
 resetState();
 
-const livestreamPlayer = makePlayer("livestream-player");
+const livestreamPlayer = makeEmptyPlayer("livestream-player");
 normalizePlayer(livestreamPlayer);
 state.players.set(livestreamPlayer.id, livestreamPlayer);
 const liveProduct = testProduct("live-product");
@@ -261,7 +342,7 @@ assert.equal(livestreamPlayer.ledger[0].amount, livestreamPlayer.livestreamHisto
 
 resetState();
 
-const unsoldLivestreamPlayer = makePlayer("unsold-livestream-player");
+const unsoldLivestreamPlayer = makeEmptyPlayer("unsold-livestream-player");
 normalizePlayer(unsoldLivestreamPlayer);
 state.players.set(unsoldLivestreamPlayer.id, unsoldLivestreamPlayer);
 state.sockets.set("socket-unsold-live", unsoldLivestreamPlayer.id);
@@ -277,7 +358,7 @@ assert.equal(unsoldLivestreamPlayer.livestreamHistory[0].outcome.sold, false);
 
 resetState();
 
-const offlineLivestreamPlayer = makePlayer("offline-livestream-player");
+const offlineLivestreamPlayer = makeEmptyPlayer("offline-livestream-player");
 normalizePlayer(offlineLivestreamPlayer);
 offlineLivestreamPlayer.lastSeenAt = 4_000;
 state.players.set(offlineLivestreamPlayer.id, offlineLivestreamPlayer);
@@ -295,7 +376,7 @@ assert.equal(offlineLivestreamPlayer.offlineSummary.income, offlineLiveEvents[0]
 
 resetState();
 
-const manualLivestreamPlayer = makePlayer("manual-livestream-player");
+const manualLivestreamPlayer = makeEmptyPlayer("manual-livestream-player");
 normalizePlayer(manualLivestreamPlayer);
 const manualProduct = testProduct("manual-live-product");
 const cashBeforeManualSale = manualLivestreamPlayer.cash;
@@ -331,7 +412,7 @@ assert.equal(state.roughPool.some((rough) => rough.id === aiWonRough.id), false)
 
 resetState();
 
-const depositPlayer = makePlayer("deposit-player");
+const depositPlayer = makeEmptyPlayer("deposit-player");
 normalizePlayer(depositPlayer);
 depositPlayer.cash = 100000;
 state.players.set(depositPlayer.id, depositPlayer);
@@ -352,7 +433,7 @@ assert.equal(depositPlayer.cash, 99800);
 
 resetState();
 
-const unaffordableProxyPlayer = makePlayer("unaffordable-proxy-player");
+const unaffordableProxyPlayer = makeEmptyPlayer("unaffordable-proxy-player");
 normalizePlayer(unaffordableProxyPlayer);
 unaffordableProxyPlayer.cash = 30000;
 state.players.set(unaffordableProxyPlayer.id, unaffordableProxyPlayer);
@@ -366,7 +447,7 @@ assert.equal(state.auction.bids.length, 0);
 
 resetState();
 
-const closedPlayer = makePlayer("closed-bid-player");
+const closedPlayer = makeEmptyPlayer("closed-bid-player");
 normalizePlayer(closedPlayer);
 closedPlayer.cash = 100000;
 state.players.set(closedPlayer.id, closedPlayer);
@@ -386,7 +467,7 @@ assert.equal(closedPlayer.cash, cashAfterClose);
 
 resetState();
 
-const settledRejectPlayer = makePlayer("settled-reject-player");
+const settledRejectPlayer = makeEmptyPlayer("settled-reject-player");
 normalizePlayer(settledRejectPlayer);
 settledRejectPlayer.cash = 100000;
 state.players.set(settledRejectPlayer.id, settledRejectPlayer);
@@ -399,7 +480,7 @@ assert.equal(settledRejectPlayer.cash, 100000);
 
 resetState();
 
-const successPlayer = makePlayer("auction-success-player");
+const successPlayer = makeEmptyPlayer("auction-success-player");
 normalizePlayer(successPlayer);
 successPlayer.cash = 50000;
 state.players.set(successPlayer.id, successPlayer);
@@ -418,7 +499,7 @@ assert.ok(successPlayer.reports[0].inventoryValue >= (successRough.value || succ
 
 resetState();
 
-const surplusDepositPlayer = makePlayer("surplus-deposit-player");
+const surplusDepositPlayer = makeEmptyPlayer("surplus-deposit-player");
 normalizePlayer(surplusDepositPlayer);
 surplusDepositPlayer.cash = 100000;
 state.players.set(surplusDepositPlayer.id, surplusDepositPlayer);
@@ -436,7 +517,7 @@ assert.equal(surplusDepositPlayer.cash, 99000);
 
 resetState();
 
-const shortPlayer = makePlayer("short-tail-player");
+const shortPlayer = makeEmptyPlayer("short-tail-player");
 normalizePlayer(shortPlayer);
 shortPlayer.cash = 5000;
 state.players.set(shortPlayer.id, shortPlayer);
@@ -461,7 +542,7 @@ assert.equal(state.roughPool.some((rough) => rough.id === lowAiRough.id), true);
 
 resetState();
 
-const offlineAuctionWinner = makePlayer("offline-auction-winner");
+const offlineAuctionWinner = makeEmptyPlayer("offline-auction-winner");
 normalizePlayer(offlineAuctionWinner);
 offlineAuctionWinner.cash = 50000;
 offlineAuctionWinner.lastSeenAt = 1_000;
@@ -484,7 +565,7 @@ assert.equal(offlineAuctionWinner.offlineSummary, null);
 
 resetState();
 
-const rotatedOfflineAuctionWinner = makePlayer("rotated-offline-auction-winner");
+const rotatedOfflineAuctionWinner = makeEmptyPlayer("rotated-offline-auction-winner");
 normalizePlayer(rotatedOfflineAuctionWinner);
 rotatedOfflineAuctionWinner.cash = 50000;
 rotatedOfflineAuctionWinner.lastSeenAt = 1_000;
@@ -509,7 +590,7 @@ assert.equal(rotatedOfflineAuctionWinner.offlineSummary, null);
 
 resetState();
 
-const listedReportPlayer = makePlayer("listed-report-player");
+const listedReportPlayer = makeEmptyPlayer("listed-report-player");
 normalizePlayer(listedReportPlayer);
 const listedReportItem = testProduct("listed-report-product", { value: 15000 });
 state.players.set(listedReportPlayer.id, listedReportPlayer);
@@ -526,7 +607,7 @@ assert.ok(refreshPlayerReport(listedReportPlayer, 2_000).inventoryValue >= liste
 
 resetState();
 
-const generatedViewer = makePlayer("generated-viewer");
+const generatedViewer = makeEmptyPlayer("generated-viewer");
 normalizePlayer(generatedViewer);
 state.players.set(generatedViewer.id, generatedViewer);
 const generatedRound = ensureAuctionRound(50_000);
@@ -545,21 +626,21 @@ assert.ok(generatedIds.some((id) => !nextGeneratedIds.includes(id)));
 
 resetState();
 
-const snapshotPlayer = makePlayer("snapshot-player");
+const snapshotPlayer = makeEmptyPlayer("snapshot-player");
 normalizePlayer(snapshotPlayer);
 state.players.set(snapshotPlayer.id, snapshotPlayer);
 const snapshotRough = auctionRough("snapshot-rough", { price: 10000, trueValue: 30000, value: 30000 });
 makeAuctionRound([snapshotRough], { biddingEndsAt: Date.now() - 1, settlesAt: Date.now() - 1 });
 const snapshot = snapshotFor(snapshotPlayer);
-assert.notEqual(snapshot.auction.phase === "settled" && state.auction.results.length === 0, true);
-assert.equal(snapshot.auction.phase, "settled");
+assert.notEqual(snapshot.auction.phase === "settlement" && state.auction.results.length === 0, true);
+assert.equal(snapshot.auction.phase, "settlement");
 assert.equal(state.auction.results[0].status, "aiWon");
 assert.equal(snapshot.auction.results[0].status, "aiWon");
 assert.equal(snapshot.auction.results[0].winnerId, undefined);
 
 resetState();
 
-const windowPlayer = makePlayer("window-player");
+const windowPlayer = makeEmptyPlayer("window-player");
 normalizePlayer(windowPlayer);
 windowPlayer.cash = 100000;
 state.players.set(windowPlayer.id, windowPlayer);

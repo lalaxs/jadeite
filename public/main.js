@@ -25,6 +25,7 @@ const tabs = [
 let state = null;
 let activeView = "overview";
 let activeDragKit = null;
+let serverClockOffset = 0;
 const auctionWindowTargets = new Map();
 const roughKits = new Map();
 
@@ -62,7 +63,7 @@ const KIT_TEMPLATES = {
 };
 
 const KIT_DEFAULT_POSITIONS = {
-  bangle: { x: 50, y: 16 },
+  bangle: { x: 50, y: 34 },
   cabochon: { x: 64, y: 68 },
   peacePendant: { x: 24, y: 84 },
   ruyiPendant: { x: 76, y: 84 },
@@ -70,6 +71,7 @@ const KIT_DEFAULT_POSITIONS = {
 };
 
 const KIT_FALLBACK_POSITIONS = Object.values(KIT_DEFAULT_POSITIONS);
+const KIT_BOARD_UNIT_PX = 1.48;
 
 const els = {
   tabs: document.querySelector("#tabs"),
@@ -86,12 +88,15 @@ const els = {
   satSignal: document.querySelector("#satSignal"),
   collection: document.querySelector("#collectionText"),
   collectionSignal: document.querySelector("#collectionSignal"),
+  timeHud: document.querySelector("#timeHud"),
   offlineSummary: document.querySelector("#offlineSummary"),
   nextActions: document.querySelector("#nextActions"),
   pipeline: document.querySelector("#pipelineList"),
   players: document.querySelector("#playersList"),
   news: document.querySelector("#newsList"),
+  auctionHalls: document.querySelector("#auctionHalls"),
   auctionBrief: document.querySelector("#auctionBrief"),
+  auctionResults: document.querySelector("#auctionResults"),
   roughPool: document.querySelector("#roughPool"),
   roughInventory: document.querySelector("#roughInventory"),
   materialInventory: document.querySelector("#materialInventory"),
@@ -114,6 +119,52 @@ const els = {
 
 function formatMoney(value) {
   return `¥${Number(value || 0).toLocaleString("zh-CN")}`;
+}
+
+function nowMs() {
+  return Date.now() + serverClockOffset;
+}
+
+function formatDuration(ms) {
+  const total = Math.max(0, Math.ceil(Number(ms || 0) / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  const two = (value) => String(value).padStart(2, "0");
+  return hours ? `${two(hours)}:${two(minutes)}:${two(seconds)}` : `${two(minutes)}:${two(seconds)}`;
+}
+
+function gameClock() {
+  const dayLength = Number(state?.timing?.day || 20 * 60 * 1000);
+  const startedAt = Number(state?.worldStartedAt || state?.auction?.registrationStartsAt || nowMs());
+  const elapsed = Math.max(0, nowMs() - startedAt);
+  const day = Math.floor(elapsed / dayLength) + 1;
+  const dayProgress = elapsed % dayLength;
+  const gameMinutes = Math.floor(dayProgress / dayLength * 24 * 60);
+  const hour = Math.floor(gameMinutes / 60);
+  const minute = gameMinutes % 60;
+  return `第 ${day} 天 ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function currentAuctionPhase(auction = state?.auction) {
+  if (!auction) return "registration";
+  if (auction.settledAt || (auction.results || []).length) return "settlement";
+  if (nowMs() < Number(auction.startsAt || 0)) return "registration";
+  if (nowMs() < Number(auction.biddingEndsAt || 0)) return "bidding";
+  return "settlement";
+}
+
+function auctionPhaseMeta(auction = state?.auction) {
+  const phase = currentAuctionPhase(auction);
+  const meta = {
+    registration: { label: "报名阶段", clock: "距报名截止", target: auction?.startsAt },
+    bidding: { label: "竞价阶段", clock: "距竞价截止", target: auction?.biddingEndsAt },
+    settlement: { label: "结算阶段", clock: "距下轮报名", target: auction?.settlementEndsAt }
+  }[phase] || { label: "报名阶段", clock: "距报名截止", target: auction?.startsAt };
+  return {
+    ...meta,
+    remain: Math.max(0, Number(meta.target || nowMs()) - nowMs())
+  };
 }
 
 function escapeHtml(value) {
@@ -261,12 +312,17 @@ function myBidFor(roughId) {
 
 function renderAuctionBidControls(rough) {
   const bid = myBidFor(rough.id);
-  const canBid = state.auction?.phase === "bidding";
+  const canBid = currentAuctionPhase(state.auction) === "bidding" && state.auction?.registered;
   const disabled = canBid ? "" : "disabled";
   const amount = bid?.amount || rough.price;
   const proxyMax = bid?.proxyMax || bid?.amount || Math.round(rough.price * 1.18);
+  const countdown = auctionPhaseMeta(state.auction);
+  const status = bid
+    ? `<div class="bid-status success"><strong>已封存暗标</strong><span>出价 ${formatMoney(bid.amount)} · 代理 ${formatMoney(bid.proxyMax)} · 冻结 ${formatMoney(bid.deposit)} · ${countdown.clock} ${formatDuration(countdown.remain)}</span></div>`
+    : `<div class="bid-status"><strong>${canBid ? "尚未投标" : "等待开盘"}</strong><span>暗拍不显示最高价和是否领先，开标后统一揭晓。</span></div>`;
   return `
     <div class="bid-controls">
+      ${status}
       <label>密封投标
         <input data-bid-amount="${escapeHtml(rough.id)}" type="number" min="${rough.price}" step="100" value="${amount}" ${disabled}>
       </label>
@@ -275,6 +331,69 @@ function renderAuctionBidControls(rough) {
       </label>
       <button data-action="submitAuctionBid" data-payload="${escapeHtml(rough.id)}" ${disabled}>${bid ? "修改暗标" : "提交暗标"}</button>
     </div>
+  `;
+}
+
+function resultForRough(roughId) {
+  return (state.auction?.results || []).find((result) => result.roughId === roughId);
+}
+
+function renderAuctionHalls() {
+  const halls = state.auctionHalls || [];
+  els.auctionHalls.innerHTML = halls.map((hall) => {
+    const active = hall.active ? "active" : "";
+    const locked = hall.unlocked ? "" : "locked";
+    const canJoin = hall.active && hall.unlocked && currentAuctionPhase(state.auction) === "registration" && !state.auction?.registered;
+    const note = hall.unlocked ? `${hall.tone} · ${hall.priceNote}` : `声望 ${hall.requiredRep} 解锁`;
+    return `
+      <article class="auction-hall ${active} ${locked}">
+        <div>
+          <strong>${escapeHtml(hall.label)}</strong>
+          <span>${escapeHtml(note)}</span>
+        </div>
+        <button class="secondary" data-action="joinAuction" data-payload="${escapeHtml(hall.id)}" ${canJoin ? "" : "disabled"}>
+          ${hall.active ? (state.auction?.registered ? "已报名" : "报名") : "未开放"}
+        </button>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderAuctionResults(roughs = []) {
+  const results = state.auction?.results || [];
+  if (!results.length) {
+    els.auctionResults.innerHTML = "";
+    return;
+  }
+  const roughById = new Map(roughs.map((rough) => [rough.id, rough]));
+  els.auctionResults.innerHTML = `
+    <section class="auction-result-board">
+      <div class="panel-head">
+        <h3>${escapeHtml(state.auction?.hallLabel || "公盘")}开标结果</h3>
+        <span>结果展示 ${formatDuration(auctionPhaseMeta(state.auction).remain)}</span>
+      </div>
+      <div class="auction-result-list">
+        ${results.map((result) => {
+          const rough = roughById.get(result.roughId);
+          const isMine = result.winnerId === state.me.id;
+          const status = result.status === "passed"
+            ? "流拍"
+            : result.status === "aiWon" || result.ai
+              ? "AI 买手中标"
+              : isMine
+                ? "恭喜中标"
+                : "他人中标";
+          const tone = result.status === "passed" ? "muted" : isMine ? "success" : "risk";
+          return `
+            <div class="auction-result-row ${tone}">
+              <strong>${escapeHtml(rough?.name || result.roughId)}</strong>
+              <span>${status}</span>
+              <small>成交 ${formatMoney(result.price)} · 投标 ${result.bids || 0} · 抵扣 ${formatMoney(result.depositUsed)}</small>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -354,34 +473,28 @@ function kitLayout(type) {
   }[type] || "bracelet";
 }
 
-function kitPreviewCanvas(rough, kit, template) {
+function kitTemplateCanvas(kit, template) {
   const layout = kitLayout(kit.type);
-  const placement = {
+  return jadeCanvasMarkup("kit", {
     id: kit.id,
+    name: `${template.label}模板`,
+    type: kit.type,
     layout,
-    x: kit.x,
-    y: kit.y,
     templateSize: { w: template.w, h: template.h },
     ringSize: layout === "bracelet" ? kit.ringSize || 56 : undefined
-  };
-  return jadeCanvasMarkup("product", {
-    id: `${rough.id}-${kit.id}-preview`,
-    name: `${template.label}预览`,
-    kind: layout,
-    preview: true,
-    plan: placement,
-    sourceMaterial: {
-      roughId: rough.id,
-      roughName: rough.name,
-      visual: rough.visual,
-      windows: rough.windows || [],
-      placement,
-      templateSize: { w: template.w, h: template.h },
-      mass: rough.mass,
-      qualityKey: rough.qualityKey,
-      color: rough.color
-    }
-  }, "kit-preview");
+  }, "kit-template");
+}
+
+function consumedKitMaskCanvas(kit, template) {
+  const layout = kitLayout(kit.type);
+  return jadeCanvasMarkup("kitMask", {
+    id: kit.id,
+    name: `已取${template.label}`,
+    type: kit.type,
+    layout,
+    templateSize: { w: template.w, h: template.h },
+    ringSize: layout === "bracelet" ? kit.ringSize || 56 : undefined
+  }, "kit-consumed");
 }
 
 function kitsFor(roughId) {
@@ -392,16 +505,39 @@ function kitsFor(roughId) {
 function defaultKitPosition(type, current) {
   const preferred = KIT_DEFAULT_POSITIONS[type] || KIT_FALLBACK_POSITIONS[current.length % KIT_FALLBACK_POSITIONS.length];
   const isOpen = (position) => !current.some((kit) => Math.hypot(kit.x - position.x, kit.y - position.y) < 18);
-  if (isOpen(preferred)) return preferred;
-  return KIT_FALLBACK_POSITIONS.find(isOpen) || preferred;
+  const clampedPreferred = clampKitPosition(type, preferred.x, preferred.y);
+  if (isOpen(clampedPreferred)) return clampedPreferred;
+  const fallback = KIT_FALLBACK_POSITIONS
+    .map((position) => clampKitPosition(type, position.x, position.y))
+    .find(isOpen);
+  return fallback || clampedPreferred;
+}
+
+function templateForKit(type) {
+  return KIT_TEMPLATES[type] || KIT_TEMPLATES.bangle;
+}
+
+function kitCssPixels(value) {
+  return `${Math.round((Number(value) || 28) * KIT_BOARD_UNIT_PX * 100) / 100}px`;
+}
+
+function clampKitPosition(type, x, y) {
+  const template = templateForKit(type);
+  const halfWidth = clampClient(Number(template.w) || 28, 8, 60) / 2;
+  const halfHeight = clampClient(Number(template.h) || 28, 8, 60) / 2;
+  return {
+    x: clampClient(Math.round(Number(x) || 50), halfWidth, 100 - halfWidth),
+    y: clampClient(Math.round(Number(y) || 50), halfHeight, 100 - halfHeight)
+  };
 }
 
 function addRoughKit(roughId, type) {
   const current = kitsFor(roughId);
-  const position = defaultKitPosition(type, current);
+  const safeType = KIT_TEMPLATES[type] ? type : "bangle";
+  const position = defaultKitPosition(safeType, current);
   const kit = {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    type: KIT_TEMPLATES[type] ? type : "bangle",
+    type: safeType,
     x: position.x,
     y: position.y,
     ringSize: 56
@@ -419,7 +555,7 @@ function clearRoughKits(roughId) {
 
 function moveRoughKit(roughId, kitId, x, y) {
   roughKits.set(roughId, kitsFor(roughId).map((kit) => (
-    kit.id === kitId ? { ...kit, x: clampClient(Math.round(x), 16, 84), y: clampClient(Math.round(y), 16, 84) } : kit
+    kit.id === kitId ? { ...kit, ...clampKitPosition(kit.type, x, y) } : kit
   )));
   renderWorkshop();
   paintJades();
@@ -430,12 +566,13 @@ function kitOverlay(rough) {
   const active = kitsFor(rough.id);
   return [...saved, ...active].map((kit) => {
     const template = KIT_TEMPLATES[kit.type] || KIT_TEMPLATES.bangle;
-    const dragAttrs = kit.saved ? "" : `data-kit-id="${escapeHtml(kit.id)}" data-rough-id="${escapeHtml(rough.id)}"`;
+    const dragAttrs = kit.saved ? "" : `data-kit-id="${escapeHtml(kit.id)}" data-rough-id="${escapeHtml(rough.id)}" data-kit-type="${escapeHtml(kit.type)}"`;
     const width = Number(template.w) || 28;
     const height = Number(template.h) || 28;
+    const canvas = kit.saved ? consumedKitMaskCanvas(kit, template) : kitTemplateCanvas(kit, template);
     return `
-      <div class="kit-placement ${kit.saved ? "saved" : ""}" style="left:${kit.x}%;top:${kit.y}%;width:${width}%;height:${height}%;" ${dragAttrs}>
-        ${kitPreviewCanvas(rough, kit, template)}
+      <div class="kit-placement ${kit.saved ? "saved consumed" : "active"}" style="left:${kit.x}%;top:${kit.y}%;--kit-w:${width};--kit-h:${height};--kit-w-px:${kitCssPixels(width)};--kit-h-px:${kitCssPixels(height)};" ${dragAttrs}>
+        ${canvas}
       </div>
     `;
   }).join("");
@@ -505,6 +642,7 @@ function render() {
   els.satSignal.textContent = me.satisfaction >= 80 ? "客户愿回头" : me.satisfaction >= 55 ? "保持交付" : "口碑危险";
   els.collectionSignal.textContent = `门面 ${sumValue(me.collection).toLocaleString("zh-CN")}`;
 
+  renderTimeHud();
   renderOverview();
   renderAuction();
   renderWorkshop();
@@ -518,6 +656,16 @@ function render() {
 
 function paintJades() {
   paintJadeCanvases();
+}
+
+function renderTimeHud() {
+  if (!state || !els.timeHud) return;
+  const auctionMeta = auctionPhaseMeta();
+  els.timeHud.innerHTML = `
+    <span>${gameClock()}</span>
+    <strong>${auctionMeta.label}</strong>
+    <span>${auctionMeta.clock} ${formatDuration(auctionMeta.remain)}</span>
+  `;
 }
 
 function renderOverview() {
@@ -609,10 +757,16 @@ function renderAuction() {
   const roughs = auction?.roughs?.length ? auction.roughs : state.roughPool;
   const affordable = roughs.filter((rough) => rough.price <= me.cash).length;
   const opened = roughs.reduce((sum, rough) => sum + windowCount(rough), 0);
-  const phaseLabel = { preview: "预展", bidding: "密封投标", settled: "开标" }[auction?.phase] || "密封投标";
-  const canRequestWindow = auction?.phase === "bidding";
+  const phaseMeta = auctionPhaseMeta(auction);
+  const phaseLabel = phaseMeta.label;
+  const canRequestWindow = currentAuctionPhase(auction) === "bidding";
+  renderAuctionHalls();
+  renderAuctionResults(roughs);
   els.auctionBrief.innerHTML = `
     <span>${phaseLabel}</span>
+    <span>${phaseMeta.clock} ${formatDuration(phaseMeta.remain)}</span>
+    <span>${auction?.registered ? "已报名" : "未报名"}</span>
+    <span>报名保证金 ${formatMoney(auction?.registrationDeposit)}</span>
     <span>我的暗标 ${auction?.myBids?.length || 0}</span>
     <span>可拍 ${affordable}/${roughs.length}</span>
     <span>已公开开窗 ${opened} 处</span>
@@ -634,8 +788,9 @@ function renderAuction() {
           <div class="price">${formatMoney(rough.price)}</div>
           <p class="card-meta">保证金参考 ${formatMoney(rough.deposit)}</p>
           <div class="card-actions">
-            <button class="secondary" data-action="requestWindow" data-payload="${rough.id}" ${!canRequestWindow || windowFee > me.cash || windowCount(rough) >= 6 ? "disabled" : ""}>按点开窗 ${formatMoney(windowFee)}</button>
+            <button class="secondary" data-action="requestWindow" data-payload="${rough.id}" ${!canRequestWindow || !auction?.registered || windowFee > me.cash || windowCount(rough) >= 6 ? "disabled" : ""}>按点开窗 ${formatMoney(windowFee)}</button>
           </div>
+          ${resultForRough(rough.id) ? `<p class="card-meta">开标：${escapeHtml(resultForRough(rough.id).status === "passed" ? "流拍" : resultForRough(rough.id).winnerId === me.id ? "你已中标" : "已成交")}</p>` : ""}
           ${renderAuctionBidControls(rough)}
         </div>
       </article>
@@ -646,13 +801,15 @@ function renderAuction() {
 function renderWorkshop() {
   const { me } = state;
   const productionJobs = productionJobsFor(me);
+  const refineJobs = productionJobs.filter((job) => job.stage === "refine");
+  const roughProductionJobs = productionJobs.filter((job) => job.stage !== "refine");
   const sealed = me.rough.filter((rough) => !rough.revealed);
   const revealed = me.rough.filter((rough) => rough.revealed);
-  els.roughCount.textContent = productionJobs.length ? `${sealed.length} 原石 · ${productionJobs.length} 加工任务` : sealed.length;
-  els.materialCount.textContent = revealed.length;
+  els.roughCount.textContent = roughProductionJobs.length ? `${sealed.length} 原石 · ${roughProductionJobs.length} 加工任务` : sealed.length;
+  els.materialCount.textContent = revealed.length + refineJobs.length;
   els.braceletCount.textContent = me.bracelets.length;
 
-  const productionRows = productionJobs.map((job) => {
+  const productionRows = roughProductionJobs.map((job) => {
     const remain = Math.max(0, Math.ceil((job.readyAt - Date.now()) / 1000));
     const progress = Math.min(100, Math.round((Date.now() - job.startedAt) / Math.max(1, job.readyAt - job.startedAt) * 100));
     const label = { rough: "粗加工", refine: "精加工", inlay: "镶嵌" }[job.stage] || "加工";
@@ -660,6 +817,24 @@ function renderWorkshop() {
       <div class="item-row machine-row">
         <div class="machine-top"><div><strong>${label}</strong><p class="item-meta">${escapeHtml(job.item.name)} · 还需 ${remain} 秒</p></div></div>
         <div class="machine-track"><span style="width:${progress}%"></span></div>
+      </div>
+    `;
+  });
+
+  const refineRows = refineJobs.map((job) => {
+    const item = job.item || {};
+    const remain = Math.max(0, Math.ceil((job.readyAt - Date.now()) / 1000));
+    const progress = Math.min(100, Math.round((Date.now() - job.startedAt) / Math.max(1, job.readyAt - job.startedAt) * 100));
+    const savedCount = (item.extractionKits || item.braceletPlacements || []).length;
+    return `
+      <div class="item-row refine-progress-row">
+        <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">精加工中</span></div>
+        <p class="item-meta">${item.mass || "?"}kg · ${escapeHtml(item.quality || "已揭露")} · 已取 ${savedCount} 套 · 还需 ${remain} 秒</p>
+        ${roughBoard(item)}
+        <div class="machine-row inline-machine">
+          <div class="machine-top"><div><strong>精加工中</strong><p class="item-meta">完成后原料回到这里，成品进入库存。</p></div></div>
+          <div class="machine-track"><span style="width:${progress}%"></span></div>
+        </div>
       </div>
     `;
   });
@@ -678,7 +853,9 @@ function renderWorkshop() {
     ...productionRows
   ].join("") || empty("还没有原石或加工任务，先去公盘拍一块。");
 
-  els.materialInventory.innerHTML = revealed.map((item) => {
+  els.materialInventory.innerHTML = [
+    ...refineRows,
+    ...revealed.map((item) => {
     const kits = kitsFor(item.id);
     const savedCount = (item.extractionKits || item.braceletPlacements || []).length;
     return `
@@ -693,7 +870,8 @@ function renderWorkshop() {
         </div>
       </div>
     `;
-  }).join("") || empty("全料打磨完成后，会在这里直接规划取手镯。");
+  })
+  ].join("") || empty("全料打磨完成后，会在这里直接规划取手镯。");
 
   els.braceletInventory.innerHTML = me.bracelets.map((item) => braceletRow(item)).join("") || empty("从已揭露原料上取手镯后，会进入成品库存。");
 }
@@ -877,11 +1055,16 @@ function showToast(text) {
   showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 2200);
 }
 
-function boardPointFromEvent(board, event) {
+function boardPointFromEvent(board, event, kitType = null) {
   const rect = board.getBoundingClientRect();
+  const point = {
+    x: (event.clientX - rect.left) / rect.width * 100,
+    y: (event.clientY - rect.top) / rect.height * 100
+  };
+  if (kitType) return clampKitPosition(kitType, point.x, point.y);
   return {
-    x: clampClient((event.clientX - rect.left) / rect.width * 100, 16, 84),
-    y: clampClient((event.clientY - rect.top) / rect.height * 100, 16, 84)
+    x: clampClient(point.x, 16, 84),
+    y: clampClient(point.y, 16, 84)
   };
 }
 
@@ -890,7 +1073,8 @@ document.body.addEventListener("pointerdown", (event) => {
   if (!kit) return;
   activeDragKit = {
     roughId: kit.dataset.roughId,
-    kitId: kit.dataset.kitId
+    kitId: kit.dataset.kitId,
+    type: kit.dataset.kitType || "bangle"
   };
   event.preventDefault();
 });
@@ -899,7 +1083,7 @@ document.body.addEventListener("pointermove", (event) => {
   if (!activeDragKit) return;
   const board = document.querySelector(`[data-rough-board="${CSS.escape(activeDragKit.roughId)}"]`);
   if (!board) return;
-  const point = boardPointFromEvent(board, event);
+  const point = boardPointFromEvent(board, event, activeDragKit.type);
   moveRoughKit(activeDragKit.roughId, activeDragKit.kitId, point.x, point.y);
 });
 
@@ -938,7 +1122,12 @@ document.body.addEventListener("click", (event) => {
 
   if (action === "requestWindow") {
     const targetPoint = windowTargetFor(payload);
-    socket.emit("requestWindow", { roughId: payload, x: targetPoint.x, y: targetPoint.y });
+    socket.emit("requestWindow", { roughId: payload, hallId: state.auction?.hallId, x: targetPoint.x, y: targetPoint.y });
+    return;
+  }
+
+  if (action === "joinAuction") {
+    socket.emit("joinAuction", { hallId: payload });
     return;
   }
 
@@ -977,6 +1166,7 @@ document.body.addEventListener("click", (event) => {
     const proxyInput = document.querySelector(`[data-proxy-max="${CSS.escape(payload)}"]`);
     socket.emit("submitAuctionBid", {
       roughId: payload,
+      hallId: state.auction?.hallId,
       amount: amountInput?.value,
       proxyMax: proxyInput?.value || amountInput?.value
     });
@@ -1007,6 +1197,9 @@ socket.on("hello", ({ playerId }) => {
 });
 
 socket.on("state", (nextState) => {
+  if (Number.isFinite(Number(nextState.serverNow))) {
+    serverClockOffset = Number(nextState.serverNow) - Date.now();
+  }
   state = nextState;
   render();
 });
@@ -1014,3 +1207,10 @@ socket.on("state", (nextState) => {
 socket.on("toast", showToast);
 
 initTabs();
+
+window.setInterval(() => {
+  if (!state) return;
+  renderTimeHud();
+  renderAuction();
+  paintJades();
+}, 1000);

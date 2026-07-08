@@ -1,5 +1,13 @@
 const DEPOSIT_RATE = 0.2;
 
+export const AUCTION_HALLS = [
+  { id: "novice", label: "新手公盘", requiredRep: 0, deposit: 5000, tone: "稳健", priceNote: "小料练手" },
+  { id: "regular", label: "常规公盘", requiredRep: 30, deposit: 8000, tone: "标准", priceNote: "标准场口" },
+  { id: "premium", label: "精品公盘", requiredRep: 80, deposit: 16000, tone: "冲高", priceNote: "冰种机会" },
+  { id: "special", label: "专场公盘", requiredRep: 160, deposit: 30000, tone: "高压", priceNote: "大料专场" },
+  { id: "legendary", label: "传奇公盘", requiredRep: 320, deposit: 60000, tone: "极限", priceNote: "顶级赌性" }
+];
+
 function money(value) {
   const amount = Number(value);
   return Math.max(0, Math.round(Number.isFinite(amount) ? amount : 0));
@@ -61,6 +69,10 @@ function publicAuctionResult(result, playerId) {
   return safe;
 }
 
+export function auctionHallForId(hallId = "novice") {
+  return AUCTION_HALLS.find((hall) => hall.id === hallId) || AUCTION_HALLS[0];
+}
+
 function publicRoughForAuction(rough) {
   const visual = rough.visual || {};
   const rawWindows = rough.windows ?? visual.windows;
@@ -88,9 +100,10 @@ function publicRoughForAuction(rough) {
 
 export function auctionPhase(round, now = Date.now()) {
   if (!round) return "empty";
-  if (now < Number(round.startsAt ?? 0)) return "preview";
+  if (round.settledAt || round.status === "settled") return "settlement";
+  if (now < Number(round.startsAt ?? 0)) return "registration";
   if (now < Number(round.biddingEndsAt ?? 0)) return "bidding";
-  return "settled";
+  return "settlement";
 }
 
 export function bidDeposit(amount) {
@@ -126,6 +139,26 @@ export function upsertBid(round, bid) {
     round: nextRound,
     depositDelta: bidDeposit(proxyMax) - bidDeposit(previous ? bidExposureAmount(previous) : 0),
     bid: nextBid
+  };
+}
+
+export function registerAuctionBidder(round, registration = {}) {
+  const playerId = registration.playerId;
+  if (!round || !playerId) return { round, registration: null, already: false };
+  const existing = (round.registrations || []).find((item) => item.playerId === playerId);
+  if (existing) return { round, registration: existing, already: true };
+  const nextRegistration = {
+    playerId,
+    deposit: money(registration.deposit),
+    at: finiteNumber(registration.at ?? Date.now(), Date.now())
+  };
+  return {
+    round: {
+      ...round,
+      registrations: [...(round.registrations || []), nextRegistration]
+    },
+    registration: nextRegistration,
+    already: false
   };
 }
 
@@ -186,11 +219,21 @@ export function settleAuctionRound(round, options = {}) {
 
 export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
   const phase = auctionPhase(round, now);
+  const hall = auctionHallForId(round?.hallId);
+  const registrations = round?.registrations || [];
   return {
     id: round?.id,
+    hallId: hall.id,
+    hallLabel: round?.hallLabel || hall.label,
     phase,
+    registrationStartsAt: round?.registrationStartsAt,
     startsAt: round?.startsAt,
     biddingEndsAt: round?.biddingEndsAt,
+    settledAt: round?.settledAt,
+    settlementEndsAt: round?.settlementEndsAt,
+    registrationDeposit: round?.registrationDeposit ?? hall.deposit,
+    registered: registrations.some((registration) => registration.playerId === playerId),
+    registeredCount: registrations.length,
     roughs: (round?.roughs || []).map(publicRoughForAuction),
     myBids: (round?.bids || [])
       .filter((bid) => bid.playerId === playerId)
@@ -201,9 +244,8 @@ export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
         deposit: bidDeposit(bidExposureAmount(bid)),
         at: bid.at
       })),
-    results: phase === "settled"
+    results: phase === "settlement"
       ? (round?.results || [])
-        .filter((result) => result.winnerId === playerId || result.status === "passed" || result.status === "aiWon" || result.ai)
         .map((result) => publicAuctionResult(result, playerId))
       : []
   };

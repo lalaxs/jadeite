@@ -10,9 +10,12 @@ import {
 
 const round = {
   id: "round-1",
+  status: "registration",
+  registrationStartsAt: 500,
   startsAt: 1_000,
   biddingEndsAt: 2_000,
   settlesAt: 2_000,
+  settlementEndsAt: 2_500,
   roughs: [
     { id: "r1", name: "木那料", price: 10000, value: 18000, trueValue: 18000 },
     { id: "r2", name: "会卡料", price: 6000, value: 9000, trueValue: 9000 }
@@ -20,9 +23,9 @@ const round = {
   bids: []
 };
 
-assert.equal(auctionPhase(round, 500), "preview");
+assert.equal(auctionPhase(round, 500), "registration");
 assert.equal(auctionPhase(round, 1500), "bidding");
-assert.equal(auctionPhase(round, 2500), "settled");
+assert.equal(auctionPhase({ ...round, settledAt: 2_000 }, 2250), "settlement");
 assert.equal(bidDeposit(10000), 2000);
 
 const zeroTimeBid = upsertBid(round, { playerId: "p0", roughId: "r1", amount: 10000, at: 0 });
@@ -267,12 +270,16 @@ const settledPrivacyView = publicAuctionSnapshot(
   "p1",
   2
 );
-assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "ai-r1", "passed-r1"]);
+assert.deepEqual(settledPrivacyView.results.map((result) => result.roughId), ["own-r1", "other-r1", "ai-r1", "passed-r1", "malformed-result-r1"]);
 const ownResult = settledPrivacyView.results.find((result) => result.roughId === "own-r1");
 assert.equal(ownResult.winnerId, "p1");
 assert.equal(ownResult.depositUsed, 2000);
 assert.equal(ownResult.balanceDue, 10000);
 assert.equal(ownResult.bids, 2);
+const otherResult = settledPrivacyView.results.find((result) => result.roughId === "other-r1");
+assert.equal(otherResult.status, "won");
+assert.equal(otherResult.price, 13000);
+assert.equal(otherResult.winnerId, undefined);
 const aiResult = settledPrivacyView.results.find((result) => result.roughId === "ai-r1");
 assert.equal(aiResult.status, "aiWon");
 assert.equal(aiResult.ai, true);

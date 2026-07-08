@@ -219,6 +219,28 @@ select {
   font-size: 30px;
 }
 
+.time-hud {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.time-hud span,
+.time-hud strong {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.time-hud strong {
+  color: var(--jade-dark);
+}
+
 .view {
   display: none;
 }
@@ -613,6 +635,100 @@ select {
   background: #fff;
 }
 
+.auction-halls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.auction-hall {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.auction-hall.active {
+  border-color: rgba(31, 155, 114, 0.48);
+  background: linear-gradient(180deg, #ffffff, #edf8f2);
+}
+
+.auction-hall.locked {
+  opacity: 0.58;
+}
+
+.auction-hall div {
+  display: grid;
+  gap: 4px;
+}
+
+.auction-hall strong {
+  color: var(--ink);
+}
+
+.auction-hall span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bid-status,
+.auction-result-row {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: #fbfdfb;
+  font-size: 12px;
+}
+
+.bid-status strong,
+.auction-result-row strong {
+  color: var(--ink);
+}
+
+.bid-status span,
+.auction-result-row span,
+.auction-result-row small {
+  color: var(--muted);
+}
+
+.bid-status.success,
+.auction-result-row.success {
+  border-color: rgba(31, 155, 114, 0.36);
+  background: var(--jade-soft);
+}
+
+.auction-result-board {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.auction-result-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+  padding: 10px;
+}
+
+.auction-result-row.risk {
+  border-color: rgba(180, 81, 98, 0.28);
+  background: #fff7f7;
+}
+
+.auction-result-row.muted {
+  background: #f5f7f5;
+}
+
 .expert-clues,
 .placement-analysis,
 .fit-list {
@@ -917,6 +1033,9 @@ select {
 .kit-placement {
   position: absolute;
   transform: translate(-50%, -50%);
+  width: var(--kit-w-px);
+  height: var(--kit-h-px);
+  aspect-ratio: var(--kit-w) / var(--kit-h);
   cursor: grab;
   pointer-events: all;
   touch-action: none;
@@ -927,7 +1046,8 @@ select {
   cursor: grabbing;
 }
 
-.kit-placement .jade-canvas.kit-preview {
+.kit-placement .jade-canvas.kit-template,
+.kit-placement .jade-canvas.kit-consumed {
   display: block;
   width: 100%;
   height: 100%;
@@ -935,11 +1055,20 @@ select {
   border-radius: 0;
   background: transparent;
   pointer-events: none;
+}
+
+.kit-placement .jade-canvas.kit-template {
   filter: drop-shadow(0 3px 3px rgba(15, 28, 24, 0.22));
 }
 
-.kit-placement.saved .jade-canvas.kit-preview {
-  opacity: 0.64;
+.kit-placement.saved {
+  cursor: default;
+  pointer-events: none;
+}
+
+.kit-placement.saved .jade-canvas.kit-consumed {
+  opacity: 0.94;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.28));
 }
 
 .layout-tools {

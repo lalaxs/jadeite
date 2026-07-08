@@ -36,6 +36,14 @@ const productMarkup = jadeCanvasMarkup("product", { id: "product-1", name: "糯�
 assert.match(productMarkup, /data-jade-kind="product"/);
 assert.match(productMarkup, /class="jade-canvas finished"/);
 
+const kitMarkup = jadeCanvasMarkup("kit", { id: "kit-1", name: "手镯套件", type: "bangle", templateSize: { w: 34, h: 34 } }, "kit-template");
+assert.match(kitMarkup, /data-jade-kind="kit"/);
+assert.match(kitMarkup, /class="jade-canvas kit-template"/);
+
+const consumedMarkup = jadeCanvasMarkup("kitMask", { id: "kit-1", name: "已取手镯", type: "bangle", templateSize: { w: 34, h: 34 } }, "kit-consumed");
+assert.match(consumedMarkup, /data-jade-kind="kitMask"/);
+assert.match(consumedMarkup, /class="jade-canvas kit-consumed"/);
+
 const sourceProductMarkup = jadeCanvasMarkup("product", {
   id: "product-source-1",
   name: "糯种佛公挂件",
@@ -56,6 +64,11 @@ assert.equal(decoded.name, "白雾木那料");
 assert.equal(decoded.visual.seed, 12345);
 
 assert.equal(jadeVisualSignature(item), jadeVisualSignature(structuredClone(item)));
+assert.notEqual(
+  jadeVisualSignature({ id: "kit-sig", type: "bangle", templateSize: { w: 34, h: 34 } }),
+  jadeVisualSignature({ id: "kit-sig", type: "cabochon", templateSize: { w: 22, h: 28 } }),
+  "kit template signatures should include type and footprint so template canvas rerenders"
+);
 
 const wideBox = getRoughDrawBox(430, 122);
 assert.equal(wideBox.scaleX, wideBox.scaleY, "rough draw box must preserve aspect ratio in wide cards");

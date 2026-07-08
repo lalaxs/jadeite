@@ -15,8 +15,11 @@ import {
   reportSummary
 } from "./public/jade-loop.js";
 import {
+  AUCTION_HALLS,
+  auctionHallForId,
   publicAuctionSnapshot,
   bidDeposit,
+  registerAuctionBidder,
   upsertBid,
   aiBidsForRough,
   settleAuctionRound
@@ -30,6 +33,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
+const DEFAULT_AUCTION_HALL_ID = "novice";
+const STARTER_ROUGH_COUNT = 3;
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
 const TIMING = resolveTiming(TIMING_PROFILE);
 
@@ -51,6 +56,7 @@ const npcProfiles = [
 ];
 
 const state = {
+  startedAt: Date.now(),
   players: new Map(),
   sockets: new Map(),
   roughPool: [],
@@ -123,6 +129,20 @@ function auctionBidExposure(bid = {}) {
 
 function auctionHeldDeposit(bid = {}) {
   return bidDeposit(auctionBidExposure(bid));
+}
+
+function publicAuctionHalls(player) {
+  const rep = Number(player?.rep || 0);
+  return AUCTION_HALLS.map((hall) => ({
+    id: hall.id,
+    label: hall.label,
+    requiredRep: hall.requiredRep,
+    deposit: hall.deposit,
+    tone: hall.tone,
+    priceNote: hall.priceNote,
+    unlocked: rep >= hall.requiredRep,
+    active: hall.id === DEFAULT_AUCTION_HALL_ID
+  }));
 }
 
 function queueOfflineEvent(player, event) {
@@ -266,10 +286,17 @@ function snapshotFor(player, now = Date.now()) {
   settleAuctionIfDue(now);
   const auction = ensureAuctionRound(now);
   return {
+    serverNow: now,
+    worldStartedAt: state.startedAt,
+    timing: {
+      day: TIMING.day,
+      auction: TIMING.auction
+    },
     me: privatePlayerSnapshot(player),
     roughPool: state.roughPool.map(publicStone),
     listings: state.listings.map(publicListing),
     auction: publicAuctionSnapshot(auction, player.id, now),
+    auctionHalls: publicAuctionHalls(player),
     players: [...state.players.values()].map(publicPlayer).sort((a, b) => b.rep - a.rep),
     news: state.news
   };
@@ -376,23 +403,47 @@ function refreshRoughPool() {
   while (state.roughPool.length < 8) state.roughPool.push(makeRoughStone());
 }
 
+function makeStarterRough(playerId) {
+  return {
+    ...makeRoughStone(),
+    type: "rough",
+    owner: playerId,
+    revealed: false,
+    polished: false,
+    starter: true
+  };
+}
+
+function makeStarterRoughs(playerId, count = STARTER_ROUGH_COUNT) {
+  return Array.from({ length: count }, () => makeStarterRough(playerId));
+}
+
 function ensureAuctionRound(now = Date.now()) {
   if (state.auction && !state.auction.settledAt) return state.auction;
-  if (state.auction?.settledAt && now - state.auction.settledAt <= TIMING.auction.preview) return state.auction;
+  if (state.auction?.settledAt && now - state.auction.settledAt <= TIMING.auction.settlement) return state.auction;
   refreshRoughPool();
-  const startsAt = now;
-  const biddingEndsAt = now + TIMING.auction.bidding;
+  const hall = auctionHallForId(DEFAULT_AUCTION_HALL_ID);
+  const registrationStartsAt = now;
+  const startsAt = now + TIMING.auction.registration;
+  const biddingEndsAt = startsAt + TIMING.auction.bidding;
+  const settlementEndsAt = biddingEndsAt + TIMING.auction.settlement;
   state.auction = {
     id: randomUUID(),
-    status: "bidding",
+    hallId: hall.id,
+    hallLabel: hall.label,
+    status: "registration",
+    registrationStartsAt,
     startsAt,
     biddingEndsAt,
     settlesAt: biddingEndsAt,
+    settlementEndsAt,
+    registrationDeposit: hall.deposit,
+    registrations: [],
     roughs: state.roughPool.slice(0, 8),
     bids: [],
     results: []
   };
-  addNews("新一轮公盘暗标开启，投标期间不显示最高价。", "info");
+  addNews(`${hall.label}报名开启，5 分钟后进入竞价。`, "info");
   return state.auction;
 }
 
@@ -408,6 +459,11 @@ function settleAuctionIfDue(now = Date.now()) {
   };
   const settled = settleAuctionRound(withAi, { now, minIncrement: 100 });
   state.auction = settled;
+  for (const registration of settled.registrations || []) {
+    const registrant = state.players.get(registration.playerId);
+    if (!registrant || !registration.deposit) continue;
+    releaseDeposit(registrant, registration.deposit, `退回报名保证金：${settled.hallLabel || "公盘"}`, { source: "auctionRegistrationRefund", itemId: settled.id });
+  }
   const humanWinners = new Set(settled.results
     .filter((result) => result.winnerId && !result.ai)
     .map((result) => `${result.roughId}:${result.winnerId}`));
@@ -479,7 +535,38 @@ function settleAuctionIfDue(now = Date.now()) {
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
   refreshRoughPool();
+  addNews(`${settled.hallLabel || "公盘"}开标完成，结果保留 30 秒。`, "trade");
   return true;
+}
+
+function processAuctionLifecycle(now = Date.now()) {
+  const settled = settleAuctionIfDue(now);
+  let rotated = false;
+  if (state.auction?.settledAt && now - state.auction.settledAt > TIMING.auction.settlement) {
+    state.auction = null;
+    ensureAuctionRound(now);
+    rotated = true;
+  }
+  return settled || rotated;
+}
+
+function joinAuctionForPlayer(player, payload = {}, now = Date.now()) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  normalizePlayer(player);
+  const hallId = payload?.hallId || DEFAULT_AUCTION_HALL_ID;
+  if (hallId !== DEFAULT_AUCTION_HALL_ID) return { ok: false, message: "该公盘入口暂未开放。" };
+  const round = ensureAuctionRound(now);
+  if (round.settledAt || now >= round.startsAt) return { ok: false, message: "本轮公盘报名已截止。" };
+  const existing = (round.registrations || []).find((registration) => registration.playerId === player.id);
+  if (existing) return { ok: true, message: "已报名本轮公盘。", deposit: existing.deposit, registration: existing };
+  const deposit = money(round.registrationDeposit ?? auctionHallForId(round.hallId).deposit);
+  if (deposit > 0 && !holdDeposit(player, deposit, `公盘报名保证金：${round.hallLabel || "公盘"}`, { source: "auctionRegistration", itemId: round.id, repEligible: false })) {
+    return { ok: false, message: `报名保证金需要 ${deposit}。` };
+  }
+  const next = registerAuctionBidder(round, { playerId: player.id, deposit, at: now });
+  state.auction = next.round;
+  addNews(`${player.name} 报名了${round.hallLabel || "公盘"}。`, "info");
+  return { ok: true, message: "报名成功。", deposit, registration: next.registration };
 }
 
 function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
@@ -490,8 +577,12 @@ function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
     settleAuctionIfDue(now);
   }
   const round = ensureAuctionRound(now);
-  if (round.settledAt || now >= round.biddingEndsAt || round.status !== "bidding") {
+  if (round.settledAt || now >= round.biddingEndsAt) {
     return { ok: false, message: "本轮公盘已截止。" };
+  }
+  if (now < round.startsAt) return { ok: false, message: "竞价尚未开始，请先报名等待开盘。" };
+  if (Array.isArray(round.registrations) && !round.registrations.some((registration) => registration.playerId === player.id)) {
+    return { ok: false, message: "请先报名本轮公盘。" };
   }
   const roughId = payload.roughId;
   const rough = round.roughs.find((item) => item.id === roughId);
@@ -523,8 +614,12 @@ function requestAuctionWindowForPlayer(player, payload, now = Date.now()) {
     settleAuctionIfDue(now);
   }
   const round = ensureAuctionRound(now);
-  if (round.settledAt || now >= round.biddingEndsAt || round.status !== "bidding") {
+  if (round.settledAt || now >= round.biddingEndsAt) {
     return { ok: false, message: "当前公盘已停止开窗。" };
+  }
+  if (now < round.startsAt) return { ok: false, message: "竞价尚未开始，报名后开盘再开窗。" };
+  if (Array.isArray(round.registrations) && !round.registrations.some((registration) => registration.playerId === player.id)) {
+    return { ok: false, message: "请先报名本轮公盘。" };
   }
   const rough = round.roughs.find((item) => item.id === roughId);
   if (!rough) return { ok: false, message: "这块原石不在当前公盘。" };
@@ -549,7 +644,8 @@ function makePlayer(playerId) {
     ledger: [],
     lastSeenAt: Date.now(),
     reports: [],
-    rough: [],
+    rough: makeStarterRoughs(playerId),
+    starterRoughGranted: true,
     jobs: [],
     externalMaterials: {
       silverMount: 2,
@@ -578,6 +674,10 @@ function normalizePlayer(player) {
   player.cash = Number.isFinite(Number(player.cash)) ? Number(player.cash) : 30000;
   player.rep = Number.isFinite(Number(player.rep)) ? Number(player.rep) : 0;
   player.rough ||= [];
+  if (player.starterRoughGranted !== true && player.rough.length === 0) {
+    player.rough.push(...makeStarterRoughs(player.id));
+  }
+  player.starterRoughGranted = true;
   player.jobs ||= [];
   player.externalMaterials ||= { silverMount: 0, goldMount: 0, diamondChips: 0 };
   player.polishingJobs ||= player.cuttingJobs || [];
@@ -1024,6 +1124,12 @@ const EXTRACTION_KITS = {
   }
 };
 
+const KIT_BOARD_REFERENCE = { width: 412, height: 148 };
+
+function templateWidthOnBoard(width) {
+  return (Number(width) || 28) * KIT_BOARD_REFERENCE.height / KIT_BOARD_REFERENCE.width;
+}
+
 function normalizePlacement(rawPlacement, fallbackLayout = "bracelet") {
   const placement = rawPlacement && typeof rawPlacement === "object" ? rawPlacement : {};
   const layout = ["bracelet", "cabochon", "peacePendant", "ruyiPendant", "leafPendant"].includes(placement.layout) ? placement.layout : fallbackLayout;
@@ -1110,15 +1216,15 @@ function placementTemplateSize(placement) {
 
 function placementFootprint(placement) {
   const { w, h } = placementTemplateSize(placement);
-  if (placement.layout === "bracelet") return { rx: w * 0.43, ry: h * 0.32 };
-  if (placement.layout === "cabochon") return { rx: w * 0.24, ry: h * 0.34 };
+  const boardWidth = templateWidthOnBoard(w);
+  if (placement.layout === "bracelet") return { rx: boardWidth * 0.46, ry: h * 0.46 };
+  if (placement.layout === "cabochon") return { rx: boardWidth * 0.24, ry: h * 0.34 };
   if (placement.layout === "peacePendant") {
-    const radius = Math.min(w, h) * 0.38;
-    return { rx: radius, ry: radius };
+    return { rx: boardWidth * 0.42, ry: h * 0.42 };
   }
-  if (placement.layout === "ruyiPendant") return { rx: w * 0.38, ry: h * 0.42 };
-  if (placement.layout === "leafPendant") return { rx: w * 0.3, ry: h * 0.37 };
-  return { rx: w * 0.5, ry: h * 0.5 };
+  if (placement.layout === "ruyiPendant") return { rx: boardWidth * 0.38, ry: h * 0.42 };
+  if (placement.layout === "leafPendant") return { rx: boardWidth * 0.3, ry: h * 0.37 };
+  return { rx: boardWidth * 0.5, ry: h * 0.5 };
 }
 
 function placementsOverlap(placements) {
@@ -1420,7 +1526,16 @@ io.on("connection", (socket) => {
     if (!player) return;
     const result = submitAuctionBidForPlayer(player, payload);
     if (!result.ok) return socket.emit("toast", result.message);
+    socket.emit("toast", result.message);
     broadcast();
+  });
+
+  socket.on("joinAuction", (payload) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const result = joinAuctionForPlayer(player, payload);
+    socket.emit("toast", result.message);
+    if (result.ok) broadcast();
   });
 
   socket.on("buyRough", () => {
@@ -1649,11 +1764,7 @@ function startServer() {
     processPolishingJobs();
     refreshRoughPool();
     const now = Date.now();
-    settleAuctionIfDue(now);
-    if (state.auction?.settledAt && now - state.auction.settledAt > TIMING.auction.preview) {
-      state.auction = null;
-      ensureAuctionRound(now);
-    }
+    processAuctionLifecycle(now);
     for (const player of state.players.values()) {
       if (!isPlayerOnline(player)) continue;
       player.orders = player.orders.filter((order) => order.expiresAt > Date.now());
@@ -1666,6 +1777,7 @@ function startServer() {
   setInterval(() => {
     processProductionJobs();
     processLivestreamJobs();
+    if (processAuctionLifecycle()) broadcast();
   }, 1000);
 
   return httpServer.listen(PORT, () => {
@@ -1684,15 +1796,20 @@ export const __testHooks = {
   releaseDeposit,
   settleOfflinePlayer,
   submitAuctionBidForPlayer,
+  joinAuctionForPlayer,
   requestAuctionWindowForPlayer,
   ensureAuctionRound,
   settleAuctionIfDue,
+  processAuctionLifecycle,
   snapshotFor,
   startProductionJob,
   completeProductionJob,
   scheduleLivestream,
   sellLivestreamNow,
   extractProductsFromJob,
+  normalizeExtractionKits,
+  expandKitPlacements,
+  placementsOverlap,
   processProductionJobs,
   settleLivestreamJobsForPlayer,
   processLivestreamJobs,

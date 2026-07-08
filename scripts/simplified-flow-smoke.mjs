@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 
 const server = readFileSync("server.js", "utf8");
 const main = readFileSync("public/main.js", "utf8");
+const index = readFileSync("public/index.html", "utf8");
 const renderer = readFileSync("public/jade-renderer.js", "utf8");
+const styles = readFileSync("public/styles.css", "utf8");
 
 function extractObjectEntry(source, key) {
   const start = source.indexOf(`${key}:`);
@@ -144,6 +146,14 @@ if (!/KIT_DEFAULT_POSITIONS/.test(main) || /offset \* 4/.test(main) || /offset \
   throw new Error("new extraction templates should be dropped on distinct default positions, not tiny overlapping offsets");
 }
 
+const expectedKitTypes = [
+  "bangle",
+  "cabochon",
+  "peacePendant",
+  "ruyiPendant",
+  "leafPendant"
+];
+
 const defaultPositionMatch = main.match(/const KIT_DEFAULT_POSITIONS = \{([\s\S]*?)\n\};/);
 if (!defaultPositionMatch) {
   throw new Error("default extraction positions should be keyed by kit type so mixed kits do not overlap");
@@ -159,12 +169,28 @@ const placementRadii = {
   ruyiPendant: 11,
   leafPendant: 10
 };
+
+const templateSizes = {};
+for (const type of expectedKitTypes) {
+  const template = extractObjectEntry(main, type);
+  const widthMatch = template.match(/\bw:\s*(\d+)/);
+  const heightMatch = template.match(/\bh:\s*(\d+)/);
+  if (!widthMatch || !heightMatch) throw new Error(`${type} should define a visible template footprint`);
+  templateSizes[type] = { w: Number(widthMatch[1]), h: Number(heightMatch[1]) };
+}
+
 for (const type of Object.keys(placementRadii)) {
   if (!defaultPositions[type]) throw new Error(`${type} should have a non-overlapping default position`);
 }
 for (const [type, position] of Object.entries(defaultPositions)) {
-  if (position.x < 16 || position.x > 84 || position.y < 16 || position.y > 84) {
-    throw new Error(`${type} default position should stay inside the rough board drag bounds`);
+  const size = templateSizes[type] || { w: 28, h: 28 };
+  if (
+    position.x - size.w / 2 < 0 ||
+    position.x + size.w / 2 > 100 ||
+    position.y - size.h / 2 < 0 ||
+    position.y + size.h / 2 > 100
+  ) {
+    throw new Error(`${type} default position should keep the whole template inside the rough board`);
   }
 }
 const defaultTypes = Object.keys(placementRadii);
@@ -200,20 +226,38 @@ if (/\bbeads\b/.test(main) || /\bbeads\b/.test(server)) {
   throw new Error("bead strand kit should be removed from client and server extraction options");
 }
 
-const expectedKitTypes = [
-  "bangle",
-  "cabochon",
-  "peacePendant",
-  "ruyiPendant",
-  "leafPendant"
-];
-
-if (!/function kitPreviewCanvas/.test(main) || !/jadeCanvasMarkup\("product"/.test(main) || !/sourceMaterial/.test(main) || !/kit-board-overlay/.test(main)) {
-  throw new Error("main.js should render extraction kit previews as source-material product canvases");
+if (!/function kitTemplateCanvas/.test(main) || !/jadeCanvasMarkup\("kit"/.test(main) || !/function consumedKitMaskCanvas/.test(main) || !/jadeCanvasMarkup\("kitMask"/.test(main) || !/kit-board-overlay/.test(main)) {
+  throw new Error("main.js should render active kit templates and consumed kit masks through dedicated canvas renderers");
 }
 
-if (!/preview:\s*true/.test(main) || !/templateSize:\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(main)) {
-  throw new Error("extraction kit previews should carry template size so material sampling matches the placed kit area");
+const kitTemplateBody = extractFunctionBody(main, "kitTemplateCanvas");
+if (/jadeCanvasMarkup\("product"/.test(kitTemplateBody) || /sourceMaterial/.test(kitTemplateBody)) {
+  throw new Error("active extraction templates should not reuse finished-product source material previews");
+}
+
+if (!/data-kit-type/.test(main) || !/templateSize:\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(main)) {
+  throw new Error("extraction kit templates should carry type and template size so drag bounds match the visual footprint");
+}
+
+const kitOverlayBody = extractFunctionBody(main, "kitOverlay");
+if (!/consumedKitMaskCanvas/.test(kitOverlayBody) || !/kit-consumed/.test(main)) {
+  throw new Error("saved extraction placements should render as black consumed masks on the rough");
+}
+
+if (/width:\$\{width\}%;height:\$\{height\}%/.test(kitOverlayBody)) {
+  throw new Error("kit overlays should not size templates with parent width and height percentages because that stretches bangles");
+}
+
+if (!/--kit-w:\s*\$\{width\}/.test(kitOverlayBody) || !/--kit-h:\s*\$\{height\}/.test(kitOverlayBody) || !/--kit-w-px:\s*\$\{kitCssPixels\(width\)\}/.test(kitOverlayBody) || !/--kit-h-px:\s*\$\{kitCssPixels\(height\)\}/.test(kitOverlayBody)) {
+  throw new Error("kit overlays should pass template footprint and pixel dimensions through CSS variables for aspect-preserving layout");
+}
+
+if (!/aspect-ratio:\s*var\(--kit-w\)\s*\/\s*var\(--kit-h\)/.test(styles) || !/width:\s*var\(--kit-w-px\)/.test(styles) || !/height:\s*var\(--kit-h-px\)/.test(styles)) {
+  throw new Error("kit placement CSS should use aspect-preserving pixel dimensions instead of stretching across board width");
+}
+
+if (/calc\(var\(--kit-[wh]\)\s*\*/.test(styles)) {
+  throw new Error("kit placement CSS should avoid unsupported calc multiplication that collapses template boxes in browsers");
 }
 
 for (const token of ["templateSvg:", "<svg", "<image", "<img", "kit-template-asset", "kitAssetMarkup", "/assets/template-icons/", "board-svg board-overlay rough-overlay"]) {
@@ -229,7 +273,7 @@ if (/function kitShapeMarkup/.test(main) || /item\.shape/.test(main)) {
 for (const type of expectedKitTypes) {
   const template = extractObjectEntry(main, type);
   if (template.includes("items:") || template.includes("shape:") || template.includes("templateSvg:") || template.includes("icon:")) {
-    throw new Error(`${type} should use source-material canvas previews instead of static template artwork`);
+    throw new Error(`${type} should use renderer-owned kit canvases instead of static template artwork`);
   }
 
   const serverKit = extractObjectEntry(server, type);
@@ -267,31 +311,70 @@ if (!/function renderSourceMaterialProductCanvas\b/.test(renderer) || !/function
   throw new Error("jade renderer should render finished products as cutouts from their source rough material");
 }
 
-const braceletPathStart = renderer.indexOf('if (kind === "bracelet")');
-const peacePathStart = renderer.indexOf('if (kind === "peacePendant")');
-const braceletPathBody = renderer.slice(braceletPathStart, peacePathStart);
-if (braceletPathStart < 0 || peacePathStart < 0 || !/ctx\.ellipse/.test(braceletPathBody)) {
-  throw new Error("bracelet templates should use a distinct oval bangle path, not the same circular ring as peace pendants");
+if (!/function renderKitTemplateCanvas\b/.test(renderer) || !/function renderKitMaskCanvas\b/.test(renderer) || !/function drawKitTemplatePath\b/.test(renderer)) {
+  throw new Error("jade renderer should own active kit template and consumed-mask drawing");
 }
 
-if (!/const isPreview = Boolean\(item\?\.preview\)/.test(renderer) || !/if \(!isPreview\) drawProductCarvingLines/.test(renderer)) {
-  throw new Error("source-material kit previews should keep the cutout outline but skip carving lines and shared highlight arcs");
+if (!/function drawBangleTemplatePath\b/.test(renderer) || !/ctx\.ellipse\(cx,\s*cy,\s*outerX,\s*outerY/.test(renderer)) {
+  throw new Error("bangle kit templates should draw a closed oval ring without a seam or side opening");
 }
 
-if (!/ctx\.globalAlpha = isPreview \? 0\.[0-9]+ : 1/.test(renderer)) {
-  throw new Error("kit previews should render the sampled material translucently over the rough");
+if (!/function drawPeacePendantTemplatePath\b/.test(renderer) || !/function strokePeacePendantTemplatePath\b/.test(renderer)) {
+  throw new Error("peace pendant templates should use dedicated ring path and stroke helpers to avoid connector seams");
+}
+
+const peaceTemplateBody = extractFunctionBody(renderer, "drawPeacePendantTemplatePath");
+if (!/ctx\.arc\(cx,\s*cy,\s*outer/.test(peaceTemplateBody) || !/ctx\.arc\(cx,\s*cy,\s*inner/.test(peaceTemplateBody) || !/return true/.test(peaceTemplateBody)) {
+  throw new Error("peace pendant template should cut out the center like a bangle");
+}
+
+const peaceStrokeBody = extractFunctionBody(renderer, "strokePeacePendantTemplatePath");
+if ((peaceStrokeBody.match(/ctx\.beginPath\(\)/g) || []).length < 2 || !/ctx\.arc\(cx,\s*cy,\s*outer/.test(peaceStrokeBody) || !/ctx\.arc\(cx,\s*cy,\s*inner/.test(peaceStrokeBody)) {
+  throw new Error("peace pendant stroke should draw outer and inner rings separately so no right-side connector appears");
+}
+
+if (!/rgba\(0,\s*0,\s*0,\s*0\.[6-9]/.test(renderer) || !/renderKitMaskCanvas/.test(renderer)) {
+  throw new Error("consumed extraction masks should visibly black out the removed kit position");
+}
+
+const kitMaskCanvasBody = extractFunctionBody(renderer, "renderKitMaskCanvas");
+if (!/const evenOdd = drawKitMaskPath/.test(kitMaskCanvasBody) || !/ctx\.fill\("evenodd"\)/.test(kitMaskCanvasBody)) {
+  throw new Error("consumed extraction masks should use even-odd fill so bangle masks stay donut-shaped");
+}
+
+const kitMaskPathBody = extractFunctionBody(renderer, "drawKitMaskPath");
+if (!/kind === "bracelet"[\s\S]*drawBangleTemplatePath\(ctx,\s*width,\s*height\)[\s\S]*return true/.test(kitMaskPathBody)) {
+  throw new Error("bangle consumed masks should be a donut ring and should not black out the bangle core");
+}
+if (!/kind === "peacePendant"[\s\S]*drawPeacePendantTemplatePath\(ctx,\s*width,\s*height\)[\s\S]*return true/.test(kitMaskPathBody)) {
+  throw new Error("peace pendant consumed masks should be a donut ring with the center removed");
+}
+
+const bangleTemplateStart = renderer.indexOf("function drawBangleTemplatePath");
+const bangleTemplateEnd = renderer.indexOf("function drawKitMaskPath");
+const bangleTemplateBody = renderer.slice(bangleTemplateStart, bangleTemplateEnd);
+if (bangleTemplateStart < 0 || bangleTemplateEnd < 0 || !/ctx\.ellipse/.test(bangleTemplateBody)) {
+  throw new Error("bracelet templates should use a distinct closed bangle path, not the same circular ring as peace pendants");
 }
 
 if (!/function clipSourceRoughShape\b/.test(renderer) || !/clipSourceRoughShape\(ctx, item, seed, width, height\)/.test(renderer)) {
-  throw new Error("kit previews should be clipped by the source rough outline so masks do not show outside the stone");
+  throw new Error("source-material product cutouts should be clipped by the source rough outline");
 }
 
 if (!/function sourceSampleDimensions\b/.test(renderer) || /sourceSeed\s*=[^;]*hashString\(kind\)/.test(renderer)) {
   throw new Error("source-material products should sample from the placed rough area instead of reseeding by product kind");
 }
 
-if (!/function placementFootprint\b/.test(server) || /a\.radius \+ b\.radius/.test(server)) {
-  throw new Error("server overlap detection should use template footprints instead of one circular radius per kit");
+if (!/function placementFootprint\b/.test(server) || /a\.radius \+ b\.radius/.test(server) || !/function templateWidthOnBoard\b/.test(server)) {
+  throw new Error("server overlap detection should use UI-aligned template footprints instead of one circular radius per kit");
+}
+
+const renderWorkshopBody = extractFunctionBody(main, "renderWorkshop");
+if (!/const refineJobs\s*=/.test(renderWorkshopBody) || !/const roughProductionJobs\s*=/.test(renderWorkshopBody)) {
+  throw new Error("workshop should split refine jobs from rough production jobs so in-progress extraction stays in planning");
+}
+if (!/精加工中/.test(renderWorkshopBody) || !/materialInventory\.innerHTML\s*=\s*\[[\s\S]*\.\.\.refineRows[\s\S]*\.\.\.revealed\.map/.test(renderWorkshopBody)) {
+  throw new Error("material planning should show in-progress refine jobs instead of making the rough disappear");
 }
 
 const idleServerExpectations = [
@@ -411,6 +494,13 @@ if (/data-action="buyRough"/.test(main)) {
 }
 
 const auctionUiExpectations = [
+  [/timeHud/, "main.js should update the global game-time HUD"],
+  [/auctionHalls/, "main.js should render multiple public auction entrances"],
+  [/auctionResults/, "main.js should render auction settlement results"],
+  [/joinAuction/, "auction UI should let players register for the current round"],
+  [/报名阶段/, "auction UI should label the registration phase"],
+  [/竞价阶段/, "auction UI should label the bidding phase"],
+  [/结算阶段/, "auction UI should label the settlement phase"],
   [/function renderOfflineSummary/, "main.js should render offline summary cards"],
   [/function renderAuctionBidControls/, "main.js should render sealed bid controls"],
   [/data-bid-amount/, "auction cards should include bid amount inputs"],
@@ -423,6 +513,10 @@ const auctionUiExpectations = [
 
 for (const [pattern, message] of auctionUiExpectations) {
   if (!pattern.test(main)) throw new Error(message);
+}
+
+for (const token of ["timeHud", "auctionHalls", "auctionResults"]) {
+  if (!index.includes(`id="${token}"`)) throw new Error(`index.html should include #${token}`);
 }
 
 const renderOfflineSummaryBody = extractFunctionBody(main, "renderOfflineSummary");
@@ -452,7 +546,7 @@ if (!/function requestAuctionWindowForPlayer/.test(server) || !/requestAuctionWi
   throw new Error("server should phase-gate public window requests through a focused helper");
 }
 
-if (!/canRequestWindow\s*=\s*auction\?\.phase\s*===\s*"bidding"/.test(main) || !/data-action="requestWindow"[\s\S]*!canRequestWindow/.test(main)) {
+if (!/canRequestWindow\s*=\s*currentAuctionPhase\(auction\)\s*===\s*"bidding"/.test(main) || !/data-action="requestWindow"[\s\S]*!canRequestWindow/.test(main)) {
   throw new Error("main.js should disable public window requests outside auction bidding");
 }
 

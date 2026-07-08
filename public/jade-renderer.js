@@ -13,12 +13,17 @@ export function jadeCanvasMarkup(kind, item, className = "") {
 export function jadeVisualSignature(item) {
   const relevant = {
     id: item?.id,
+    kind: item?.kind,
+    type: item?.type,
+    layout: item?.layout,
     visual: item?.visual,
     board: item?.board,
     windows: item?.windows,
     revealed: item?.revealed,
     braceletPlacements: item?.braceletPlacements,
     sourceMaterial: item?.sourceMaterial,
+    templateSize: item?.templateSize,
+    ringSize: item?.ringSize,
     preview: item?.preview,
     score: item?.score,
     mass: item?.mass
@@ -150,6 +155,8 @@ export function paintJadeCanvases(root = document) {
       if (canvas.dataset.jadeKind === "rough") renderRoughCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "slice") renderSliceCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "product") renderProductCanvas(canvas, item);
+      if (canvas.dataset.jadeKind === "kit") renderKitTemplateCanvas(canvas, item);
+      if (canvas.dataset.jadeKind === "kitMask") renderKitMaskCanvas(canvas, item);
     } catch (error) {
       paintFallback(canvas);
       console.warn("Jade renderer fallback", error);
@@ -454,6 +461,54 @@ export function renderProductCanvas(canvas, item) {
   drawPolishedSmallPiece(ctx, item, visual, seed, width, height);
 }
 
+export function renderKitTemplateCanvas(canvas, item) {
+  const { ctx, width, height } = prepareCanvas(canvas, fallbackSize(canvas, 96, 96));
+  const kind = kitProductKind(item?.type || item?.layout || item?.kind);
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  const evenOdd = drawKitTemplatePath(ctx, kind, width, height);
+  ctx.fillStyle = "rgba(37, 142, 107, 0.18)";
+  if (evenOdd) ctx.fill("evenodd");
+  else ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  strokeKitTemplatePath(ctx, kind, width, height, "rgba(20, 91, 72, 0.72)", Math.max(1.4, Math.min(width, height) * 0.055));
+  strokeKitTemplatePath(ctx, kind, width, height, "rgba(240, 255, 249, 0.46)", Math.max(0.8, Math.min(width, height) * 0.024), -0.035);
+  ctx.restore();
+}
+
+export function renderKitMaskCanvas(canvas, item) {
+  const { ctx, width, height } = prepareCanvas(canvas, fallbackSize(canvas, 96, 96));
+  const kind = kitProductKind(item?.type || item?.layout || item?.kind);
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  const evenOdd = drawKitMaskPath(ctx, kind, width, height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.74)";
+  if (evenOdd) ctx.fill("evenodd");
+  else ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  strokeKitTemplatePath(ctx, kind, width, height, "rgba(0, 0, 0, 0.88)", Math.max(1, Math.min(width, height) * 0.04));
+  ctx.restore();
+}
+
+function kitProductKind(type) {
+  return {
+    bangle: "bracelet",
+    bracelet: "bracelet",
+    cabochon: "cabochon",
+    peacePendant: "peacePendant",
+    ruyiPendant: "ruyiPendant",
+    leafPendant: "leafPendant"
+  }[type] || "bracelet";
+}
+
 function renderSourceMaterialProductCanvas(ctx, item, seed, width, height) {
   const kind = item?.kind || item?.sourceMaterial?.placement?.layout || "bracelet";
   const isPreview = Boolean(item?.preview);
@@ -716,6 +771,95 @@ function drawPolishedSmallPiece(ctx, item, visual, seed, width, height) {
   ctx.strokeStyle = "rgba(35,60,54,0.5)";
   ctx.stroke();
   ctx.restore();
+}
+
+function drawKitTemplatePath(ctx, kind, width, height) {
+  if (kind === "bracelet") return drawBangleTemplatePath(ctx, width, height);
+  if (kind === "peacePendant") return drawPeacePendantTemplatePath(ctx, width, height);
+  return productPiecePath(ctx, kind, width, height);
+}
+
+function drawBangleTemplatePath(ctx, width, height, inset = 0) {
+  const cx = width * 0.5;
+  const cy = height * 0.5;
+  const outerX = Math.max(1, width * (0.46 + inset));
+  const outerY = Math.max(1, height * (0.46 + inset));
+  const innerX = Math.max(1, outerX * 0.5);
+  const innerY = Math.max(1, outerY * 0.5);
+  ctx.beginPath();
+  ctx.moveTo(cx + outerX, cy);
+  ctx.ellipse(cx, cy, outerX, outerY, 0, 0, Math.PI * 2);
+  ctx.moveTo(cx + innerX, cy);
+  ctx.ellipse(cx, cy, innerX, innerY, 0, 0, Math.PI * 2, true);
+  return true;
+}
+
+function drawPeacePendantTemplatePath(ctx, width, height, inset = 0) {
+  const cx = width * 0.5;
+  const cy = height * 0.5;
+  const outer = Math.max(1, Math.min(width, height) * (0.42 + inset));
+  const inner = Math.max(1, outer * 0.42);
+  ctx.beginPath();
+  ctx.moveTo(cx + outer, cy);
+  ctx.arc(cx, cy, outer, 0, Math.PI * 2);
+  ctx.moveTo(cx + inner, cy);
+  ctx.arc(cx, cy, inner, 0, Math.PI * 2, true);
+  return true;
+}
+
+function drawKitMaskPath(ctx, kind, width, height) {
+  if (kind === "bracelet") {
+    drawBangleTemplatePath(ctx, width, height);
+    return true;
+  }
+  if (kind === "peacePendant") {
+    drawPeacePendantTemplatePath(ctx, width, height);
+    return true;
+  }
+  return drawKitTemplatePath(ctx, kind, width, height);
+}
+
+function strokeKitTemplatePath(ctx, kind, width, height, color, lineWidth, inset = 0) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  if (kind === "bracelet") {
+    strokeBangleTemplatePath(ctx, width, height, inset);
+    return;
+  }
+  if (kind === "peacePendant") {
+    strokePeacePendantTemplatePath(ctx, width, height, inset);
+    return;
+  }
+  drawKitTemplatePath(ctx, kind, width, height);
+  ctx.stroke();
+}
+
+function strokeBangleTemplatePath(ctx, width, height, inset = 0) {
+  const cx = width * 0.5;
+  const cy = height * 0.5;
+  const outerX = Math.max(1, width * (0.46 + inset));
+  const outerY = Math.max(1, height * (0.46 + inset));
+  const innerX = Math.max(1, outerX * 0.5);
+  const innerY = Math.max(1, outerY * 0.5);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, outerX, outerY, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, innerX, innerY, 0, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function strokePeacePendantTemplatePath(ctx, width, height, inset = 0) {
+  const cx = width * 0.5;
+  const cy = height * 0.5;
+  const outer = Math.max(1, Math.min(width, height) * (0.42 + inset));
+  const inner = Math.max(1, outer * 0.42);
+  ctx.beginPath();
+  ctx.arc(cx, cy, outer, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+  ctx.stroke();
 }
 
 function productPiecePath(ctx, kind, width, height) {
