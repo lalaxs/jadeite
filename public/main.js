@@ -11,15 +11,27 @@ import {
 const playerId = sessionStorage.getItem("jade-player-id");
 const socket = io({ auth: { playerId } });
 
-const tabs = [
-  ["overview", "工坊总览", "盘"],
-  ["auction", "公盘竞拍", "石"],
-  ["workshop", "加工坊", "作"],
-  ["market", "库存交易", "市"],
-  ["livestream", "直播卖货", "播"],
-  ["orders", "客户订单", "单"],
-  ["collection", "声望殿堂", "誉"],
-  ["reports", "经营报告", "报"]
+const viewLabels = {
+  overview: "翡翠街",
+  auction: "公盘会场",
+  workshop: "我的工坊",
+  market: "交易行",
+  livestream: "直播间",
+  orders: "客户茶室",
+  collection: "藏宝阁",
+  reports: "经营账房"
+};
+
+// 经营报告 remains the underlying reports feature even though the homepage location copy is 经营账房.
+
+const locationDefinitions = [
+  { id: "auction", view: "auction", label: "公盘会场", icon: "石", type: "public", summary: "暗标拍原石，开窗会公开信息。", cta: "去公盘" },
+  { id: "market", view: "market", label: "交易行", icon: "市", type: "public", summary: "买卖原石、成品和经营许可。", cta: "逛交易行" },
+  { id: "orders", view: "orders", label: "客户茶室", icon: "单", type: "public", summary: "接定制单，换现金和口碑。", cta: "看订单" },
+  { id: "collection", view: "collection", label: "藏宝阁", icon: "誉", type: "public", summary: "收藏精品，提高门面声望。", cta: "看藏品" },
+  { id: "reports", view: "reports", label: "经营账房", icon: "报", type: "public", summary: "查看现金流、库存占用和建议。", cta: "看账本" },
+  { id: "livestream", view: "livestream", label: "直播间", icon: "播", type: "lockedPublic", summary: "自动直播卖货，适合处理成品库存。", cta: "开直播", purchaseId: "livestream-permit" },
+  { id: "workshop", view: "workshop", label: "我的工坊", icon: "作", type: "ownedPrivate", summary: "打磨原石、取件、精加工。", cta: "进工坊", ownershipKey: "workshopOwned" }
 ];
 
 let state = null;
@@ -74,7 +86,8 @@ const KIT_FALLBACK_POSITIONS = Object.values(KIT_DEFAULT_POSITIONS);
 const KIT_BOARD_UNIT_PX = 1.48;
 
 const els = {
-  tabs: document.querySelector("#tabs"),
+  sidebarStatus: document.querySelector("#sidebarStatus"),
+  locationCards: document.querySelector("#locationCards"),
   title: document.querySelector("#viewTitle"),
   connection: document.querySelector("#connectionText"),
   nameInput: document.querySelector("#nameInput"),
@@ -89,9 +102,6 @@ const els = {
   collection: document.querySelector("#collectionText"),
   collectionSignal: document.querySelector("#collectionSignal"),
   timeHud: document.querySelector("#timeHud"),
-  offlineSummary: document.querySelector("#offlineSummary"),
-  nextActions: document.querySelector("#nextActions"),
-  pipeline: document.querySelector("#pipelineList"),
   players: document.querySelector("#playersList"),
   news: document.querySelector("#newsList"),
   auctionHalls: document.querySelector("#auctionHalls"),
@@ -179,6 +189,112 @@ function escapeHtml(value) {
 
 function empty(text) {
   return `<div class="empty">${escapeHtml(text)}</div>`;
+}
+
+function inventoryCounts(me = {}) {
+  const productionJobs = productionJobsFor(me);
+  return {
+    sealed: (me.rough || []).filter((rough) => !rough.revealed).length,
+    revealed: (me.rough || []).filter((rough) => rough.revealed).length,
+    jobs: productionJobs.length,
+    products: (me.bracelets || []).length,
+    collection: (me.collection || []).length
+  };
+}
+
+function reminderRows() {
+  if (!state?.me) return [];
+  const { me } = state;
+  const reminders = [];
+  const jobs = productionJobsFor(me);
+  const completable = (me.orders || []).filter((order) => matchingBracelets(order).length >= order.quantity);
+  if (me.offlineSummary) reminders.push(["离线结算", `${me.offlineSummary.count} 件事已发生`]);
+  if (!me.assets?.workshopOwned) reminders.push(["工坊未开", "去交易行买下街角小工坊"]);
+  if (!me.assets?.livestreamPermitOwned && (me.bracelets || []).length) reminders.push(["直播未开", "成品可卖，先买直播许可"]);
+  if (completable.length) reminders.push(["订单可交", `${completable.length} 个客户能交付`]);
+  if (jobs.length) reminders.push(["加工中", `${jobs.length} 个任务等待完成`]);
+  if (me.cash < 1000) reminders.push(["现金紧张", "优先回笼库存"]);
+  return reminders.slice(0, 5);
+}
+
+function renderPlayerSidebar() {
+  if (!els.sidebarStatus || !state?.me) return;
+  const { me } = state;
+  const counts = inventoryCounts(me);
+  const auctionMeta = auctionPhaseMeta();
+  const reminders = reminderRows();
+  els.sidebarStatus.innerHTML = `
+    <div class="sidebar-block">
+      <p class="eyebrow">掌柜状态</p>
+      <div class="status-metric"><span>现金</span><strong>${formatMoney(me.cash)}</strong></div>
+      <div class="status-metric"><span>声望</span><strong>${Math.round(me.rep)} · ${repTier(me.rep)}</strong></div>
+      <div class="status-metric"><span>满意</span><strong>${Math.round(me.satisfaction)}%</strong></div>
+    </div>
+    <div class="sidebar-block">
+      <p class="eyebrow">库存</p>
+      <div class="inventory-mini">
+        <span>暗料 ${counts.sealed}</span>
+        <span>加工 ${counts.jobs}</span>
+        <span>明料 ${counts.revealed}</span>
+        <span>成品 ${counts.products}</span>
+        <span>藏品 ${counts.collection}</span>
+      </div>
+    </div>
+    <div class="sidebar-block">
+      <p class="eyebrow">时间</p>
+      <div class="sidebar-clock"><strong>${gameClock()}</strong><span>${auctionMeta.label} · ${formatDuration(auctionMeta.remain)}</span></div>
+    </div>
+    <div class="sidebar-block">
+      <p class="eyebrow">提醒</p>
+      <div class="reminder-list">
+        ${reminders.map(([title, text]) => `<div class="reminder-row"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div>`).join("") || `<div class="reminder-row"><strong>暂无急事</strong><span>可以看看公盘或账房</span></div>`}
+      </div>
+    </div>
+  `;
+}
+
+function locationGate(location) {
+  const me = state?.me || {};
+  if (location.type === "ownedPrivate" && !me.assets?.[location.ownershipKey]) {
+    return { visible: false, locked: true, reason: "尚未拥有" };
+  }
+  if (location.id === "livestream" && !me.assets?.livestreamPermitOwned) {
+    return { visible: true, locked: true, reason: "需要直播经营许可" };
+  }
+  return { visible: true, locked: false, reason: "" };
+}
+
+function locationMeta(location) {
+  const me = state?.me || {};
+  if (location.id === "auction") return auctionPhaseMeta().label;
+  if (location.id === "market") return `市场挂单 ${(state?.listings || []).length} · 资产 ${(state?.assetListings || []).length}`;
+  if (location.id === "orders") return `客户 ${(me.orders || []).length} · 满意 ${Math.round(me.satisfaction || 0)}%`;
+  if (location.id === "workshop") return `任务 ${productionJobsFor(me).length} · 原石 ${(me.rough || []).length}`;
+  if (location.id === "livestream") return `成品 ${(me.bracelets || []).length} · 许可 ${me.assets?.livestreamPermitOwned ? "已购" : "未购"}`;
+  if (location.id === "collection") return `藏品 ${(me.collection || []).length}`;
+  if (location.id === "reports") return `净额 ${formatMoney(currentReportSummary().net)}`;
+  return "";
+}
+
+function renderLocationCards() {
+  if (!els.locationCards || !state) return;
+  const cards = locationDefinitions.flatMap((location) => {
+    const gate = locationGate(location);
+    if (!gate.visible) return [];
+    return `
+      <article class="location-card ${gate.locked ? "locked" : ""} ${activeView === location.view ? "active" : ""}" data-location="${location.id}">
+        <div class="location-icon" aria-hidden="true">${location.icon}</div>
+        <div>
+          <p class="eyebrow">${location.type === "ownedPrivate" ? "名下资产" : "公共地点"}</p>
+          <h3>${location.label}</h3>
+          <p class="location-summary">${location.summary}</p>
+          <p class="location-meta">${gate.locked ? gate.reason : locationMeta(location)}</p>
+        </div>
+        <button data-action="${gate.locked ? "lockedLocation" : "openLocation"}" data-payload="${location.id}" class="${gate.locked ? "secondary" : ""}">${gate.locked ? "查看条件" : location.cta}</button>
+      </article>
+    `;
+  });
+  els.locationCards.innerHTML = cards.join("");
 }
 
 function button(label, action, payload = "", className = "") {
@@ -606,23 +722,12 @@ function roughPlannerControls(rough) {
 function setView(view) {
   activeView = view;
   document.querySelectorAll(".view").forEach((node) => node.classList.toggle("active", node.dataset.view === view));
-  document.querySelectorAll(".tab").forEach((node) => node.classList.toggle("active", node.dataset.view === view));
-  const tab = tabs.find(([key]) => key === view);
-  els.title.textContent = tab ? tab[1] : "经营总览";
+  document.querySelectorAll(".location-card").forEach((node) => node.classList.toggle("active", node.dataset.location === view));
+  els.title.textContent = viewLabels[view] || "翡翠街";
   if (state) paintJades();
 }
 
-function initTabs() {
-  els.tabs.innerHTML = tabs.map(([key, label, icon]) => `
-    <button class="tab" data-view="${key}" title="${label}">
-      <span class="tab-icon" aria-hidden="true">${icon}</span>
-      <span>${label}</span>
-    </button>
-  `).join("");
-  els.tabs.addEventListener("click", (event) => {
-    const tab = event.target.closest(".tab");
-    if (tab) setView(tab.dataset.view);
-  });
+function initShell() {
   setView(activeView);
 }
 
@@ -642,6 +747,7 @@ function render() {
   els.satSignal.textContent = me.satisfaction >= 80 ? "客户愿回头" : me.satisfaction >= 55 ? "保持交付" : "口碑危险";
   els.collectionSignal.textContent = `门面 ${sumValue(me.collection).toLocaleString("zh-CN")}`;
 
+  renderPlayerSidebar();
   renderTimeHud();
   renderOverview();
   renderAuction();
@@ -669,9 +775,7 @@ function renderTimeHud() {
 }
 
 function renderOverview() {
-  els.offlineSummary.innerHTML = renderOfflineSummary();
-  renderNextActions();
-  renderPipeline();
+  renderLocationCards();
   els.players.innerHTML = state.players.map((player, index) => `
     <div class="rank-row">
       <div class="rank-badge">${index + 1}</div>
@@ -936,7 +1040,8 @@ function renderMarket() {
     ...state.me.bracelets.map((item) => ({ ...item, type: "bracelet" }))
   ];
   const ownListings = state.listings.filter((listing) => listing.ownerId === state.me.id);
-  els.marketBrief.innerHTML = `<span>我的可卖 ${sellables.length}</span><span>我的挂单 ${ownListings.length}</span><span>市场挂单 ${state.listings.length}</span>`;
+  const assetListings = state.assetListings || [];
+  els.marketBrief.innerHTML = `<span>我的可卖 ${sellables.length}</span><span>我的挂单 ${ownListings.length}</span><span>市场挂单 ${state.listings.length}</span><span>资产 ${assetListings.length}</span>`;
   els.mySellables.innerHTML = sellables.map((item) => {
     const suggested = Math.round((item.value || item.price || 1000) * 1.18);
     return `
@@ -951,7 +1056,14 @@ function renderMarket() {
     `;
   }).join("") || empty("暂无可挂牌物品。");
   els.listingCount.textContent = state.listings.length;
-  els.marketListings.innerHTML = state.listings.map((listing) => {
+  const assetRows = assetListings.map((listing) => `
+    <div class="item-row asset-listing">
+      <div class="item-title"><span>${escapeHtml(listing.name)}</span><span class="pill">${formatMoney(listing.price)}</span></div>
+      <p class="item-meta">${escapeHtml(listing.description)}</p>
+      <div class="card-actions"><button data-action="buyAssetListing" data-payload="${listing.id}">购买</button></div>
+    </div>
+  `).join("");
+  els.marketListings.innerHTML = assetRows + (state.listings.map((listing) => {
     const own = listing.ownerId === state.me.id;
     return `
       <div class="item-row">
@@ -960,7 +1072,7 @@ function renderMarket() {
         <div class="row-actions"><button data-action="buyListing" data-payload="${listing.id}" ${own ? "disabled" : ""}>买入</button></div>
       </div>
     `;
-  }).join("") || empty("交易行还没有挂单。");
+  }).join("") || empty("交易行还没有挂单。"));
 }
 
 function renderLivestream() {
@@ -1120,6 +1232,28 @@ document.body.addEventListener("click", (event) => {
   const action = target.dataset.action;
   const payload = target.dataset.payload;
 
+  if (action === "openLocation") {
+    const location = locationDefinitions.find((item) => item.id === payload);
+    if (location) setView(location.view);
+    return;
+  }
+
+  if (action === "lockedLocation") {
+    const location = locationDefinitions.find((item) => item.id === payload);
+    if (location?.purchaseId) {
+      showToast("去交易行购买对应许可。");
+      setView("market");
+    } else {
+      showToast("条件未满足。");
+    }
+    return;
+  }
+
+  if (action === "buyAssetListing") {
+    socket.emit("buyAssetListing", payload);
+    return;
+  }
+
   if (action === "requestWindow") {
     const targetPoint = windowTargetFor(payload);
     socket.emit("requestWindow", { roughId: payload, hallId: state.auction?.hallId, x: targetPoint.x, y: targetPoint.y });
@@ -1206,7 +1340,7 @@ socket.on("state", (nextState) => {
 
 socket.on("toast", showToast);
 
-initTabs();
+initShell();
 
 window.setInterval(() => {
   if (!state) return;

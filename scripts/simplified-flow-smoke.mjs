@@ -404,6 +404,32 @@ for (const [pattern, message] of idleFrontendExpectations) {
   if (!pattern.test(main)) throw new Error(message);
 }
 
+const locationUiExpectations = [
+  [/id="sidebarStatus"/, "index.html should expose a sidebar status container"],
+  [/id="locationCards"/, "index.html should expose a location card container"],
+  [/const locationDefinitions\s*=/, "main.js should define location cards separately from feature views"],
+  [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
+  [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
+  [/function locationGate\b/, "main.js should centralize location lock logic"],
+  [/公盘会场/, "location cards should include the public auction place"],
+  [/交易行/, "location cards should include the market place"],
+  [/客户茶室/, "location cards should include orders as a place"],
+  [/经营账房/, "location cards should include reports as a place"],
+  [/直播间/, "location cards should include livestream as a locked public place"],
+  [/我的工坊/, "location cards should include the owned workshop place"],
+  [/workshopOwned/, "main.js should use server-owned workshop state"],
+  [/livestreamPermitOwned/, "main.js should use server-owned livestream permit state"],
+  [/buyAssetListing/, "main.js should emit asset purchase actions"]
+];
+
+for (const [pattern, message] of locationUiExpectations) {
+  if (!pattern.test(index) && !pattern.test(main)) throw new Error(message);
+}
+
+if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
+  throw new Error("left sidebar should no longer expose the old tab navigation container");
+}
+
 const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");
 if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*Number\(player\.cash\)\s*:\s*30000/.test(normalizePlayerBody)) {
   throw new Error("normalizePlayer should coerce cash to a numeric default");

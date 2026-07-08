@@ -29,7 +29,7 @@
           </div>
         </section>
 
-        <nav class="tabs" id="tabs"></nav>
+        <section class="sidebar-status panel" id="sidebarStatus" aria-label="掌柜状态"></section>
       </aside>
 
       <section class="main-stage">
@@ -48,25 +48,15 @@
         </section>
 
         <section class="view active" data-view="overview">
-          <div class="command-grid">
-            <section class="focus-panel">
-              <div class="section-head">
-                <div>
-                  <p class="eyebrow">现在最该看</p>
-                  <h3>经营优先级</h3>
-                </div>
+          <section class="location-board">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">翡翠街</p>
+                <h3>今天去哪儿</h3>
               </div>
-              <div id="offlineSummary"></div>
-              <div id="nextActions" class="action-stack"></div>
-            </section>
-            <section class="panel">
-              <div class="panel-head">
-                <h3>资产流水线</h3>
-                <span>从原石到现金</span>
-              </div>
-              <div id="pipelineList" class="pipeline-list"></div>
-            </section>
-          </div>
+            </div>
+            <div id="locationCards" class="location-grid"></div>
+          </section>
           <div class="dashboard-grid">
             <section class="panel">
               <div class="panel-head"><h3>同行排名</h3><span>声望竞争</span></div>
