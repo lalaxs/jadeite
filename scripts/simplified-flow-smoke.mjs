@@ -426,6 +426,20 @@ for (const [pattern, message] of locationUiExpectations) {
   if (!pattern.test(index) && !pattern.test(main)) throw new Error(message);
 }
 
+const locationStyleExpectations = [
+  [/\.sidebar-status/, "styles.css should style the player status sidebar"],
+  [/\.status-metric/, "styles.css should style sidebar resource metrics"],
+  [/\.reminder-row/, "styles.css should style reminder rows"],
+  [/\.location-grid/, "styles.css should style the location card grid"],
+  [/\.location-card\.locked/, "styles.css should style locked location cards"],
+  [/\.location-icon/, "styles.css should style location icons"],
+  [/\.asset-listing/, "styles.css should style purchasable asset listings"]
+];
+
+for (const [pattern, message] of locationStyleExpectations) {
+  if (!pattern.test(styles)) throw new Error(message);
+}
+
 if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
   throw new Error("left sidebar should no longer expose the old tab navigation container");
 }
