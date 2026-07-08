@@ -22,8 +22,6 @@ const viewLabels = {
   reports: "经营账房"
 };
 
-// 经营报告 remains the underlying reports feature even though the homepage location copy is 经营账房.
-
 const locationDefinitions = [
   { id: "auction", view: "auction", label: "公盘会场", icon: "石", type: "public", summary: "暗标拍原石，开窗会公开信息。", cta: "去公盘" },
   { id: "market", view: "market", label: "交易行", icon: "市", type: "public", summary: "买卖原石、成品和经营许可。", cta: "逛交易行" },
@@ -1063,7 +1061,7 @@ function renderMarket() {
       <div class="card-actions"><button data-action="buyAssetListing" data-payload="${listing.id}">购买</button></div>
     </div>
   `).join("");
-  els.marketListings.innerHTML = assetRows + (state.listings.map((listing) => {
+  const listingRows = state.listings.map((listing) => {
     const own = listing.ownerId === state.me.id;
     return `
       <div class="item-row">
@@ -1072,7 +1070,9 @@ function renderMarket() {
         <div class="row-actions"><button data-action="buyListing" data-payload="${listing.id}" ${own ? "disabled" : ""}>买入</button></div>
       </div>
     `;
-  }).join("") || empty("交易行还没有挂单。"));
+  }).join("");
+  const marketRows = assetRows + listingRows;
+  els.marketListings.innerHTML = marketRows || empty("交易行还没有挂单。");
 }
 
 function renderLivestream() {

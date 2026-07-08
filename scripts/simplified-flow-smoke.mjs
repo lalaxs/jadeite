@@ -430,6 +430,17 @@ if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
   throw new Error("left sidebar should no longer expose the old tab navigation container");
 }
 
+const renderMarketBody = extractFunctionBody(main, "renderMarket");
+if (!/assetListings\s*\|\|\s*\[\]/.test(renderMarketBody)) {
+  throw new Error("renderMarket should normalize asset listings before rendering");
+}
+if (!/const listingRows\s*=/.test(renderMarketBody)) {
+  throw new Error("renderMarket should build regular listing rows separately from asset listings");
+}
+if (!/const marketRows\s*=\s*assetRows\s*\+\s*listingRows/.test(renderMarketBody) || !/marketRows\s*\|\|\s*empty\("交易行还没有挂单。"\)/.test(renderMarketBody)) {
+  throw new Error("renderMarket should show the empty market state only when both asset and regular listings are absent");
+}
+
 const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");
 if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*Number\(player\.cash\)\s*:\s*30000/.test(normalizePlayerBody)) {
   throw new Error("normalizePlayer should coerce cash to a numeric default");
@@ -598,7 +609,7 @@ const liveReportExpectations = [
   [/livestreamOutcome/, "server should use shared livestream outcomes"],
   [/reportSummary/, "server and client should use report summaries"],
   [/直播卖货/, "navigation should include livestream page"],
-  [/经营报告/, "navigation should include report page"],
+  [/经营账房/, "navigation should include report page"],
   [/autoConservative/, "UI should expose conservative auto livestream mode"],
   [/autoBalanced/, "UI should expose balanced auto livestream mode"],
   [/autoAggressive/, "UI should expose aggressive auto livestream mode"]
