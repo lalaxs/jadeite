@@ -67,7 +67,7 @@ import {
 } from "./livestream-module.js";
 import {
   initExtraModule,
-  renderShop, renderReports, renderCollection
+  renderShop, renderRecruitCandidates, renderReports, renderCollection
 } from "./extra-module.js";
 
 const playerId = sessionStorage.getItem("jade-player-id");
@@ -168,6 +168,8 @@ const els = {
   shopListings: document.querySelector("#shopListings"),
   equipmentShop: document.querySelector("#equipmentShop"),
   materialInventory: document.querySelector("#materialInventory"),
+  refreshRecruitBtn: document.querySelector("#refreshRecruitBtn"),
+  recruitCandidateList: document.querySelector("#recruitCandidateList"),
   livestream: document.querySelector("#livestreamPanel"),
   reports: document.querySelector("#reportsPanel"),
   collectionList: document.querySelector("#collectionList"),
@@ -1305,6 +1307,7 @@ function render() {
   renderOrders();
   renderMarket();
   renderShop();
+  renderRecruitCandidates();
   renderRankingBoard();
   renderLivestream();
   renderReports();
@@ -1824,6 +1827,19 @@ document.body.addEventListener("click", (event) => {
     socket.emit("repairWorkshopDevice", {
       deviceId: payload,
       requestId: globalThis.crypto?.randomUUID?.() || `repair-${Date.now()}`
+    });
+    return;
+  }
+  if (action === "refreshRecruitCandidates") {
+    socket.emit("refreshRecruitCandidates", {
+      requestId: globalThis.crypto?.randomUUID?.() || `recruit-refresh-${Date.now()}`
+    });
+    return;
+  }
+  if (action === "recruitWorker") {
+    socket.emit("recruitWorker", {
+      candidateId: payload,
+      requestId: globalThis.crypto?.randomUUID?.() || `recruit-${Date.now()}`
     });
     return;
   }

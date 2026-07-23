@@ -126,6 +126,46 @@ export function renderShop() {
   }
 }
 
+export function renderRecruitCandidates() {
+  if (!elsRef.recruitCandidateList || !getState()) return;
+  const candidates = getState().me.recruitCandidates || [];
+  const workers = getState().me.workshop?.workers || [];
+  const cash = Number(getState().me.cash || 0);
+  const jobMeta = {
+    cutter: { label: "开料师傅", keys: [["cut", "jieliao", "解料"], ["cut", "damo", "打磨"]] },
+    planner: { label: "规划师傅", keys: [["set", "qieliao", "切料"], ["set", "xiuxing", "修形"]] },
+    finisher: { label: "精加工师傅", keys: [["finish", "diaozhuo", "雕琢"], ["finish", "xiangqian", "镶嵌"]] },
+    streamer: { label: "直播掌柜", keys: [["speak", "huashu", "话术"], ["speak", "kongchang", "控场"], ["speak", "cuidan", "催单"]] }
+  };
+  if (elsRef.refreshRecruitBtn) {
+    elsRef.refreshRecruitBtn.disabled = cash < 500;
+    elsRef.refreshRecruitBtn.textContent = `刷新候选人 ¥500 · 员工 ${workers.length}/8`;
+  }
+  elsRef.recruitCandidateList.innerHTML = candidates.map((candidate) => {
+    const meta = jobMeta[candidate.job] || jobMeta.cutter;
+    const skills = meta.keys.map(([dir, key, label]) => {
+      const skill = candidate.skills?.[dir]?.[key] || { level: 1 };
+      return `<span>${label} Lv.${skill.level}</span>`;
+    }).join("");
+    const traits = [
+      ...(candidate.traits || []).map((trait) => `<span class="trait-chip">${escapeHtml(trait)}</span>`),
+      ...(candidate.flaws || []).map((trait) => `<span class="flaw-chip neg">${escapeHtml(trait)}</span>`)
+    ].join("");
+    const disabled = workers.length >= 8 || cash < Number(candidate.price || 0);
+    return `
+      <article class="recruit-candidate-card">
+        <div class="recruit-card-head">
+          <div><h3>${escapeHtml(candidate.name)}</h3><p>${escapeHtml(meta.label)} · ${candidate.tier} 阶</p></div>
+          <span class="pill">${formatMoney(candidate.price)}</span>
+        </div>
+        <div class="recruit-skill-row">${skills}</div>
+        <div class="trait-row">${traits}</div>
+        <button data-action="recruitWorker" data-payload="${escapeHtml(candidate.id)}" ${disabled ? "disabled" : ""}>${workers.length >= 8 ? "员工已满" : "招聘入职"}</button>
+      </article>
+    `;
+  }).join("") || empty(workers.length >= 8 ? "员工人数已达到 8 人上限。" : "暂无候选人，请刷新。");
+}
+
 // ---- 商铺页签切换 + 材料自由数量购买 ----
 function initShopTabs() {
   const shopView = document.querySelector('[data-view="shop"]');

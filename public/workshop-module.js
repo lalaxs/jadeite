@@ -285,7 +285,11 @@ export function workshopDevices() {
 
 export function workshopWorkers() {
   const serverWorkers = getState().me.workshop?.workers || [];
-  return WORKSHOP_WORKER_FALLBACKS.map((fallback) => ({ ...fallback, ...(serverWorkers.find((worker) => worker.id === fallback.id) || {}) }));
+  if (!serverWorkers.length) return WORKSHOP_WORKER_FALLBACKS;
+  return serverWorkers.map((worker) => ({
+    ...(WORKSHOP_WORKER_FALLBACKS.find((fallback) => fallback.id === worker.id) || {}),
+    ...worker
+  }));
 }
 
 export function workshopWorkerFor(device) {
@@ -484,6 +488,7 @@ export function workshopRecipeSummary(device, selected) {
   const busy = workshopJobs(device.id).length >= 1;
   const broken = Number(device.condition ?? 100) <= 0;
   const worker = (selectedWorkshopWorkerId && workshopWorkers().find((w) => w.id === selectedWorkshopWorkerId)) || workshopWorkerFor(device);
+  const workerBusy = Boolean(worker?.busy);
   const pv = worker ? workerStepPreview(worker, deviceStep(device)) : null;
   const workerEffectBlock = pv ? `
       <div class="wrs-block">
@@ -514,7 +519,7 @@ export function workshopRecipeSummary(device, selected) {
       ${device.stage === "carving" ? roughBoard(selected) + roughPlannerControls(selected) + placementAnalysisRows(selected, kits) : ""}
       ${needsKits ? `<p class="recipe-hint">请先在明料上摆放套件，然后再开工。</p>` : ""}
       <div class="row-actions">
-        <button class="${needsKits ? "warn" : "primary"}" data-action="startWorkshopJob" data-payload="${device.id}" data-item-id="${selected.id}" data-needs-kits="${needsKits ? "1" : "0"}" ${busy || broken ? "disabled" : ""}>${broken ? "请先维修设备" : busy ? "设备加工中（容量 1）" : needsKits ? "先摆套件" : `开工 ${formatMoney(estimate.fee)}`}</button>
+        <button class="${needsKits ? "warn" : "primary"}" data-action="startWorkshopJob" data-payload="${device.id}" data-item-id="${selected.id}" data-needs-kits="${needsKits ? "1" : "0"}" ${busy || broken || workerBusy ? "disabled" : ""}>${broken ? "请先维修设备" : busy ? "设备加工中（容量 1）" : workerBusy ? "员工正在执行其他任务" : needsKits ? "先摆套件" : `开工 ${formatMoney(estimate.fee)}`}</button>
       </div>
     </section>`;
 }
@@ -557,7 +562,7 @@ export function workshopBigWorkerCard(device, worker) {
         <span class="worker-avatar">${escapeHtml((worker.name || "?")[0] || "?")}</span>
         <div class="ws-big-worker-id">
           <strong>${escapeHtml(worker.name)}</strong>
-          <em>${escapeHtml(tierLabel(worker))}</em>
+          <em>${escapeHtml(tierLabel(worker))}${worker.busy ? " · 工作中" : " · 空闲"}</em>
         </div>
       </div>
       <div class="ws-big-worker-preview">
@@ -582,7 +587,8 @@ export function workshopStageDrawer() {
 }
 
 export function workshopRecommendedWorkerId(device) {
-  const workers = workshopWorkers();
+  const workers = workshopWorkers().filter((worker) => !worker.busy);
+  if (!workers.length) return null;
   let best = workers[0];
   let bestScore = -Infinity;
   for (const worker of workers) {
@@ -601,7 +607,7 @@ export function workshopWorkerColumn(device) {
     const pv = workerStepPreview(worker, deviceStep(device));
     const traits = (worker.traits || []).map((trait) => `<span class="trait-chip">${escapeHtml(trait)}</span>`).join("");
     return `
-      <button class="workshop-worker-card ${on ? "assigned" : ""}" data-action="assignWorkshopWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button">
+      <button class="workshop-worker-card ${on ? "assigned" : ""}" data-action="assignWorkshopWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button" ${worker.busy ? "disabled" : ""}>
         <span class="worker-avatar">${escapeHtml((worker.name || "?")[0] || "?")}</span>
         <span class="worker-body">
           <strong>${escapeHtml(worker.name)}</strong>
@@ -609,7 +615,7 @@ export function workshopWorkerColumn(device) {
           <span class="trait-row">${traits || '<span class="trait-chip muted">暂无特性</span>'}</span>
           <span class="worker-mini">工分 ${pv.quality.toFixed(0)}（${pv.grade}） · 提速 ${pv.speed > 0 ? "+" + pv.speed + "%" : "—"} · 完美度 ${pv.perfectLabel || "—"}</span>
         </span>
-        <span class="worker-state">${on ? "已选" : "可选"}</span>
+        <span class="worker-state">${worker.busy ? "工作中" : on ? "已选" : "可选"}</span>
       </button>`;
   }).join("");
   return `
@@ -790,11 +796,12 @@ function buildPickerContent(picker, device) {
     const active = worker.id === activePickerWorkerId;
     const assigned = worker.id === device.workerId;
     return `
-      <button class="ws-picker-item ws-pick-worker ${active ? "is-active" : ""} ${assigned ? "is-assigned" : ""}" style="--tier-border:${tierBorder(worker.tier)}" data-action="pickWorkshopWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button">
+      <button class="ws-picker-item ws-pick-worker ${active ? "is-active" : ""} ${assigned ? "is-assigned" : ""}" style="--tier-border:${tierBorder(worker.tier)}" data-action="pickWorkshopWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button" ${worker.busy ? "disabled" : ""}>
         <span class="wsp-worker-top">
           <strong class="wsp-worker-name">${escapeHtml(worker.name)}</strong>
           <span class="wsp-tier-badge" style="${tierBadgeStyle(worker.tier)}">${escapeHtml(tierLabel(worker))}</span>
           <span class="wsp-worker-traits">${renderWorkerMiniTraitChips(worker)}</span>
+          ${worker.busy ? '<span class="wsp-tag busy">工作中</span>' : ""}
         </span>
         ${renderWorkerMiniScores(worker, deviceStep(device))}
       </button>`;
@@ -876,7 +883,7 @@ function renderWorkerDetail(worker, device) {
         </div>
       </div>
       <div class="wsp-pick-side-foot">
-        <button class="primary" data-action="confirmPickerWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button">选择</button>
+        <button class="primary" data-action="confirmPickerWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button" ${worker.busy ? "disabled" : ""}>${worker.busy ? "正在执行其他任务" : "选择"}</button>
       </div>
     </div>`;
 }
@@ -974,6 +981,7 @@ export function workshopStartJob(target, payload) {
   const request = {
     deviceId,
     itemId,
+    workerId: selectedWorkshopWorkerId || device?.workerId,
     requestId: globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`
   };
   if (device?.stage === "carving") {

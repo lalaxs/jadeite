@@ -47,6 +47,14 @@ import {
   repairEquipment,
   repairQuote
 } from "./server/systems/equipment-system.js";
+import {
+  ensureRecruitCandidates,
+  refreshRecruitCandidates,
+  recruitWorker,
+  mergeWorkers,
+  isWorkerBusy,
+  grantActivityExperience
+} from "./server/systems/employee-system.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -424,6 +432,14 @@ function emitUiEvent(socket, event = {}) {
   });
 }
 
+function emitUiEventToPlayer(player, event = {}) {
+  if (!player) return;
+  for (const [socketId, playerId] of state.sockets.entries()) {
+    if (playerId !== player.id) continue;
+    emitUiEvent(io.sockets.sockets.get(socketId), event);
+  }
+}
+
 function recordLedger(player, kind, amount, note, meta = {}) {
   player.ledger ||= [];
   const entry = ledgerEntry(kind, amount, note, meta);
@@ -534,7 +550,6 @@ function mergeWorkerSkills(defSkills, existingSkills) {
 
 function normalizeWorkshop(player) {
   player.workshop ||= {};
-  const existingWorkers = new Map((player.workshop.workers || []).map((worker) => [worker.id, worker]));
   if (Array.isArray(player.workshop.devices) && player.workshop.devices.length) {
     // 返回玩家：保留设备实例，但强制统一为固定 1 阶、容量 1。
     player.workshop.devices = player.workshop.devices.map(normalizeDevice);
@@ -542,18 +557,24 @@ function normalizeWorkshop(player) {
     // 新玩家：每工序赠送 1 台固定 1 阶默认型号。
     player.workshop.devices = starterDevices();
   }
-  player.workshop.workers = WORKSHOP_WORKER_DEFS.map((definition) => {
-    const existing = existingWorkers.get(definition.id) || {};
+  player.workshop.workers = mergeWorkers(
+    WORKSHOP_WORKER_DEFS,
+    player.workshop.workers || []
+  ).map((worker) => {
+    const definition = WORKSHOP_WORKER_DEFS.find((item) => item.id === worker.id);
     return {
-      ...definition,
-      ...existing,
-      job: existing.job || definition.job,
-      tier: (typeof existing?.tier === "number" ? existing.tier : definition.tier),
-      tierLevel: Math.max(1, Math.round(Number(existing.tierLevel ?? definition.tierLevel) || definition.tierLevel) || 1),
-      traits: Array.isArray(existing.traits) && existing.traits.length ? existing.traits : definition.traits,
-      flaws: Array.isArray(existing.flaws) ? existing.flaws : definition.flaws,
-      skills: mergeWorkerSkills(definition.skills, existing.skills)
+      ...worker,
+      job: worker.job || definition?.job || "cutter",
+      tier: Math.max(1, Math.min(10, Number(worker.tier ?? definition?.tier) || 1)),
+      tierLevel: Math.max(1, Math.round(Number(worker.tierLevel ?? definition?.tierLevel) || 1)),
+      traits: Array.isArray(worker.traits) ? worker.traits : (definition?.traits || []),
+      flaws: Array.isArray(worker.flaws) ? worker.flaws : (definition?.flaws || []),
+      skills: mergeWorkerSkills(definition?.skills || worker.skills, worker.skills)
     };
+  });
+  ensureRecruitCandidates(player, {
+    rng: Math.random,
+    makeId: randomUUID
   });
   if (!player.workshop.selectedDeviceId || !player.workshop.devices.some((device) => device.id === player.workshop.selectedDeviceId)) {
     player.workshop.selectedDeviceId = player.workshop.devices[0]?.id;
@@ -914,6 +935,15 @@ function privatePlayerSnapshot(player) {
   const { pendingOfflineEvents, ...safePlayer } = player;
   return {
     ...safePlayer,
+    workshop: {
+      ...player.workshop,
+      devices: player.workshop.devices,
+      workers: player.workshop.workers.map((worker) => ({
+        ...worker,
+        busy: isWorkerBusy(player, worker.id)
+      }))
+    },
+    recruitCandidates: structuredClone(player.recruitCandidates || []),
     jobs: player.jobs.map(publicProductionJob),
     rough: player.rough.map(publicStone),
     polishingJobs: player.polishingJobs.map(publicProductionJob),
@@ -1516,6 +1546,13 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
   if (workshopJobsForDevice(player, device.id).length >= 1) {
     return { ok: false, message: "这台设备正在加工；每台设备容量固定为 1，不设等待队列。" };
   }
+  const worker = workshopWorkerForPlayer(player, payload.workerId || device.workerId);
+  if (!worker) {
+    return { ok: false, code: "NOT_FOUND", message: "这位师傅不存在。" };
+  }
+  if (isWorkerBusy(player, worker.id)) {
+    return { ok: false, code: "WORKER_BUSY", message: "这位师傅正在执行其他任务。" };
+  }
   const itemId = payload?.itemId || payload?.roughId || payload?.productId || payload?.braceletId;
   const item = takeItem(player, device.inputType, itemId);
   if (!item) return { ok: false, message: "找不到可加工物料。" };
@@ -1547,7 +1584,6 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     item.braceletPlacements = item.extractionKits;
   }
 
-  const worker = workshopWorkerForPlayer(player, device.workerId);
   const devSpeed = Number(device.attrs?.speed || 0);
   const devTimeScale = Math.max(0.2, 1 - Math.min(0.8, devSpeed / 100));
   const job = startProductionJob(player, device.stage, item, {
@@ -1688,7 +1724,13 @@ function applyJobDurability(player, job) {
 
 function completeProductionJob(player, job) {
   applyJobDurability(player, job);
+  const activity = workshopDeviceForPlayer(player, job.deviceId)?.stage
+    || ({ rough: "opening", refine: "carving", inlay: "finishing" }[job.stage])
+    || job.stage;
   const worker = job.workerId ? workshopWorkerForPlayer(player, job.workerId) : null;
+  const xpResult = worker
+    ? grantActivityExperience(worker, activity)
+    : { grants: {}, levelUps: [] };
   const step = wsStageToStep(job.stage);
   const applyWorker = Boolean(worker && step);
   const stepScore = applyWorker ? wsStepScore(worker, step) : 0;
@@ -1707,7 +1749,7 @@ function completeProductionJob(player, job) {
     if (Math.random() < shatterProb) shattered = true;
   }
   if (shattered) {
-    return { text: `碎裂！${job.item?.name || "物料"} 材料全损`, item: null, shattered: true };
+    return { text: `碎裂！${job.item?.name || "物料"} 材料全损`, item: null, shattered: true, xpResult };
   }
 
   // 把本工序工分子分累计到产物，并按「仅已完成工序」聚合出总工分（=完美度）+ 评级；
@@ -1734,7 +1776,7 @@ function completeProductionJob(player, job) {
     polished.materialStage = "opened";
     player.rough.push(polished);
     player.rep += Math.max(1, Math.round(polished.rep * 0.45));
-    return { text: `${polished.name} 开料完成`, item: polished };
+    return { text: `${polished.name} 开料完成`, item: polished, xpResult };
   }
   if (job.stage === "refine" || job.stage === "carving") {
     const prevScores = job.item.craftScores || {};
@@ -1758,7 +1800,7 @@ function completeProductionJob(player, job) {
     player.bracelets.push(...products);
     restoreRoughToInventory(player, { ...job.item, materialStage: "opened", stage: "material" });
     player.stats.craftCount += products.length;
-    return { text: `${job.item.name} 精雕完成`, item: job.item };
+    return { text: `${job.item.name} 精雕完成`, item: job.item, xpResult };
   }
   // 精加工 = 抛光 + 镶嵌 合并为一步：先抛光(×1.08)再镶嵌(×1.12)，并结算员工技能品质/完美率
   const finished = stagedProduct(job.item, "finished", "", 1.2096, { inlaid: true, polished: true });
@@ -1768,12 +1810,23 @@ function completeProductionJob(player, job) {
   finished.baseValue = finInBase * finTf; // 纯料值（剥离上一步工分加成）
   priceByCraft(finished);
   player.bracelets.push(finished);
-  return { text: `${finished.name} 精加工完成`, item: finished };
+  return { text: `${finished.name} 精加工完成`, item: finished, xpResult };
 }
 
-function scheduleLivestream(player, productId, mode = "autoBalanced") {
+function livestreamWorkerForPlayer(player, requestedWorkerId) {
+  const workers = player.workshop?.workers || [];
+  const requested = workers.find((worker) => worker.id === requestedWorkerId);
+  if (requested && !isWorkerBusy(player, requested.id)) return requested;
+  return workers.find(
+    (worker) => worker.job === "streamer" && !isWorkerBusy(player, worker.id)
+  ) || workers.find((worker) => !isWorkerBusy(player, worker.id)) || null;
+}
+
+function scheduleLivestream(player, productId, mode = "autoBalanced", workerId = null) {
   normalizePlayer(player);
   if (!playerCanLivestream(player)) return null;
+  const worker = livestreamWorkerForPlayer(player, workerId);
+  if (!worker) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
   if (materialStageFor(product) !== "finished") {
@@ -1787,6 +1840,7 @@ function scheduleLivestream(player, productId, mode = "autoBalanced") {
     type: "livestreamJob",
     mode,
     product,
+    workerId: worker.id,
     startedAt: now,
     readyAt: now + duration
   };
@@ -1795,9 +1849,11 @@ function scheduleLivestream(player, productId, mode = "autoBalanced") {
   return job;
 }
 
-function sellLivestreamNow(player, productId, seed = Date.now()) {
+function sellLivestreamNow(player, productId, seed = Date.now(), workerId = null) {
   normalizePlayer(player);
   if (!playerCanLivestream(player)) return null;
+  const worker = livestreamWorkerForPlayer(player, workerId);
+  if (!worker) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
   if (materialStageFor(product) !== "finished") {
@@ -1813,10 +1869,12 @@ function sellLivestreamNow(player, productId, seed = Date.now()) {
   };
   earnCash(player, outcome.price, `直播成交：${product.name}`, { source: "livestream", itemId: product.id, at: now });
   player.rep += Math.max(1, Math.round(product.rep * 0.18));
+  const xpResult = grantActivityExperience(worker, "livestream");
   player.livestreamHistory.unshift({
     id: randomUUID(),
     type: "livestreamManual",
     mode: "manual",
+    workerId: worker.id,
     product,
     outcome,
     startedAt: now,
@@ -1825,7 +1883,7 @@ function sellLivestreamNow(player, productId, seed = Date.now()) {
   });
   player.livestreamHistory = player.livestreamHistory.slice(0, 20);
   refreshPlayerReport(player, now);
-  return { product, outcome };
+  return { product, outcome, worker, xpResult };
 }
 
 function addItem(player, item) {
@@ -2249,7 +2307,24 @@ function settleProductionJobsForPlayer(player, now = Date.now()) {
     const job = normalizeProductionJob(rawJob);
     if (!job?.item) continue;
     const result = completeProductionJob(player, job);
-    events.push({ type: "production", text: result.text, income: 0, expense: 0, readyAt: job.readyAt });
+    events.push({
+      type: "production",
+      text: result.text,
+      income: 0,
+      expense: 0,
+      readyAt: job.readyAt,
+      levelUps: result.xpResult?.levelUps || []
+    });
+    if (result.xpResult?.levelUps?.length) {
+      const worker = workshopWorkerForPlayer(player, job.workerId);
+      emitUiEventToPlayer(player, {
+        type: "float",
+        tone: "craft",
+        text: `${worker?.name || "员工"} 技能升级`,
+        x: 58,
+        y: 56
+      });
+    }
     addNews(`${player.name} 的 ${result.text}。`, job.stage === "rough" && result.item?.score >= 4 ? "great" : "craft");
   }
 
@@ -2279,12 +2354,32 @@ function settleLivestreamJobsForPlayer(player, now = Date.now()) {
   player.livestreamJobs = player.livestreamJobs.filter((job) => job.readyAt > now);
   for (const job of ready) {
     if (!job?.product) continue;
+    const worker = workshopWorkerForPlayer(player, job.workerId);
     const outcome = livestreamOutcome(job.product, { mode: job.mode, rep: player.rep, seed: job.readyAt });
     if (outcome.sold) {
       earnCash(player, outcome.price, `直播成交：${job.product.name}`, { source: "livestream", itemId: job.product.id, at: now });
       const repGain = Math.max(1, Math.round(job.product.rep * 0.18));
       player.rep += repGain;
-      events.push({ type: "livestream", text: `${job.product.name} 自动直播成交 ${outcome.price}`, income: outcome.price, expense: 0, readyAt: job.readyAt });
+      const xpResult = worker
+        ? grantActivityExperience(worker, "livestream")
+        : { grants: {}, levelUps: [] };
+      events.push({
+        type: "livestream",
+        text: `${job.product.name} 自动直播成交 ${outcome.price}`,
+        income: outcome.price,
+        expense: 0,
+        readyAt: job.readyAt,
+        levelUps: xpResult.levelUps
+      });
+      if (xpResult.levelUps.length) {
+        emitUiEventToPlayer(player, {
+          type: "float",
+          tone: "trade",
+          text: `${worker.name} 直播技能升级`,
+          x: 62,
+          y: 58
+        });
+      }
       addNews(`${player.name} 自动直播卖出 ${job.product.name}，成交 ${outcome.price}。`, "trade");
     } else {
       player.bracelets.push(job.product);
@@ -2464,6 +2559,35 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
+  socket.on("refreshRecruitCandidates", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    if (!consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该刷新请求已处理，请勿重复提交。");
+    }
+    const result = refreshRecruitCandidates(player, {
+      rng: Math.random,
+      makeId: randomUUID,
+      spendCash
+    });
+    socket.emit("toast", result.message);
+    if (result.ok) broadcast();
+  });
+
+  socket.on("recruitWorker", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    if (!consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该招聘请求已处理，请勿重复提交。");
+    }
+    normalizePlayer(player);
+    const result = recruitWorker(player, payload.candidateId, { spendCash });
+    socket.emit("toast", result.message);
+    if (!result.ok) return;
+    addNews(`${player.name} 招聘了 ${result.worker.name}。`, "craft");
+    broadcast();
+  });
+
   socket.on("buyWorkshopDevice", (payload = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
@@ -2533,6 +2657,7 @@ io.on("connection", (socket) => {
     if (!device) return socket.emit("toast", "这台设备不存在。");
     const worker = workshopWorkerForPlayer(player, payload.workerId);
     if (!worker) return socket.emit("toast", "这位师傅不存在。");
+    if (isWorkerBusy(player, worker.id)) return socket.emit("toast", "这位师傅正在执行其他任务。");
     if (device.workerId === worker.id) return socket.emit("toast", `${worker.name} 已在本台。`);
     device.workerId = worker.id;
     addNews(`${player.name} 把 ${worker.name} 排到 ${device.name}。`, "craft");
@@ -2620,11 +2745,14 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("scheduleLivestream", ({ productId, mode } = {}) => {
+  socket.on("scheduleLivestream", ({ productId, mode, workerId, requestId } = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
-    const job = scheduleLivestream(player, productId, mode);
-    if (!job) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该直播请求已处理，请勿重复提交。");
+    }
+    const job = scheduleLivestream(player, productId, mode, workerId);
+    if (!job) return socket.emit("toast", playerCanLivestream(player) ? "没有空闲员工或找不到可直播成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 安排 ${job.product.name} 自动直播。`, "trade");
     emitUiEvent(socket, {
       type: "float",
@@ -2636,11 +2764,16 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("livestreamSell", (braceletId) => {
+  socket.on("livestreamSell", (payload) => {
     const player = getPlayer(socket);
     if (!player) return;
-    const sale = sellLivestreamNow(player, braceletId);
-    if (!sale) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
+    const braceletId = typeof payload === "object" ? payload.productId || payload.braceletId : payload;
+    const workerId = typeof payload === "object" ? payload.workerId : null;
+    if (typeof payload === "object" && !consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该直播请求已处理，请勿重复提交。");
+    }
+    const sale = sellLivestreamNow(player, braceletId, Date.now(), workerId);
+    if (!sale) return socket.emit("toast", playerCanLivestream(player) ? "没有空闲员工或找不到可直播成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 直播卖出 ${sale.product.name}，成交 ${sale.outcome.price}。`, "trade");
     advanceTask(player, "livestream_sell");
     emitUiEvent(socket, {
@@ -2650,7 +2783,9 @@ io.on("connection", (socket) => {
       subtitle: sale.product.name,
       body: "买家当场拍下，现金已经入账。",
       stats: [
-        { label: "成交价", value: uiMoney(sale.outcome.price) }
+        { label: "成交价", value: uiMoney(sale.outcome.price) },
+        { label: "员工", value: sale.worker.name },
+        { label: "技能升级", value: `${sale.xpResult.levelUps.length} 项` }
       ],
       floatText: `+${uiMoney(sale.outcome.price)}`
     });
@@ -2989,6 +3124,13 @@ export const __testHooks = {
   buyEquipment,
   repairEquipment,
   repairQuote,
+  ensureRecruitCandidates,
+  refreshRecruitCandidates,
+  recruitWorker,
+  mergeWorkers,
+  isWorkerBusy,
+  grantActivityExperience,
+  livestreamWorkerForPlayer,
   scheduleLivestream,
   sellLivestreamNow,
   assetListingsForPlayer,

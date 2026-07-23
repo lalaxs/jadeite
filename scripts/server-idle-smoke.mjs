@@ -41,6 +41,10 @@ const {
   buyEquipment,
   repairEquipment,
   repairQuote,
+  ensureRecruitCandidates,
+  recruitWorker,
+  isWorkerBusy,
+  grantActivityExperience,
   expandKitPlacements,
   placementsOverlap,
   refreshPlayerReport,
@@ -139,6 +143,7 @@ assert.equal(typeof workshopProcessableItems, "function", "workshopProcessableIt
 assert.equal(typeof startWorkshopJobForPlayer, "function", "startWorkshopJobForPlayer should be testable");
 assert.equal(typeof buyEquipment, "function", "buyEquipment should be testable");
 assert.equal(typeof repairEquipment, "function", "repairEquipment should be testable");
+assert.equal(typeof recruitWorker, "function", "recruitWorker should be testable");
 
 const starterPlayer = makePlayer("starter-player");
 assert.equal(starterPlayer.rough.length, 3);
@@ -155,6 +160,8 @@ const starterDevices = starterSnapshot.me.workshop.devices;
 assert.equal(starterDevices.length, 3);
 assert.deepEqual(starterDevices.map((device) => device.stage), ["opening", "carving", "finishing"]);
 assert.equal(starterSnapshot.me.workshop.workers.length, 4);
+assert.equal(starterSnapshot.me.recruitCandidates.length, 3);
+assert.equal(starterSnapshot.me.workshop.workers.every((worker) => worker.busy === false), true);
 assert.equal(starterSnapshot.equipmentCatalog.length, 9);
 assert.equal(equipmentCatalog().every((entry) => entry.tier === 1), true);
 assert.equal(starterDevices.every((device) => device.capacity === 1), true);
@@ -186,6 +193,8 @@ assert.match(blockedSecondOpening.message, /正在加工|容量/);
 assert.equal(instantOpeningPlayer.jobs.filter((job) => job.deviceId === instantOpeningResult.device.id).length, 1);
 state.players.set(instantOpeningPlayer.id, instantOpeningPlayer);
 const instantOpeningCondition = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
+const openingSkillExpBefore = instantOpeningPlayer.workshop.workers
+  .find((worker) => worker.id === "worker-opening").skills.cut.jieliao.exp;
 instantOpeningPlayer.jobs[0].readyAt = 0;
 processProductionJobs(Date.now(), { onlineOnly: false });
 assert.equal(instantOpeningPlayer.jobs.length, 0);
@@ -196,6 +205,10 @@ assert.equal(instantOpenedRough.polished, true);
 assert.equal(instantOpenedRough.materialStage, "opened");
 const instantOpeningConditionAfter = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
 assert.ok(instantOpeningConditionAfter < instantOpeningCondition, "completion should consume device durability exactly once");
+assert.equal(
+  instantOpeningPlayer.workshop.workers.find((worker) => worker.id === "worker-opening").skills.cut.jieliao.exp,
+  openingSkillExpBefore + 10
+);
 const instantCarvingDevice = workshopDevicesForPlayer(instantOpeningPlayer).find((device) => device.stage === "carving");
 assert.ok(instantCarvingDevice);
 assert.equal(workshopProcessableItems(instantOpeningPlayer, instantCarvingDevice.id).some((rough) => rough.id === instantOpeningRoughId), true);
@@ -212,13 +225,18 @@ assert.equal(equipmentPurchase.ok, true);
 assert.equal(equipmentPlayer.cash, equipmentCashBefore - 9000);
 assert.equal(workshopDevicesForPlayer(equipmentPlayer).length, equipmentCountBefore + 1);
 assert.equal(equipmentPurchase.device.capacity, 1);
-equipmentPurchase.device.workerId = "worker-carving";
 const firstOpeningDevice = workshopDevicesForPlayer(equipmentPlayer).find(
   (device) => device.stage === "opening" && device.id !== equipmentPurchase.device.id
 );
 const parallelOne = startWorkshopJobForPlayer(equipmentPlayer, firstOpeningDevice.id, {
   itemId: equipmentPlayer.rough[0].id
 });
+const blockedBusyWorker = startWorkshopJobForPlayer(equipmentPlayer, equipmentPurchase.device.id, {
+  itemId: equipmentPlayer.rough[0].id
+});
+assert.equal(blockedBusyWorker.ok, false);
+assert.equal(blockedBusyWorker.code, "WORKER_BUSY");
+workshopDeviceForPlayer(equipmentPlayer, equipmentPurchase.device.id).workerId = "worker-carving";
 const parallelTwo = startWorkshopJobForPlayer(equipmentPlayer, equipmentPurchase.device.id, {
   itemId: equipmentPlayer.rough[0].id
 });
@@ -252,6 +270,23 @@ assert.equal(buyEquipment(poorEquipmentPlayer, "rough", {
 assert.equal(workshopDevicesForPlayer(poorEquipmentPlayer).length, poorDeviceCount);
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), true);
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), false);
+
+const recruitPlayer = makePlayer("recruit-player");
+recruitPlayer.cash = 100000;
+normalizePlayer(recruitPlayer);
+const recruitCandidateCount = ensureRecruitCandidates(recruitPlayer, {
+  rng: () => 0.2,
+  makeId: () => "unused-candidate"
+}).length;
+assert.equal(recruitCandidateCount, 3);
+const recruitWorkerCount = recruitPlayer.workshop.workers.length;
+const recruitResult = recruitWorker(recruitPlayer, recruitPlayer.recruitCandidates[0].id, { spendCash });
+assert.equal(recruitResult.ok, true);
+normalizePlayer(recruitPlayer);
+assert.equal(recruitPlayer.workshop.workers.length, recruitWorkerCount + 1);
+assert.equal(recruitPlayer.workshop.workers.some((worker) => worker.id === recruitResult.worker.id), true);
+recruitPlayer.jobs.push({ workerId: recruitResult.worker.id });
+assert.equal(isWorkerBusy(recruitPlayer, recruitResult.worker.id), true);
 
 const chainPlayer = makePlayer("workshop-chain-player");
 state.players.set(chainPlayer.id, chainPlayer);
@@ -546,6 +581,10 @@ gatedLivestreamPlayer.assets.livestreamPermitOwned = true;
 livestreamPlayer.assets.livestreamPermitOwned = true;
 const liveJob = scheduleLivestream(livestreamPlayer, liveProduct.id, "autoBalanced");
 assert.ok(liveJob);
+assert.equal(liveJob.workerId, "worker-finishing");
+assert.equal(isWorkerBusy(livestreamPlayer, liveJob.workerId), true);
+const liveSkillExpBefore = livestreamPlayer.workshop.workers
+  .find((worker) => worker.id === liveJob.workerId).skills.speak.huashu.exp;
 assert.equal(livestreamPlayer.bracelets.length, 0);
 assert.equal(livestreamPlayer.livestreamJobs.length, 1);
 assert.ok(refreshPlayerReport(livestreamPlayer).inventoryValue >= liveProduct.value);
@@ -560,6 +599,10 @@ assert.equal(livestreamPlayer.livestreamHistory.length, 1);
 assert.equal(livestreamPlayer.livestreamHistory[0].outcome.sold, true);
 assert.equal(livestreamPlayer.ledger[0].source, "livestream");
 assert.equal(livestreamPlayer.ledger[0].amount, livestreamPlayer.livestreamHistory[0].outcome.price);
+assert.equal(
+  livestreamPlayer.workshop.workers.find((worker) => worker.id === liveJob.workerId).skills.speak.huashu.exp,
+  liveSkillExpBefore + 10
+);
 
 resetState();
 
@@ -607,6 +650,8 @@ manualLivestreamPlayer.bracelets.push(manualProduct);
 manualLivestreamPlayer.assets.livestreamPermitOwned = true;
 const manualSale = sellLivestreamNow(manualLivestreamPlayer, manualProduct.id, 12);
 assert.ok(manualSale);
+assert.equal(manualSale.worker.id, "worker-finishing");
+assert.deepEqual(manualSale.xpResult.grants, { huashu: 10, kongchang: 7, cuidan: 5 });
 assert.equal(manualSale.outcome.sold, true);
 assert.equal(manualLivestreamPlayer.bracelets.length, 0);
 assert.equal(manualLivestreamPlayer.cash, cashBeforeManualSale + manualSale.outcome.price);

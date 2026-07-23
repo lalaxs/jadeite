@@ -228,13 +228,16 @@
         <section class="view" data-view="hireMarket">
           <div class="section-head">
             <div>
-              <p class="eyebrow">即将开放</p>
+              <p class="eyebrow">工坊人力</p>
               <h3>招募</h3>
             </div>
           </div>
-          <section class="panel">
-            <div class="panel-head"><h3>招募掌柜与管家</h3><span>即将开放</span></div>
-            <div class="panel-body" style="padding:24px 20px;color:var(--muted)">雇佣掌柜打理店铺、管家协助处理订单等玩法正在筹备中，敬请期待。</div>
+          <section class="panel hire-panel">
+            <div class="panel-head">
+              <h3>师傅招募</h3>
+              <button id="refreshRecruitBtn" data-action="refreshRecruitCandidates" type="button">刷新候选人 ¥500</button>
+            </div>
+            <div id="recruitCandidateList" class="recruit-candidate-list"></div>
           </section>
         </section>
       </section>

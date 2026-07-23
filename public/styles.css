@@ -1935,6 +1935,60 @@
   align-items: center;
   justify-content: space-between;
 }
+.recruit-candidate-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
+.recruit-candidate-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  background: linear-gradient(160deg, rgba(231, 246, 239, 0.9), var(--panel) 58%);
+}
+.recruit-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.recruit-card-head h3,
+.recruit-card-head p {
+  margin: 0;
+}
+.recruit-card-head p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.recruit-skill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.recruit-skill-row span {
+  border-radius: var(--r-pill);
+  padding: 4px 8px;
+  color: var(--jade-dark);
+  background: var(--jade-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+.livestream-worker-field {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.livestream-worker-select {
+  width: 100%;
+}
 .material-body { display: flex; flex-direction: column; gap: 14px; padding: 4px 2px 8px; }
 .mat-shop { display: flex; flex-direction: column; gap: 18px; }
 .mat-group-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
@@ -3683,6 +3737,7 @@ button:active:not(:disabled) { transform: scale(.95); }
   }
 
   .workshop-recipe-main,
+  .recruit-candidate-list,
   .card-grid,
   .report-grid,
   .treasure-grid,

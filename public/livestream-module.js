@@ -20,6 +20,13 @@ export function renderLivestream() {
   const products = finishedProducts();
   const jobs = getState().me.livestreamJobs || [];
   const livestreamHistory = getState().me.livestreamHistory || [];
+  const workers = getState().me.workshop?.workers || [];
+  const availableWorkers = workers.filter((worker) => !worker.busy);
+  const defaultWorker = availableWorkers.find((worker) => worker.job === "streamer") || availableWorkers[0] || null;
+  const workerName = (workerId) => workers.find((worker) => worker.id === workerId)?.name || "未指定";
+  const workerOptions = availableWorkers.map((worker) =>
+    `<option value="${escapeHtml(worker.id)}" ${worker.id === defaultWorker?.id ? "selected" : ""}>${escapeHtml(worker.name)} · ${worker.tier}阶</option>`
+  ).join("");
   const modeName = {
     manual: "手动",
     autoConservative: "保守",
@@ -34,22 +41,27 @@ export function renderLivestream() {
           ${productCanvas(job.product)}
           <h3>直播中</h3>
           <p>${escapeHtml(job.product.name)} · ${escapeHtml(modeName[job.mode] || job.mode)}</p>
-          <p class="card-meta">预计 ${remain} 秒后自动结算，可离线完成</p>
+          <p class="card-meta">${escapeHtml(workerName(job.workerId))} · 预计 ${remain} 秒后自动结算，可离线完成</p>
         </article>
       `;
     }),
     ...products.map((item) => `
-      <article class="rough-card">
-        ${productCanvas(item)}
-        <h3>${escapeHtml(item.name)}</h3>
-        <p class="card-meta">估值 ${formatMoney(item.value)} · 自动直播可离线完成</p>
-        <div class="card-actions">
-          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoConservative">保守</button>
-          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoBalanced">均衡</button>
-          <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoAggressive">激进</button>
-        </div>
-      </article>
-    `)
+        <article class="rough-card livestream-product-card">
+          ${productCanvas(item)}
+          <h3>${escapeHtml(item.name)}</h3>
+          <p class="card-meta">估值 ${formatMoney(item.value)} · 自动直播可离线完成</p>
+          <label class="livestream-worker-field">直播员工
+            <select class="livestream-worker-select" ${availableWorkers.length ? "" : "disabled"}>
+              ${workerOptions || '<option>暂无空闲员工</option>'}
+            </select>
+          </label>
+          <div class="card-actions">
+            <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoConservative" ${availableWorkers.length ? "" : "disabled"}>保守</button>
+            <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoBalanced" ${availableWorkers.length ? "" : "disabled"}>均衡</button>
+            <button data-action="scheduleLivestream" data-payload="${item.id}" data-mode="autoAggressive" ${availableWorkers.length ? "" : "disabled"}>激进</button>
+          </div>
+        </article>
+      `)
   ];
   if (livestreamHistory.length) {
     cards.push(`
@@ -75,5 +87,11 @@ export function renderLivestream() {
 
 // ---- dispatch 动作封装（原 main.js 内联分支迁入）----
 export function livestreamSchedule(target, payload) {
-  socketRef.emit("scheduleLivestream", { productId: payload, mode: target.dataset.mode });
+  const workerId = target.closest(".livestream-product-card")?.querySelector(".livestream-worker-select")?.value;
+  socketRef.emit("scheduleLivestream", {
+    productId: payload,
+    mode: target.dataset.mode,
+    workerId,
+    requestId: globalThis.crypto?.randomUUID?.() || `livestream-${Date.now()}`
+  });
 }
