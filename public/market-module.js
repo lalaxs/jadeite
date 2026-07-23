@@ -1,6 +1,8 @@
 // 交易行系统模块（从 main.js 抽离，依赖注入解耦，复用公盘样板）
 // 内部状态 marketUi / marketFiltersBound 与常量 MARKET_* 均为本模块私有，不再污染 main.js 全局。
 
+import { inlaySummary } from "./product-meta.js";
+
 let socketRef = null;
 let getState = () => null;
 let elsRef = null;
@@ -195,6 +197,7 @@ export function marketCardHtml(listing) {
   const ref = marketRefValue(item);
   const d = marketPriceDelta(listing.price, ref);
   const can = marketAffordable(listing.price);
+  const summary = inlaySummary(item);
   const badges = [];
   if (Date.now() - Number(listing.createdAt || 0) < 3600000) badges.push(`<span class="jm-badge new">新上</span>`);
   if (d.cls === "down") badges.push(`<span class="jm-badge deal">划算</span>`);
@@ -208,6 +211,7 @@ export function marketCardHtml(listing) {
     <div class="jm-body">
       <div class="jm-nm">${escapeHtml(item.name)}</div>
       <div class="jm-chips"><span class="jm-chip">${escapeHtml(typeName(listing.type, item))}</span>${item.color ? `<span class="jm-chip">${escapeHtml(item.color)}</span>` : ""}</div>
+      ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
       <div class="jm-price-block">
         <span class="jm-price">${formatMoney(listing.price)}</span>
         ${ref ? `<span class="jm-ref">参考 ${formatMoney(ref)}</span>` : ""}
@@ -228,12 +232,17 @@ export function renderMarketGrid(others) {
 
 export function renderMarketMine(mine) {
   elsRef.marketGrid.innerHTML = mine.length
-    ? mine.map((l) => {
+      ? mine.map((l) => {
         const q = marketQualityMeta(l.item);
+        const summary = inlaySummary(l.item);
         return `
         <div class="jm-booth-row">
           <div class="jm-gem ${marketGemColor(l.item)}"></div>
-          <div class="info"><b>${escapeHtml(l.item.name)}</b><div class="sub">${escapeHtml(l.item.quality || q.name)} · ${formatMoney(l.price)} · ${marketElapsed(l.createdAt)}</div></div>
+          <div class="info">
+            <b>${escapeHtml(l.item.name)}</b>
+            <div class="sub">${escapeHtml(l.item.quality || q.name)} · ${formatMoney(l.price)} · ${marketElapsed(l.createdAt)}</div>
+            ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
+          </div>
           <div class="acts"><button class="jm-btn-withdraw" data-action="withdrawListing" data-payload="${l.id}" type="button">撤单</button></div>
         </div>`;
       }).join("")
@@ -328,6 +337,7 @@ export function openMarketBuy(id) {
   if (!l) return;
   marketUi.buyId = id;
   const q = marketQualityMeta(l.item);
+  const summary = inlaySummary(l.item);
   const tax = Math.round(l.price * MARKET_TAX);
   elsRef.marketBuyBody.innerHTML = `
     <div style="display:flex;gap:14px;align-items:center">
@@ -335,6 +345,7 @@ export function openMarketBuy(id) {
       <div>
         <div class="jm-nm" style="font-size:16px">${escapeHtml(l.item.name)}</div>
         <div class="jm-chips" style="margin-top:6px"><span class="jm-chip">${escapeHtml(l.item.quality || q.name)} ${q.stars}</span><span class="jm-chip">${escapeHtml(typeName(l.type, l.item))}</span></div>
+        ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
         <div style="font-size:12px;color:var(--muted);margin-top:6px">卖家：${escapeHtml(l.ownerName)}</div>
       </div>
     </div>

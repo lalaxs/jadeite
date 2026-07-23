@@ -2,6 +2,8 @@
 // state→getState()、els→elsRef、socket→socketRef，共享 helper 经 deps.helpers 注入。
 // 后端 server.js 不受影响。
 
+import { inlaySummary } from "./product-meta.js";
+
 let socketRef, getState, elsRef, getActiveView;
 let activeShopTab = "building";
 
@@ -386,14 +388,18 @@ export function renderReports() {
 }
 
 export function renderCollection() {
-  elsRef.collectionList.innerHTML = getState().me.collection.map((item) => `
-    <article class="treasure-card">
-      ${productCanvas(item, "finished showcase")}
-      <h3>${escapeHtml(item.name)}</h3>
-      <p class="card-meta">${escapeHtml(item.quality)} · ${escapeHtml(item.color)} · 门面声望 ${item.rep}</p>
-      <div class="price">${formatMoney(item.value)}</div>
-    </article>
-  `).join("") || empty("还没有藏品，把好手镯收入藏宝阁即可提升门面。");
+  elsRef.collectionList.innerHTML = getState().me.collection.map((item) => {
+    const summary = inlaySummary(item);
+    return `
+      <article class="treasure-card">
+        ${productCanvas(item, "finished showcase")}
+        <h3>${escapeHtml(item.name)}</h3>
+        <p class="card-meta">${escapeHtml(item.quality)} · ${escapeHtml(item.color)} · 门面声望 ${item.rep}</p>
+        ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
+        <div class="price">${formatMoney(item.value)}</div>
+      </article>
+    `;
+  }).join("") || empty("还没有藏品，把好手镯收入藏宝阁即可提升门面。");
 }
 
 // ---- dispatch 动作封装（原 main.js 内联分支迁入）----

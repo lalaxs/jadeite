@@ -1,4 +1,20 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { inlaySummary } from "../public/product-meta.js";
+
+const sampleInlaySummary = inlaySummary({
+  inlay: {
+    productTypeName: "戒指",
+    settingName: "爪镶",
+    metalName: "18K金",
+    gemName: "配石钻石",
+    gemCount: 2,
+    polishName: "亮光",
+    backingName: "透底"
+  }
+});
+if (sampleInlaySummary !== "戒指 · 爪镶 · 18K金 · 配石钻石×2 · 亮光 · 透底") {
+  throw new Error("shared inlay summary should preserve the complete finishing plan");
+}
 
 const server = readFileSync("server.js", "utf8");
 const mainEntry = readFileSync("public/main.js", "utf8");
@@ -17,10 +33,22 @@ const main = [
   ...clientModulePaths.map((file) => readFileSync(file, "utf8"))
 ].join("\n");
 const workshopModule = readFileSync("public/workshop-module.js", "utf8");
+const extraModule = readFileSync("public/extra-module.js", "utf8");
+const ordersModule = readFileSync("public/orders-module.js", "utf8");
+const marketModule = readFileSync("public/market-module.js", "utf8");
 const index = readFileSync("public/index.html", "utf8");
 const renderer = readFileSync("public/jade-renderer.js", "utf8");
 const openingEngine = readFileSync("public/jade-opening-engine.js", "utf8");
 const styles = readFileSync("public/styles.css", "utf8");
+for (const [source, label] of [
+  [extraModule, "collection"],
+  [ordersModule, "orders"],
+  [marketModule, "market"]
+]) {
+  if (!/inlaySummary\(/.test(source)) {
+    throw new Error(`${label} should render finishing inlay metadata`);
+  }
+}
 if (!existsSync("public/jade-categories.js")) {
   throw new Error("jade category definitions should live in public/jade-categories.js and be shared by client/server");
 }
@@ -460,6 +488,16 @@ if (!/device\?\.stage === "finishing"/.test(startWorkshopJobActionBody) || !/ope
 const pickWorkshopItemBody = extractFunctionBody(workshopModule, "workshopPickItem");
 if (!/activeWorkshopPicker\s*=\s*null/.test(pickWorkshopItemBody) || !/renderPicker\(\)/.test(pickWorkshopItemBody)) {
   throw new Error("material picker should unmount after selecting an item so it cannot cover the start button");
+}
+if (!/data-action="collectBracelet"/.test(workshopModule) || !/action === "collectBracelet"/.test(mainEntry)) {
+  throw new Error("finished workshop inventory should expose a working collection action");
+}
+const workshopRecipePageBody = extractFunctionBody(workshopModule, "workshopRecipePage");
+if (!/workshopStageDrawer\(\)/.test(workshopRecipePageBody)) {
+  throw new Error("the workshop page should expose its collapsed stage inventory and collection action");
+}
+if (!/stageDrawerOpen/.test(workshopModule) || !/addEventListener\("toggle"/.test(workshopModule)) {
+  throw new Error("the workshop stage drawer should preserve its open state across server renders");
 }
 
 const idleServerExpectations = [

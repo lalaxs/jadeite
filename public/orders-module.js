@@ -2,6 +2,8 @@
 // state→getState()、els→elsRef、socket→socketRef，共享 helper 经 deps.helpers 注入。
 // 后端 server.js 不受影响。
 
+import { inlaySummary } from "./product-meta.js";
+
 let socketRef, getState, elsRef, getActiveView;
 
 let finishedProducts, matchingBracelets, productMatchesOrder, productName, productCanvas, formatMoney, escapeHtml, empty, routeRecommendation, liveSaleRange, productOrderFitReasons, button, viewButton;
@@ -25,12 +27,16 @@ export function orderFitList(order, candidates) {
   if (!candidates.length) return `<div class="fit-list muted">暂无完全匹配的成品。</div>`;
   return `
     <div class="fit-list">
-      ${candidates.slice(0, 3).map((product) => `
-        <div>
-          <strong>${escapeHtml(product.name)}</strong>
-          <span>${productOrderFitReasons(product, order).map(escapeHtml).join(" · ")}</span>
-        </div>
-      `).join("")}
+      ${candidates.slice(0, 3).map((product) => {
+        const summary = inlaySummary(product);
+        return `
+          <div>
+            <strong>${escapeHtml(product.name)}</strong>
+            <span>${productOrderFitReasons(product, order).map(escapeHtml).join(" · ")}</span>
+            ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
+          </div>
+        `;
+      }).join("")}
     </div>
   `;
 }
@@ -48,12 +54,14 @@ export function salesRouteMeta(item) {
 
 export function braceletRow(item) {
   const route = salesRouteMeta(item);
+  const summary = inlaySummary(item);
   return `
     <div class="item-row product-row">
       ${productCanvas(item)}
       <div>
         <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">${formatMoney(item.value)}</span></div>
         <p class="item-meta">${escapeHtml(productName(item))} · ${escapeHtml(item.quality)} · 收藏声望 ${item.rep}</p>
+        ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
         ${route}
         <div class="row-actions">
           ${button("收藏", "collectBracelet", item.id)}
@@ -71,7 +79,8 @@ export function renderOrders() {
   elsRef.orders.innerHTML = getState().me.orders.map((order) => {
     const options = bracelets.map((bracelet) => {
       const matched = productMatchesOrder(bracelet, order);
-      return `<option value="${bracelet.id}" ${selectedByDefault(order, bracelet)} ${matched ? "" : "disabled"}>${escapeHtml(bracelet.name)} · ${bracelet.quality}${matched ? "" : " · 不匹配"}</option>`;
+      const summary = inlaySummary(bracelet);
+      return `<option value="${bracelet.id}" ${selectedByDefault(order, bracelet)} ${matched ? "" : "disabled"}>${escapeHtml(bracelet.name)} · ${escapeHtml(bracelet.quality)}${summary ? ` · ${escapeHtml(summary)}` : ""}${matched ? "" : " · 不匹配"}</option>`;
     }).join("");
     const candidates = matchingBracelets(order);
     const selects = Array.from({ length: order.quantity }, (_, index) => `

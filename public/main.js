@@ -1918,6 +1918,14 @@ document.body.addEventListener("click", (event) => {
     return;
   }
 
+  if (action === "collectBracelet") {
+    socket.emit("collectBracelet", {
+      braceletId: payload,
+      requestId: globalThis.crypto?.randomUUID?.() || `collect-${Date.now()}`
+    });
+    return;
+  }
+
   if (action === "listItem") {
     const input = document.querySelector(`[data-price-for="${CSS.escape(payload)}"]`);
     socket.emit("listItem", { type: target.dataset.type, itemId: payload, price: input?.value });

@@ -2220,6 +2220,12 @@
 }.finish-plan-warning {
   margin: 0;
   font-size: 12px;
+}.inlay-summary {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }.toast {
   position: fixed;
   right: 20px;

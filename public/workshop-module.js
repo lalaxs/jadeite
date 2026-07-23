@@ -1,4 +1,6 @@
 // 工坊系统模块（从 main.js 抽离，依赖注入解耦）
+import { inlaySummary } from "./product-meta.js";
+
 let socketRef;
 let getState;
 let elsRef;
@@ -11,6 +13,7 @@ let pickerMountKey = null; // 当前已挂载到 DOM 的弹窗标识（kind:devi
 let activePickerWorkerId = null; // 选工弹窗内临时选中的员工（点详情用，不直接指派）
 let activeWorkerSort = "default"; // 选工弹窗列表排序：default=品阶降序 / quality / flawless / speed
 let activeFinishPlanModal = null;
+let stageDrawerOpen = false;
 let formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor;
 
 export function initWorkshopModule(deps) {
@@ -450,16 +453,22 @@ export function workshopRecipeHome(devices) {
 
 export function workshopStageInventory() {
   const items = workshopStageItems();
-  return items.map((item) => `
-    <div class="item-row stage-inventory-row">
-      ${workshopItemPreview(item)}
-      <div>
-        <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">${formatMoney(item.value || item.price)}</span></div>
-        <p class="item-meta">${escapeHtml(materialStageLabel(item))} · ${escapeHtml(typeName(item.type, item))}</p>
-        ${craftScoreLine(item)}
+  return items.map((item) => {
+    const stage = materialStageForClient(item);
+    const summary = inlaySummary(item);
+    return `
+      <div class="item-row stage-inventory-row">
+        ${workshopItemPreview(item)}
+        <div>
+          <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">${formatMoney(item.value || item.price)}</span></div>
+          <p class="item-meta">${escapeHtml(materialStageLabel(item))} · ${escapeHtml(typeName(item.type, item))}</p>
+          ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
+          ${craftScoreLine(item)}
+          ${stage === "finished" ? `<div class="row-actions"><button class="secondary small" data-action="collectBracelet" data-payload="${item.id}" type="button">收入藏宝阁</button></div>` : ""}
+        </div>
       </div>
-    </div>
-  `).join("") || empty("暂无阶段产物。");
+    `;
+  }).join("") || empty("暂无阶段产物。");
 }
 
 export function workshopMaterialRow(device, item) {
@@ -692,6 +701,7 @@ export function workshopRecipePage(device) {
         ${workshopBigWorkerCard(device, selectedWorker)}
         ${workshopRecipeSummary(device, selected)}
       </section>
+      ${workshopStageDrawer()}
     </div>
   `;
 }
@@ -704,6 +714,13 @@ export function renderWorkshop() {
     selectedWorkshopItemId = null;
   }
   elsRef.workshopRoot.innerHTML = activeDevice ? workshopRecipePage(activeDevice) : workshopRecipeHome(devices);
+  const stageDrawer = elsRef.workshopRoot.querySelector(".workshop-stage-drawer");
+  if (stageDrawer) {
+    stageDrawer.open = stageDrawerOpen;
+    stageDrawer.addEventListener("toggle", () => {
+      stageDrawerOpen = stageDrawer.open;
+    });
+  }
   // 注意：选工/选料弹窗不再挂在 workshopRoot 内，改为挂到 body 下的独立容器（见 renderPicker），
   // 这样服务端每秒推送 state 触发 renderWorkshop 重建工坊页时，不会连带重建弹窗导致闪烁。
   if (activeFinishPlanModal) renderFinishPlanModal();

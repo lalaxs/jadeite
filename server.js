@@ -2821,9 +2821,14 @@ io.on("connection", (socket) => {
     socket.emit("state", snapshotFor(getPlayer(socket)));
   });
 
-  socket.on("collectBracelet", (braceletId) => {
+  socket.on("collectBracelet", (payload = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
+    const braceletId = typeof payload === "object" ? payload.braceletId : payload;
+    const requestId = typeof payload === "object" ? payload.requestId : null;
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该收藏请求已处理，请勿重复提交。");
+    }
     const bracelet = takeItem(player, "bracelet", braceletId);
     if (!bracelet) return;
     if (materialStageFor(bracelet) !== "finished") {
