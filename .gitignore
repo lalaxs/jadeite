@@ -6,3 +6,7 @@ npm-debug.log*
 .env.*
 dist/
 coverage/
+server.log
+public/*.bak
+public/styles.css.*bak
+test-task-e2e.mjs

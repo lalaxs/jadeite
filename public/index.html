@@ -4,65 +4,99 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>翡翠街多人经营原型</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true"></div>
-          <div>
-            <h1>翡翠街</h1>
-            <p>多人经营原型</p>
-          </div>
+      <!-- 顶栏：独占整行；内部「个人信息卡」与「资源栏卡」为两个独立卡片 -->
+      <header class="topbar">
+        <div class="player-card" id="playerCard" aria-label="掌柜信息"></div>
+        <div class="top-hud" id="topHud" aria-label="资源信息"></div>
+        <div class="topbar-right">
+          <button class="theme-toggle" id="themeToggle" type="button" title="切换昼夜模式" aria-label="切换昼夜模式"></button>
         </div>
+      </header>
 
-        <section class="profile panel">
-          <label for="nameInput">掌柜招牌</label>
-          <div class="name-row">
-            <input id="nameInput" maxlength="10" />
-            <button id="saveNameBtn" title="保存招牌名">保存</button>
-          </div>
-          <div class="profile-note">
-            <span id="connectionText">连接中</span>
-          </div>
-        </section>
-
-        <section class="sidebar-status panel" id="sidebarStatus" aria-label="掌柜状态"></section>
+      <!-- 左导航：仅用于功能切换 -->
+      <aside class="sidebar">
+        <nav class="main-nav" id="mainNav" aria-label="功能导航"></nav>
       </aside>
 
       <section class="main-stage">
-        <header class="topbar">
-          <div>
-            <h2 id="viewTitle">经营总览</h2>
+        <!-- 主页：状态 / 任务 / 委托 / 账单 四标签 -->
+        <section class="view" data-view="overview">
+          <div class="home-tabs" id="homeTabs">
+            <button class="on" data-home-tab="status" type="button">状态</button>
+            <button data-home-tab="task" type="button">任务</button>
+            <button data-home-tab="commission" type="button">委托</button>
+            <button data-home-tab="bill" type="button">账单</button>
           </div>
-          <div class="topbar-tools">
-            <button id="homeBtn" class="secondary home-button" data-action="openLocation" data-payload="overview">回街口</button>
-          </div>
-        </header>
+          <div class="home-pane" data-home-pane="status" id="homeStatusPane"></div>
+          <div class="home-pane" data-home-pane="task" id="homeTaskPane" hidden></div>
+          <div class="home-pane" data-home-pane="commission" id="homeCommissionPane" hidden></div>
+          <div class="home-pane" data-home-pane="bill" id="homeBillPane" hidden></div>
+        </section>
 
-        <section class="view active" data-view="overview">
-          <div class="home-layout">
-            <section class="rank-brief-strip" aria-label="排行简报">
-              <div id="rankBriefList" class="rank-brief-list"></div>
-            </section>
-            <section class="location-board">
-              <div id="locationCards" class="location-grid"></div>
-            </section>
+        <section class="view" data-view="rankings">
+          <div class="section-head leaderboard-head">
+            <div>
+              <p class="eyebrow">同行排行</p>
+              <h3 id="rankingTitle">排行榜</h3>
+            </div>
+            <div id="rankingTabs" class="ranking-tabs"></div>
           </div>
+          <section class="panel ranking-board">
+            <div id="rankingList" class="ranking-list"></div>
+          </section>
+          <section class="panel debug-panel" id="debugPanel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">开发调试</p>
+                <h3>调试工具</h3>
+              </div>
+            </div>
+            <div class="debug-grid">
+              <div class="debug-row">
+                <label class="debug-label" for="debugCashInput">加现金</label>
+                <input id="debugCashInput" class="debug-input" type="number" value="10000" min="0" step="1000" />
+                <button class="secondary" data-debug="cash" type="button">确认加现金</button>
+              </div>
+              <div class="debug-row">
+                <label class="debug-label" for="debugRepInput">加声望</label>
+                <input id="debugRepInput" class="debug-input" type="number" value="10" min="0" step="1" />
+                <button class="secondary" data-debug="rep" type="button">确认加声望</button>
+              </div>
+            </div>
+          </section>
         </section>
 
         <section class="view" data-view="auction">
           <div class="section-head">
             <div>
-              <p class="eyebrow">公盘暗标</p>
-              <h3>拍原石</h3>
+              <p class="eyebrow">暗标竞拍</p>
+              <h3 id="auctionHeadTitle">公盘会场</h3>
             </div>
+            <span class="view-title-desc" id="auctionHeadDesc">10 分钟暗拍</span>
           </div>
-          <div id="auctionHalls" class="auction-halls"></div>
           <div id="auctionBrief" class="brief-strip"></div>
-          <div id="auctionResults" class="auction-results"></div>
-          <div id="roughPool" class="card-grid"></div>
+          <div id="auctionHalls" class="auction-halls"></div>
+          <div id="roughPool"></div>
+        </section>
+
+        <section class="view" data-view="auctionHistory">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">公盘开标</p>
+              <h3>历史拍卖成功</h3>
+            </div>
+            <button class="secondary" data-action="openLocation" data-payload="auction" type="button">返回公盘会场</button>
+          </div>
+          <div id="auctionHistoryBrief" class="brief-strip"></div>
+          <div id="auctionHistoryList" class="auction-history-list"></div>
         </section>
 
         <section class="view" data-view="workshop">
@@ -72,20 +106,7 @@
               <h3>工坊</h3>
             </div>
           </div>
-          <div class="workbench">
-            <section class="panel">
-              <div class="panel-head"><h3>待打磨原料</h3><span id="roughCount">0</span></div>
-              <div id="roughInventory" class="item-list"></div>
-            </section>
-            <section class="panel">
-              <div class="panel-head"><h3>取镯规划</h3><span id="materialCount">0</span></div>
-              <div id="materialInventory" class="item-list"></div>
-            </section>
-            <section class="panel">
-              <div class="panel-head"><h3>成品库存</h3><span id="braceletCount">0</span></div>
-              <div id="braceletInventory" class="item-list"></div>
-            </section>
-          </div>
+          <div id="workshopRoot" class="workshop-root"></div>
         </section>
 
         <section class="view" data-view="orders">
@@ -101,22 +122,53 @@
         </section>
 
         <section class="view" data-view="market">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">玩家经济</p>
-              <h3>玩家交易行</h3>
+          <div class="jm-hero">
+            <div class="jm-hero-info">
+              <h3>翡翠集市</h3>
+              <p>八方掌柜寄售于此 · 成交收 3% 市场税（买家付）</p>
+            </div>
+            <div class="jm-hero-side">
+              <div class="jm-hero-stats" id="marketHeroStats"></div>
+              <div class="jm-hero-actions">
+                <button class="jm-hero-btn" data-action="marketSection" data-market-section="mine" type="button">我的挂单 <span class="jm-hero-cnt" id="marketMineCnt">0</span></button>
+              </div>
             </div>
           </div>
-          <div id="marketBrief" class="brief-strip"></div>
-          <div class="market-layout">
-            <section class="panel">
-              <div class="panel-head"><h3>我的可挂牌物品</h3><span>原石 / 料子 / 手镯</span></div>
-              <div id="mySellables" class="item-list"></div>
-            </section>
-            <section class="panel">
-              <div class="panel-head"><h3>市场挂单</h3><span id="listingCount">0</span></div>
-              <div id="marketListings" class="item-list"></div>
-            </section>
+          <div class="jm-stalls" id="marketStalls"></div>
+          <div class="jm-shop" id="marketShop">
+            <aside class="jm-filters">
+              <h4>筛选</h4>
+              <div class="jm-fgroup">
+                <label>种水稀有度</label>
+                <div id="marketQFilters"></div>
+              </div>
+              <div class="jm-fgroup">
+                <label>价格区间（¥）</label>
+                <div class="jm-price-row">
+                  <input id="marketPriceMin" type="number" inputmode="numeric" placeholder="最低" />
+                  <input id="marketPriceMax" type="number" inputmode="numeric" placeholder="最高" />
+                </div>
+              </div>
+              <div class="jm-fgroup">
+                <div class="jm-toggle-row">
+                  <span>仅看买得起的</span>
+                  <div class="jm-switch" id="marketAfford" role="switch" tabindex="0" aria-checked="false"></div>
+                </div>
+              </div>
+              <button class="jm-freset" id="marketReset" type="button">重置筛选</button>
+            </aside>
+            <div class="jm-main">
+              <div class="jm-toolbar" id="marketToolbar">
+                <div class="jm-search"><input id="marketSearch" placeholder="搜名字 / 卖家 / 种水…" /></div>
+                <select class="jm-sort" id="marketSort">
+                  <option value="latest">最新上架</option>
+                  <option value="priceAsc">价格从低到高</option>
+                  <option value="priceDesc">价格从高到低</option>
+                  <option value="deal">最划算优先</option>
+                </select>
+              </div>
+              <div class="jm-grid" id="marketGrid"></div>
+            </div>
           </div>
         </section>
 
@@ -127,12 +179,22 @@
               <h3>商铺</h3>
             </div>
           </div>
+          <div class="shop-tabs">
+            <button class="shop-tab active" data-tab="building">建筑与许可</button>
+            <button class="shop-tab" data-tab="material">镶嵌材料</button>
+          </div>
           <div id="shopBrief" class="brief-strip"></div>
-          <section class="panel shop-panel">
+          <section class="panel shop-panel tab-panel" data-tab-panel="building">
             <div class="panel-head"><h3>可购建筑与许可</h3><span>工坊 / 经营许可</span></div>
             <div id="shopListings" class="item-list"></div>
           </section>
+          <section class="panel material-panel tab-panel is-hidden" data-tab-panel="material">
+            <div class="panel-head"><h3>镶嵌材料</h3><span>商铺供货 · 现实金价</span></div>
+            <div id="materialInventory" class="material-body"></div>
+          </section>
         </section>
+
+        <div id="shopModal" class="modal-overlay is-hidden"></div>
 
         <section class="view" data-view="livestream">
           <div class="section-head">
@@ -157,9 +219,65 @@
           </div>
           <div id="collectionList" class="treasure-grid"></div>
         </section>
-      </section>
-    </main>
 
+        <section class="view" data-view="hireMarket">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">即将开放</p>
+              <h3>招募</h3>
+            </div>
+          </div>
+          <section class="panel">
+            <div class="panel-head"><h3>招募掌柜与管家</h3><span>即将开放</span></div>
+            <div class="panel-body" style="padding:24px 20px;color:var(--muted)">雇佣掌柜打理店铺、管家协助处理订单等玩法正在筹备中，敬请期待。</div>
+          </section>
+        </section>
+      </section>
+
+      <!-- 右侧常驻：进行事项 -->
+      <aside class="sidepanel" id="sidePanel" aria-label="进行事项">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="t">进行事项</div>
+            <div class="hint">常驻 · 多界面</div>
+          </div>
+          <div class="panel-tabs" id="panelTabs">
+            <button data-ptab="workshop" type="button">工坊</button>
+            <button data-ptab="order" type="button">订单</button>
+            <button data-ptab="remind" type="button">提醒</button>
+            <button data-ptab="achv" type="button">成就</button>
+          </div>
+          <div class="panel-body" id="sidePanelBody"></div>
+        </div>
+      </aside>
+      <!-- 底部聊天坞（原主页消息面板，提升为全局常驻，但不占左导航列） -->
+      <footer class="chatdock" id="chatDock" aria-label="游玩消息">
+        <div class="chatdock-tabs" id="messageChannelTabs"></div>
+        <div class="chatdock-log" id="homeMessageLog"></div>
+        <div class="chatdock-input">
+          <input id="chatInput" type="text" maxlength="120" placeholder="输入世界聊天消息…（即将开放）" />
+          <button id="chatSend" type="button">发送</button>
+        </div>
+      </footer>
+    </main>
+    <div class="jm-modal-root" id="marketListModal" hidden>
+      <div class="jm-modal">
+        <div class="jm-modal-head"><h3>挂牌出售</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <div class="jm-field"><label>选择库存物品</label><select id="marketListItem"></select></div>
+          <div class="jm-field"><label>挂牌价（不低于 ¥100）</label><input id="marketListPrice" type="number" inputmode="numeric" min="100" />
+            <div class="jm-suggest" id="marketListSuggest"></div></div>
+          <div class="jm-fee" id="marketListFee"></div>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeMarketModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmMarketList" type="button">确认挂牌</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="floatingTextLayer" class="floating-text-layer" aria-hidden="true"></div>
+    <div id="modalRoot" class="modal-root" hidden></div>
     <div id="toast" class="toast"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="/main.js"></script>

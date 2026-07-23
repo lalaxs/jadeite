@@ -1,12 +1,29 @@
 const DEPOSIT_RATE = 0.2;
 
 export const AUCTION_HALLS = [
-  { id: "novice", label: "新手公盘", requiredRep: 0, deposit: 5000, tone: "稳健", priceNote: "小料练手" },
-  { id: "regular", label: "常规公盘", requiredRep: 30, deposit: 8000, tone: "标准", priceNote: "标准场口" },
-  { id: "premium", label: "精品公盘", requiredRep: 80, deposit: 16000, tone: "冲高", priceNote: "冰种机会" },
-  { id: "special", label: "专场公盘", requiredRep: 160, deposit: 30000, tone: "高压", priceNote: "大料专场" },
-  { id: "legendary", label: "传奇公盘", requiredRep: 320, deposit: 60000, tone: "极限", priceNote: "顶级赌性" }
+  { id: "novice", label: "新手公盘", requiredLevel: 1, windowRate: 0.06, deposit: 5000, entryFee: 5000, tone: "稳健", priceNote: "小料练手" },
+  { id: "regular", label: "常规公盘", requiredLevel: 2, windowRate: 0.07, deposit: 8000, entryFee: 8000, tone: "标准", priceNote: "标准场口" },
+  { id: "premium", label: "精品公盘", requiredLevel: 3, windowRate: 0.08, deposit: 16000, entryFee: 16000, tone: "冲高", priceNote: "冰种机会" },
+  { id: "special", label: "专场公盘", requiredLevel: 4, windowRate: 0.09, deposit: 30000, entryFee: 30000, tone: "高压", priceNote: "大料专场" },
+  { id: "legendary", label: "传奇公盘", requiredLevel: 5, windowRate: 0.10, deposit: 60000, entryFee: 60000, tone: "极限", priceNote: "顶级赌性" }
 ];
+
+// 声望等级体系：用等级（而非累计数值）作为公盘解锁门槛
+export const REP_LEVEL_LABELS = {
+  1: "新人",
+  2: "起势",
+  3: "熟行",
+  4: "名店",
+  5: "宗师"
+};
+
+export function repLevelForRep(rep) {
+  if (rep >= 320) return 5;
+  if (rep >= 160) return 4;
+  if (rep >= 80) return 3;
+  if (rep >= 30) return 2;
+  return 1;
+}
 
 function money(value) {
   const amount = Number(value);
@@ -51,29 +68,54 @@ function settlementBidForRough(bid, roughId) {
   if (!Number.isFinite(rawAmount) || rawAmount <= 0) return null;
   const amount = money(rawAmount);
   if (amount <= 0) return null;
-  const proxyMax = Math.max(amount, money(bid.proxyMax ?? amount));
   return {
     ...bid,
     amount,
-    proxyMax,
     at: settlementTime(bid.at)
   };
 }
 
-function publicAuctionResult(result, playerId) {
+export function publicAuctionResult(result, playerId) {
   const safe = {};
-  for (const field of ["roughId", "status", "price", "depositUsed", "balanceDue", "bids", "ai"]) {
+  for (const field of ["roughId", "roughName", "status", "price", "bids", "ai", "skippedBids"]) {
     if (result[field] !== undefined) safe[field] = result[field];
   }
   if (result.winnerId === playerId) safe.winnerId = result.winnerId;
   return safe;
 }
 
+export function publicAuctionHistoryEntry(entry = {}, playerId) {
+  const hall = auctionHallForId(entry.hallId);
+  return {
+    id: entry.id || entry.roundId,
+    roundId: entry.roundId || entry.id,
+    hallId: entry.hallId || hall.id,
+    hallLabel: entry.hallLabel || hall.label,
+    startsAt: entry.startsAt,
+    endsAt: entry.endsAt,
+    settledAt: entry.settledAt,
+    results: (entry.results || []).map((result) => publicAuctionResult(result, playerId))
+  };
+}
+
 export function auctionHallForId(hallId = "novice") {
   return AUCTION_HALLS.find((hall) => hall.id === hallId) || AUCTION_HALLS[0];
 }
 
-function publicRoughForAuction(rough) {
+export function auctionEntryFee(hallOrAmount = 0) {
+  if (typeof hallOrAmount === "number") return money(hallOrAmount);
+  return money(hallOrAmount.entryFee ?? hallOrAmount.deposit ?? 0);
+}
+
+export function bidIncrementOptions(currentAmount) {
+  const amount = money(currentAmount);
+  if (amount < 1000) return [50, 100, 200];
+  if (amount < 10000) return [100, 500, 1000];
+  if (amount < 100000) return [1000, 2000, 5000];
+  return [5000, 10000, 20000];
+}
+
+function publicRoughForAuction(rough, myBid) {
   const visual = rough.visual || {};
   const rawWindows = rough.windows ?? visual.windows;
   const windows = Array.isArray(rawWindows) ? rawWindows.map(publicWindowReveal) : undefined;
@@ -88,12 +130,12 @@ function publicRoughForAuction(rough) {
     id: rough.id,
     name: rough.name,
     price: rough.price,
-    deposit: bidDeposit(rough.price),
     mass: rough.mass,
     hint: rough.publicHint,
     risk: rough.risk,
     expertClues: rough.expertClues,
     windows,
+    bidIncrements: bidIncrementOptions(myBid?.amount ?? rough.price),
     visual: publicVisual
   };
 }
@@ -101,8 +143,8 @@ function publicRoughForAuction(rough) {
 export function auctionPhase(round, now = Date.now()) {
   if (!round) return "empty";
   if (round.settledAt || round.status === "settled") return "settlement";
-  if (now < Number(round.startsAt ?? 0)) return "registration";
-  if (now < Number(round.biddingEndsAt ?? 0)) return "bidding";
+  const endsAt = Number(round.endsAt ?? round.biddingEndsAt ?? 0);
+  if (!endsAt || now < endsAt) return "live";
   return "settlement";
 }
 
@@ -110,26 +152,51 @@ export function bidDeposit(amount) {
   return money(amount * DEPOSIT_RATE);
 }
 
-function bidExposureAmount(bid = {}) {
-  const safeBid = bid && typeof bid === "object" ? bid : {};
-  const amount = money(safeBid.amount);
-  return Math.max(amount, money(safeBid.proxyMax ?? amount));
+export function enterAuctionRound(round, entry = {}) {
+  const playerId = entry.playerId;
+  if (!round || !playerId) return { round, entry: null, already: false };
+  const existing = (round.entries || []).find((item) => item.playerId === playerId);
+  if (existing) return { round, entry: existing, already: true };
+  const nextEntry = {
+    playerId,
+    fee: money(entry.fee),
+    at: finiteNumber(entry.at ?? Date.now(), Date.now())
+  };
+  return {
+    round: {
+      ...round,
+      entries: [...(round.entries || []), nextEntry]
+    },
+    entry: nextEntry,
+    already: false
+  };
+}
+
+export function registerAuctionBidder(round, registration = {}) {
+  const result = enterAuctionRound(round, {
+    playerId: registration.playerId,
+    fee: registration.deposit ?? registration.fee,
+    at: registration.at
+  });
+  return {
+    round: result.round,
+    registration: result.entry ? { playerId: result.entry.playerId, deposit: result.entry.fee, at: result.entry.at } : null,
+    already: result.already
+  };
 }
 
 export function upsertBid(round, bid) {
   const amount = money(bid.amount);
-  const proxyMax = bidExposureAmount({ amount, proxyMax: bid.proxyMax });
   const atFallback = Date.now();
+  const previous = (round.bids || []).find((item) => item.playerId === bid.playerId && item.roughId === bid.roughId);
   const nextRound = {
     ...round,
     bids: (round.bids || []).filter((item) => !(item.playerId === bid.playerId && item.roughId === bid.roughId))
   };
-  const previous = (round.bids || []).find((item) => item.playerId === bid.playerId && item.roughId === bid.roughId);
   const nextBid = {
     playerId: bid.playerId,
     roughId: bid.roughId,
     amount,
-    proxyMax,
     at: finiteNumber(bid.at ?? atFallback, atFallback),
     ai: Boolean(bid.ai)
   };
@@ -137,28 +204,9 @@ export function upsertBid(round, bid) {
   nextRound.bids.sort((a, b) => a.at - b.at);
   return {
     round: nextRound,
-    depositDelta: bidDeposit(proxyMax) - bidDeposit(previous ? bidExposureAmount(previous) : 0),
-    bid: nextBid
-  };
-}
-
-export function registerAuctionBidder(round, registration = {}) {
-  const playerId = registration.playerId;
-  if (!round || !playerId) return { round, registration: null, already: false };
-  const existing = (round.registrations || []).find((item) => item.playerId === playerId);
-  if (existing) return { round, registration: existing, already: true };
-  const nextRegistration = {
-    playerId,
-    deposit: money(registration.deposit),
-    at: finiteNumber(registration.at ?? Date.now(), Date.now())
-  };
-  return {
-    round: {
-      ...round,
-      registrations: [...(round.registrations || []), nextRegistration]
-    },
-    registration: nextRegistration,
-    already: false
+    previous,
+    bid: nextBid,
+    depositDelta: 0
   };
 }
 
@@ -176,77 +224,78 @@ export function aiBidsForRough(rough, existingBids = [], minBidderCount = 3) {
       playerId: `ai-${rough.id}-${aiIndex}`,
       roughId: rough.id,
       amount,
-      proxyMax: amount,
       at: Number(rough.createdAt ?? 0) + aiIndex + 1,
       ai: true
     };
   });
 }
 
-export function settleAuctionRound(round, options = {}) {
-  const minIncrement = money(options.minIncrement ?? 100);
-  const results = (round.roughs || []).map((rough) => {
-    const reserve = money(rough.price ?? 0);
-    const bids = (round.bids || [])
-      .map((bid) => settlementBidForRough(bid, rough.id))
-      .filter((bid) => bid && bid.proxyMax >= reserve)
-      .sort((a, b) => {
-      const maxDiff = b.proxyMax - a.proxyMax;
-      return maxDiff || a.at - b.at;
+function rankedBidsForRough(round, rough) {
+  const reserve = money(rough.price ?? 0);
+  return (round.bids || [])
+    .map((bid) => settlementBidForRough(bid, rough.id))
+    .filter((bid) => bid && bid.amount >= reserve)
+    .sort((a, b) => {
+      const amountDiff = b.amount - a.amount;
+      return amountDiff || a.at - b.at;
     });
-    if (!bids.length) {
-      return { roughId: rough.id, status: "passed", price: 0, bids: 0 };
+}
+
+export function settleAuctionRound(round, options = {}) {
+  const bidderCanPay = typeof options.bidderCanPay === "function" ? options.bidderCanPay : () => true;
+  const results = (round.roughs || []).map((rough) => {
+    const bids = rankedBidsForRough(round, rough);
+    let skippedBids = 0;
+    const winner = bids.find((bid) => {
+      const canPay = Boolean(bid.ai || bidderCanPay(bid, rough));
+      if (!canPay) skippedBids += 1;
+      return canPay;
+    });
+    if (!winner) {
+      return { roughId: rough.id, roughName: rough.name, status: "passed", price: 0, bids: bids.length, skippedBids };
     }
-    const winner = bids[0];
-    const runnerUp = bids[1];
-    const floor = Math.max(reserve, winner.amount);
-    const justWin = runnerUp ? runnerUp.proxyMax + minIncrement : floor;
-    const price = money(Math.max(floor, Math.min(winner.proxyMax, Math.max(floor, justWin))));
-    const depositUsed = Math.min(price, bidDeposit(winner.proxyMax));
+    const price = money(winner.amount);
     return {
       roughId: rough.id,
+      roughName: rough.name,
       winnerId: winner.playerId,
       ai: Boolean(winner.ai),
       status: winner.ai ? "aiWon" : "won",
       price,
-      depositUsed,
-      balanceDue: Math.max(0, price - depositUsed),
-      bids: bids.length
+      bids: bids.length,
+      skippedBids
     };
   });
   return { ...round, status: "settled", settledAt: options.now ?? Date.now(), results };
 }
 
-export function publicAuctionSnapshot(round, playerId, now = Date.now()) {
+export function publicAuctionSnapshot(round, playerId, now = Date.now(), latestResults = []) {
   const phase = auctionPhase(round, now);
   const hall = auctionHallForId(round?.hallId);
-  const registrations = round?.registrations || [];
+  const entries = round?.entries || [];
+  const myBids = (round?.bids || []).filter((bid) => bid.playerId === playerId);
+  const entered = entries.some((entry) => entry.playerId === playerId);
   return {
     id: round?.id,
     hallId: hall.id,
     hallLabel: round?.hallLabel || hall.label,
     phase,
-    registrationStartsAt: round?.registrationStartsAt,
     startsAt: round?.startsAt,
-    biddingEndsAt: round?.biddingEndsAt,
+    endsAt: round?.endsAt ?? round?.biddingEndsAt,
     settledAt: round?.settledAt,
-    settlementEndsAt: round?.settlementEndsAt,
-    registrationDeposit: round?.registrationDeposit ?? hall.deposit,
-    registered: registrations.some((registration) => registration.playerId === playerId),
-    registeredCount: registrations.length,
-    roughs: (round?.roughs || []).map(publicRoughForAuction),
-    myBids: (round?.bids || [])
-      .filter((bid) => bid.playerId === playerId)
-      .map((bid) => ({
-        roughId: bid.roughId,
-        amount: bid.amount,
-        proxyMax: bid.proxyMax,
-        deposit: bidDeposit(bidExposureAmount(bid)),
-        at: bid.at
-      })),
-    results: phase === "settlement"
-      ? (round?.results || [])
-        .map((result) => publicAuctionResult(result, playerId))
-      : []
+    entryFee: round?.entryFee ?? auctionEntryFee(hall),
+    entered,
+    registered: entered,
+    roughs: entered ? (round?.roughs || []).map((rough) => publicRoughForAuction(
+      rough,
+      myBids.find((bid) => bid.roughId === rough.id)
+    )) : [],
+    myBids: myBids.map((bid) => ({
+      roughId: bid.roughId,
+      amount: bid.amount,
+      at: bid.at
+    })),
+    results: (latestResults.length ? latestResults : phase === "settlement" ? (round?.results || []) : [])
+      .map((result) => publicAuctionResult(result, playerId))
   };
 }

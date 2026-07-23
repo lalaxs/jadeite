@@ -1,15 +1,15 @@
 export const TIMING_PROFILES = {
   normal: {
-    day: 20 * 60 * 1000,
+    day: 4 * 60 * 60 * 1000,
     production: { rough: 5 * 60 * 1000, refine: 15 * 60 * 1000, inlay: 5 * 60 * 1000 },
-    auction: { registration: 5 * 60 * 1000, bidding: 5 * 60 * 1000, settlement: 30 * 1000, cadence: 20 * 60 * 1000 },
+    auction: { duration: 10 * 60 * 1000, registration: 0, bidding: 10 * 60 * 1000, settlement: 0, cadence: 10 * 60 * 1000 },
     livestream: { min: 10 * 60 * 1000, max: 30 * 60 * 1000 },
     orders: { refresh: 4 * 60 * 60 * 1000 }
   },
   test: {
     day: 2400,
     production: { rough: 300, refine: 900, inlay: 300 },
-    auction: { registration: 600, bidding: 600, settlement: 120, cadence: 2400 },
+    auction: { duration: 1200, registration: 0, bidding: 1200, settlement: 0, cadence: 1200 },
     livestream: { min: 500, max: 1500 },
     orders: { refresh: 1500 }
   }

@@ -16,14 +16,28 @@ import {
 } from "./public/jade-loop.js";
 import {
   AUCTION_HALLS,
+  auctionEntryFee,
   auctionHallForId,
+  repLevelForRep,
   publicAuctionSnapshot,
-  bidDeposit,
-  registerAuctionBidder,
+  publicAuctionHistoryEntry,
+  enterAuctionRound,
   upsertBid,
   aiBidsForRough,
   settleAuctionRound
 } from "./public/jade-auction.js";
+import {
+  EXTRACTION_KITS,
+  isSmallPieceKind,
+  kitLayout,
+  placementRadiusForKind,
+  productMetaForKind
+} from "./public/jade-categories.js";
+import {
+  buildOpeningStone,
+  computeGrade as computeOpeningGrade,
+  evaluateOpeningKit
+} from "./public/jade-opening-engine.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +49,18 @@ const PORT = process.env.PORT || 3000;
 const OPEN_WINDOW_RATE = 0.06;
 const DEFAULT_AUCTION_HALL_ID = "novice";
 const STARTER_ROUGH_COUNT = 3;
+const OPENING_KIT_SERVER_TYPES = {
+  egg: "cabochon",
+  ping: "peacePendant",
+  rect: "plaque",
+  drop: "dropPendant",
+  leaf: "leafPendant",
+  bangle: "bangle",
+  buddha: "buddhaPendant"
+};
+const OPENING_KIT_BY_SERVER_TYPE = Object.fromEntries(
+  Object.entries(OPENING_KIT_SERVER_TYPES).map(([tpl, type]) => [type, tpl])
+);
 const ASSET_LISTINGS = [
   {
     id: "starter-workshop",
@@ -51,6 +77,352 @@ const ASSET_LISTINGS = [
     description: "解锁直播间和自动直播卖货。"
   }
 ];
+// ===== 镶嵌材料：基准现实价 + 商铺供货目录（§20 / 设计案 §3）=====
+// 单位：金属记克(g)、宝石记颗(piece)。价格对标现实金价，不下调。
+// 类炒股价格浮动钩子：getMaterialPrice 当前返回基准现实价；后续接入 price-tick 引擎时只改这里。
+const MATERIAL_META = {
+  goldPure:  { name: "足金(24K)", unit: "g",     unitLabel: "克", unitPrice: 560,  tint: "#d4af37" },
+  silver925: { name: "925银",     unit: "g",     unitLabel: "克", unitPrice: 12,   tint: "#c9c9c9" },
+  gold18k:   { name: "18K金",     unit: "g",     unitLabel: "克", unitPrice: 380,  tint: "#e6c200" },
+  platinum:  { name: "铂金PT950", unit: "g",     unitLabel: "克", unitPrice: 420,  tint: "#dfe6ee" },
+  diamond:   { name: "配石钻石",  unit: "piece", unitLabel: "颗", unitPrice: 120,  tint: "#bfe9ff" },
+  ruby:      { name: "红宝石",    unit: "piece", unitLabel: "颗", unitPrice: 40,   tint: "#e0556b" },
+  sapphire:  { name: "蓝宝石",    unit: "piece", unitLabel: "颗", unitPrice: 40,   tint: "#5b8def" }
+};
+function getMaterialPrice(key) {
+  const meta = MATERIAL_META[key];
+  return meta ? meta.unitPrice : 0;
+}
+// 价格历史（类炒股引擎接入前的基线 + 实时追加）。键为材料 key，值为 [{d,p}]。
+const MATERIAL_PRICE_HISTORY = {};
+(function seedMaterialHistory() {
+  const DAYS = 14;
+  Object.keys(MATERIAL_META).forEach((key, ki) => {
+    const base = MATERIAL_META[key].unitPrice;
+    const arr = [];
+    let seed = (ki + 3) * 9301 + 49297;
+    for (let i = 0; i < DAYS; i++) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const r = seed / 233280;
+      const wobble = (r - 0.5) * 0.06; // ±3% 基线波动
+      arr.push({ d: i - DAYS + 1, p: Math.round(base * (1 + wobble)) });
+    }
+    MATERIAL_PRICE_HISTORY[key] = arr;
+  });
+})();
+let materialPriceDay = 0;
+function recordMaterialPriceTick() {
+  materialPriceDay += 1;
+  Object.keys(MATERIAL_META).forEach((key) => {
+    const arr = MATERIAL_PRICE_HISTORY[key] || (MATERIAL_PRICE_HISTORY[key] = []);
+    const p = Math.round(getMaterialPrice(key));
+    arr.push({ d: materialPriceDay, p });
+    if (arr.length > 90) arr.shift(); // 保留约 90 个游戏日
+  });
+}
+function getMaterialPriceHistory(key) {
+  return MATERIAL_PRICE_HISTORY[key] || [];
+}
+// 原型节奏：每 60 秒记一个游戏日（正式版改为游戏日结算钩子）
+setInterval(recordMaterialPriceTick, 60 * 1000);
+// 商铺供货规格：金属按斤(500g)/公斤(1000g)，宝石按单颗/10颗包/50颗包。
+// 折扣=整批让利（金属公斤-5%；宝石10颗-10%/50颗-20%）。pack 价=基准单价×数量×(1-折扣)。
+const MATERIAL_CATALOG = [
+  { id: "goldPure",  key: "goldPure",  description: "足金底托、包金边，传统富贵色。" },
+  { id: "silver925", key: "silver925", description: "廉价配托，适合练习与低档件。" },
+  { id: "gold18k",   key: "gold18k",   description: "主流镶嵌金，硬度适中不易变形。" },
+  { id: "platinum",  key: "platinum",  description: "稀有白金，硬度最高、抓石最牢。" },
+  { id: "diamond",   key: "diamond",   description: "足反亮钻，戒指/耳饰点缀。" },
+  { id: "ruby",      key: "ruby",      description: "红宝石配石，暖色点缀。" },
+  { id: "sapphire",  key: "sapphire", description: "蓝宝石配石，冷色点缀。" }
+].map((m) => {
+  const meta = MATERIAL_META[m.key];
+  const isMetal = meta.unit === "g";
+  m.name = meta.name;
+  m.unit = meta.unit;
+  m.unitLabel = meta.unitLabel;
+  m.packs = isMetal
+    ? [
+        { packId: "jin", label: "1斤(500g)",  amount: 500,  discount: 0 },
+        { packId: "kg",  label: "1公斤(1000g)", amount: 1000, discount: 0.05 }
+      ]
+    : [
+        { packId: "single", label: "单颗",    amount: 1,  discount: 0 },
+        { packId: "pack10", label: "10颗包", amount: 10, discount: 0.10 },
+        { packId: "pack50", label: "50颗包", amount: 50, discount: 0.20 }
+      ];
+  return m;
+});
+function materialCatalogForPlayer(player) {
+  normalizePlayer(player);
+  return MATERIAL_CATALOG.map((m) => ({
+    id: m.id,
+    key: m.key,
+    group: m.unit === "g" ? "metal" : "gem",
+    tint: m.tint || "#30a669",
+    name: m.name,
+    unit: m.unit,
+    unitLabel: m.unitLabel,
+    price: Math.round(getMaterialPrice(m.key)),
+    description: m.description,
+    packs: m.packs.map((p) => ({
+      packId: p.packId,
+      label: p.label,
+      amount: p.amount,
+      discount: p.discount,
+      price: Math.round(getMaterialPrice(m.key) * p.amount * (1 - p.discount))
+    }))
+  }));
+}
+function buyMaterialPack(player, materialId, amount) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  normalizePlayer(player);
+  const cat = MATERIAL_CATALOG.find((m) => m.id === materialId);
+  if (!cat) return { ok: false, message: "材料不存在。" };
+  const qty = Math.floor(Number(amount));
+  if (!Number.isFinite(qty) || qty < 1) return { ok: false, message: "购买数量至少为 1。" };
+  const price = Math.round(getMaterialPrice(cat.key) * qty);
+  if (!spendCash(player, price, `购入镶嵌材料：${cat.name}×${qty}${cat.unitLabel}`, { source: "material", materialId, qty })) {
+    return { ok: false, message: `购买 ${cat.name} ${qty}${cat.unitLabel} 需要 ${price}。` };
+  }
+  player.externalMaterials[cat.key] = Number(player.externalMaterials[cat.key] || 0) + qty;
+  return {
+    ok: true,
+    message: `购入 ${cat.name} ×${qty}${cat.unitLabel}`,
+    listing: { name: `${cat.name} ×${qty}${cat.unitLabel}` },
+    price
+  };
+}
+
+const WORKSHOP_WORKER_DEFS = [
+  {
+    id: "worker-opening",
+    name: "阿成",
+    job: "cutter",
+    tier: 5,
+    tierLevel: 1,
+    traits: ["稳手"],
+    flaws: ["巧手"],
+    skills: {
+      cut:    { jieliao: { level: 6, exp: 240 }, damo: { level: 5, exp: 180 } },
+      set:    { qieliao: { level: 6, exp: 210 }, xiuxing: { level: 5, exp: 170 } },
+      finish: { diaozhuo: { level: 4, exp: 120 }, xiangqian: { level: 4, exp: 110 } },
+      speak:  { huashu: { level: 2, exp: 35 }, kongchang: { level: 1, exp: 22 }, cuidan: { level: 2, exp: 18 } }
+    }
+  },
+  {
+    id: "worker-carving",
+    name: "林师傅",
+    job: "finisher",
+    tier: 8,
+    tierLevel: 1,
+    traits: ["按线稳"],
+    flaws: ["心细"],
+    skills: {
+      cut:    { jieliao: { level: 2, exp: 60 }, damo: { level: 2, exp: 40 } },
+      set:    { qieliao: { level: 2, exp: 50 }, xiuxing: { level: 2, exp: 45 } },
+      finish: { diaozhuo: { level: 6, exp: 200 }, xiangqian: { level: 5, exp: 180 } },
+      speak:  { huashu: { level: 1, exp: 20 }, kongchang: { level: 1, exp: 12 }, cuidan: { level: 1, exp: 8 } }
+    }
+  },
+  {
+    id: "worker-polishing",
+    name: "小周",
+    job: "planner",
+    tier: 3,
+    tierLevel: 1,
+    traits: ["细光"],
+    flaws: ["手重"],
+    skills: {
+      cut:    { jieliao: { level: 3, exp: 90 }, damo: { level: 3, exp: 70 } },
+      set:    { qieliao: { level: 6, exp: 240 }, xiuxing: { level: 5, exp: 210 } },
+      finish: { diaozhuo: { level: 2, exp: 35 }, xiangqian: { level: 2, exp: 25 } },
+      speak:  { huashu: { level: 1, exp: 18 }, kongchang: { level: 1, exp: 11 }, cuidan: { level: 1, exp: 6 } }
+    }
+  },
+  {
+    id: "worker-finishing",
+    name: "许工",
+    job: "streamer",
+    tier: 6,
+    tierLevel: 1,
+    traits: ["收口准"],
+    flaws: ["易出绵"],
+    skills: {
+      cut:    { jieliao: { level: 2, exp: 55 }, damo: { level: 2, exp: 45 } },
+      set:    { qieliao: { level: 2, exp: 48 }, xiuxing: { level: 2, exp: 42 } },
+      finish: { diaozhuo: { level: 2, exp: 38 }, xiangqian: { level: 2, exp: 28 } },
+      speak:  { huashu: { level: 6, exp: 190 }, kongchang: { level: 5, exp: 160 }, cuidan: { level: 5, exp: 155 } }
+    }
+  }
+];
+
+// ── 任务系统（每日任务）──────────────────────────────────────────
+// 刷新间隔：默认 6 小时；可用环境变量 TASK_REFRESH_MS 覆盖（开发/演示用，如 60000 = 1 分钟）
+const TASK_REFRESH_MS = Number(process.env.TASK_REFRESH_MS) || 6 * 60 * 60 * 1000;
+const TASK_RESET_COST = 5000;
+const TASK_COUNT = 6;
+
+// 任务池：每项对应一个真实的游戏内动作（已在对应 socket handler 中埋点进度）
+const TASK_DEFINITIONS = [
+  { type: "market_buy", title: "交易行购买原石", desc: "在交易行购入任意一块原石或中间物", target: 1, reward: 2000, rep: 0, color: "#12a594", view: "market" },
+  { type: "auction_win", title: "拍卖成功竞得", desc: "在公盘暗标拍卖中成功中标至少 1 块原石", target: 1, reward: 3500, rep: 0, color: "#e0913a", view: "auction" },
+  { type: "workshop_craft", title: "工坊打磨加工", desc: "在工坊完成打磨或取件操作", target: 3, reward: 2800, rep: 0, color: "#5285d0", view: "workshop" },
+  { type: "livestream_sell", title: "直播间售出商品", desc: "在直播间成功售出成品", target: 2, reward: 5000, rep: 50, color: "#c264a0", view: "livestream" },
+  { type: "market_sell", title: "交易行挂牌出售", desc: "在交易行上架一件商品", target: 1, reward: 1500, rep: 0, color: "#2fa36b", view: "market" },
+  { type: "order_complete", title: "完成客户订单", desc: "交付一单客户定制订单", target: 1, reward: 3000, rep: 20, color: "#d1725a", view: "orders" },
+  { type: "collection_collect", title: "收藏精品", desc: "将一件成品收入藏品阁", target: 1, reward: 2500, rep: 15, color: "#8a72c9", view: "collection" },
+  { type: "window_open", title: "公盘开窗", desc: "对公盘原石执行开窗操作", target: 1, reward: 1800, rep: 0, color: "#3aa6c0", view: "auction" }
+];
+
+function makeTaskInstance(def) {
+  return {
+    uid: randomUUID(),
+    type: def.type,
+    title: def.title,
+    desc: def.desc,
+    target: def.target,
+    reward: def.reward,
+    rep: def.rep,
+    color: def.color,
+    view: def.view,
+    progress: 0,
+    status: "active" // active | complete | claimed
+  };
+}
+
+function pickTaskDefinitions(count) {
+  const pool = [...TASK_DEFINITIONS];
+  const chosen = [];
+  while (chosen.length < count && pool.length) {
+    const idx = Math.floor(Math.random() * pool.length);
+    chosen.push(pool.splice(idx, 1)[0]);
+  }
+  return chosen;
+}
+
+function refreshTasksIfDue(player, now = Date.now()) {
+  const due = !player.tasks || player.tasks.length === 0 || now - (player.taskRefreshedAt || 0) >= TASK_REFRESH_MS;
+  if (!due) return false;
+  player.tasks = pickTaskDefinitions(TASK_COUNT).map(makeTaskInstance);
+  player.taskRefreshedAt = now;
+  return true;
+}
+
+function advanceTask(player, type, amount = 1) {
+  if (!player.tasks) return;
+  let changed = false;
+  for (const task of player.tasks) {
+    if (task.status !== "active" || task.type !== type) continue;
+    task.progress = Math.min(task.target, task.progress + amount);
+    if (task.progress >= task.target) task.status = "complete";
+    changed = true;
+  }
+  if (changed) refreshPlayerReport(player);
+  return changed;
+}
+
+function claimTask(player, uid) {
+  const task = (player.tasks || []).find((item) => item.uid === uid);
+  if (!task) return { ok: false, message: "任务不存在。" };
+  if (task.status === "claimed") return { ok: false, message: "该任务奖励已领取。" };
+  if (task.status !== "complete") return { ok: false, message: "任务尚未完成，无法领取。" };
+  earnCash(player, task.reward, `任务奖励：${task.title}`, { source: "taskReward", itemId: task.uid });
+  if (task.rep > 0) player.rep += task.rep;
+  task.status = "claimed";
+  refreshPlayerReport(player);
+  return { ok: true, reward: task.reward, rep: task.rep, title: task.title };
+}
+
+function resetTask(player, uid) {
+  const task = (player.tasks || []).find((item) => item.uid === uid);
+  if (!task) return { ok: false, message: "任务不存在。" };
+  if (task.status !== "active") return { ok: false, message: "已完成/已领取的任务不可重置。" };
+  if (!spendCash(player, TASK_RESET_COST, `重置任务：${task.title}`, { source: "taskReset", repEligible: false })) {
+    return { ok: false, message: `重置需要 ¥${TASK_RESET_COST} 现金。` };
+  }
+  const next = pickTaskDefinitions(TASK_COUNT).map(makeTaskInstance);
+  const replacement = next.find((item) => item.type !== task.type) || next[0];
+  player.tasks = player.tasks.map((item) => (item.uid === uid ? replacement : item));
+  refreshPlayerReport(player);
+  return { ok: true, task: replacement };
+}
+// ===== 加工设备型号目录（每工序多种型号，基础属性不同 = 型号个性）=====
+// 阶数 1~10 在基础属性上做加成（见 deviceEffectiveAttrs）。设备是固定阶数的可交易道具。
+const DEVICE_MODELS = {
+  opening: [
+    { key: "rough",    name: "粗加工台",   category: "打磨机",       model: "角磨机 CJ-1 基础型",  quality: 3, risk: 1.20, speed: 12, perfectFloor: 0, needsKits: false },
+    { key: "refine",   name: "精磨台",     category: "精磨机",       model: "精磨机 JM-2 稳型",    quality: 5, risk: 0.85, speed: 4,  perfectFloor: 2, needsKits: false },
+    { key: "waterbed", name: "水床切片机", category: "水床机",       model: "水床切片 WB-3",       quality: 4, risk: 1.00, speed: 8,  perfectFloor: 1, needsKits: false },
+  ],
+  carving: [
+    { key: "carve",    name: "套件雕刻台", category: "套料机",       model: "数控套料机 SK-2",     quality: 3, risk: 1.10, speed: 10, perfectFloor: 0, needsKits: true },
+    { key: "cnc",      name: "数控取件台", category: "取件机",       model: "数控取件 NC-4",       quality: 5, risk: 0.90, speed: 6,  perfectFloor: 1, needsKits: true },
+    { key: "scan3d",   name: "3D扫描设计台", category: "扫描设计台", model: "3D扫描 SD-5",         quality: 6, risk: 0.95, speed: 5,  perfectFloor: 2, needsKits: true },
+  ],
+  finishing: [
+    { key: "polish",   name: "精加工抛光台", category: "玉雕机·抛光机", model: "精雕抛光一体机 JP-3", quality: 3, risk: 1.10, speed: 8,  perfectFloor: 0, needsKits: false },
+    { key: "inlay",    name: "镶嵌一体机",   category: "镶嵌机",       model: "镶嵌一体 IJ-6",      quality: 5, risk: 1.00, speed: 6,  perfectFloor: 1, needsKits: false },
+    { key: "hiperf",   name: "高光精雕机",   category: "高光精雕机",   model: "高光精雕 HG-7",      quality: 7, risk: 1.15, speed: 4,  perfectFloor: 2, needsKits: false },
+  ],
+};
+// 每工序的物料路由（输入/输出/阶段/绑定员工/工费）
+const DEVICE_STAGE_ROUTING = {
+  opening:   { inputType: "rough",    inputStage: "rough",   outputStage: "opened",   durationStage: "rough",  workerId: "worker-opening",  fee: 620 },
+  carving:   { inputType: "rough",    inputStage: "opened",  outputStage: "carved",   durationStage: "refine", workerId: "worker-polishing", fee: 900 },
+  finishing: { inputType: "bracelet", inputStage: "carved",  outputStage: "finished", durationStage: "inlay",  workerId: "worker-carving",  fee: 680 },
+};
+// 有效属性 = 基础属性 + 阶数加成（型号个性保留，高阶全面更强）
+function deviceEffectiveAttrs(base, tier) {
+  const t = Math.max(1, Math.min(10, Number(tier) || 1));
+  const inc = t - 1;
+  return {
+    quality: +(base.quality + inc * 1.5).toFixed(2),
+    speed: +(base.speed + inc * 2.0).toFixed(2),
+    risk: +Math.max(0.5, base.risk * (1 - inc * 0.025)).toFixed(3),
+    perfectFloor: +Math.min(15, base.perfectFloor + inc * 0.3).toFixed(2),
+  };
+}
+let DEVICE_SEQ = 0;
+function makeDeviceInstance(stage, modelKey, tier) {
+  const models = DEVICE_MODELS[stage];
+  if (!models || !models.length) return null;
+  const m = models.find((x) => x.key === modelKey) || models[0];
+  const tierN = Math.max(1, Math.min(10, Number(tier) || 1));
+  const route = DEVICE_STAGE_ROUTING[stage];
+  DEVICE_SEQ += 1;
+  const base = { quality: m.quality, risk: m.risk, speed: m.speed, perfectFloor: m.perfectFloor };
+  return {
+    id: `dev-${stage}-${m.key}-${tierN}-${DEVICE_SEQ}`,
+    stage,
+    modelKey: m.key,
+    name: m.name,
+    category: m.category,
+    model: m.model,
+    tier: tierN,
+    baseAttrs: base,
+    attrs: deviceEffectiveAttrs(base, tierN),
+    needsKits: Boolean(m.needsKits),
+    capacity: 1,
+    workerId: route.workerId,
+    inputType: route.inputType,
+    inputStage: route.inputStage,
+    outputStage: route.outputStage,
+    durationStage: route.durationStage,
+    fee: route.fee,
+    condition: 100,
+    specs: `品质+${m.quality}% · 风险×${m.risk} · 速度+${m.speed}% · 保底${m.perfectFloor}%`,
+  };
+}
+function starterDevices() {
+  return ["opening", "carving", "finishing"].map((stage) => makeDeviceInstance(stage, DEVICE_MODELS[stage][0].key, 1));
+}
+// 设备商统一定价（占位）：型号基价 × (1 + (阶-1)×0.6)
+const DEVICE_SHOP_BASE_PRICE = { rough: 9000, refine: 12000, waterbed: 11000, carve: 13000, cnc: 16000, scan3d: 18000, polish: 12000, inlay: 15000, hiperf: 20000 };
+function deviceShopPrice(modelKey, tier) {
+  const base = DEVICE_SHOP_BASE_PRICE[modelKey] || 10000;
+  return Math.round(base * (1 + (Math.max(1, tier) - 1) * 0.6));
+}
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
 const TIMING = resolveTiming(TIMING_PROFILE);
 
@@ -65,10 +437,10 @@ const qualities = [
 ];
 
 const npcProfiles = [
-  { name: "普通市民", minRep: 0, minScore: 1, quantity: 1, pay: 2100, rep: 4, taste: "价格实在", acceptedKinds: ["bracelet", "peacePendant", "leafPendant"], preferredKinds: ["peacePendant"], tasteTags: ["budget"] },
-  { name: "富商太太", minRep: 35, minScore: 3, quantity: 1, pay: 7600, rep: 18, taste: "种水好、颜色正", acceptedKinds: ["bracelet", "ruyiPendant"], preferredKinds: ["bracelet"], tasteTags: ["color", "gift"] },
-  { name: "收藏家", minRep: 100, minScore: 4, quantity: 1, pay: 18800, rep: 42, taste: "要稀有高货", acceptedKinds: ["bracelet", "cabochon"], preferredKinds: ["bracelet"], tasteTags: ["highGrade"] },
-  { name: "珠宝商", minRep: 65, minScore: 2, quantity: 2, pay: 9800, rep: 22, taste: "稳定批量供货", acceptedKinds: ["bracelet", "cabochon", "peacePendant", "ruyiPendant", "leafPendant"], preferredKinds: ["cabochon", "leafPendant"], tasteTags: ["batch"] }
+  { name: "普通市民", minRep: 0, minScore: 1, quantity: 1, pay: 2100, rep: 4, taste: "价格实在", acceptedKinds: ["bracelet", "peacePendant", "leafPendant", "dropPendant", "gourdPendant", "fuBeanPendant"], preferredKinds: ["peacePendant"], tasteTags: ["budget"] },
+  { name: "富商太太", minRep: 35, minScore: 3, quantity: 1, pay: 7600, rep: 18, taste: "种水好、颜色正", acceptedKinds: ["bracelet", "ruyiPendant", "buddhaPendant", "guanyinPendant"], preferredKinds: ["bracelet"], tasteTags: ["color", "gift"] },
+  { name: "收藏家", minRep: 100, minScore: 4, quantity: 1, pay: 18800, rep: 42, taste: "要稀有高货", acceptedKinds: ["bracelet", "cabochon", "plaque", "beads"], preferredKinds: ["bracelet"], tasteTags: ["highGrade"] },
+  { name: "珠宝商", minRep: 65, minScore: 2, quantity: 2, pay: 9800, rep: 22, taste: "稳定批量供货", acceptedKinds: ["bracelet", "cabochon", "peacePendant", "ruyiPendant", "leafPendant", "dropPendant", "plaque", "fuBeanPendant", "gourdPendant", "beads"], preferredKinds: ["cabochon", "leafPendant", "beads"], tasteTags: ["batch"] }
 ];
 
 const state = {
@@ -78,7 +450,9 @@ const state = {
   roughPool: [],
   listings: [],
   news: [],
-  auction: null
+  auction: null,
+  latestAuctionResults: [],
+  auctionHistory: []
 };
 
 function pick(list) {
@@ -92,6 +466,21 @@ function clamp(value, min, max) {
 function money(value) {
   const amount = Number(value);
   return Math.max(0, Math.round(Number.isFinite(amount) ? amount : 0));
+}
+
+function uiMoney(value) {
+  return `¥${money(value).toLocaleString("zh-CN")}`;
+}
+
+// 交易行市场税：成交时买家在挂牌价之外额外支付 3%，卖家仍收全额（对齐设计文档 §34）
+const MARKET_TAX = 0.03;
+
+function emitUiEvent(socket, event = {}) {
+  if (!socket || !event || typeof event !== "object") return;
+  socket.emit("ui:event", {
+    id: event.id || randomUUID(),
+    ...event
+  });
 }
 
 function recordLedger(player, kind, amount, note, meta = {}) {
@@ -138,25 +527,18 @@ function releaseDeposit(player, amount, note, meta = {}) {
   return income;
 }
 
-function auctionBidExposure(bid = {}) {
-  const amount = money(bid.amount);
-  return Math.max(amount, money(bid.proxyMax ?? amount));
-}
-
-function auctionHeldDeposit(bid = {}) {
-  return bidDeposit(auctionBidExposure(bid));
-}
-
 function publicAuctionHalls(player) {
   const rep = Number(player?.rep || 0);
   return AUCTION_HALLS.map((hall) => ({
     id: hall.id,
     label: hall.label,
-    requiredRep: hall.requiredRep,
+    requiredLevel: hall.requiredLevel,
+    windowRate: hall.windowRate,
     deposit: hall.deposit,
+    entryFee: auctionEntryFee(hall),
     tone: hall.tone,
     priceNote: hall.priceNote,
-    unlocked: rep >= hall.requiredRep,
+    unlocked: repLevelForRep(rep) >= hall.requiredLevel,
     active: hall.id === DEFAULT_AUCTION_HALL_ID
   }));
 }
@@ -166,6 +548,268 @@ function normalizeAssets(player) {
   player.assets.workshopOwned = Boolean(player.assets.workshopOwned);
   player.assets.livestreamPermitOwned = Boolean(player.assets.livestreamPermitOwned);
   return player.assets;
+}
+
+function materialStageFor(item) {
+  if (!item || typeof item !== "object") return "unknown";
+  if (item.materialStage) return item.materialStage;
+  if (item.type === "rough") return item.revealed || item.polished ? "opened" : "rough";
+  if (item.stage === "opened" || item.stage === "material") return "opened";
+  if (item.stage === "carved") return "carved";
+  if (item.stage === "polished") return "polished";
+  if (item.stage === "finished" || item.inlaid) return "finished";
+  if (item.type === "bracelet") return "finished";
+  return "unknown";
+}
+
+function mergeWorkerSkills(defSkills, existingSkills) {
+  const out = {};
+  for (const dir of ["cut", "set", "finish", "speak"]) {
+    out[dir] = {};
+    const defDir = defSkills?.[dir] || {};
+    const exDir = existingSkills?.[dir] || {};
+    for (const key of Object.keys(defDir)) {
+      const ex = exDir[key] || {};
+      const defSkill = defDir[key] || { level: 1, exp: 0 };
+      out[dir][key] = {
+        level: clamp(Math.round(Number(ex.level ?? defSkill.level) || 1), 1, 10),
+        exp: Math.max(0, Number(ex.exp ?? defSkill.exp) || 0)
+      };
+    }
+  }
+  return out;
+}
+
+function normalizeWorkshop(player) {
+  player.workshop ||= {};
+  const existingDevices = new Map((player.workshop.devices || []).map((device) => [device.id, device]));
+  const existingWorkers = new Map((player.workshop.workers || []).map((worker) => [worker.id, worker]));
+  if (Array.isArray(player.workshop.devices) && player.workshop.devices.length) {
+    // 返回玩家：保留已有设备，重算有效属性
+    player.workshop.devices = player.workshop.devices.map((d) => {
+      const existing = d || {};
+      const base = existing.baseAttrs || { quality: 0, risk: 1, speed: 0, perfectFloor: 0 };
+      const tier = Math.max(1, Math.min(10, Number(existing.tier) || 1));
+      return {
+        ...existing,
+        tier,
+        baseAttrs: base,
+        attrs: deviceEffectiveAttrs(base, tier),
+        capacity: Math.max(1, Number(existing.capacity) || 1),
+        condition: clamp(Number(existing.condition ?? 100), 0, 100),
+      };
+    });
+  } else {
+    // 新玩家：每工序赠送 1 台 tier-1 默认型号
+    player.workshop.devices = starterDevices();
+  }
+  player.workshop.workers = WORKSHOP_WORKER_DEFS.map((definition) => {
+    const existing = existingWorkers.get(definition.id) || {};
+    return {
+      ...definition,
+      ...existing,
+      job: existing.job || definition.job,
+      tier: (typeof existing?.tier === "number" ? existing.tier : definition.tier),
+      tierLevel: Math.max(1, Math.round(Number(existing.tierLevel ?? definition.tierLevel) || definition.tierLevel) || 1),
+      traits: Array.isArray(existing.traits) && existing.traits.length ? existing.traits : definition.traits,
+      flaws: Array.isArray(existing.flaws) ? existing.flaws : definition.flaws,
+      skills: mergeWorkerSkills(definition.skills, existing.skills)
+    };
+  });
+  if (!player.workshop.selectedDeviceId || !player.workshop.devices.some((device) => device.id === player.workshop.selectedDeviceId)) {
+    player.workshop.selectedDeviceId = player.workshop.devices[0]?.id;
+  }
+  return player.workshop;
+}
+
+function workshopDevicesForPlayer(player) {
+  normalizeWorkshop(player);
+  return player.workshop.devices;
+}
+
+function workshopDeviceForPlayer(player, deviceId) {
+  const devs = workshopDevicesForPlayer(player);
+  return devs.find((device) => device.id === deviceId) || devs.find((device) => device.stage === deviceId) || null;
+}
+
+function workshopWorkerForPlayer(player, workerId) {
+  normalizeWorkshop(player);
+  return player.workshop.workers.find((worker) => worker.id === workerId) || null;
+}
+
+// ===== 员工技能 → 加工属性派生（与前端 public/workshop-module.js 共用同一套公式）=====
+// 品阶 = 数字 1~10 阶（替代原有的 白/绿/蓝/紫/金 颜色名）
+const WS_TIER_MULT = { 1: 1.0, 2: 1.07, 3: 1.15, 4: 1.24, 5: 1.35, 6: 1.47, 7: 1.6, 8: 1.72, 9: 1.85, 10: 2.0 };
+const WS_K_CURVE = [0, 0.12, 0.24, 0.37, 0.5, 0.63, 0.74, 0.83, 0.9, 0.95, 1.0];
+const WS_SKILL_DEFS = {
+  jieliao:   { name: "解料", attr: "完整度",     full: 18, dir: "cut" },
+  damo:      { name: "打磨", attr: "光泽度",     full: 15, dir: "cut" },
+  qieliao:   { name: "切料", attr: "瑕疵控制",   full: 12, dir: "set" },
+  xiuxing:   { name: "修形", attr: "造型精度",   full: 14, dir: "set" },
+  diaozhuo:  { name: "雕琢", attr: "雕琢精细度", full: 22, dir: "finish" },
+  xiangqian: { name: "镶嵌", attr: "镶嵌贴合度", full: 16, dir: "finish" },
+  huashu:    { name: "话术", attr: "溢价力",     full: 12, dir: "speak" },
+  kongchang: { name: "控场", attr: "控场流速",   full: 10, dir: "speak" },
+  cuidan:    { name: "催单", attr: "逼单转化",   full: 10, dir: "speak" }
+};
+const WS_PROCESS_SKILLS = ["jieliao", "damo", "qieliao", "xiuxing", "diaozhuo", "xiangqian"];
+const WS_STEP_ATTRS = { open: ["jieliao", "damo"], plan: ["qieliao", "xiuxing"], finish: ["diaozhuo", "xiangqian"] };
+const WS_FLAW_DEFS = { 易裂: -0.08, 易出绵: -0.06, 易脏: -0.05, 手重: -0.04, 巧手: 0.05, 净料: 0.06, 稳手: 0.04, 心细: 0.04 };
+const WS_FLAW_POOL = ["裂", "绵", "棉", "脏点", "崩口"];
+// 碎裂防御：员工词条 + 技能均可影响碎裂概率（见 completeProductionJob）
+const WS_SHATTER_SKILLS = ["jieliao", "qieliao", "xiuxing"]; // 解料(完整度)/切料(瑕疵控制)/修形(造型精度)：物理稳定相关，越高越不易碎
+const WS_SHATTER_SKILL_UNIT = 0.02; // 每条防碎技能满级满阶贡献 2 个百分点减碎裂（占位，待调）
+// 完美度（= 工分）标签阈值：工分≥此值标「完美」，≤此值标「瑕疵」，中间为普通（无标签）；占位，待调
+const WS_PERFECT_SCORE = 100;
+const WS_FLAW_SCORE = 35;
+// 瑕疵件确定性标签映射（不随机）：员工负面天赋 → 显示瑕疵名，否则默认「绵」
+const WS_FLAW_TAG_MAP = { 易裂: "裂", 易出绵: "绵", 易脏: "脏点", 手重: "崩口" };
+
+// ===== 加工「工分」评分体系（方案A：加权合成 + 评级 + 中间产物按已完成工序评分）=====
+// 单工序内：两个属性按权重加权，技能×品阶映射到 0~120 的工分子分
+const WS_STEP_ATTR_WEIGHTS = {
+  open:   { jieliao: 0.55, damo: 0.45 },   // 开料：完整度 55% + 光泽度 45%
+  plan:   { qieliao: 0.40, xiuxing: 0.60 }, // 规划：瑕疵控制 40% + 造型精度 60%
+  finish: { diaozhuo: 0.55, xiangqian: 0.45 } // 精加工：雕琢精细度 55% + 镶嵌贴合度 45%
+};
+// 总工分中各工序的权重（仅「已完成」的工序参与聚合，权重自动归一化）
+const WS_STEP_OVERALL_WEIGHTS = { open: 0.30, plan: 0.35, finish: 0.35 };
+// 工分 → 价格加成上限：工分100 ≈ 成品价 +50%（即加工环节约占成品 1/3，封顶可控）
+const WS_PROCESS_BONUS_CAP = 0.3;
+// 评级阈值与溢价/折扣（工分驱动主加成，评级再微调价格；占位，待调）
+const WS_GRADE_RULES = [
+  { grade: "S", min: 100, mult: 1.04 },
+  { grade: "A", min: 85,  mult: 1.00 },
+  { grade: "B", min: 70,  mult: 0.97 },
+  { grade: "C", min: 55,  mult: 0.94 },
+  { grade: "D", min: 0,   mult: 0.90 }
+];
+
+function wsSkillThreshold(level) { return 50 * level; }
+function wsSkillK(level, exp) {
+  const L = clamp(Math.round(Number(level) || 1), 1, 10);
+  const p = clamp((Number(exp) || 0) / wsSkillThreshold(L), 0, 1);
+  const k0 = WS_K_CURVE[L];
+  const k1 = L < 10 ? WS_K_CURVE[L + 1] : WS_K_CURVE[10];
+  return k0 + p * (k1 - k0);
+}
+function wsTierM(worker) {
+  const base = WS_TIER_MULT[worker?.tier] ?? 1.0;
+  const tl = Number(worker?.tierLevel || 1);
+  return base * (1 + 0.06 * (tl - 1));
+}
+function wsWorkerSkill(worker, key) {
+  const dir = WS_SKILL_DEFS[key]?.dir;
+  return (worker?.skills?.[dir]?.[key]) || { level: 1, exp: 0 };
+}
+function wsAttrValue(worker, key) {
+  const sk = wsWorkerSkill(worker, key);
+  return (WS_SKILL_DEFS[key]?.full || 0) * wsSkillK(sk.level, sk.exp) * wsTierM(worker);
+}
+// 员工对碎裂概率的防御值（概率增量，正=降低碎裂，负=升高碎裂）
+function employeeShatterDefense(worker) {
+  if (!worker) return 0;
+  const flawProb = -(worker.flaws || []).reduce((s, f) => s + (WS_FLAW_DEFS[f] || 0), 0);
+  let skillProb = 0;
+  for (const key of WS_SHATTER_SKILLS) {
+    const sk = wsWorkerSkill(worker, key);
+    skillProb += WS_SHATTER_SKILL_UNIT * wsSkillK(sk.level, sk.exp) * wsTierM(worker);
+  }
+  return flawProb - skillProb; // 正=减碎裂概率
+}
+// 服务端工序 → 设计步骤：开料(open) / 规划(plan) / 精加工(finish)（统一为 3 步）
+function wsStageToStep(stage) {
+  if (stage === "rough" || stage === "opening") return "open";
+  if (stage === "refine" || stage === "carving") return "plan";
+  return "finish";
+}
+// 单工序「工分子分」（0~120）：本工序两个属性按权重加权，技能×品阶映射；词条净修正并入工分
+function wsStepScore(worker, step) {
+  const w = WS_STEP_ATTR_WEIGHTS[step];
+  if (!w || !worker) return 0;
+  let s = 0;
+  for (const key in w) {
+    const sk = wsWorkerSkill(worker, key);
+    s += w[key] * wsSkillK(sk.level, sk.exp) * wsTierM(worker) * 100;
+  }
+  // 词条净修正并入工分（完美度=工分，故原「完美率词条」现在直接抬升/压低工分；正负均生效，封顶 120）
+  let flawNet = 0;
+  for (const f of (worker?.flaws || [])) flawNet += (WS_FLAW_DEFS[f] || 0);
+  if (flawNet) s *= (1 + flawNet);
+  return clamp(s, 0, 120);
+}
+// 总工分：仅「已完成」工序参与，按 WS_STEP_OVERALL_WEIGHTS 自动归一化聚合
+function wsOverallScore(item) {
+  const scores = (item && item.craftScores) || {};
+  let wsum = 0, acc = 0;
+  for (const step in WS_STEP_OVERALL_WEIGHTS) {
+    if (scores[step] == null) continue;
+    const w = WS_STEP_OVERALL_WEIGHTS[step];
+    wsum += w; acc += w * scores[step];
+  }
+  return wsum > 0 ? acc / wsum : 0;
+}
+function wsCraftGrade(score) {
+  for (const r of WS_GRADE_RULES) if (score >= r.min) return r.grade;
+  return "D";
+}
+function wsGradeMult(score) {
+  for (const r of WS_GRADE_RULES) if (score >= r.min) return r.mult;
+  return 0.82;
+}
+// 加工速度时间缩放：6 技能各 +4%×k×M，耗时 ÷(1+Σ)
+function wsSpeedTimeScale(worker) {
+  let speed = 0;
+  for (const key of WS_PROCESS_SKILLS) {
+    const sk = wsWorkerSkill(worker, key);
+    speed += 0.04 * wsSkillK(sk.level, sk.exp) * wsTierM(worker);
+  }
+  return 1 / (1 + speed);
+}
+// 完美度标签：工分即完美度，不再掷骰。工分≥WS_PERFECT_SCORE 标「完美」，≤WS_FLAW_SCORE 标「瑕疵」，中间无特殊标签。
+function wsCraftPerfectLabel(score) {
+  if (score >= WS_PERFECT_SCORE) return "完美";
+  if (score <= WS_FLAW_SCORE) return "瑕疵";
+  return "";
+}
+// 瑕疵件确定性标签（不随机）：优先取员工负面天赋映射的瑕疵名，否则默认「绵」
+function wsCraftFlawTag(worker) {
+  for (const f of (worker?.flaws || [])) if (WS_FLAW_TAG_MAP[f]) return WS_FLAW_TAG_MAP[f];
+  return "绵";
+}
+// 把加工结果落到单个产物上：工分加成 + 评级倍率 + 完美/瑕疵结算
+// 基数用 item.baseValue（本阶段纯料值，已剥离历史工分加成），避免多工序间工分加成重复复利
+// bonus = 已算好的总价格加成系数（工分/100×CAP + 设备品质%）；gradeMult = 评级倍率
+function wsApplyWorker(item, bonus, gradeMult, worker) {
+  const base = Number(item.baseValue ?? item.value ?? item.price ?? 0);
+  if (base <= 0) return item;
+  const v = base * (1 + (bonus || 0)) * (gradeMult || 1);
+  item.value = money(v);
+  // 完美度标签：工分即完美度，确定性、无随机。完美件/瑕疵件不再有额外价格跳变（价格已完全由工分平滑决定）。
+  const score = Number(item.craftScore || 0);
+  item.craftPerfect = score >= WS_PERFECT_SCORE;
+  item.craftFlaw = (score <= WS_FLAW_SCORE) ? wsCraftFlawTag(worker) : null;
+  return item;
+}
+
+function legacyDeviceIdForStage(stage) {
+  if (stage === "rough") return "opening";
+  if (stage === "refine") return "carving";
+  if (stage === "inlay") return "finishing";
+  return stage;
+}
+
+function workshopJobsForDevice(player, deviceId) {
+  normalizePlayer(player);
+  return (player.jobs || []).filter((job) => (job.deviceId || legacyDeviceIdForStage(job.stage)) === deviceId);
+}
+
+function workshopProcessableItems(player, deviceId) {
+  normalizePlayer(player);
+  const device = workshopDeviceForPlayer(player, deviceId);
+  if (!device) return [];
+  const bucket = device.inputType === "rough" ? player.rough : player.bracelets;
+  return bucket.filter((item) => materialStageFor(item) === device.inputStage);
 }
 
 function playerOwnsWorkshop(player) {
@@ -339,7 +983,10 @@ function privatePlayerSnapshot(player) {
     bracelets: player.bracelets.map(publicStone),
     livestreamJobs: player.livestreamJobs.map(publicLivestreamJob),
     livestreamHistory: player.livestreamHistory.map(publicLivestreamJob),
-    collection: player.collection.map(publicStone)
+    collection: player.collection.map(publicStone),
+    tasks: (player.tasks || []).map((task) => ({ ...task })),
+    taskRefreshedAt: player.taskRefreshedAt || Date.now(),
+    taskRefreshMs: TASK_REFRESH_MS
   };
 }
 
@@ -358,7 +1005,9 @@ function snapshotFor(player, now = Date.now()) {
     roughPool: state.roughPool.map(publicStone),
     listings: state.listings.map(publicListing),
     assetListings: assetListingsForPlayer(player),
-    auction: publicAuctionSnapshot(auction, player.id, now),
+    materialCatalog: materialCatalogForPlayer(player),
+    auction: publicAuctionSnapshot(auction, player.id, now, state.latestAuctionResults),
+    auctionHistory: state.auctionHistory.map((entry) => publicAuctionHistoryEntry(entry, player.id)),
     auctionHalls: publicAuctionHalls(player),
     players: [...state.players.values()].map(publicPlayer).sort((a, b) => b.rep - a.rep),
     news: state.news
@@ -406,7 +1055,8 @@ function makeRoughStone() {
     expertClues: makeExpertClues(fog, trueQuality, confidence, mass),
     windows: [],
     visual: makeStoneVisual(fog, trueQuality, confidence),
-    trueQualityKey: trueQuality.key
+    trueQualityKey: trueQuality.key,
+    materialStage: "rough"
   };
 }
 
@@ -473,6 +1123,7 @@ function makeStarterRough(playerId) {
     owner: playerId,
     revealed: false,
     polished: false,
+    materialStage: "rough",
     starter: true
   };
 }
@@ -481,38 +1132,58 @@ function makeStarterRoughs(playerId, count = STARTER_ROUGH_COUNT) {
   return Array.from({ length: count }, () => makeStarterRough(playerId));
 }
 
-function ensureAuctionRound(now = Date.now()) {
-  if (state.auction && !state.auction.settledAt) return state.auction;
-  if (state.auction?.settledAt && now - state.auction.settledAt <= TIMING.auction.settlement) return state.auction;
+function auctionRoundDuration() {
+  const configured = TIMING.auction.duration ?? ((TIMING.auction.registration || 0) + (TIMING.auction.bidding || 0));
+  return money(configured || 10 * 60 * 1000);
+}
+
+function auctionEndsAt(round) {
+  return Number(round?.endsAt ?? round?.biddingEndsAt ?? 0);
+}
+
+function playerEnteredAuction(round, playerId) {
+  return (round?.entries || []).some((entry) => entry.playerId === playerId);
+}
+
+function createAuctionRound(now = Date.now()) {
   refreshRoughPool();
   const hall = auctionHallForId(DEFAULT_AUCTION_HALL_ID);
-  const registrationStartsAt = now;
-  const startsAt = now + TIMING.auction.registration;
-  const biddingEndsAt = startsAt + TIMING.auction.bidding;
-  const settlementEndsAt = biddingEndsAt + TIMING.auction.settlement;
+  const startsAt = now;
+  const endsAt = startsAt + auctionRoundDuration();
   state.auction = {
     id: randomUUID(),
     hallId: hall.id,
     hallLabel: hall.label,
-    status: "registration",
-    registrationStartsAt,
+    status: "live",
     startsAt,
-    biddingEndsAt,
-    settlesAt: biddingEndsAt,
-    settlementEndsAt,
-    registrationDeposit: hall.deposit,
-    registrations: [],
+    endsAt,
+    biddingEndsAt: endsAt,
+    entryFee: auctionEntryFee(hall),
+    entries: [],
     roughs: state.roughPool.slice(0, 8),
     bids: [],
     results: []
   };
-  addNews(`${hall.label}报名开启，5 分钟后进入竞价。`, "info");
+  addNews(`${hall.label}已开场，10 分钟内可入场暗标。`, "info");
   return state.auction;
 }
 
+function ensureAuctionRound(now = Date.now()) {
+  if (state.auction && !state.auction.settledAt && now < auctionEndsAt(state.auction)) return state.auction;
+  if (state.auction && !state.auction.settledAt && now >= auctionEndsAt(state.auction)) {
+    settleAuctionIfDue(now);
+    return state.auction;
+  }
+  return createAuctionRound(now);
+}
+
 function settleAuctionIfDue(now = Date.now()) {
-  const round = ensureAuctionRound(now);
-  if (round.settledAt || now < round.biddingEndsAt) return false;
+  const round = state.auction;
+  if (!round) {
+    ensureAuctionRound(now);
+    return false;
+  }
+  if (round.settledAt || now < auctionEndsAt(round)) return false;
   const withAi = {
     ...round,
     bids: [
@@ -520,132 +1191,102 @@ function settleAuctionIfDue(now = Date.now()) {
       ...round.roughs.flatMap((rough) => aiBidsForRough(rough, round.bids, 3))
     ]
   };
-  const settled = settleAuctionRound(withAi, { now, minIncrement: 100 });
-  state.auction = settled;
-  for (const registration of settled.registrations || []) {
-    const registrant = state.players.get(registration.playerId);
-    if (!registrant || !registration.deposit) continue;
-    releaseDeposit(registrant, registration.deposit, `退回报名保证金：${settled.hallLabel || "公盘"}`, { source: "auctionRegistrationRefund", itemId: settled.id });
-  }
-  const humanWinners = new Set(settled.results
-    .filter((result) => result.winnerId && !result.ai)
-    .map((result) => `${result.roughId}:${result.winnerId}`));
-  for (const bid of settled.bids || []) {
-    if (bid.ai || humanWinners.has(`${bid.roughId}:${bid.playerId}`)) continue;
-    const bidder = state.players.get(bid.playerId);
-    const rough = settled.roughs.find((item) => item.id === bid.roughId);
-    if (!bidder || !rough) continue;
-    const refund = auctionHeldDeposit(bid);
-    if (refund > 0) {
-      releaseDeposit(bidder, refund, `退回保证金：${rough.name}`, { itemId: rough.id });
-      queueOfflineEvent(bidder, {
-        type: "auction",
-        text: `公盘未中标：${rough.name} 退回保证金 ${refund}`,
-        income: refund,
-        expense: 0,
-        readyAt: settled.settledAt
-      });
+  const settled = settleAuctionRound(withAi, {
+    now,
+    bidderCanPay: (bid) => {
+      if (bid.ai) return true;
+      const bidder = state.players.get(bid.playerId);
+      return Boolean(bidder && bidder.cash >= money(bid.amount));
     }
-  }
+  });
+  state.latestAuctionResults = settled.results;
+  state.auctionHistory.unshift({
+    id: settled.id,
+    roundId: settled.id,
+    hallId: settled.hallId,
+    hallLabel: settled.hallLabel,
+    startsAt: settled.startsAt,
+    endsAt: settled.endsAt ?? settled.biddingEndsAt,
+    settledAt: settled.settledAt,
+    results: settled.results
+  });
+  state.auctionHistory = state.auctionHistory.slice(0, 24);
   for (const result of settled.results) {
-    if (!result.winnerId) continue;
     const rough = settled.roughs.find((item) => item.id === result.roughId);
     if (!rough) continue;
+    if (!result.winnerId) continue;
     if (result.ai) {
       state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
       continue;
     }
     const winner = state.players.get(result.winnerId);
     if (!winner) continue;
-    const winningBid = settled.bids.find((bid) => bid.playerId === winner.id && bid.roughId === rough.id);
-    const heldDeposit = auctionHeldDeposit(winningBid);
-    const depositUsed = Math.min(money(result.price), heldDeposit);
-    const depositRefund = Math.max(0, heldDeposit - depositUsed);
-    result.depositUsed = depositUsed;
-    result.balanceDue = Math.max(0, money(result.price) - depositUsed);
-    if (winner.cash < result.balanceDue) {
-      addNews(`${winner.name} 中标 ${rough.name} 后尾款不足，保证金被没收。`, "bad");
-      queueOfflineEvent(winner, {
-        type: "auction",
-        text: `公盘中标：${rough.name} 尾款不足，保证金被没收`,
-        income: 0,
-        expense: 0,
-        readyAt: settled.settledAt
-      });
-      result.status = "passed";
-      result.price = 0;
-      result.depositUsed = 0;
-      result.balanceDue = 0;
-      delete result.winnerId;
-      continue;
-    }
-    if (result.balanceDue > 0) {
-      spendCash(winner, result.balanceDue, `公盘尾款：${rough.name}`, { source: "auction", itemId: rough.id });
-    }
-    if (depositRefund > 0) {
-      releaseDeposit(winner, depositRefund, `退回保证金：${rough.name}`, { itemId: rough.id });
-    }
+    spendCash(winner, result.price, `公盘成交：${rough.name}`, { source: "auction", itemId: rough.id });
     state.roughPool = state.roughPool.filter((item) => item.id !== rough.id);
-    winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false });
+    winner.rough.push({ ...rough, type: "rough", owner: winner.id, revealed: false, polished: false, materialStage: "rough" });
+    advanceTask(winner, "auction_win");
     queueOfflineEvent(winner, {
       type: "auction",
       text: `公盘中标：${rough.name} 成交 ${money(result.price)}，已入库`,
-      income: depositRefund,
-      expense: result.balanceDue,
+      income: 0,
+      expense: result.price,
       readyAt: settled.settledAt
     });
     refreshPlayerReport(winner);
     addNews(`${winner.name} 暗标中标 ${rough.name}，成交 ${result.price}。`, "trade");
   }
   refreshRoughPool();
-  addNews(`${settled.hallLabel || "公盘"}开标完成，结果保留 30 秒。`, "trade");
+  addNews(`${settled.hallLabel || "公盘"}开标完成，新一场已接续。`, "trade");
+  createAuctionRound(now);
   return true;
 }
 
 function processAuctionLifecycle(now = Date.now()) {
   const settled = settleAuctionIfDue(now);
-  let rotated = false;
-  if (state.auction?.settledAt && now - state.auction.settledAt > TIMING.auction.settlement) {
-    state.auction = null;
-    ensureAuctionRound(now);
-    rotated = true;
-  }
-  return settled || rotated;
+  if (!state.auction) ensureAuctionRound(now);
+  return settled;
 }
 
-function joinAuctionForPlayer(player, payload = {}, now = Date.now()) {
+function enterAuctionForPlayer(player, payload = {}, now = Date.now()) {
   if (!player) return { ok: false, message: "未找到玩家。" };
   normalizePlayer(player);
   const hallId = payload?.hallId || DEFAULT_AUCTION_HALL_ID;
   if (hallId !== DEFAULT_AUCTION_HALL_ID) return { ok: false, message: "该公盘入口暂未开放。" };
-  const round = ensureAuctionRound(now);
-  if (round.settledAt || now >= round.startsAt) return { ok: false, message: "本轮公盘报名已截止。" };
-  const existing = (round.registrations || []).find((registration) => registration.playerId === player.id);
-  if (existing) return { ok: true, message: "已报名本轮公盘。", deposit: existing.deposit, registration: existing };
-  const deposit = money(round.registrationDeposit ?? auctionHallForId(round.hallId).deposit);
-  if (deposit > 0 && !holdDeposit(player, deposit, `公盘报名保证金：${round.hallLabel || "公盘"}`, { source: "auctionRegistration", itemId: round.id, repEligible: false })) {
-    return { ok: false, message: `报名保证金需要 ${deposit}。` };
+  if (state.auction && !state.auction.settledAt && now >= auctionEndsAt(state.auction)) {
+    settleAuctionIfDue(now);
   }
-  const next = registerAuctionBidder(round, { playerId: player.id, deposit, at: now });
+  const round = ensureAuctionRound(now);
+  if (round.settledAt || now >= auctionEndsAt(round)) return { ok: false, message: "本场拍卖已截止。" };
+  const existing = (round.entries || []).find((entry) => entry.playerId === player.id);
+  if (existing) return { ok: true, message: "已入场本场公盘。", entryFee: existing.fee, entry: existing };
+  const entryFee = money(round.entryFee ?? auctionEntryFee(auctionHallForId(round.hallId)));
+  if (entryFee > 0 && !spendCash(player, entryFee, `公盘入场费：${round.hallLabel || "公盘"}`, { source: "auctionEntry", itemId: round.id, repEligible: false })) {
+    return { ok: false, message: `入场费需要 ${entryFee}。` };
+  }
+  const next = enterAuctionRound(round, { playerId: player.id, fee: entryFee, at: now });
   state.auction = next.round;
-  addNews(`${player.name} 报名了${round.hallLabel || "公盘"}。`, "info");
-  return { ok: true, message: "报名成功。", deposit, registration: next.registration };
+  addNews(`${player.name} 入场了${round.hallLabel || "公盘"}。`, "info");
+  return { ok: true, message: "入场成功。", entryFee, entry: next.entry };
+}
+
+function joinAuctionForPlayer(player, payload = {}, now = Date.now()) {
+  return enterAuctionForPlayer(player, payload, now);
 }
 
 function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
   if (!player) return { ok: false, message: "未找到玩家。" };
   if (!payload || typeof payload !== "object") return { ok: false, message: "投标参数无效。" };
   normalizePlayer(player);
-  if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
+  if (state.auction && !state.auction.settledAt && now >= auctionEndsAt(state.auction)) {
     settleAuctionIfDue(now);
+    return { ok: false, message: "本场拍卖已截止，已进入下一场。" };
   }
   const round = ensureAuctionRound(now);
-  if (round.settledAt || now >= round.biddingEndsAt) {
+  if (round.settledAt || now >= auctionEndsAt(round)) {
     return { ok: false, message: "本轮公盘已截止。" };
   }
-  if (now < round.startsAt) return { ok: false, message: "竞价尚未开始，请先报名等待开盘。" };
-  if (Array.isArray(round.registrations) && !round.registrations.some((registration) => registration.playerId === player.id)) {
-    return { ok: false, message: "请先报名本轮公盘。" };
+  if (!playerEnteredAuction(round, player.id)) {
+    return { ok: false, message: "请先入场本场公盘。" };
   }
   const roughId = payload.roughId;
   const rough = round.roughs.find((item) => item.id === roughId);
@@ -656,37 +1297,31 @@ function submitAuctionBidForPlayer(player, payload, now = Date.now()) {
     playerId: player.id,
     roughId,
     amount: bidAmount,
-    proxyMax: payload.proxyMax,
     at: now
   });
-  if (next.depositDelta > 0 && !holdDeposit(player, next.depositDelta, `公盘保证金：${rough.name}`, { itemId: rough.id })) {
-    return { ok: false, message: `保证金还需 ${next.depositDelta}。` };
-  }
-  if (next.depositDelta < 0) {
-    releaseDeposit(player, Math.abs(next.depositDelta), `退回保证金：${rough.name}`, { itemId: rough.id });
-  }
   state.auction = next.round;
   addNews(`${player.name} 提交了 ${rough.name} 的密封投标。`, "info");
-  return { ok: true, message: "暗标已提交。", bid: next.bid, depositDelta: next.depositDelta };
+  return { ok: true, message: "暗标已提交。", bid: next.bid };
 }
 
 function requestAuctionWindowForPlayer(player, payload, now = Date.now()) {
   if (!player) return { ok: false, message: "未找到玩家。" };
   const { roughId, x, y } = normalizeWindowPayload(payload);
-  if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
+  if (state.auction && !state.auction.settledAt && now >= auctionEndsAt(state.auction)) {
     settleAuctionIfDue(now);
+    return { ok: false, message: "当前公盘已停止开窗，已进入下一场。" };
   }
   const round = ensureAuctionRound(now);
-  if (round.settledAt || now >= round.biddingEndsAt) {
+  if (round.settledAt || now >= auctionEndsAt(round)) {
     return { ok: false, message: "当前公盘已停止开窗。" };
   }
-  if (now < round.startsAt) return { ok: false, message: "竞价尚未开始，报名后开盘再开窗。" };
-  if (Array.isArray(round.registrations) && !round.registrations.some((registration) => registration.playerId === player.id)) {
-    return { ok: false, message: "请先报名本轮公盘。" };
+  if (!playerEnteredAuction(round, player.id)) {
+    return { ok: false, message: "请先入场本场公盘。" };
   }
   const rough = round.roughs.find((item) => item.id === roughId);
   if (!rough) return { ok: false, message: "这块原石不在当前公盘。" };
-  const fee = money(rough.price * OPEN_WINDOW_RATE);
+  const hall = AUCTION_HALLS.find((h) => h.id === round.hallId) || AUCTION_HALLS[0];
+  const fee = money(rough.price * (hall.windowRate ?? OPEN_WINDOW_RATE));
   if (!spendCash(player, fee, `开窗：${rough.name}`, { source: "window", itemId: rough.id })) {
     return { ok: false, message: `开窗费需要 ${fee}。` };
   }
@@ -704,7 +1339,7 @@ function makePlayer(playerId) {
     rep: 0,
     satisfaction: 72,
     assets: {
-      workshopOwned: false,
+      workshopOwned: true,
       livestreamPermitOwned: false
     },
     offlineSummary: null,
@@ -715,9 +1350,13 @@ function makePlayer(playerId) {
     starterRoughGranted: true,
     jobs: [],
     externalMaterials: {
-      silverMount: 2,
-      goldMount: 0,
-      diamondChips: 0
+      goldPure: 0,
+      silver925: 0,
+      gold18k: 0,
+      platinum: 0,
+      diamond: 0,
+      ruby: 0,
+      sapphire: 0
     },
     polishingJobs: [],
     materials: [],
@@ -727,6 +1366,8 @@ function makePlayer(playerId) {
     livestreamHistory: [],
     collection: [],
     orders: [],
+    payouts: [],
+    soldCount: 0,
     pendingOfflineEvents: [],
     stats: {
       cutCount: 0,
@@ -745,14 +1386,32 @@ function normalizePlayer(player) {
   if (player.starterRoughGranted !== true && player.rough.length === 0) {
     player.rough.push(...makeStarterRoughs(player.id));
   }
+  player.rough = player.rough.map((rough) => ({
+    ...rough,
+    type: "rough",
+    materialStage: materialStageFor(rough)
+  }));
   player.starterRoughGranted = true;
   player.jobs ||= [];
-  player.externalMaterials ||= { silverMount: 0, goldMount: 0, diamondChips: 0 };
+  const em = player.externalMaterials ||= {};
+  player.externalMaterials = {
+    goldPure:  Number(em.goldPure) || 0,
+    silver925: Number(em.silver925 ?? em.silverMount) || 0,
+    gold18k:   Number(em.gold18k ?? em.goldMount) || 0,
+    platinum:  Number(em.platinum) || 0,
+    diamond:   Number(em.diamond ?? em.diamondChips) || 0,
+    ruby:      Number(em.ruby) || 0,
+    sapphire:  Number(em.sapphire) || 0
+  };
   player.polishingJobs ||= player.cuttingJobs || [];
   player.cuttingJobs = [];
   player.materials ||= [];
   player.slices ||= [];
   player.bracelets ||= [];
+  player.bracelets = player.bracelets.map((product) => ({
+    ...product,
+    materialStage: materialStageFor(product)
+  }));
   player.livestreamJobs ||= [];
   player.livestreamHistory ||= [];
   player.collection ||= [];
@@ -769,6 +1428,10 @@ function normalizePlayer(player) {
   player.stats.craftCount ||= 0;
   player.stats.orderCount ||= 0;
   player.stats.tradeCount ||= 0;
+  player.tasks ||= [];
+  player.taskRefreshedAt ||= Date.now();
+  refreshTasksIfDue(player);
+  normalizeWorkshop(player);
 }
 
 function inventoryForReport(player) {
@@ -862,24 +1525,124 @@ function takeItem(player, type, itemId) {
   return bucket.splice(index, 1)[0];
 }
 
+function restoreWorkshopItem(player, item) {
+  if (!item) return;
+  if (item.type === "rough") {
+    restoreRoughToInventory(player, item);
+    return;
+  }
+  player.bracelets.push(item);
+}
+
 function startProductionJob(player, stage, item, options = {}) {
-  const stageCost = { rough: 620, refine: 900, inlay: 480 }[stage] || 620;
+  const stageCost = money(options.fee ?? ({ rough: 620, refine: 900, inlay: 680 }[stage] || 620));
   if (!spendCash(player, stageCost, `${options.label || stage}：${item.name}`, { source: "production", itemId: item.id })) {
     return null;
   }
   const now = Date.now();
+  const durationStage = options.durationStage || stage;
   const job = {
     id: randomUUID(),
     type: "productionJob",
     stage,
+    deviceId: options.deviceId,
+    deviceAttrs: options.deviceAttrs,
+    workerId: options.workerId,
+    outputStage: options.outputStage,
+    outputPreview: options.outputPreview,
     item,
     options,
     fee: stageCost,
     startedAt: now,
-    readyAt: now + productionDuration(stage, TIMING_PROFILE)
+    readyAt: now + Math.round(productionDuration(durationStage, TIMING_PROFILE) * (options.timeScale || 1))
   };
   player.jobs.push(job);
   return job;
+}
+
+function startRoughOpeningForPlayer(player, roughId) {
+  return startWorkshopJobForPlayer(player, "opening", { itemId: roughId });
+}
+
+function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
+  if (!player) return { ok: false, message: "未找到玩家。" };
+  normalizePlayer(player);
+  if (!playerOwnsWorkshop(player)) return { ok: false, message: "先去交易行买下街角小工坊。" };
+  const device = workshopDeviceForPlayer(player, deviceId);
+  if (!device) return { ok: false, message: "这台设备不存在。" };
+  if (workshopJobsForDevice(player, device.id).length >= device.capacity) {
+    return { ok: false, message: "这台设备正在加工，等空位出来再安排。" };
+  }
+  const itemId = payload?.itemId || payload?.roughId || payload?.productId || payload?.braceletId;
+  const item = takeItem(player, device.inputType, itemId);
+  if (!item) return { ok: false, message: "找不到可加工物料。" };
+  const inputStage = materialStageFor(item);
+  if (inputStage !== device.inputStage) {
+    restoreWorkshopItem(player, item);
+    return { ok: false, message: "这台设备不能处理当前阶段的物料。" };
+  }
+
+  let normalizedKits = [];
+  if (device.needsKits) {
+    normalizedKits = normalizeExtractionKits(payload?.kits || []);
+    const legacyKits = !normalizedKits.length && Array.isArray(payload?.placements)
+      ? payload.placements.map((placement) => ({ ...placement, type: "bangle" }))
+      : [];
+    normalizedKits = normalizedKits.length ? normalizedKits : normalizeExtractionKits(legacyKits);
+    const placements = expandKitPlacements(normalizedKits);
+    if (!placements.length) {
+      restoreWorkshopItem(player, item);
+      return { ok: false, message: "请先在明料上摆放套件。" };
+    }
+    const existingKits = normalizeExtractionKits(item.extractionKits || item.braceletPlacements || []);
+    const existingPlacements = expandKitPlacements(existingKits);
+    if (placementsOverlap([...existingPlacements, ...placements])) {
+      restoreWorkshopItem(player, item);
+      return { ok: false, message: "套件位置互相重叠，重新摆一下。" };
+    }
+    item.extractionKits = [...existingKits, ...normalizedKits].slice(0, 10);
+    item.braceletPlacements = item.extractionKits;
+  }
+
+  const worker = workshopWorkerForPlayer(player, device.workerId);
+  const devSpeed = Number(device.attrs?.speed || 0);
+  const devTimeScale = Math.max(0.2, 1 - Math.min(0.8, devSpeed / 100));
+  const job = startProductionJob(player, device.stage, item, {
+    label: device.name,
+    fee: device.fee,
+    durationStage: device.durationStage,
+    deviceId: device.id,
+    deviceAttrs: device.attrs,
+    workerId: worker?.id || device.workerId,
+    timeScale: (worker ? wsSpeedTimeScale(worker) : 1) * devTimeScale,
+    outputStage: device.outputStage,
+    outputPreview: { materialStage: device.outputStage },
+    kits: normalizedKits
+  });
+  if (!job) {
+    restoreWorkshopItem(player, item);
+    return { ok: false, message: "现金不足，无法开工。" };
+  }
+  refreshPlayerReport(player);
+  return { ok: true, message: `${device.name} 已开工。`, job, device, worker, fee: job.fee };
+}
+
+function openingStoneForRough(rough) {
+  return buildOpeningStone({
+    seed: `${rough.id}:${rough.openingSeed || rough.visual?.openingSeed || rough.visual?.seed || rough.id}`,
+    roughId: rough.id
+  });
+}
+
+function openingKitForPlacement(placement) {
+  return {
+    uid: placement.kitId || placement.id,
+    tpl: placement.openingTpl || openingTplForKit(placement, placement.kitType),
+    x: clamp(Number(placement.x) || 50, 4, 96) * 6,
+    y: clamp(Number(placement.y) || 50, 4, 96) * 6,
+    rot: Number(placement.rot || 0),
+    scale: Number(placement.scale || 1)
+  };
 }
 
 function extractProductsFromJob(job) {
@@ -890,9 +1653,15 @@ function extractProductsFromJob(job) {
   const combinedPlacements = expandKitPlacements(combinedKits.length ? combinedKits : normalizedKits);
   const totalSlots = Math.max(1, combinedPlacements.length);
   const valueBase = Math.max(rough.value || rough.price, rough.price) / Math.max(2, totalSlots + 1);
+  const openingStone = openingStoneForRough(rough);
   return placements.map((placement) => {
     const placementScore = scoreRoughPlacement(rough, placement);
     const productMeta = kitProductMeta(placement);
+    const openingEval = evaluateOpeningKit(openingKitForPlacement(placement), openingStone);
+    const openingGrade = computeOpeningGrade(openingEval, openingStone);
+    const openingValue = openingEval.price > 0
+      ? openingEval.price
+      : money(valueBase * productMeta.mult * placementScore);
     return {
       id: randomUUID(),
       type: "bracelet",
@@ -903,25 +1672,56 @@ function extractProductsFromJob(job) {
       score: rough.score,
       color: rough.color,
       design: productMeta.label,
-      value: money(valueBase * productMeta.mult * placementScore),
-      rep: Math.max(1, Math.round((rough.rep * productMeta.rep * 0.35 + rough.score * 2) * clamp(placementScore, 0.72, 1.18))),
+      value: money(openingValue),
+      rep: Math.max(1, Math.round((rough.rep * productMeta.rep * 0.35 + rough.score * 2 + openingGrade.score * 0.08) * clamp(placementScore, 0.72, 1.18))),
       count: productMeta.count,
       sourceRoughId: rough.id,
       plan: placement,
+      openingGrade,
+      openingEval: {
+        price: openingEval.price,
+        crackRatio: openingEval.crackRatio,
+        wasteRatio: openingEval.wasteRatio,
+        avgCv: openingEval.avgCv,
+        avgRar: openingEval.avgRar
+      },
       sourceMaterial: {
         roughId: rough.id,
         roughName: rough.name,
         visual: rough.visual,
         windows: rough.windows || [],
         placement,
+        openingTpl: placement.openingTpl,
+        openingGrade,
         templateSize: { w: placement.templateSize?.w, h: placement.templateSize?.h },
         mass: rough.mass,
         qualityKey: rough.qualityKey,
         color: rough.color
       },
-      placementScore: Math.round(placementScore * 100)
+      placementScore: Math.round(placementScore * 100),
+      baseName: `${rough.quality}${rough.color}${productMeta.label}`,
+      materialStage: "carved",
+      stage: "carved"
     };
   });
+}
+
+function productBaseName(product) {
+  if (product.baseName) return product.baseName;
+  return String(product.name || "翡翠成品").replace(/(?:精雕毛坯|抛光半成品|成品|镶嵌款)+$/u, "");
+}
+
+function stagedProduct(product, materialStage, suffix, valueMultiplier = 1, extra = {}) {
+  const baseName = productBaseName(product);
+  return {
+    ...product,
+    ...extra,
+    baseName,
+    name: suffix ? `${baseName}${suffix}` : baseName,
+    materialStage,
+    stage: materialStage,
+    value: money(Number(product.value || product.price || 0) * valueMultiplier)
+  };
 }
 
 function restoreRoughToInventory(player, rough) {
@@ -934,23 +1734,87 @@ function restoreRoughToInventory(player, rough) {
 }
 
 function completeProductionJob(player, job) {
-  if (job.stage === "rough") {
+  const worker = job.workerId ? workshopWorkerForPlayer(player, job.workerId) : null;
+  const step = wsStageToStep(job.stage);
+  const applyWorker = Boolean(worker && step);
+  const stepScore = applyWorker ? wsStepScore(worker, step) : 0;
+
+  // 设备属性（固定阶数道具，加工时生效）：品质加成%（抬高价格）+ 完美保底%（抬高工分下限，即「完美度保底」）；风险仅影响碎裂（见下方）
+  const devAttrs = job.deviceAttrs || (job.deviceId ? (workshopDeviceForPlayer(player, job.deviceId)?.attrs) : null);
+  const deviceQualityBonus = devAttrs ? (Number(devAttrs.quality) || 0) / 100 : 0;
+  const deviceScoreFloor = devAttrs ? ((Number(devAttrs.perfectFloor) || 0) / 100) * 120 : 0;
+
+  // 碎裂判定（员工 + 设备共同决定）：设备风险>1 触发基础碎裂率，员工词条/技能上调或下调
+  let shattered = false;
+  if (devAttrs && (Number(devAttrs.risk) || 1) > 1) {
+    const baseShatter = Math.max(0, (Number(devAttrs.risk) || 1) - 1) * 0.08;
+    const defense = employeeShatterDefense(worker);
+    const shatterProb = clamp(baseShatter + defense, 0, 0.95);
+    if (Math.random() < shatterProb) shattered = true;
+  }
+  if (shattered) {
+    return { text: `碎裂！${job.item?.name || "物料"} 材料全损`, item: null, shattered: true };
+  }
+
+  // 把本工序工分子分累计到产物，并按「仅已完成工序」聚合出总工分（=完美度）+ 评级；
+  // 价格 = baseValue(本阶段纯料值，已剥离历史工分加成) × (1 + 总工分/100×占比上限 + 设备品质%) × 评级倍率。
+  // 工分即完美度，不再有完美/瑕疵的随机价格跳变；设备「完美保底」作为工分下限兜底。
+  // 用 baseValue 而非 item.value 作基数，避免工分加成在多个工序间重复复利。
+  function priceByCraft(item) {
+    item.craftScores = { ...(item.craftScores || {}), [step]: stepScore };
+    item.craftWorkers = { ...(item.craftWorkers || {}), [step]: worker?.name || "无" };
+    let overall = Math.round(wsOverallScore(item));
+    if (deviceScoreFloor > 0) overall = Math.max(overall, Math.round(deviceScoreFloor));
+    item.craftScore = overall;
+    item.craftGrade = wsCraftGrade(overall);
+    const bonus = (overall / 100) * WS_PROCESS_BONUS_CAP + deviceQualityBonus;
+    wsApplyWorker(item, bonus, wsGradeMult(overall), worker);
+    return item;
+  }
+
+  if (job.stage === "rough" || job.stage === "opening") {
     const polished = revealPolishedRough(job.item);
+    polished.baseValue = Number(polished.value || polished.price || 0); // 开料首步：料值即纯料值
+    priceByCraft(polished);
     polished.stage = "material";
+    polished.materialStage = "opened";
     player.rough.push(polished);
     player.rep += Math.max(1, Math.round(polished.rep * 0.45));
-    return { text: `${polished.name} 粗加工完成`, item: polished };
+    return { text: `${polished.name} 开料完成`, item: polished };
   }
-  if (job.stage === "refine") {
-    const products = extractProductsFromJob(job);
+  if (job.stage === "refine" || job.stage === "carving") {
+    const prevScores = job.item.craftScores || {};
+    const prevWorkers = job.item.craftWorkers || {};
+    const inBase = Number(job.item.baseValue ?? job.item.value ?? job.item.price ?? 0);
+    const inVal = Number(job.item.value ?? job.item.price ?? 0);
+    const products = extractProductsFromJob(job).map((product) => {
+      const p = stagedProduct(product, "carved", "精雕毛坯");
+      const tf = inVal > 0 ? (Number(p.value || 0) / inVal) : 1;
+      p.baseValue = inBase * tf; // 纯料值（剥离上一步工分加成）
+      p.craftScores = { ...prevScores, [step]: stepScore };
+      p.craftWorkers = { ...prevWorkers, [step]: worker?.name || "无" };
+      let overall = Math.round(wsOverallScore(p));
+      if (deviceScoreFloor > 0) overall = Math.max(overall, Math.round(deviceScoreFloor));
+      p.craftScore = overall;
+      p.craftGrade = wsCraftGrade(overall);
+      const bonus = (overall / 100) * WS_PROCESS_BONUS_CAP + deviceQualityBonus;
+      wsApplyWorker(p, bonus, wsGradeMult(overall), worker);
+      return p;
+    });
     player.bracelets.push(...products);
-    restoreRoughToInventory(player, job.item);
+    restoreRoughToInventory(player, { ...job.item, materialStage: "opened", stage: "material" });
     player.stats.craftCount += products.length;
-    return { text: `${job.item.name} 精加工完成`, item: job.item };
+    return { text: `${job.item.name} 精雕完成`, item: job.item };
   }
-  const finished = { ...job.item, inlaid: true, value: money((job.item.value || 0) * 1.18), name: `${job.item.name}镶嵌款` };
+  // 精加工 = 抛光 + 镶嵌 合并为一步：先抛光(×1.08)再镶嵌(×1.12)，并结算员工技能品质/完美率
+  const finished = stagedProduct(job.item, "finished", "", 1.2096, { inlaid: true, polished: true });
+  const finInBase = Number(job.item.baseValue ?? job.item.value ?? job.item.price ?? 0);
+  const finInVal = Number(job.item.value ?? job.item.price ?? 0);
+  const finTf = finInVal > 0 ? (Number(finished.value || 0) / finInVal) : 1;
+  finished.baseValue = finInBase * finTf; // 纯料值（剥离上一步工分加成）
+  priceByCraft(finished);
   player.bracelets.push(finished);
-  return { text: `${finished.name} 镶嵌完成`, item: finished };
+  return { text: `${finished.name} 精加工完成`, item: finished };
 }
 
 function scheduleLivestream(player, productId, mode = "autoBalanced") {
@@ -958,6 +1822,10 @@ function scheduleLivestream(player, productId, mode = "autoBalanced") {
   if (!playerCanLivestream(player)) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
+  if (materialStageFor(product) !== "finished") {
+    restoreWorkshopItem(player, product);
+    return null;
+  }
   const now = Date.now();
   const duration = TIMING.livestream.min;
   const job = {
@@ -978,6 +1846,10 @@ function sellLivestreamNow(player, productId, seed = Date.now()) {
   if (!playerCanLivestream(player)) return null;
   const product = takeItem(player, "bracelet", productId);
   if (!product) return null;
+  if (materialStageFor(product) !== "finished") {
+    restoreWorkshopItem(player, product);
+    return null;
+  }
   const now = Date.now();
   const priced = livestreamOutcome(product, { mode: "manual", rep: player.rep, seed });
   const outcome = {
@@ -1145,54 +2017,8 @@ function normalizePlan(rawPlan, layout) {
 }
 
 function placementRadius(placement) {
-  if (placement.layout === "bracelet") {
-    const ringSize = Number(placement.ringSize) || 56;
-    return clamp(12 + (ringSize - 52) * 0.55, 12, 18);
-  }
-  if (placement.layout === "cabochon") return 7;
-  if (placement.layout === "peacePendant") return 12;
-  if (placement.layout === "ruyiPendant") return 11;
-  if (placement.layout === "leafPendant") return 10;
-  return 15;
+  return placementRadiusForKind(placement.layout || placement.kind || "bracelet", placement);
 }
-
-const EXTRACTION_KITS = {
-  bangle: {
-    label: "手镯套件",
-    cost: 680,
-    w: 34,
-    h: 34,
-    slots: [{ dx: 0, dy: 0, layout: "bracelet" }]
-  },
-  cabochon: {
-    label: "蛋面套件",
-    cost: 520,
-    w: 22,
-    h: 28,
-    slots: [{ dx: 0, dy: 0, layout: "cabochon" }]
-  },
-  peacePendant: {
-    label: "平安扣挂件",
-    cost: 580,
-    w: 30,
-    h: 30,
-    slots: [{ dx: 0, dy: 0, layout: "peacePendant" }]
-  },
-  ruyiPendant: {
-    label: "如意挂件",
-    cost: 600,
-    w: 32,
-    h: 30,
-    slots: [{ dx: 0, dy: 0, layout: "ruyiPendant" }]
-  },
-  leafPendant: {
-    label: "叶子挂件",
-    cost: 560,
-    w: 24,
-    h: 36,
-    slots: [{ dx: 0, dy: 0, layout: "leafPendant" }]
-  }
-};
 
 const KIT_BOARD_REFERENCE = { width: 412, height: 148 };
 
@@ -1202,7 +2028,8 @@ function templateWidthOnBoard(width) {
 
 function normalizePlacement(rawPlacement, fallbackLayout = "bracelet") {
   const placement = rawPlacement && typeof rawPlacement === "object" ? rawPlacement : {};
-  const layout = ["bracelet", "cabochon", "peacePendant", "ruyiPendant", "leafPendant"].includes(placement.layout) ? placement.layout : fallbackLayout;
+  const allowedLayouts = new Set(Object.values(EXTRACTION_KITS).flatMap((kit) => kit.slots.map((slot) => slot.layout)));
+  const layout = allowedLayouts.has(placement.layout) ? placement.layout : fallbackLayout;
   const ringSize = clamp(Number(placement.ringSize) || 56, 52, 62);
   const normalized = {
     id: typeof placement.id === "string" ? placement.id.slice(0, 36) : randomUUID(),
@@ -1222,6 +2049,11 @@ function normalizePlacements(rawPlacements, fallbackLayout, fallbackPlan) {
   return source.slice(0, 8).map((placement) => normalizePlacement(placement, fallbackLayout || "bracelet"));
 }
 
+function openingTplForKit(kit, type) {
+  if (kit?.openingTpl && OPENING_KIT_SERVER_TYPES[kit.openingTpl]) return kit.openingTpl;
+  return OPENING_KIT_BY_SERVER_TYPE[type] || "ping";
+}
+
 function normalizeExtractionKits(rawKits) {
   const source = Array.isArray(rawKits) ? rawKits : [];
   return source.slice(0, 10).map((kit) => {
@@ -1230,9 +2062,12 @@ function normalizeExtractionKits(rawKits) {
     return {
       id: typeof kit?.id === "string" ? kit.id.slice(0, 36) : randomUUID(),
       type,
-      x: clamp(Number(kit?.x) || 50, 16, 84),
-      y: clamp(Number(kit?.y) || 50, 16, 84),
-      ringSize: Math.round(ringSize / 2) * 2
+      openingTpl: openingTplForKit(kit, type),
+      x: clamp(Number(kit?.x) || 50, 4, 96),
+      y: clamp(Number(kit?.y) || 50, 4, 96),
+      rot: normalizeAngle(Number(kit?.rot ?? kit?.rotation ?? 0)),
+      scale: clamp(Number(kit?.scale) || 1, 0.45, 1.45),
+      ringSize: type === "bangle" ? Math.round(ringSize / 2) * 2 : undefined
     };
   });
 }
@@ -1250,6 +2085,9 @@ function expandKitPlacements(kits) {
       }, slot.layout);
       placement.kitId = kit.id;
       placement.kitType = kit.type;
+      placement.openingTpl = kit.openingTpl;
+      placement.rot = kit.rot || 0;
+      placement.scale = kit.scale || 1;
       placement.templateLabel = template.label;
       placement.templateSize = { w: template.w, h: template.h };
       return placement;
@@ -1258,24 +2096,11 @@ function expandKitPlacements(kits) {
 }
 
 function kitProductMeta(placement) {
-  const map = {
-    bracelet: { label: `${placement.ringSize || 56}圈口手镯`, mult: 1.58, rep: 1, count: 1 },
-    cabochon: { label: "蛋面", mult: 0.72, rep: 0.58, count: 1 },
-    peacePendant: { label: "平安扣挂件", mult: 0.98, rep: 0.66, count: 1 },
-    ruyiPendant: { label: "如意挂件", mult: 1.02, rep: 0.68, count: 1 },
-    leafPendant: { label: "叶子挂件", mult: 0.9, rep: 0.62, count: 1 }
-  };
-  return map[placement.layout] || map.peacePendant;
+  return productMetaForKind(placement.layout, placement);
 }
 
 function placementTemplateSize(placement) {
-  const kitTypeByLayout = {
-    bracelet: "bangle",
-    cabochon: "cabochon",
-    peacePendant: "peacePendant",
-    ruyiPendant: "ruyiPendant",
-    leafPendant: "leafPendant"
-  };
+  const kitTypeByLayout = Object.fromEntries(Object.entries(EXTRACTION_KITS).map(([type, kit]) => [kitLayout(type), type]));
   const template = EXTRACTION_KITS[placement.kitType] || EXTRACTION_KITS[kitTypeByLayout[placement.layout]];
   const size = placement.templateSize || template || {};
   return {
@@ -1294,6 +2119,13 @@ function placementFootprint(placement) {
   }
   if (placement.layout === "ruyiPendant") return { rx: boardWidth * 0.38, ry: h * 0.42 };
   if (placement.layout === "leafPendant") return { rx: boardWidth * 0.3, ry: h * 0.37 };
+  if (placement.layout === "dropPendant") return { rx: boardWidth * 0.31, ry: h * 0.38 };
+  if (placement.layout === "plaque") return { rx: boardWidth * 0.34, ry: h * 0.36 };
+  if (placement.layout === "buddhaPendant") return { rx: boardWidth * 0.32, ry: h * 0.38 };
+  if (placement.layout === "guanyinPendant") return { rx: boardWidth * 0.3, ry: h * 0.39 };
+  if (placement.layout === "fuBeanPendant") return { rx: boardWidth * 0.3, ry: h * 0.34 };
+  if (placement.layout === "gourdPendant") return { rx: boardWidth * 0.3, ry: h * 0.34 };
+  if (placement.layout === "beads") return { rx: boardWidth * 0.46, ry: h * 0.34 };
   return { rx: boardWidth * 0.5, ry: h * 0.5 };
 }
 
@@ -1352,7 +2184,7 @@ function scoreRoughPlacement(rough, placement) {
   const windowBonus = (rough.windows || []).some((win) => Math.hypot(placement.x - win.x, placement.y - win.y) < radius + win.r) ? 0.08 : 0;
   const crackPenalty = visual.crack && Math.abs(placement.x - 50) < 9 && Math.abs(placement.y - 50) < 34 ? 0.18 : 0;
   const sizeBonus = placement.layout === "bracelet" && placement.ringSize >= 58 ? 0.05 : 0;
-  const smallPieceBonus = ["cabochon", "peacePendant", "ruyiPendant", "leafPendant"].includes(placement.layout) ? 0.05 : 0;
+  const smallPieceBonus = isSmallPieceKind(placement.layout) ? 0.05 : 0;
   return clamp(0.82 + colorBonus + windowBonus + sizeBonus + smallPieceBonus - edgePenalty - crackPenalty, 0.5, 1.22);
 }
 
@@ -1363,6 +2195,7 @@ function revealPolishedRough(rough) {
     type: "rough",
     revealed: true,
     polished: true,
+    materialStage: "opened",
     qualityKey: quality.key,
     quality: quality.name,
     score: quality.score,
@@ -1541,7 +2374,7 @@ function settleOfflinePlayer(player, now = Date.now()) {
   normalizePlayer(player);
   const offlineSince = player.lastSeenAt || now;
   const events = [];
-  if (state.auction && !state.auction.settledAt && now >= state.auction.biddingEndsAt) {
+  if (state.auction && !state.auction.settledAt && now >= auctionEndsAt(state.auction)) {
     settleAuctionIfDue(now);
   }
   events.push(...consumePendingOfflineEvents(player, offlineSince, now));
@@ -1597,6 +2430,13 @@ io.on("connection", (socket) => {
     const result = submitAuctionBidForPlayer(player, payload);
     if (!result.ok) return socket.emit("toast", result.message);
     socket.emit("toast", result.message);
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "trade",
+      text: result.message,
+      x: 70,
+      y: 62
+    });
     broadcast();
   });
 
@@ -1605,7 +2445,33 @@ io.on("connection", (socket) => {
     if (!player) return;
     const result = joinAuctionForPlayer(player, payload);
     socket.emit("toast", result.message);
-    if (result.ok) broadcast();
+    if (result.ok) {
+      emitUiEvent(socket, {
+        type: "float",
+        tone: "expense",
+        text: result.entryFee ? `入场费 -${uiMoney(result.entryFee)}` : "已入场本场公盘",
+        x: 66,
+        y: 68
+      });
+      broadcast();
+    }
+  });
+
+  socket.on("enterAuction", (payload) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const result = enterAuctionForPlayer(player, payload);
+    socket.emit("toast", result.message);
+    if (result.ok) {
+      emitUiEvent(socket, {
+        type: "float",
+        tone: "expense",
+        text: result.entryFee ? `入场费 -${uiMoney(result.entryFee)}` : "已入场本场公盘",
+        x: 66,
+        y: 68
+      });
+      broadcast();
+    }
   });
 
   socket.on("buyRough", () => {
@@ -1616,26 +2482,69 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     const result = requestAuctionWindowForPlayer(player, payload);
     if (!result.ok) return socket.emit("toast", result.message);
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "craft",
+      text: "开窗完成",
+      x: 58,
+      y: 52
+    });
+    advanceTask(player, "window_open");
     broadcast();
   });
 
   socket.on("startPolish", (roughId) => {
     const player = getPlayer(socket);
     if (!player) return;
+    const result = startRoughOpeningForPlayer(player, roughId);
+    if (!result.ok) return socket.emit("toast", result.message);
+    addNews(`${player.name} 将 ${result.job.item.name} 安排到开料机。`, "craft");
+    advanceTask(player, "workshop_craft");
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "expense",
+      text: `出加工 -${uiMoney(result.fee)}`,
+      x: 62,
+      y: 64
+    });
+    broadcast();
+  });
+
+  socket.on("startWorkshopJob", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const result = startWorkshopJobForPlayer(player, payload.deviceId, payload);
+    if (!result.ok) return socket.emit("toast", result.message);
+    addNews(`${player.name} 将 ${result.job.item.name} 安排到${result.device.name}。`, "craft");
+    advanceTask(player, "workshop_craft");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: "craft",
+      title: `${result.device.name}已开工`,
+      subtitle: result.job.item.name,
+      body: "设备和师傅已经按当前工序开始处理，完成后会回到对应阶段库存。",
+      stats: [
+        { label: "员工", value: result.worker?.name || "默认师傅" },
+        { label: "加工费", value: `-${uiMoney(result.fee)}` }
+      ],
+      floatText: `加工 -${uiMoney(result.fee)}`
+    });
+    broadcast();
+  });
+
+  socket.on("assignWorkshopWorker", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
     normalizePlayer(player);
     if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先去交易行买下街角小工坊。");
-    const rough = takeItem(player, "rough", roughId);
-    if (!rough) return;
-    if (rough.revealed) {
-      player.rough.push(rough);
-      return socket.emit("toast", "这块料已经全料打磨完成。");
-    }
-    const job = startProductionJob(player, "rough", rough, { label: "粗加工" });
-    if (!job) {
-      player.rough.push(rough);
-      return socket.emit("toast", "粗加工费用不够。");
-    }
-    addNews(`${player.name} 将 ${rough.name} 送入粗加工。`, "craft");
+    const device = workshopDeviceForPlayer(player, payload.deviceId);
+    if (!device) return socket.emit("toast", "这台设备不存在。");
+    const worker = workshopWorkerForPlayer(player, payload.workerId);
+    if (!worker) return socket.emit("toast", "这位师傅不存在。");
+    if (device.workerId === worker.id) return socket.emit("toast", `${worker.name} 已在本台。`);
+    device.workerId = worker.id;
+    addNews(`${player.name} 把 ${worker.name} 排到 ${device.name}。`, "craft");
+    socket.emit("toast", `${worker.name} 已排到 ${device.name}。`);
     broadcast();
   });
 
@@ -1653,38 +2562,26 @@ io.on("connection", (socket) => {
     const player = getPlayer(socket);
     if (!player) return;
     normalizePlayer(player);
-    if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先去交易行买下街角小工坊。");
-    const rough = takeItem(player, "rough", roughId);
-    if (!rough) return;
-    if (!rough.revealed) {
-      player.rough.push(rough);
-      return socket.emit("toast", "先做全料打磨，揭露料性后才能取手镯。");
-    }
     const kits = normalizeExtractionKits(rawKits);
     const legacyKits = !kits.length && Array.isArray(rawPlacements)
       ? rawPlacements.map((placement) => ({ ...placement, type: "bangle" }))
       : [];
     const normalizedKits = kits.length ? kits : normalizeExtractionKits(legacyKits);
-    const placements = expandKitPlacements(normalizedKits);
-    if (!placements.length) {
-      player.rough.push(rough);
-      return socket.emit("toast", "请先在原料上选择取件套件。");
-    }
-    const existingKits = normalizeExtractionKits(rough.extractionKits || rough.braceletPlacements || []);
-    const existingPlacements = expandKitPlacements(existingKits);
-    if (placementsOverlap([...existingPlacements, ...placements])) {
-      player.rough.push(rough);
-      return socket.emit("toast", "套件位置互相重叠，重新摆一下。");
-    }
-    const job = startProductionJob(player, "refine", rough, { label: "精加工", kits: normalizedKits });
-    if (!job) {
-      player.rough.push(rough);
-      return socket.emit("toast", "精加工费用不够。");
-    }
-    rough.extractionKits = [...existingKits, ...normalizedKits].slice(0, 10);
-    rough.braceletPlacements = rough.extractionKits;
-    job.item = rough;
-    addNews(`${player.name} 为 ${rough.name} 安排 ${normalizedKits.length} 件精加工。`, "craft");
+    const result = startWorkshopJobForPlayer(player, "carving", { itemId: roughId, kits: normalizedKits });
+    if (!result.ok) return socket.emit("toast", result.message);
+    addNews(`${player.name} 为 ${result.job.item.name} 安排 ${normalizedKits.length} 件精雕。`, "craft");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: "craft",
+      title: "精雕已安排",
+      subtitle: result.job.item.name,
+      body: "师傅已经按你的套件位置开工，完成后会得到精雕毛坯。",
+      stats: [
+        { label: "套件", value: `${normalizedKits.length} 件` },
+        { label: "加工费", value: `-${uiMoney(result.fee)}` }
+      ],
+      floatText: `精雕 -${uiMoney(result.fee)}`
+    });
     broadcast();
   });
 
@@ -1708,9 +2605,26 @@ io.on("connection", (socket) => {
     if (!player) return;
     const bracelet = takeItem(player, "bracelet", braceletId);
     if (!bracelet) return;
+    if (materialStageFor(bracelet) !== "finished") {
+      restoreWorkshopItem(player, bracelet);
+      return socket.emit("toast", "只有最终成品才能收入藏宝阁。");
+    }
     player.collection.push({ ...bracelet, collectedAt: Date.now() });
+    advanceTask(player, "collection_collect");
     player.rep += bracelet.rep;
     addNews(`${player.name} 把 ${bracelet.name} 收进藏宝阁，声望 +${bracelet.rep}。`, "great");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: "great",
+      title: "收入藏宝阁",
+      subtitle: bracelet.name,
+      body: "这件成品已成为门面藏品，会持续提升店铺气势。",
+      stats: [
+        { label: "声望", value: `+${bracelet.rep}` },
+        { label: "估值", value: uiMoney(bracelet.value) }
+      ],
+      floatText: `声望 +${bracelet.rep}`
+    });
     broadcast();
   });
 
@@ -1720,6 +2634,13 @@ io.on("connection", (socket) => {
     const job = scheduleLivestream(player, productId, mode);
     if (!job) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 安排 ${job.product.name} 自动直播。`, "trade");
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "trade",
+      text: "已排入直播",
+      x: 62,
+      y: 62
+    });
     broadcast();
   });
 
@@ -1729,6 +2650,18 @@ io.on("connection", (socket) => {
     const sale = sellLivestreamNow(player, braceletId);
     if (!sale) return socket.emit("toast", playerCanLivestream(player) ? "找不到可直播的成品。" : "先去交易行购买直播经营许可。");
     addNews(`${player.name} 直播卖出 ${sale.product.name}，成交 ${sale.outcome.price}。`, "trade");
+    advanceTask(player, "livestream_sell");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: "success",
+      title: "直播成交",
+      subtitle: sale.product.name,
+      body: "买家当场拍下，现金已经入账。",
+      stats: [
+        { label: "成交价", value: uiMoney(sale.outcome.price) }
+      ],
+      floatText: `+${uiMoney(sale.outcome.price)}`
+    });
     broadcast();
   });
 
@@ -1740,6 +2673,9 @@ io.on("connection", (socket) => {
     const selectedIds = [...new Set(Array.isArray(braceletIds) ? braceletIds : [])].slice(0, order.quantity);
     const selected = selectedIds.map((id) => player.bracelets.find((bracelet) => bracelet.id === id)).filter(Boolean);
     if (selected.length < order.quantity) return socket.emit("toast", "交付数量不够。");
+    if (selected.some((bracelet) => materialStageFor(bracelet) !== "finished")) {
+      return socket.emit("toast", "只有最终成品才能交付订单。");
+    }
 
     const minScore = Math.min(...selected.map((bracelet) => bracelet.score));
     const onTime = Date.now() <= order.expiresAt;
@@ -1755,8 +2691,22 @@ io.on("connection", (socket) => {
     player.satisfaction = clamp(player.satisfaction + (qualityOk && onTime ? 8 : -16), 0, 100);
     player.stats.orderCount += 1;
     player.orders = player.orders.filter((item) => item.id !== order.id);
+    advanceTask(player, "order_complete");
     refillOrders(player);
     addNews(`${player.name} 完成 ${order.client} 的订单，收入 ${finalPay}，声望 ${repGain >= 0 ? "+" : ""}${repGain}。`, qualityOk ? "trade" : "bad");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: qualityOk ? "success" : "bad",
+      title: qualityOk ? "订单交付成功" : "订单勉强交付",
+      subtitle: order.client,
+      body: qualityOk ? "客户很满意，这单给店里添了口碑。" : "客户接受了交付，但满意度和声望都受到了影响。",
+      stats: [
+        { label: "收入", value: `+${uiMoney(finalPay)}` },
+        { label: "声望", value: `${repGain >= 0 ? "+" : ""}${repGain}` },
+        { label: "满意度", value: `${Math.round(player.satisfaction)}%` }
+      ],
+      floatText: `+${uiMoney(finalPay)}`
+    });
     broadcast();
   });
 
@@ -1777,7 +2727,15 @@ io.on("connection", (socket) => {
       createdAt: Date.now()
     });
     state.listings = state.listings.slice(0, 40);
+    advanceTask(player, "market_sell");
     addNews(`${player.name} 在交易行挂出 ${item.name}，标价 ${listingPrice}。`, "trade");
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "trade",
+      text: `已挂牌 ${uiMoney(listingPrice)}`,
+      x: 66,
+      y: 66
+    });
     broadcast();
   });
 
@@ -1787,8 +2745,53 @@ io.on("connection", (socket) => {
     socket.emit("toast", result.message);
     if (result.ok) {
       addNews(`${player.name} 买下 ${result.listing.name}。`, "trade");
+      emitUiEvent(socket, {
+        type: "modal",
+        tone: "success",
+        title: "资产入手",
+        subtitle: result.listing.name,
+        body: result.listing.description,
+        stats: [
+          { label: "花费", value: `-${uiMoney(result.listing.price)}` }
+        ],
+        floatText: `-${uiMoney(result.listing.price)}`
+      });
       broadcast();
     }
+  });
+
+  socket.on("buyMaterialPack", (materialId, amount) => {
+    const player = getPlayer(socket);
+    if (!player || !materialId || !Number.isFinite(Number(amount))) return;
+    const result = buyMaterialPack(player, materialId, Number(amount));
+    socket.emit("toast", result.message);
+    if (result.ok) {
+      addNews(`${player.name} 购入镶嵌材料 ${result.listing.name}。`, "trade");
+      emitUiEvent(socket, {
+        type: "modal",
+        tone: "success",
+        title: "材料入手",
+        subtitle: result.listing.name,
+        stats: [{ label: "花费", value: `-${uiMoney(result.price)}` }],
+        floatText: `-${uiMoney(result.price)}`
+      });
+      broadcast();
+    }
+  });
+
+  socket.on("getMaterialHistory", (key, cb) => {
+    if (typeof cb !== "function") return;
+    const meta = MATERIAL_META[key];
+    if (!meta) return cb({ ok: false });
+    cb({
+      ok: true,
+      key,
+      name: meta.name,
+      unitLabel: meta.unitLabel,
+      base: meta.unitPrice,
+      current: Math.round(getMaterialPrice(key)),
+      history: getMaterialPriceHistory(key)
+    });
   });
 
   socket.on("buyListing", (listingId) => {
@@ -1799,18 +2802,59 @@ io.on("connection", (socket) => {
     const listing = state.listings[index];
     if (listing.ownerId === player.id) return socket.emit("toast", "不能购买自己的挂单。");
     const seller = state.players.get(listing.ownerId);
-    if (!spendCash(player, listing.price, `交易行购入：${listing.item.name}`, { source: "market", itemId: listing.item.id })) {
-      return socket.emit("toast", "资金不足。");
+    const tax = money(listing.price * MARKET_TAX);
+    const total = listing.price + tax;
+    if (!spendCash(player, total, `交易行购入：${listing.item.name}（含税 ${tax}）`, { source: "market", itemId: listing.item.id })) {
+      return socket.emit("toast", "资金不足（含 3% 市场税）。");
     }
     if (seller) {
-      earnCash(seller, listing.price, `交易行成交：${listing.item.name}`, { source: "market", itemId: listing.item.id });
+      seller.payouts.push({ id: randomUUID(), itemName: listing.item.name, amount: listing.price, at: Date.now() });
+      seller.soldCount = (seller.soldCount || 0) + 1;
       seller.rep += 2;
       seller.stats.tradeCount += 1;
     }
     addItem(player, listing.item);
+    advanceTask(player, "market_buy");
     player.stats.tradeCount += 1;
     state.listings.splice(index, 1);
     addNews(`${player.name} 从 ${listing.ownerName} 手里买下 ${listing.item.name}，成交 ${listing.price}。`, "trade");
+    emitUiEvent(socket, {
+      type: "modal",
+      tone: "trade",
+      title: "交易成交",
+      subtitle: listing.item.name,
+      body: `你从 ${listing.ownerName} 的摊位买下了这件货。`,
+      stats: [
+        { label: "挂牌价", value: `${uiMoney(listing.price)}` },
+        { label: "市场税 3%", value: `-${uiMoney(tax)}` },
+        { label: "实付", value: `-${uiMoney(total)}` }
+      ],
+      floatText: `-${uiMoney(total)}`
+    });
+    broadcast();
+  });
+
+  socket.on("withdrawListing", (listingId) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const index = state.listings.findIndex((listing) => listing.id === listingId);
+    if (index < 0) return;
+    const listing = state.listings[index];
+    if (listing.ownerId !== player.id) return socket.emit("toast", "只能撤下自己的挂单。");
+    // 按挂单记录的类型退回对应库存桶（不依赖 item.type，保证成品/明料/片料都能正确归位）
+    const bucketName = listing.type === "rough" ? "rough"
+      : listing.type === "material" ? "materials"
+      : listing.type === "slice" ? "slices" : "bracelets";
+    player[bucketName].push(listing.item);
+    state.listings.splice(index, 1);
+    addNews(`${player.name} 撤回了交易行挂单 ${listing.item.name}。`, "trade");
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "trade",
+      text: "已撤单，退回库存",
+      x: 66,
+      y: 66
+    });
     broadcast();
   });
 
@@ -1820,6 +2864,57 @@ io.on("connection", (socket) => {
     if (!spendCash(player, 300, "刷新客户", { source: "orderRefresh" })) return socket.emit("toast", "刷新客户需要 300。");
     player.orders = [];
     refillOrders(player);
+    emitUiEvent(socket, {
+      type: "float",
+      tone: "expense",
+      text: "刷新客户 -¥300",
+      x: 66,
+      y: 70
+    });
+    broadcast();
+  });
+
+  socket.on("collectPayout", () => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    if (!player.payouts || !player.payouts.length) return socket.emit("toast", "没有可领取的交易行收益。");
+    const total = player.payouts.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    player.payouts = [];
+    earnCash(player, total, "交易行收益领取", { source: "market-payout" });
+    addNews(`${player.name} 领取了交易行收益 ${uiMoney(total)}。`, "trade");
+    emitUiEvent(socket, { type: "float", tone: "profit", text: `领取 ${uiMoney(total)}`, x: 66, y: 66 });
+    broadcast();
+  });
+
+  socket.on("task:claim", ({ uid } = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const result = claimTask(player, uid);
+    if (!result.ok) return socket.emit("toast", result.message);
+    socket.emit("toast", `任务完成：${result.title}，奖励 +${uiMoney(result.reward)}${result.rep ? ` 声望 +${result.rep}` : ""}`);
+    emitUiEvent(socket, { type: "float", tone: "profit", text: `任务 +${uiMoney(result.reward)}`, x: 62, y: 60 });
+    broadcast();
+  });
+
+  socket.on("task:reset", ({ uid } = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const result = resetTask(player, uid);
+    if (!result.ok) return socket.emit("toast", result.message);
+    socket.emit("toast", `已花费 ${uiMoney(TASK_RESET_COST)} 重置任务。`);
+    emitUiEvent(socket, { type: "float", tone: "expense", text: `重置 -${uiMoney(TASK_RESET_COST)}`, x: 62, y: 60 });
+    broadcast();
+  });
+
+  // ---- 调试工具：直接增加现金 / 声望（开发用，生产可移除）----
+  socket.on("debugGrant", ({ cash = 0, rep = 0 } = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    const addCash = Number(cash) || 0;
+    const addRep = Number(rep) || 0;
+    if (addCash) earnCash(player, addCash, "调试加现金", { source: "debug" });
+    if (addRep) player.rep = Math.max(0, (Number(player.rep) || 0) + addRep);
+    socket.emit("toast", `调试：现金 ${addCash >= 0 ? "+" : ""}${addCash}，声望 ${addRep >= 0 ? "+" : ""}${addRep}`);
     broadcast();
   });
 
@@ -1867,6 +2962,7 @@ function startServer() {
   });
 }
 
+export { materialCatalogForPlayer, buyMaterialPack };
 export const __testHooks = {
   state,
   makePlayer,
@@ -1877,6 +2973,7 @@ export const __testHooks = {
   holdDeposit,
   releaseDeposit,
   settleOfflinePlayer,
+  enterAuctionForPlayer,
   submitAuctionBidForPlayer,
   joinAuctionForPlayer,
   requestAuctionWindowForPlayer,
@@ -1884,6 +2981,12 @@ export const __testHooks = {
   settleAuctionIfDue,
   processAuctionLifecycle,
   snapshotFor,
+  startRoughOpeningForPlayer,
+  normalizeWorkshop,
+  materialStageFor,
+  workshopDevicesForPlayer,
+  workshopProcessableItems,
+  startWorkshopJobForPlayer,
   startProductionJob,
   completeProductionJob,
   scheduleLivestream,
@@ -1904,7 +3007,13 @@ export const __testHooks = {
   isPlayerOnline,
   revealPolishedRough,
   inventoryForReport,
-  refreshPlayerReport
+  refreshPlayerReport,
+  refreshTasksIfDue,
+  advanceTask,
+  claimTask,
+  resetTask,
+  TASK_RESET_COST,
+  TASK_COUNT
 };
 
 if (isDirectRun()) startServer();

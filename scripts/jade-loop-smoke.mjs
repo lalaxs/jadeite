@@ -19,11 +19,12 @@ assert.equal(productionDuration("refine", "test"), 900);
 assert.equal(productionDuration("inlay", "test"), 300);
 
 const normalTiming = resolveTiming("normal");
-assert.equal(normalTiming.day, 20 * 60 * 1000);
-assert.equal(normalTiming.auction.registration, 5 * 60 * 1000);
-assert.equal(normalTiming.auction.bidding, 5 * 60 * 1000);
-assert.equal(normalTiming.auction.settlement, 30 * 1000);
-assert.equal(normalTiming.auction.cadence, 20 * 60 * 1000);
+assert.equal(normalTiming.day, 4 * 60 * 60 * 1000);
+assert.equal(normalTiming.auction.duration, 10 * 60 * 1000);
+assert.equal(normalTiming.auction.registration, 0);
+assert.equal(normalTiming.auction.bidding, 10 * 60 * 1000);
+assert.equal(normalTiming.auction.settlement, 0);
+assert.equal(normalTiming.auction.cadence, 10 * 60 * 1000);
 
 const income = ledgerEntry("income", 18000, "直播成交", { source: "livestream", at: 1 });
 const spend = ledgerEntry("expense", 6200, "公盘保证金", { source: "auction", at: 2 });

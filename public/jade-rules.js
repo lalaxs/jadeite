@@ -1,10 +1,8 @@
-const KIND_LABELS = {
-  bracelet: "手镯",
-  cabochon: "蛋面",
-  peacePendant: "平安扣",
-  ruyiPendant: "如意",
-  leafPendant: "叶子"
-};
+import {
+  KIND_LABELS,
+  isSmallPieceKind,
+  placementRadiusForKind
+} from "./jade-categories.js";
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -15,15 +13,7 @@ function money(value) {
 }
 
 function placementRadius(placement = {}) {
-  if (placement.layout === "bracelet" || placement.kind === "bracelet") {
-    const ringSize = Number(placement.ringSize) || 56;
-    return clamp(12 + (ringSize - 52) * 0.55, 12, 18);
-  }
-  if (placement.layout === "cabochon" || placement.kind === "cabochon") return 7;
-  if (placement.layout === "peacePendant" || placement.kind === "peacePendant") return 12;
-  if (placement.layout === "ruyiPendant" || placement.kind === "ruyiPendant") return 11;
-  if (placement.layout === "leafPendant" || placement.kind === "leafPendant") return 10;
-  return 14;
+  return placementRadiusForKind(placement.layout || placement.kind || "bracelet", placement);
 }
 
 function isNearWindow(rough = {}, placement = {}, radius) {
@@ -77,7 +67,7 @@ export function analyzeRoughPlacement(rough = {}, placement = {}) {
     reasons.push("大圈口，销售溢价更好");
   }
 
-  if (["cabochon", "peacePendant", "ruyiPendant", "leafPendant"].includes(placement.layout || placement.kind)) {
+  if (isSmallPieceKind(placement.layout || placement.kind)) {
     score += 5;
     reasons.push("小件路线，适合避裂保料");
   }

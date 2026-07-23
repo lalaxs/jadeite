@@ -11,6 +11,12 @@ import {
   roughOutlineSignature,
   sliceOutlineSignature
 } from "../public/jade-renderer.js";
+import {
+  EXTRACTION_KITS,
+  PRODUCT_CATEGORIES,
+  productKindLabel,
+  templateSizeForKind
+} from "../public/jade-categories.js";
 
 const item = {
   id: "rough-test",
@@ -43,6 +49,32 @@ assert.match(kitMarkup, /class="jade-canvas kit-template"/);
 const consumedMarkup = jadeCanvasMarkup("kitMask", { id: "kit-1", name: "已取手镯", type: "bangle", templateSize: { w: 34, h: 34 } }, "kit-consumed");
 assert.match(consumedMarkup, /data-jade-kind="kitMask"/);
 assert.match(consumedMarkup, /class="jade-canvas kit-consumed"/);
+
+for (const [kind, label] of Object.entries({
+  plaque: "无字牌",
+  buddhaPendant: "佛公挂件",
+  guanyinPendant: "观音挂件",
+  fuBeanPendant: "福豆挂件",
+  gourdPendant: "葫芦挂件",
+  beads: "珠串"
+})) {
+  assert.equal(productKindLabel(kind), label, `${kind} should have a product label`);
+  assert.ok(PRODUCT_CATEGORIES[kind], `${kind} should be defined as a jade product category`);
+  assert.ok(templateSizeForKind(kind).w > 0, `${kind} should have a template width`);
+}
+
+for (const [type, label] of Object.entries({
+  plaque: "无字牌套件",
+  buddhaPendant: "佛公挂件",
+  guanyinPendant: "观音挂件",
+  fuBeanPendant: "福豆挂件",
+  gourdPendant: "葫芦挂件",
+  beads: "珠串套件"
+})) {
+  assert.equal(EXTRACTION_KITS[type].label, label, `${type} should be available as an extraction kit`);
+  const markup = jadeCanvasMarkup("kit", { id: `kit-${type}`, name: label, type, templateSize: EXTRACTION_KITS[type] }, "kit-template");
+  assert.match(markup, new RegExp(`%22type%22%3A%22${type}%22`), `${type} kit markup should preserve its type`);
+}
 
 const sourceProductMarkup = jadeCanvasMarkup("product", {
   id: "product-source-1",

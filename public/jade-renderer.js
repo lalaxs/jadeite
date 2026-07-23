@@ -1,4 +1,8 @@
 import { createJadeVolume, volumeSliceVeinPolygons } from "./jade-volume.js";
+import {
+  kitProductKind as sharedKitProductKind,
+  templateSizeForKind
+} from "./jade-categories.js";
 
 const ROUGH_VIEWBOX = { width: 168, height: 140 };
 const SLICE_VIEWBOX = { width: 144, height: 96 };
@@ -499,14 +503,7 @@ export function renderKitMaskCanvas(canvas, item) {
 }
 
 function kitProductKind(type) {
-  return {
-    bangle: "bracelet",
-    bracelet: "bracelet",
-    cabochon: "cabochon",
-    peacePendant: "peacePendant",
-    ruyiPendant: "ruyiPendant",
-    leafPendant: "leafPendant"
-  }[type] || "bracelet";
+  return sharedKitProductKind(type);
 }
 
 function renderSourceMaterialProductCanvas(ctx, item, seed, width, height) {
@@ -596,13 +593,7 @@ function sourceSampleDimensions(item, width, height) {
 }
 
 function defaultTemplateSize(kind) {
-  return {
-    bracelet: { w: 34, h: 34 },
-    cabochon: { w: 22, h: 28 },
-    peacePendant: { w: 30, h: 30 },
-    ruyiPendant: { w: 32, h: 30 },
-    leafPendant: { w: 24, h: 36 }
-  }[kind] || { w: 28, h: 28 };
+  return templateSizeForKind(kind);
 }
 
 function drawSourceWindows(ctx, windows, width, height, vein) {
@@ -706,6 +697,13 @@ function drawProductCarvingLines(ctx, kind, width, height) {
     ctx.beginPath();
     ctx.moveTo(width * 0.36, height * 0.44);
     ctx.quadraticCurveTo(cx, height * 0.52, width * 0.64, height * 0.44);
+    ctx.stroke();
+  }
+  if (kind === "beads") {
+    ctx.beginPath();
+    ctx.arc(width * 0.32, cy, width * 0.035, 0, Math.PI * 2);
+    ctx.moveTo(width * 0.72, cy);
+    ctx.arc(width * 0.68, cy, width * 0.035, 0, Math.PI * 2);
     ctx.stroke();
   }
   ctx.restore();
@@ -942,6 +940,16 @@ function productPiecePath(ctx, kind, width, height) {
     ctx.closePath();
     return false;
   }
+  if (kind === "dropPendant") {
+    ctx.beginPath();
+    ctx.moveTo(cx, height * 0.08);
+    ctx.bezierCurveTo(width * 0.75, height * 0.34, width * 0.78, height * 0.58, width * 0.62, height * 0.78);
+    ctx.bezierCurveTo(width * 0.52, height * 0.92, width * 0.35, height * 0.94, cx, height * 0.94);
+    ctx.bezierCurveTo(width * 0.35, height * 0.94, width * 0.48, height * 0.92, width * 0.38, height * 0.78);
+    ctx.bezierCurveTo(width * 0.22, height * 0.58, width * 0.25, height * 0.34, cx, height * 0.08);
+    ctx.closePath();
+    return false;
+  }
   if (kind === "gourdPendant") {
     ctx.beginPath();
     ctx.moveTo(cx, height * 0.08);
@@ -950,6 +958,19 @@ function productPiecePath(ctx, kind, width, height) {
     ctx.bezierCurveTo(width * 0.24, height * 0.92, width * 0.16, height * 0.56, width * 0.42, height * 0.44);
     ctx.bezierCurveTo(width * 0.28, height * 0.38, width * 0.28, height * 0.08, cx, height * 0.08);
     ctx.closePath();
+    return false;
+  }
+  if (kind === "beads") {
+    ctx.beginPath();
+    const count = 6;
+    const bead = Math.min(width, height) * 0.18;
+    for (let index = 0; index < count; index += 1) {
+      const t = count === 1 ? 0.5 : index / (count - 1);
+      const x = width * (0.18 + t * 0.64);
+      const y = cy + Math.sin((t - 0.5) * Math.PI) * height * 0.08;
+      ctx.moveTo(x + bead, y);
+      ctx.arc(x, y, bead, 0, Math.PI * 2);
+    }
     return false;
   }
   roundedRectPath(ctx, width * 0.24, height * 0.16, width * 0.52, height * 0.68, width * 0.16);
