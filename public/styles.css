@@ -3513,3 +3513,54 @@ button:active:not(:disabled) { transform: scale(.95); }
 [data-theme="night"] .wsp-cs i { color: var(--jade-light); }
 [data-theme="night"] .wsp-tip { background: #07140f; color: #eafff5; border-color: rgba(255,255,255,.16); }
 [data-theme="night"] .wsp-tip::before { border-bottom-color: #07140f; }
+
+/* Desktop correction layer: preserve the existing regions and make each one own its overflow. */
+@media (min-width: 768px) {
+  :root {
+    --desktop-chat-height: 270px;
+  }
+
+  .shell {
+    height: 100dvh;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) var(--desktop-chat-height);
+    overflow: hidden;
+  }
+
+  .sidebar,
+  .main-stage,
+  .sidepanel,
+  .chatdock {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .main-stage {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidepanel {
+    align-self: stretch;
+    max-height: none;
+    overflow: auto;
+  }
+
+  .chatdock {
+    height: var(--desktop-chat-height);
+    max-height: var(--desktop-chat-height);
+  }
+
+  .workshop-recipe-main {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .workshop-material-column,
+  .workshop-recipe-summary,
+  .workshop-stage-drawer {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}

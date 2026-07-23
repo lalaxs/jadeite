@@ -178,6 +178,7 @@ const els = {
   chatInput: document.querySelector("#chatInput"),
   chatSend: document.querySelector("#chatSend"),
   mainNav: document.querySelector("#mainNav"),
+  mainStage: document.querySelector("#mainStage"),
   sidePanelBody: document.querySelector("#sidePanelBody"),
   panelTabs: document.querySelector("#panelTabs"),
   homeTabs: document.querySelector("#homeTabs"),
@@ -1174,6 +1175,7 @@ function setView(view) {
   });
   document.querySelector(".main-stage")?.classList.toggle("overview-mode", view === "overview");
   if (state) paintJades();
+  if (els.mainStage) els.mainStage.scrollTop = 0;
 }
 
 
