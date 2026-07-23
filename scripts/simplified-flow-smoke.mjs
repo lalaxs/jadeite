@@ -1,10 +1,37 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 
 const server = readFileSync("server.js", "utf8");
-const main = readFileSync("public/main.js", "utf8");
+const mainEntry = readFileSync("public/main.js", "utf8");
+const clientModulePaths = [
+  "public/auction-module.js",
+  "public/workshop-module.js",
+  "public/chat-module.js",
+  "public/ranking-module.js",
+  "public/orders-module.js",
+  "public/livestream-module.js",
+  "public/market-module.js",
+  "public/extra-module.js"
+];
+const main = [
+  mainEntry,
+  ...clientModulePaths.map((file) => readFileSync(file, "utf8"))
+].join("\n");
+const workshopModule = readFileSync("public/workshop-module.js", "utf8");
 const index = readFileSync("public/index.html", "utf8");
 const renderer = readFileSync("public/jade-renderer.js", "utf8");
+const openingEngine = readFileSync("public/jade-opening-engine.js", "utf8");
 const styles = readFileSync("public/styles.css", "utf8");
+if (!existsSync("public/jade-categories.js")) {
+  throw new Error("jade category definitions should live in public/jade-categories.js and be shared by client/server");
+}
+const categories = readFileSync("public/jade-categories.js", "utf8");
+
+if (!/let activeView\s*=\s*"overview"/.test(main)) {
+  throw new Error("the prototype should open the overview by default");
+}
+if (!/function openLocationByView/.test(main) || !/setView\(view\)/.test(main)) {
+  throw new Error("the overview should expose location navigation into the workshop");
+}
 
 function extractObjectEntry(source, key) {
   const start = source.indexOf(`${key}:`);
@@ -24,7 +51,8 @@ function extractObjectEntry(source, key) {
 }
 
 function extractFunctionBody(source, name) {
-  const start = source.indexOf(`function ${name}`);
+  const match = new RegExp(`function\\s+${name}\\s*\\(`).exec(source);
+  const start = match?.index ?? -1;
   if (start < 0) throw new Error(`missing function: ${name}`);
   const signatureEnd = source.indexOf(")", start);
   const open = source.indexOf("{", signatureEnd);
@@ -123,9 +151,9 @@ if (!/data-rough-board/.test(main) || !/extractFromRough/.test(main)) {
 
 const frontendExpertExpectations = [
   [/from "\.\/jade-rules\.js"/, "main.js should import shared expert rules"],
-  [/auctionWindowTargets/, "main.js should track selected public window positions"],
+  [/activeWindowSelection/, "main.js should track the public window lot currently awaiting point selection"],
   [/data-window-board/, "auction rough cards should allow click-to-select window positions"],
-  [/requestWindow", \{ roughId: payload/, "requestWindow should emit a positional payload"],
+  [/requestAuctionWindowAt/, "main.js should submit positional public window requests from the selected board point"],
   [/expertClueChips/, "auction cards should render expert clue chips"],
   [/placementAnalysisRows/, "workshop should render extraction placement analysis"],
   [/productMatchesOrder/, "order matching should use shared product rules"],
@@ -138,12 +166,12 @@ for (const [pattern, message] of frontendExpertExpectations) {
   if (!pattern.test(main)) throw new Error(message);
 }
 
-if (!/KIT_TEMPLATES/.test(main) || !/data-kit-choice/.test(main) || !/activeDragKit/.test(main)) {
-  throw new Error("main.js should use draggable extraction kit templates on rough boards");
+if (!/OPENING_KIT_LIB/.test(main) || !/data-opening-kit-choice/.test(main) || !/activeDragKit/.test(main)) {
+  throw new Error("main.js should use draggable reference opening kit templates on rough boards");
 }
 
-if (!/KIT_DEFAULT_POSITIONS/.test(main) || /offset \* 4/.test(main) || /offset \* 3/.test(main)) {
-  throw new Error("new extraction templates should be dropped on distinct default positions, not tiny overlapping offsets");
+if (!/findSafeOpeningPosition/.test(main) || !/computeOpeningOverlaps/.test(main) || /offset \* 4/.test(main) || /offset \* 3/.test(main)) {
+  throw new Error("new extraction templates should be dropped through safe reference-geometry placement, not tiny overlapping offsets");
 }
 
 const expectedKitTypes = [
@@ -151,10 +179,18 @@ const expectedKitTypes = [
   "cabochon",
   "peacePendant",
   "ruyiPendant",
-  "leafPendant"
+  "leafPendant",
+  "dropPendant",
+  "plaque",
+  "buddhaPendant",
+  "guanyinPendant",
+  "fuBeanPendant",
+  "gourdPendant",
+  "beads"
 ];
+const extractionKitDefinitions = extractBlockFrom(categories, categories.indexOf("EXTRACTION_KITS"), "EXTRACTION_KITS");
 
-const defaultPositionMatch = main.match(/const KIT_DEFAULT_POSITIONS = \{([\s\S]*?)\n\};/);
+const defaultPositionMatch = categories.match(/const KIT_DEFAULT_POSITIONS = \{([\s\S]*?)\n\};/);
 if (!defaultPositionMatch) {
   throw new Error("default extraction positions should be keyed by kit type so mixed kits do not overlap");
 }
@@ -167,12 +203,18 @@ const placementRadii = {
   cabochon: 7,
   peacePendant: 12,
   ruyiPendant: 11,
-  leafPendant: 10
+  leafPendant: 10,
+  plaque: 9,
+  buddhaPendant: 9,
+  guanyinPendant: 9,
+  fuBeanPendant: 8,
+  gourdPendant: 8,
+  beads: 8
 };
 
 const templateSizes = {};
 for (const type of expectedKitTypes) {
-  const template = extractObjectEntry(main, type);
+  const template = extractObjectEntry(extractionKitDefinitions, type);
   const widthMatch = template.match(/\bw:\s*(\d+)/);
   const heightMatch = template.match(/\bh:\s*(\d+)/);
   if (!widthMatch || !heightMatch) throw new Error(`${type} should define a visible template footprint`);
@@ -205,64 +247,91 @@ for (let i = 0; i < defaultTypes.length; i += 1) {
   }
 }
 
-for (const label of ["手镯套件", "蛋面套件", "平安扣挂件", "如意挂件", "叶子挂件"]) {
-  if (!main.includes(label)) throw new Error(`main.js should expose ${label}`);
+for (const label of ["手镯套件", "蛋面套件", "平安扣挂件", "如意挂件", "叶子挂件", "水滴挂件", "无字牌套件", "佛公挂件", "观音挂件", "福豆挂件", "葫芦挂件", "珠串套件"]) {
+  if (!categories.includes(label)) throw new Error(`game should define ${label}`);
 }
 
-for (const label of ["无字牌套件", "佛公挂件", "观音挂件", "福豆挂件", "葫芦挂件", "珠串套件"]) {
-  if (main.includes(label) || server.includes(label)) {
-    throw new Error(`${label} should be removed from client and server extraction options`);
-  }
-}
-
-for (const type of ["plaque", "buddhaPendant", "guanyinPendant", "fuBeanPendant", "gourdPendant", "beads"]) {
+for (const type of ["plaque", "dropPendant", "buddhaPendant", "guanyinPendant", "fuBeanPendant", "gourdPendant", "beads"]) {
   const templatePattern = new RegExp(`\\b${type}\\s*:`);
-  if (templatePattern.test(main) || templatePattern.test(server)) {
-    throw new Error(`${type} should not be available as an extraction kit template`);
+  if (!templatePattern.test(categories) || !/OPENING_KIT_LIB/.test(main) || !/EXTRACTION_KITS/.test(server)) {
+    throw new Error(`${type} should be available through shared extraction kit definitions`);
   }
 }
 
-if (/\bbeads\b/.test(main) || /\bbeads\b/.test(server)) {
-  throw new Error("bead strand kit should be removed from client and server extraction options");
+if (!/\bbeads\b/.test(categories) || !/EXTRACTION_KITS/.test(server) || !/\bbeads\b/.test(renderer)) {
+  throw new Error("bead strand kit should be supported by client, server, and renderer");
 }
 
-if (!/function kitTemplateCanvas/.test(main) || !/jadeCanvasMarkup\("kit"/.test(main) || !/function consumedKitMaskCanvas/.test(main) || !/jadeCanvasMarkup\("kitMask"/.test(main) || !/kit-board-overlay/.test(main)) {
-  throw new Error("main.js should render active kit templates and consumed kit masks through dedicated canvas renderers");
+const scratchlessWorkshopBody = extractFunctionBody(main, "renderWorkshop");
+for (const token of ["scratch-board", "data-scratch-board", "SCRATCH_READY_PERCENT", "scratchReady", "刮到"]) {
+  if (scratchlessWorkshopBody.includes(token)) {
+    throw new Error(`workshop should temporarily skip scratch-off gating: ${token}`);
+  }
+}
+if (!/let activeWorkshopDeviceId/.test(main) || !/let selectedWorkshopItemId/.test(main)) {
+  throw new Error("workshop should track active device and selected material");
+}
+if (!/id="workshopRoot"/.test(index)) {
+  throw new Error("workshop should render into one recipe-style root instead of three inventory panels");
+}
+const workshopViewHtml = index.slice(
+  index.indexOf('data-view="workshop"'),
+  index.indexOf('data-view="orders"')
+);
+if (/id="roughInventory"|id="materialInventory"|id="braceletInventory"/.test(workshopViewHtml)) {
+  throw new Error("workshop HTML should not expose the old three-column inventory containers");
+}
+if (!/data-action="openWorkshopDevice"/.test(main) || !/data-action="startWorkshopJob"/.test(main)) {
+  throw new Error("workshop should expose device entry and staged job start actions");
+}
+if (!/socket(?:Ref)?\.emit\("startWorkshopJob"/.test(main)) {
+  throw new Error("workshop should start all device processing through the staged workshop socket event");
+}
+for (const token of ["opening", "carving", "finishing", "开料", "规划", "精加工", "容量", "员工", "设备"]) {
+  if (!main.includes(token) && !index.includes(token)) throw new Error(`workshop device UI should include ${token}`);
+}
+for (const className of ["workshop-recipe-home", "workshop-recipe-card", "workshop-recipe-page", "workshop-material-grid", "workshop-material-card", "workshop-recipe-summary", "stage-chip"]) {
+  if (!styles.includes(className)) throw new Error(`workshop device UI should style ${className}`);
 }
 
-const kitTemplateBody = extractFunctionBody(main, "kitTemplateCanvas");
-if (/jadeCanvasMarkup\("product"/.test(kitTemplateBody) || /sourceMaterial/.test(kitTemplateBody)) {
+if (!/function openingKitsForRender/.test(main) || !/renderJadeOpeningSvg/.test(main) || !/extracted/.test(main) || !/jadeMaterial/.test(openingEngine || "")) {
+  throw new Error("main.js should render active kit templates and consumed kit masks through the SVG opening renderer");
+}
+
+const openingKitsForRenderBody = extractFunctionBody(main, "openingKitsForRender");
+if (/jadeCanvasMarkup\("product"/.test(openingKitsForRenderBody)) {
   throw new Error("active extraction templates should not reuse finished-product source material previews");
 }
 
-if (!/data-kit-type/.test(main) || !/templateSize:\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(main)) {
-  throw new Error("extraction kit templates should carry type and template size so drag bounds match the visual footprint");
+if (!/openingTpl/.test(main) || !/scaleForOpeningKit/.test(main)) {
+  throw new Error("extraction kit templates should carry opening template ids and scale so drag bounds match the visual footprint");
 }
 
-const kitOverlayBody = extractFunctionBody(main, "kitOverlay");
-if (!/consumedKitMaskCanvas/.test(kitOverlayBody) || !/kit-consumed/.test(main)) {
+if (!/renderJadeOpeningProductSvg/.test(main)) {
+  throw new Error("finished extraction products should render the exact SVG cutout from the opening material");
+}
+const productCanvasBody = extractFunctionBody(main, "productCanvas");
+const openingProductSvgBody = extractFunctionBody(main, "openingProductSvg");
+if (!/openingProductSvg/.test(productCanvasBody) || !/sourceMaterial/.test(openingProductSvgBody) || !/renderJadeOpeningProductSvg/.test(openingProductSvgBody) || !/jade-opening-product/.test(openingProductSvgBody)) {
+  throw new Error("productCanvas should use the opening SVG cutout for source-material products");
+}
+
+const openingKitsBody = extractFunctionBody(main, "openingKitsForRender");
+if (!/saved/.test(openingKitsBody) || !/extracted/.test(openingEngine) || !/fill="\$?\{?fill/.test(openingEngine)) {
   throw new Error("saved extraction placements should render as black consumed masks on the rough");
 }
 
-if (/width:\$\{width\}%;height:\$\{height\}%/.test(kitOverlayBody)) {
-  throw new Error("kit overlays should not size templates with parent width and height percentages because that stretches bangles");
-}
-
-if (!/--kit-w:\s*\$\{width\}/.test(kitOverlayBody) || !/--kit-h:\s*\$\{height\}/.test(kitOverlayBody) || !/--kit-w-px:\s*\$\{kitCssPixels\(width\)\}/.test(kitOverlayBody) || !/--kit-h-px:\s*\$\{kitCssPixels\(height\)\}/.test(kitOverlayBody)) {
-  throw new Error("kit overlays should pass template footprint and pixel dimensions through CSS variables for aspect-preserving layout");
-}
-
-if (!/aspect-ratio:\s*var\(--kit-w\)\s*\/\s*var\(--kit-h\)/.test(styles) || !/width:\s*var\(--kit-w-px\)/.test(styles) || !/height:\s*var\(--kit-h-px\)/.test(styles)) {
-  throw new Error("kit placement CSS should use aspect-preserving pixel dimensions instead of stretching across board width");
+if (!/aspect-ratio:\s*1/.test(styles) || !/\.jade-opening-svg/.test(styles)) {
+  throw new Error("kit placement CSS should let the SVG opening board preserve the reference coordinate aspect ratio");
 }
 
 if (/calc\(var\(--kit-[wh]\)\s*\*/.test(styles)) {
   throw new Error("kit placement CSS should avoid unsupported calc multiplication that collapses template boxes in browsers");
 }
 
-for (const token of ["templateSvg:", "<svg", "<image", "<img", "kit-template-asset", "kitAssetMarkup", "/assets/template-icons/", "board-svg board-overlay rough-overlay"]) {
-  if (main.includes(token)) {
-    throw new Error(`main.js should not render extraction kit previews through static template assets: ${token}`);
+for (const token of ["templateSvg:", "<image", "<img", "kit-template-asset", "kitAssetMarkup", "/assets/template-icons/", "board-svg board-overlay rough-overlay"]) {
+  if (openingKitsBody.includes(token)) {
+    throw new Error(`openingKitsForRender should not render extraction kit previews through static template assets: ${token}`);
   }
 }
 
@@ -271,13 +340,12 @@ if (/function kitShapeMarkup/.test(main) || /item\.shape/.test(main)) {
 }
 
 for (const type of expectedKitTypes) {
-  const template = extractObjectEntry(main, type);
+  const template = extractObjectEntry(extractionKitDefinitions, type);
   if (template.includes("items:") || template.includes("shape:") || template.includes("templateSvg:") || template.includes("icon:")) {
     throw new Error(`${type} should use renderer-owned kit canvases instead of static template artwork`);
   }
 
-  const serverKit = extractObjectEntry(server, type);
-  const slotCount = (serverKit.match(/layout:/g) || []).length;
+  const slotCount = (template.match(/layout:/g) || []).length;
   if (slotCount !== 1) {
     throw new Error(`${type} extraction kit should create exactly one product slot, found ${slotCount}`);
   }
@@ -370,11 +438,21 @@ if (!/function placementFootprint\b/.test(server) || /a\.radius \+ b\.radius/.te
 }
 
 const renderWorkshopBody = extractFunctionBody(main, "renderWorkshop");
-if (!/const refineJobs\s*=/.test(renderWorkshopBody) || !/const roughProductionJobs\s*=/.test(renderWorkshopBody)) {
-  throw new Error("workshop should split refine jobs from rough production jobs so in-progress extraction stays in planning");
+if (!/workshopRecipeHome/.test(renderWorkshopBody) || !/workshopRecipePage/.test(renderWorkshopBody) || !/els(?:Ref)?\.workshopRoot\.innerHTML/.test(renderWorkshopBody)) {
+  throw new Error("workshop should render a recipe-style equipment home or a single equipment page into one root");
 }
-if (!/精加工中/.test(renderWorkshopBody) || !/materialInventory\.innerHTML\s*=\s*\[[\s\S]*\.\.\.refineRows[\s\S]*\.\.\.revealed\.map/.test(renderWorkshopBody)) {
-  throw new Error("material planning should show in-progress refine jobs instead of making the rough disappear");
+if (/roughInventory|materialInventory|braceletInventory/.test(workshopModule)) {
+  throw new Error("workshop should no longer route the flow through the old three inventory containers");
+}
+if (!/workshopProcessableItems/.test(main) || !/workshopJobEstimate/.test(main) || !/workshopDeviceImpact/.test(main)) {
+  throw new Error("workshop should compute processable items, estimates, and device impact text on the client");
+}
+if (/const startDisabled\s*=\s*device\.id === "carving" && !kits\.length/.test(main) || /data-action="startWorkshopJob"[\s\S]{0,220}\$\{startDisabled \? "disabled" : ""\}/.test(main)) {
+  throw new Error("carving start should not be a disabled dead-end when kits are missing");
+}
+const startWorkshopJobActionBody = extractFunctionBody(workshopModule, "workshopStartJob");
+if (!/deviceId === "carving"/.test(startWorkshopJobActionBody) || !/showToast\("请先在明料上摆放套件。"\)/.test(startWorkshopJobActionBody)) {
+  throw new Error("carving start should give a visible hint when no kit has been placed");
 }
 
 const idleServerExpectations = [
@@ -405,27 +483,45 @@ for (const [pattern, message] of idleFrontendExpectations) {
 }
 
 const locationUiExpectations = [
-  [/id="sidebarStatus"/, "index.html should expose a sidebar status container"],
-  [/id="locationCards"/, "index.html should expose a location card container"],
-  [/id="rankBriefList"/, "index.html should expose a compact top ranking brief row"],
-  [/id="homeBtn"/, "index.html should expose a way back to the location homepage"],
+  [/id="playerCard"/, "index.html should expose the topbar player status card"],
+  [/id="mainNav"/, "index.html should expose the primary feature navigation"],
+  [/id="homeStatusPane"/, "index.html should expose the overview status pane"],
+  [/id="homeTaskPane"/, "index.html should expose the overview task pane"],
+  [/id="homeCommissionPane"/, "index.html should expose the overview commission pane"],
+  [/id="homeBillPane"/, "index.html should expose the overview bill pane"],
+  [/id="homeMessageLog"/, "index.html should expose a homepage play log message area"],
+  [/id="messageChannelTabs"/, "index.html should expose message channel tabs"],
+  [/data-view="rankings"/, "index.html should expose a full leaderboard view"],
+  [/id="rankingList"/, "index.html should expose the full leaderboard list"],
+  [/id="rankingTabs"/, "index.html should expose leaderboard category tabs"],
   [/data-view="shop"/, "index.html should expose the shop as a separate view"],
   [/id="shopListings"/, "index.html should expose shop listings separately from player listings"],
-  [/const locationDefinitions\s*=/, "main.js should define location cards separately from feature views"],
-  [/function renderPlayerSidebar\b/, "main.js should render player status in the left sidebar"],
-  [/function renderLocationCards\b/, "main.js should render location cards on the overview"],
-  [/function renderRankBriefs\b/, "main.js should render ranking briefs on the overview"],
+  [/const rankBoardDefinitions\s*=/, "main.js should define leaderboard categories"],
+  [/const messageChannelDefinitions\s*=/, "main.js should define expandable message channels"],
+  [/id:\s*"trade",\s*label:\s*"交易"/, "message channels should include a trade channel like traditional MMO chat"],
+  [/const locationDefinitions\s*=/, "main.js should define location metadata separately from feature views"],
+  [/function renderOverview\b/, "main.js should render the overview panes"],
+  [/function renderTasks\b/, "main.js should render overview tasks"],
+  [/function renderRankingBoard\b/, "main.js should render the full leaderboard view"],
+  [/function rankingRowsFor\b/, "main.js should build leaderboard rows by selected board"],
+  [/function openRankBoard\b/, "main.js should navigate ranking brief clicks to the full leaderboard"],
+  [/function pushMessageRow\b/, "main.js should normalize dense MMO-style message rows through one helper"],
+  [/function messageSortAtFromClock\b/, "main.js should derive message sort order from HH:mm display times"],
+  [/function scrollHomeMessagesToLatest\b/, "main.js should auto-scroll the message HUD to the latest message"],
+  [/function renderHomeMessages\b/, "main.js should render homepage play log messages"],
+  [/function homeMessageRows\b/, "main.js should build homepage messages from player/system activity"],
   [/function renderShop\b/, "main.js should render purchasable building and permit listings in the shop"],
   [/function locationGate\b/, "main.js should centralize location lock logic"],
   [/function openLocationByView\b/, "main.js should gate location view transitions through openLocationByView"],
-  [/公盘会场/, "location cards should include the public auction place"],
-  [/玩家交易行/, "location cards should include the player trading market place"],
-  [/商铺/, "location cards should include the shop place"],
-  [/客户茶室/, "location cards should include orders as a place"],
-  [/经营账房/, "location cards should include reports as a place"],
-  [/直播间/, "location cards should include livestream as a locked public place"],
-  [/我的工坊/, "location cards should include the owned workshop place"],
-  [/locationImage/, "location cards should use image-led place cards"],
+  [/label:\s*"公盘"/, "location metadata should include the public auction"],
+  [/label:\s*"交易行"/, "location metadata should include the player market"],
+  [/label:\s*"商铺"/, "location metadata should include the shop"],
+  [/label:\s*"订单"/, "location metadata should include orders"],
+  [/label:\s*"藏品"/, "location metadata should include the collection"],
+  [/label:\s*"招募"/, "location metadata should include hiring"],
+  [/label:\s*"直播间"/, "location metadata should include livestream"],
+  [/label:\s*"工坊"/, "location metadata should include the workshop"],
+  [/locationImage/, "location metadata should retain its image keys"],
   [/workshopOwned/, "main.js should use server-owned workshop state"],
   [/livestreamPermitOwned/, "main.js should use server-owned livestream permit state"],
   [/buyAssetListing/, "main.js should emit asset purchase actions"]
@@ -472,23 +568,50 @@ if (!/openLocationByView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody))
 if (/setView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody)) {
   throw new Error("data-view-link navigation should not bypass location gating with direct setView");
 }
+if (!/action === "openRankBoard"/.test(clickHandlerBody) || !/rankingOpenBoard\(target\)/.test(clickHandlerBody)) {
+  throw new Error("clicking a homepage ranking brief should open the matching full leaderboard");
+}
+if (!/action === "selectRankBoard"/.test(clickHandlerBody) || !/rankingSelectBoard\(target\)/.test(clickHandlerBody)) {
+  throw new Error("full leaderboard category tabs should rerender the selected ranking");
+}
+if (!/action === "selectMessageChannel"/.test(clickHandlerBody) || !/chatSelectChannel\(target\.dataset\.messageChannel\)/.test(clickHandlerBody)) {
+  throw new Error("homepage message channel tabs should rerender the play log");
+}
 
 const locationStyleExpectations = [
-  [/\.sidebar-status/, "styles.css should style the player status sidebar"],
-  [/\.status-metric/, "styles.css should style sidebar resource metrics"],
-  [/\.reminder-row/, "styles.css should style reminder rows"],
-  [/\.home-layout/, "styles.css should arrange places and personal ranking on the homepage"],
-  [/\.rank-brief-strip/, "styles.css should compress ranking into a small top row"],
-  [/\.location-grid/, "styles.css should style the location card grid"],
-  [/grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/, "styles.css should show five location cards per row on desktop"],
-  [/\.location-card\.locked/, "styles.css should style locked location cards"],
-  [/\.location-art/, "styles.css should style image-led location cards"],
-  [/\.location-card::before/, "styles.css should blend the primary color into place cards"],
+  [/\.topbar \.player-card/, "styles.css should style the player card in the topbar"],
+  [/\.sidebar\s*\{[\s\S]*overflow-y:\s*auto/, "left navigation should remain independently scrollable"],
+  [/\.main-nav\s*\{[\s\S]*flex-direction:\s*column/, "styles.css should arrange the desktop navigation vertically"],
+  [/\.main-nav-item\.active/, "styles.css should distinguish the active feature"],
+  [/\.home-tabs/, "styles.css should style the overview tabs"],
+  [/\.status-rows/, "styles.css should style overview status rows"],
+  [/\.rank-pills/, "styles.css should style compact overview ranking pills"],
+  [/\.ranking-board/, "styles.css should style the full leaderboard page"],
+  [/\.ranking-tabs/, "styles.css should style compact leaderboard category tabs"],
+  [/\.ranking-row/, "styles.css should style leaderboard rows"],
+  [/\.chatdock\s*\{[\s\S]*display:\s*flex[\s\S]*flex-direction:\s*column/, "styles.css should lay out the persistent play log dock"],
+  [/\.chatdock-tabs/, "styles.css should style message channel tabs"],
+  [/\.chatdock-log\s*\{[\s\S]*overflow:\s*auto/, "the play log should scroll independently"],
+  [/\.chatdock-input/, "styles.css should style the play log input row"],
+  [/\.message-log-row/, "styles.css should style homepage message rows"],
+  [/\.message-log-row\[data-channel="world"\]/, "styles.css should color-code world-channel message rows"],
+  [/\.message-log-speaker/, "styles.css should style MMO-style message speakers"],
+  [/min-height:\s*26px/, "homepage message rows should have larger traditional MMO chat text"],
+  [/font-size:\s*13px/, "homepage message rows should use a larger readable MMO chat font"],
   [/\.asset-listing/, "styles.css should style purchasable asset listings"]
 ];
 
 for (const [pattern, message] of locationStyleExpectations) {
   if (!pattern.test(styles)) throw new Error(message);
+}
+
+const messageLogRowStyle = styles.match(/\.message-log-row\s*\{[\s\S]*?\n\}/)?.[0] || "";
+if (/border-bottom\s*:/.test(messageLogRowStyle)) {
+  throw new Error("homepage message rows should not use horizontal divider lines between messages");
+}
+const messageLogChannelStyle = styles.match(/\.message-log-channel\s*\{[\s\S]*?\n\}/)?.[0] || "";
+if (/border\s*:|background\s*:|border-radius\s*:/.test(messageLogChannelStyle)) {
+  throw new Error("homepage message channel labels should be plain MMORPG chat text, not boxed chips");
 }
 
 for (const location of ["auction", "market", "shop", "orders", "collection", "reports", "livestream", "workshop"]) {
@@ -501,11 +624,17 @@ for (const location of ["auction", "market", "shop", "orders", "collection", "re
 if (/<nav class="tabs" id="tabs"><\/nav>/.test(index)) {
   throw new Error("left sidebar should no longer expose the old tab navigation container");
 }
+if (!/<aside class="sidebar">[\s\S]*<nav class="main-nav" id="mainNav"/.test(index)) {
+  throw new Error("the desktop shell should expose its feature navigation in the left sidebar");
+}
 if (/id="timeHud"/.test(index) || /class="kpi-strip"/.test(index)) {
-  throw new Error("the homepage should not duplicate sidebar time or resource information");
+  throw new Error("the homepage should not duplicate topbar time or resource information");
 }
 if (/id="playersList"/.test(index) || /id="newsList"/.test(index) || /同行排名|市场战报/.test(index)) {
-  throw new Error("overview should replace broad ranking/news panels with the compact personal ranking rail");
+  throw new Error("overview should replace broad ranking/news panels with compact status content");
+}
+if (/>游玩消息</.test(index)) {
+  throw new Error("homepage message HUD should not show a visible 游玩消息 title above channel tabs");
 }
 if (/经营驾驶舱|今天去哪儿/.test(index)) {
   throw new Error("overview should not show the old top title and descriptive heading copy");
@@ -514,22 +643,59 @@ const renderOverviewBody = extractFunctionBody(main, "renderOverview");
 if (/rank-row|news-row|playersList|newsList/.test(renderOverviewBody)) {
   throw new Error("renderOverview should not render the old broad ranking or news panels");
 }
-if (!/renderRankBriefs\(\)/.test(renderOverviewBody)) {
-  throw new Error("renderOverview should render compact ranking briefs above location cards");
+if (!/homeStatusPane\.innerHTML/.test(renderOverviewBody) || !/rank-pills/.test(renderOverviewBody) || !/status-rows/.test(renderOverviewBody)) {
+  throw new Error("renderOverview should render ranking and operating status in the status pane");
+}
+if (!/renderHomeMessages\(\)/.test(renderOverviewBody)) {
+  throw new Error("renderOverview should refresh the persistent play log");
+}
+const renderHomeMessagesBody = extractFunctionBody(main, "renderHomeMessages");
+if (!/visibleRows\.slice\(0,\s*40\)/.test(renderHomeMessagesBody)) {
+  throw new Error("homepage message log should render a dense MMO-style list of up to 40 rows");
+}
+if (!/visibleRows\.slice\(0,\s*40\)\.reverse\(\)/.test(renderHomeMessagesBody)) {
+  throw new Error("homepage message log should render newest messages at the bottom like MMO chat");
+}
+if (!/scrollHomeMessagesToLatest\(\)/.test(renderHomeMessagesBody)) {
+  throw new Error("homepage message log should scroll to the latest message after rendering");
+}
+if (!/message-log-speaker/.test(renderHomeMessagesBody) || !/data-channel="\$\{escapeHtml\(row\.channel\)\}"/.test(renderHomeMessagesBody)) {
+  throw new Error("message rows should expose channel and speaker markup for MMO-style chat styling");
+}
+const scrollHomeMessagesToLatestBody = extractFunctionBody(main, "scrollHomeMessagesToLatest");
+if (!/scrollTop\s*=\s*elsRef\.homeMessageLog\.scrollHeight/.test(scrollHomeMessagesToLatestBody)) {
+  throw new Error("scrollHomeMessagesToLatest should position the message log at the latest message");
+}
+const homeMessageRowsBody = extractFunctionBody(main, "homeMessageRows");
+for (const token of ["trade", "rumor", "reminder", "订单", "挂单", "掌柜"]) {
+  if (!homeMessageRowsBody.includes(token)) {
+    throw new Error(`homeMessageRows should generate richer MMO-style content including ${token}`);
+  }
+}
+const messageSortAtFromClockBody = extractFunctionBody(main, "messageSortAtFromClock");
+if (!/setHours/.test(messageSortAtFromClockBody) || !/24 \* 60 \* 60 \* 1000/.test(messageSortAtFromClockBody)) {
+  throw new Error("messageSortAtFromClock should convert HH:mm clock text into a same-day timestamp with rollover handling");
+}
+if (!/messageSortAtFromClock\(item\.at,\s*now\s*-\s*index\s*\*\s*60000\)/.test(homeMessageRowsBody)) {
+  throw new Error("news messages should sort by their displayed HH:mm timestamp instead of synthetic index timing");
 }
 if (!/<section class="view" data-view="reports">[\s\S]*<h3>经营账房<\/h3>/.test(index)) {
   throw new Error("reports view heading should use the location naming: 经营账房");
 }
 
 const renderMarketBody = extractFunctionBody(main, "renderMarket");
-if (!/const listingRows\s*=/.test(renderMarketBody)) {
-  throw new Error("renderMarket should build regular listing rows separately from asset listings");
+if (!/const others\s*=\s*getState\(\)\.listings\.filter/.test(renderMarketBody) || !/const mine\s*=\s*getState\(\)\.listings\.filter/.test(renderMarketBody)) {
+  throw new Error("renderMarket should partition player listings into market and owned rows");
 }
 if (/assetListings|assetRows|buyAssetListing/.test(renderMarketBody)) {
   throw new Error("renderMarket should only render player-to-player listings, not shop assets");
 }
-if (!/listingRows\s*\|\|\s*empty\("玩家交易行还没有挂单。"\)/.test(renderMarketBody)) {
-  throw new Error("renderMarket should show a player-market empty state when regular listings are absent");
+if (!/renderMarketSection\(others,\s*mine\)/.test(renderMarketBody)) {
+  throw new Error("renderMarket should delegate the selected player-market section");
+}
+const renderMarketGridBody = extractFunctionBody(main, "renderMarketGrid");
+if (!/玩家交易行还没有挂单/.test(renderMarketGridBody)) {
+  throw new Error("renderMarketGrid should show a player-market empty state when regular listings are absent");
 }
 
 const renderShopBody = extractFunctionBody(main, "renderShop");
@@ -615,9 +781,10 @@ const auctionServerExpectations = [
   [/function ensureAuctionRound/, "server should create auction rounds"],
   [/function settleAuctionIfDue/, "server should settle due auction rounds"],
   [/submitAuctionBid/, "server should expose submitAuctionBid"],
+  [/enterAuctionForPlayer/, "server should expose paid auction entry"],
   [/publicAuctionSnapshot/, "server snapshots should use public auction snapshots"],
   [/aiBidsForRough/, "server settlement should fill missing bidders with AI"],
-  [/bidDeposit/, "server should calculate auction deposits through shared rules"],
+  [/auctionEntryFee/, "server should calculate auction entry fees through shared rules"],
   [/settleAuctionRound/, "server should settle sealed bids through shared rules"]
 ];
 
@@ -631,27 +798,36 @@ if (/data-action="buyRough"/.test(main)) {
 
 const auctionUiExpectations = [
   [/auctionHalls/, "main.js should render multiple public auction entrances"],
-  [/auctionResults/, "main.js should render auction settlement results"],
-  [/joinAuction/, "auction UI should let players register for the current round"],
-  [/报名阶段/, "auction UI should label the registration phase"],
-  [/竞价阶段/, "auction UI should label the bidding phase"],
-  [/结算阶段/, "auction UI should label the settlement phase"],
+  [/auctionHistory/, "main.js should render historical auction result pages"],
+  [/function renderAuctionHistory\b/, "main.js should render auction results in the history page"],
+  [/enterAuction/, "auction UI should let players pay an entry fee"],
+  [/selectedAuctionHallId/, "auction UI should remember which hall card the player entered from"],
+  [/function enterAuctionHall\b/, "main.js should enter a selected public auction hall from its card"],
+  [/本场拍卖进行中/, "auction UI should describe the live-only auction phase"],
+  [/entryFee/, "main.js should render the auction entry fee"],
   [/function renderOfflineSummary/, "main.js should render offline summary cards"],
   [/function renderAuctionBidControls/, "main.js should render sealed bid controls"],
   [/data-bid-amount/, "auction cards should include bid amount inputs"],
-  [/data-proxy-max/, "auction cards should include proxy max inputs"],
+  [/data-bid-increment/, "auction cards should include dynamic increment controls"],
   [/submitAuctionBid/, "auction controls should emit submitAuctionBid"],
-  [/代理上限/, "auction UI should label proxy bidding"],
-  [/密封投标/, "auction UI should communicate sealed bidding"],
-  [/开标/, "auction UI should show settlement language"]
+  [/快捷加价/, "auction UI should label quick bid increments"],
+  [/封存暗标/, "auction UI should communicate sealed bidding"],
+  [/历史拍卖成功/, "auction UI should expose completed auction history"]
 ];
 
 for (const [pattern, message] of auctionUiExpectations) {
   if (!pattern.test(main)) throw new Error(message);
 }
 
-for (const token of ["auctionHalls", "auctionResults"]) {
+for (const token of ["auctionHalls", "auctionHistoryList"]) {
   if (!index.includes(`id="${token}"`)) throw new Error(`index.html should include #${token}`);
+}
+if (!/data-view="auctionHistory"/.test(index) || !/id="auctionHistoryBrief"/.test(index)) {
+  throw new Error("index.html should expose a separate historical auction results page");
+}
+const auctionViewSource = index.slice(index.indexOf('data-view="auction"'), index.indexOf('data-view="auctionHistory"'));
+if (/auctionResults|auction-result-board|开标结果/.test(auctionViewSource)) {
+  throw new Error("auction view should not contain the completed auction results list");
 }
 
 const renderOfflineSummaryBody = extractFunctionBody(main, "renderOfflineSummary");
@@ -665,14 +841,25 @@ if (/renderOfflineSummary\s*\(/.test(renderNextActionsBody)) {
 }
 
 const submitAuctionBidBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "submitAuctionBid")'), "submitAuctionBid client handler");
-if (!/data-bid-amount/.test(submitAuctionBidBody) || !/data-proxy-max/.test(submitAuctionBidBody)) {
-  throw new Error("submitAuctionBid should read both bid amount and proxy max inputs");
+if (!/data-bid-amount/.test(submitAuctionBidBody) || /data-proxy-max/.test(submitAuctionBidBody)) {
+  throw new Error("submitAuctionBid should read direct bid amount and not read proxy max inputs");
 }
-if (!/socket\.emit\("submitAuctionBid",\s*\{[\s\S]*roughId:\s*payload[\s\S]*amount:\s*[^,\n]+[\s\S]*proxyMax:\s*[^,\n}]+/.test(submitAuctionBidBody)) {
-  throw new Error("submitAuctionBid should emit roughId, amount, and proxyMax");
+if (!/socket\.emit\("submitAuctionBid",\s*\{[\s\S]*roughId:\s*payload[\s\S]*amount:\s*[^,\n}]+/.test(submitAuctionBidBody) || /proxyMax/.test(submitAuctionBidBody)) {
+  throw new Error("submitAuctionBid should emit roughId and direct amount only");
 }
 
-for (const token of ["submitAuctionBid", "代理上限", "提交暗标", "myBids"]) {
+const renderAuctionBidControlsBody = extractFunctionBody(main, "renderAuctionBidControls");
+if (/尚未投标|开标后揭晓结果/.test(renderAuctionBidControlsBody)) {
+  throw new Error("auction bid controls should not repeat unbid explanatory status text on every lot card");
+}
+if (/type="number"|step="100"/.test(renderAuctionBidControlsBody)) {
+  throw new Error("auction bid amount should use a plain manual text input without native number steppers");
+}
+if (!/inputmode="numeric"/.test(renderAuctionBidControlsBody) || !/data-bid-increment/.test(renderAuctionBidControlsBody)) {
+  throw new Error("auction bid amount should support manual numeric input and quick increment buttons");
+}
+
+for (const token of ["submitAuctionBid", "快捷加价", "提交暗标", "myBids"]) {
   if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
 }
 
@@ -680,8 +867,134 @@ if (!/function requestAuctionWindowForPlayer/.test(server) || !/requestAuctionWi
   throw new Error("server should phase-gate public window requests through a focused helper");
 }
 
-if (!/canRequestWindow\s*=\s*currentAuctionPhase\(auction\)\s*===\s*"bidding"/.test(main) || !/data-action="requestWindow"[\s\S]*!canRequestWindow/.test(main)) {
-  throw new Error("main.js should disable public window requests outside auction bidding");
+const renderAuctionHistoryBody = extractFunctionBody(main, "renderAuctionHistory");
+const auctionResultRowBody = extractFunctionBody(main, "auctionResultRow");
+if (!/getState\(\)\.auctionHistory/.test(renderAuctionHistoryBody) || !/result\.roughName/.test(auctionResultRowBody)) {
+  throw new Error("auction history should render stored result rough names from historical rounds");
+}
+if (!/auctionHistoryList/.test(renderAuctionHistoryBody) || !/历史拍卖成功/.test(main)) {
+  throw new Error("auction history should render completed auction results in its own list");
+}
+
+const renderAuctionBody = extractFunctionBody(main, "renderAuction");
+const renderAuctionSource = main.slice(main.indexOf("function renderAuction()"), main.indexOf("function renderWorkshop"));
+const renderAuctionLotCardBody = extractFunctionBody(main, "renderAuctionLotCard");
+if (/resultForRough\(rough\.id\)|开标：/.test(renderAuctionLotCardBody)) {
+  throw new Error("auction lot cards should not show completed auction result text in the active bidding list");
+}
+if (/renderAuctionResults/.test(renderAuctionSource) || /auctionResults/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should not render completed auction results in the active auction page");
+}
+const renderAuctionHallsBody = extractFunctionBody(main, "renderAuctionHalls");
+if (!/data-action="enterAuctionHall"/.test(renderAuctionHallsBody) || !/auction-hall-card/.test(renderAuctionHallsBody) || !/auction-hall-art/.test(renderAuctionHallsBody)) {
+  throw new Error("auction hall list should render image-led entrance cards that directly enter halls");
+}
+if (!/selectedHall/.test(renderAuctionHallsBody) || !/elsRef\.auctionHalls\.innerHTML\s*=\s*""/.test(renderAuctionHallsBody)) {
+  throw new Error("auction hall list should be hidden while a selected public auction page is open");
+}
+if (!/action === "enterAuctionHall"/.test(clickHandlerBody) || !/enterAuctionHall\(payload\)/.test(clickHandlerBody)) {
+  throw new Error("clicking an auction hall entrance should enter with one click");
+}
+if (!/action === "openAuctionHistory"/.test(clickHandlerBody) || !/setView\("auctionHistory"\)/.test(clickHandlerBody)) {
+  throw new Error("auction history should open as a separate page from the auction hall page");
+}
+if (!/function backAuctionHalls\b/.test(main) || !/action === "backAuctionHalls"/.test(clickHandlerBody) || !/backAuctionHalls\(\)/.test(clickHandlerBody)) {
+  throw new Error("selected auction hall pages should provide a back action to the hall list");
+}
+const enterAuctionHallBody = extractFunctionBody(main, "enterAuctionHall");
+if (!/socketRef\.emit\("enterAuction",\s*\{\s*hallId\s*\}/.test(enterAuctionHallBody)) {
+  throw new Error("enterAuctionHall should pay entry through enterAuction immediately");
+}
+if (!/!auction\?\.entered/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should branch before rendering current lots until the player enters");
+}
+if (!/const selectedHall = selectedAuctionHall\(\)/.test(renderAuctionSource) || !/!selectedHall/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should not render lot cards until a hall detail page is selected");
+}
+if (!/selectedHall\.id !== auction\?\.hallId/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should only show lots for the selected active auction hall");
+}
+if (/state\.roughPool/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should not fall back to the global rough pool before auction entry");
+}
+if (!/auction-lot-grid/.test(renderAuctionSource) || !/elsRef\.roughPool\.innerHTML\s*=\s*pageBody/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should render entered lots in the selected public auction area");
+}
+if (/els\.roughPool\.innerHTML\s*=\s*roughs\.map/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should not append raw lot cards directly under the public auction entrance list");
+}
+if (/auction-entry-prompt|入场后查看本场料子/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should show only public auction hall cards before entry, not an extra lot-list prompt card");
+}
+if (!/auction-round-hero/.test(renderAuctionSource) || !/auction-round-clock/.test(renderAuctionSource)) {
+  throw new Error("renderAuction should render a prominent current round timer above the auction entry cards");
+}
+if (!/auctionRoundLabel\(\)/.test(renderAuctionSource)) {
+  throw new Error("auction round hero should identify the current round, not a selected public hall");
+}
+if (/auction\?\.hallLabel|\|\|\s*"新手公盘"/.test(renderAuctionSource)) {
+  throw new Error("auction round hero should not display a specific public hall label");
+}
+if (!/id="auctionBrief"[\s\S]*id="auctionHalls"/.test(index)) {
+  throw new Error("auction round timer should appear above the public auction hall card list");
+}
+if (!/\.auction-round-hero/.test(styles) || !/\.auction-round-clock/.test(styles)) {
+  throw new Error("styles.css should make the current auction round timer visually prominent");
+}
+if (!/\.auction-hall-card/.test(styles) || !/var\(--auction-hall-image\)/.test(styles) || !styles.includes('url("/assets/locations/auction.jpg")')) {
+  throw new Error("styles.css should style auction hall entrances like image-led location cards");
+}
+if (!/\.auction-hall-enter-btn/.test(styles) || !/min-height:\s*48px/.test(styles)) {
+  throw new Error("auction hall card entry call-to-action should be visually prominent");
+}
+if (!/\.auction-lot-grid/.test(styles)) {
+  throw new Error("styles.css should style the selected public auction lot grid");
+}
+if (!/\.auction-history-list/.test(styles) || !/\.auction-history-card/.test(styles)) {
+  throw new Error("styles.css should style the separate historical auction results page");
+}
+const auctionHallCardStyle = styles.match(/\.auction-hall-card\s*\{[\s\S]*?\n\}/)?.[0] || "";
+const auctionHallCardHoverStyle = styles.match(/\.auction-hall-card:hover\s*\{[\s\S]*?\n\}/)?.[0] || "";
+if (/background\s*:|background-image\s*:/.test(auctionHallCardHoverStyle) || /transition:\s*[^;]*background/.test(auctionHallCardStyle)) {
+  throw new Error("auction hall card hover should not swap background layers because that causes image flicker");
+}
+
+if (!/canRequestWindow\s*=\s*currentAuctionPhase\(auction\)\s*===\s*"live"/.test(main) || !/const canWin\s*=\s*canOpenWindow\(rough\.id\)/.test(main) || !/data-action="startWindow"[\s\S]*canWin\s*\?\s*""\s*:\s*"disabled"/.test(main)) {
+  throw new Error("main.js should disable public window requests outside live auction rounds");
+}
+
+if (/function windowTargetFor|function setWindowTarget|auctionWindowTargets|确认开窗/.test(main)) {
+  throw new Error("auction window selection should not store a pending marker for a second confirmation step");
+}
+
+const requestWindowBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "requestWindow")'), "requestWindow client handler");
+if (!/startWindowSelection\(payload\)/.test(requestWindowBody) || !/请选择开窗位置/.test(requestWindowBody)) {
+  throw new Error("requestWindow should first put the lot into point-selection mode when no point has been chosen");
+}
+if (/socket\.emit\("requestWindow"/.test(requestWindowBody)) {
+  throw new Error("requestWindow button should not submit a second confirmation after point selection");
+}
+const windowBoardBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('const windowBoard = event.target.closest("[data-window-board]")'), "window board click handler");
+if (!/requestAuctionWindowAt\(roughId,\s*point\.x,\s*point\.y\)/.test(windowBoardBody)) {
+  throw new Error("clicking a selected window point should immediately submit the paid window request");
+}
+const requestAuctionWindowAtBody = extractFunctionBody(main, "requestAuctionWindowAt");
+if (!/socketRef\.emit\("requestWindow",\s*\{[\s\S]*roughId[\s\S]*x:\s*point\.x[\s\S]*y:\s*point\.y/.test(requestAuctionWindowAtBody)) {
+  throw new Error("requestAuctionWindowAt should submit the selected public window point immediately");
+}
+if (!/activeWindowSelection\s*=\s*null/.test(requestAuctionWindowAtBody)) {
+  throw new Error("window point submission should clear selection state immediately");
+}
+
+const auctionStoneBoardBody = extractFunctionBody(main, "auctionStoneBoard");
+if (!/auctionStoneSizeClass\(rough\)/.test(auctionStoneBoardBody)) {
+  throw new Error("auction stone boards should size lots by mass");
+}
+if (!/function auctionStoneSizeClass/.test(main) || !/auction-stone-small/.test(main) || !/auction-stone-large/.test(main)) {
+  throw new Error("main.js should expose mass-based auction stone size classes");
+}
+if (/expertClueChips\(rough\)/.test(renderAuctionSource) || /风险\s*\$\{rough\.risk/.test(renderAuctionSource) || /占现金/.test(renderAuctionSource)) {
+  throw new Error("auction rough cards should use compact lot information without expert chips, risk percentages, or cash share text");
 }
 
 const productionExpectations = [
@@ -689,10 +1002,10 @@ const productionExpectations = [
   [/startProductionJob/, "server should expose startProductionJob"],
   [/completeProductionJob/, "server should complete staged production jobs"],
   [/productionDuration/, "server should use shared production durations"],
-  [/粗加工/, "UI should show rough processing stage"],
-  [/精加工/, "UI should show refine processing stage"],
-  [/镶嵌/, "UI should show inlay processing stage"],
-  [/加工任务/, "workshop should label the active production queue separately from rough inventory"]
+  [/粗加工台/, "UI should show the opening device stage"],
+  [/套件雕刻台/, "UI should show the carving device stage"],
+  [/精加工抛光台/, "UI should show the finishing device stage"],
+  [/加工中/, "workshop should label active device jobs separately from inventory"]
 ];
 
 for (const [pattern, message] of productionExpectations) {
