@@ -3564,3 +3564,130 @@ button:active:not(:disabled) { transform: scale(.95); }
     overflow-wrap: anywhere;
   }
 }
+
+.mobile-dock-controls {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  html,
+  body {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .shell {
+    width: 100%;
+    min-height: 100dvh;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    padding-bottom: calc(52px + env(safe-area-inset-bottom));
+  }
+
+  .topbar,
+  .sidebar,
+  .main-stage {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .topbar {
+    position: static;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .top-hud,
+  .main-nav {
+    width: max-content;
+    min-width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .main-nav-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .sidebar {
+    overflow-x: auto;
+  }
+
+  .main-stage {
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .sidepanel,
+  .chatdock {
+    position: fixed;
+    z-index: 80;
+    top: auto;
+    right: 0;
+    bottom: calc(52px + env(safe-area-inset-bottom));
+    left: 0;
+    width: 100%;
+    max-height: min(70dvh, 620px);
+    transform: translateY(110%);
+    transition: transform 160ms ease;
+  }
+
+  .sidepanel.is-mobile-open,
+  .chatdock.is-mobile-open {
+    transform: translateY(0);
+  }
+
+  .mobile-dock-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: fixed;
+    right: 0;
+    bottom: env(safe-area-inset-bottom);
+    left: 0;
+    height: 52px;
+    z-index: 81;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile-panel-toggle {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workshop-recipe-main,
+  .card-grid,
+  .report-grid,
+  .treasure-grid,
+  .jm-shop,
+  .jm-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modal-root > *,
+  .jm-modal,
+  #shopModal > * {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+  }
+
+  button,
+  input,
+  select,
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  .chatdock-input input {
+    min-height: 44px;
+  }
+}

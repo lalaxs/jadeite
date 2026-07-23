@@ -179,6 +179,10 @@ const els = {
   chatSend: document.querySelector("#chatSend"),
   mainNav: document.querySelector("#mainNav"),
   mainStage: document.querySelector("#mainStage"),
+  sidePanel: document.querySelector("#sidePanel"),
+  sidePanelToggle: document.querySelector("#sidePanelToggle"),
+  chatDock: document.querySelector("#chatDock"),
+  chatDockToggle: document.querySelector("#chatDockToggle"),
   sidePanelBody: document.querySelector("#sidePanelBody"),
   panelTabs: document.querySelector("#panelTabs"),
   homeTabs: document.querySelector("#homeTabs"),
@@ -1178,10 +1182,36 @@ function setView(view) {
   if (els.mainStage) els.mainStage.scrollTop = 0;
 }
 
+function toggleMobilePanel(targetName) {
+  const target = targetName === "side" ? els.sidePanel : els.chatDock;
+  const targetButton = targetName === "side"
+    ? els.sidePanelToggle
+    : els.chatDockToggle;
+  const shouldOpen = !target?.classList.contains("is-mobile-open");
+
+  for (const [panel, button] of [
+    [els.sidePanel, els.sidePanelToggle],
+    [els.chatDock, els.chatDockToggle]
+  ]) {
+    panel?.classList.remove("is-mobile-open");
+    button?.setAttribute("aria-expanded", "false");
+  }
+
+  if (shouldOpen) {
+    target?.classList.add("is-mobile-open");
+    targetButton?.setAttribute("aria-expanded", "true");
+  }
+}
 
 function initShell() {
   setView(activeView);
   renderMainNav();
+  els.sidePanelToggle?.addEventListener("click", () => {
+    toggleMobilePanel("side");
+  });
+  els.chatDockToggle?.addEventListener("click", () => {
+    toggleMobilePanel("chat");
+  });
   if (els.chatSend) els.chatSend.addEventListener("click", sendChat);
   if (els.chatInput) {
     els.chatInput.addEventListener("keydown", (event) => {
@@ -1239,6 +1269,16 @@ function initShell() {
       }
     });
   }
+  window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
+    if (!event.matches) return;
+    for (const [panel, button] of [
+      [els.sidePanel, els.sidePanelToggle],
+      [els.chatDock, els.chatDockToggle]
+    ]) {
+      panel?.classList.remove("is-mobile-open");
+      button?.setAttribute("aria-expanded", "false");
+    }
+  });
   // 顶栏时钟/公盘倒计时 + 右侧进行事项面板 每秒刷新
   setInterval(() => {
     if (!state) return;
