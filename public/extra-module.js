@@ -40,11 +40,13 @@ export function renderShop() {
   try {
     if (!elsRef.shopListings || !getState()) {
       if (elsRef.shopListings) elsRef.shopListings.innerHTML = empty("等待商铺数据…");
+      if (elsRef.equipmentShop) elsRef.equipmentShop.innerHTML = empty("等待设备目录…");
       if (elsRef.materialInventory) elsRef.materialInventory.innerHTML = `<div class="mat-empty">等待商铺数据…<br>若长时间未加载，请重启服务器并强制刷新浏览器(Ctrl+Shift+R)。</div>`;
       return;
     }
     const assetListings = getState().assetListings || [];
-    elsRef.shopBrief.innerHTML = `<span>可购内容 ${assetListings.length}</span><span>工坊 ${getState().me.assets?.workshopOwned ? "已拥有" : "未拥有"}</span><span>直播许可 ${getState().me.assets?.livestreamPermitOwned ? "已拥有" : "未拥有"}</span>`;
+    const equipment = getState().equipmentCatalog || [];
+    elsRef.shopBrief.innerHTML = `<span>可购内容 ${assetListings.length + equipment.length}</span><span>工坊 ${getState().me.assets?.workshopOwned ? "已拥有" : "未拥有"}</span><span>直播许可 ${getState().me.assets?.livestreamPermitOwned ? "已拥有" : "未拥有"}</span>`;
     elsRef.shopListings.innerHTML = assetListings.map((listing) => `
       <div class="item-row asset-listing">
         <div class="item-title"><span>${escapeHtml(listing.name)}</span><span class="pill">${formatMoney(listing.price)}</span></div>
@@ -52,6 +54,31 @@ export function renderShop() {
         <div class="card-actions"><button data-action="buyAssetListing" data-payload="${listing.id}">购买</button></div>
       </div>
     `).join("") || empty("商铺暂无可购买内容。");
+
+    if (elsRef.equipmentShop) {
+      const stageNames = { opening: "开料设备", carving: "雕刻设备", finishing: "精加工设备" };
+      const owned = getState().me.workshop?.devices || [];
+      elsRef.equipmentShop.innerHTML = Object.entries(stageNames).map(([stage, label]) => {
+        const rows = equipment.filter((item) => item.stage === stage);
+        return `
+          <section class="equipment-shop-group">
+            <div class="panel-head compact"><h4>${label}</h4><span>已拥有 ${owned.filter((item) => item.stage === stage).length} 台</span></div>
+            <div class="item-list">
+              ${rows.map((item) => `
+                <article class="item-row equipment-listing">
+                  <div class="item-title"><span>${escapeHtml(item.name)}</span><span class="pill">${formatMoney(item.price)}</span></div>
+                  <p class="item-meta">${escapeHtml(item.model)} · 品质+${item.quality}% · 风险×${item.risk} · 速度+${item.speed}% · 保底${item.perfectFloor}%</p>
+                  <div class="card-actions">
+                    <span class="item-meta">固定容量 1 · 无等待队列</span>
+                    <button data-action="buyWorkshopDevice" data-model-key="${escapeHtml(item.modelKey)}" ${getState().me.assets?.workshopOwned ? "" : "disabled"}>购买设备</button>
+                  </div>
+                </article>
+              `).join("") || empty("暂无设备。")}
+            </div>
+          </section>
+        `;
+      }).join("") || empty("设备目录未加载。");
+    }
 
     // ---- 镶嵌材料（§20 / 设计案 §3）：竖排条目 + 购买弹窗 + 历史趋势 ----
     if (!elsRef.materialInventory) return;

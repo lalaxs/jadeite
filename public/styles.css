@@ -1915,6 +1915,26 @@
 
 /* ===== 商铺·镶嵌材料面板（§20 / 设计案 §3）===== */
 .material-panel { margin-top: 14px; }
+.equipment-shop-list {
+  display: grid;
+  gap: 16px;
+}
+.equipment-shop-group {
+  display: grid;
+  gap: 8px;
+}
+.equipment-shop-group + .equipment-shop-group {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.equipment-shop-group .panel-head.compact {
+  min-height: 0;
+  padding: 0 2px;
+}
+.equipment-listing .card-actions {
+  align-items: center;
+  justify-content: space-between;
+}
 .material-body { display: flex; flex-direction: column; gap: 14px; padding: 4px 2px 8px; }
 .mat-shop { display: flex; flex-direction: column; gap: 18px; }
 .mat-group-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }

@@ -274,7 +274,13 @@ function renderTraitRows(worker) {
 }
 export function workshopDevices() {
   const serverDevices = getState().me.workshop?.devices || [];
-  return WORKSHOP_DEVICE_FALLBACKS.map((fallback) => ({ ...fallback, ...(serverDevices.find((device) => device.id === fallback.id) || {}) }));
+  if (!serverDevices.length) return WORKSHOP_DEVICE_FALLBACKS;
+  return serverDevices.map((device) => ({
+    ...(WORKSHOP_DEVICE_FALLBACKS.find((fallback) => fallback.type === device.stage) || {}),
+    ...device,
+    type: device.stage || device.type,
+    capacity: 1
+  }));
 }
 
 export function workshopWorkers() {
@@ -313,7 +319,7 @@ export function workshopDurationLabel(device) {
     opening: "约 5 分钟",
     carving: "约 8 分钟",
     finishing: "约 2 分钟"
-  }[device.id] || "约 2 分钟";
+  }[device.stage || device.type] || "约 2 分钟";
 }
 
 export function workshopWorkerImpact(worker, device) {
@@ -322,11 +328,16 @@ export function workshopWorkerImpact(worker, device) {
     opening: `${worker.name}：开料耗时小幅下降，损耗风险小幅降低${trait}。`,
     carving: `${worker.name}：按套件边界下刀更稳，取件质量小幅提高${trait}。`,
     finishing: `${worker.name}：细部收口更准，最终成品稳定性小幅提高${trait}。`
-  }[device.id] || `${worker.name}：当前工序表现稳定${trait}。`;
+  }[device.stage || device.type] || `${worker.name}：当前工序表现稳定${trait}。`;
 }
 
 export function workshopDeviceImpact(device) {
-  return `${device.name} Lv.${device.level || 1}：容量 ${workshopJobs(device.id).length}/${device.capacity || 1}，状态 ${Math.round(device.condition ?? 100)}%，稳定完成${workshopOutputLabel(device)}工序。`;
+  return `${device.name} 1阶：容量 ${workshopJobs(device.id).length}/1，状态 ${Math.round(device.condition ?? 100)}%，稳定完成${workshopOutputLabel(device)}工序。`;
+}
+
+function workshopRepairQuote(device) {
+  const missing = 100 - Math.max(0, Math.min(100, Number(device.condition ?? 100)));
+  return Math.ceil(Number(device.basePrice || 0) * (missing / 100) * 0.35);
 }
 
 export function workshopJobEstimate(device, item) {
@@ -356,7 +367,7 @@ export function workshopJobProgress(job) {
 
 export function workshopItemPreview(item, device = null) {
   if (item.type === "rough") {
-    return `<div class="rough-output-preview compact">${openingStoneSvg(item, { revealed: materialStageForClient(item) !== "rough", kits: device?.id === "carving" ? openingKitsForRender(item) : [] })}</div>`;
+    return `<div class="rough-output-preview compact">${openingStoneSvg(item, { revealed: materialStageForClient(item) !== "rough", kits: device?.stage === "carving" ? openingKitsForRender(item) : [] })}</div>`;
   }
   return `<div class="workshop-product-preview">${productCanvas(item, "compact")}</div>`;
 }
@@ -387,13 +398,13 @@ export function workshopRecipeCard(device) {
       </span>
       <span class="recipe-card-grid">
         <span><em>师傅</em><strong>${escapeHtml(worker.name)} · ${escapeHtml(tierLabel(worker))}</strong></span>
-        <span><em>容量</em><strong>${jobs.length}/${device.capacity || 1}</strong></span>
+        <span><em>容量</em><strong>${jobs.length}/1</strong></span>
         <span><em>可加工</em><strong>${processable.length} 件</strong></span>
       </span>
       <span class="wrc-specs">${escapeHtml(specs)}</span>
       <span class="wrc-foot">
         <span class="recipe-card-current">${current ? `加工中：${escapeHtml(current.item?.name || "物料")}` : "设备空闲"}</span>
-        <span class="wrc-upgrade" aria-disabled="true" title="设备不可原地升级，去设备商/交易行换更高阶或更合适型号">换设备</span>
+        <span class="wrc-upgrade" aria-disabled="true" title="所有设备固定为 1 阶，型号差异由基础属性决定">固定 1 阶</span>
       </span>
     </button>
   `;
@@ -468,8 +479,10 @@ export function workshopRecipeSummary(device, selected) {
       </section>`;
   }
   const estimate = workshopJobEstimate(device, selected);
-  const kits = device.id === "carving" ? kitsFor(selected.id) : [];
-  const needsKits = device.id === "carving" && !kits.length;
+  const kits = device.stage === "carving" ? kitsFor(selected.id) : [];
+  const needsKits = device.stage === "carving" && !kits.length;
+  const busy = workshopJobs(device.id).length >= 1;
+  const broken = Number(device.condition ?? 100) <= 0;
   const worker = (selectedWorkshopWorkerId && workshopWorkers().find((w) => w.id === selectedWorkshopWorkerId)) || workshopWorkerFor(device);
   const pv = worker ? workerStepPreview(worker, deviceStep(device)) : null;
   const workerEffectBlock = pv ? `
@@ -498,10 +511,10 @@ export function workshopRecipeSummary(device, selected) {
       </div>
       ${workerEffectBlock}
       <p class="recipe-hint">${escapeHtml(estimate.duration)} · 费用 ${formatMoney(estimate.fee)} · 产出 ${escapeHtml(estimate.output)}</p>
-      ${device.id === "carving" ? roughBoard(selected) + roughPlannerControls(selected) + placementAnalysisRows(selected, kits) : ""}
+      ${device.stage === "carving" ? roughBoard(selected) + roughPlannerControls(selected) + placementAnalysisRows(selected, kits) : ""}
       ${needsKits ? `<p class="recipe-hint">请先在明料上摆放套件，然后再开工。</p>` : ""}
       <div class="row-actions">
-        <button class="${needsKits ? "warn" : "primary"}" data-action="startWorkshopJob" data-payload="${device.id}" data-item-id="${selected.id}" data-needs-kits="${needsKits ? "1" : "0"}">${needsKits ? "先摆套件" : `开工 ${formatMoney(estimate.fee)}`}</button>
+        <button class="${needsKits ? "warn" : "primary"}" data-action="startWorkshopJob" data-payload="${device.id}" data-item-id="${selected.id}" data-needs-kits="${needsKits ? "1" : "0"}" ${busy || broken ? "disabled" : ""}>${broken ? "请先维修设备" : busy ? "设备加工中（容量 1）" : needsKits ? "先摆套件" : `开工 ${formatMoney(estimate.fee)}`}</button>
       </div>
     </section>`;
 }
@@ -633,9 +646,11 @@ export function workshopRecipePage(device) {
 
   const queueStrip = `<section class="workshop-queue-strip">${
     jobs.length
-      ? jobs.map((job) => `<div class="queue-row">加工队列：${escapeHtml(job.item?.name || "加工中")}</div>`).join("")
-      : `<div class="queue-row muted">当前无进行中的加工任务</div>`
+      ? `<div class="queue-row">单机任务：${escapeHtml(jobs[0].item?.name || "加工中")}（容量 1，无等待队列）</div>`
+      : `<div class="queue-row muted">设备空闲（容量 1，无等待队列）</div>`
   }</section>`;
+  const repairCost = workshopRepairQuote(device);
+  const repairDisabled = durability >= 100 || jobs.length > 0;
 
   return `
     <div class="workshop-recipe-page">
@@ -658,6 +673,7 @@ export function workshopRecipePage(device) {
         <div class="mib-item mib-dura">
           <em>耐久 ${durability}%</em>
           <span class="mib-dura-track"><span class="mib-dura-fill ${durClass}" style="width:${durability}%"></span></span>
+          <button class="secondary small" data-action="repairWorkshopDevice" data-payload="${device.id}" type="button" ${repairDisabled ? "disabled" : ""}>${jobs.length ? "加工中" : durability >= 100 ? "无需维修" : `维修 ${formatMoney(repairCost)}`}</button>
         </div>
       </section>
 
@@ -954,8 +970,13 @@ export function workshopSelectItem(payload) {
 export function workshopStartJob(target, payload) {
   const deviceId = payload || activeWorkshopDeviceId;
   const itemId = target.dataset.itemId || selectedWorkshopItemId;
-  const request = { deviceId, itemId };
-  if (deviceId === "carving") {
+  const device = workshopDevices().find((item) => item.id === deviceId);
+  const request = {
+    deviceId,
+    itemId,
+    requestId: globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`
+  };
+  if (device?.stage === "carving") {
     request.kits = openingKitsForServer(itemId);
     if (!request.kits.length) { showToast("请先在明料上摆放套件。"); return; }
     roughKits.set(itemId, []);

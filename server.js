@@ -38,6 +38,15 @@ import {
   computeGrade as computeOpeningGrade,
   evaluateOpeningKit
 } from "./public/jade-opening-engine.js";
+import {
+  equipmentCatalog,
+  createDeviceInstance,
+  normalizeDevice,
+  buyEquipment,
+  durabilityLoss,
+  repairEquipment,
+  repairQuote
+} from "./server/systems/equipment-system.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -347,81 +356,12 @@ function resetTask(player, uid) {
   refreshPlayerReport(player);
   return { ok: true, task: replacement };
 }
-// ===== 加工设备型号目录（每工序多种型号，基础属性不同 = 型号个性）=====
-// 阶数 1~10 在基础属性上做加成（见 deviceEffectiveAttrs）。设备是固定阶数的可交易道具。
-const DEVICE_MODELS = {
-  opening: [
-    { key: "rough",    name: "粗加工台",   category: "打磨机",       model: "角磨机 CJ-1 基础型",  quality: 3, risk: 1.20, speed: 12, perfectFloor: 0, needsKits: false },
-    { key: "refine",   name: "精磨台",     category: "精磨机",       model: "精磨机 JM-2 稳型",    quality: 5, risk: 0.85, speed: 4,  perfectFloor: 2, needsKits: false },
-    { key: "waterbed", name: "水床切片机", category: "水床机",       model: "水床切片 WB-3",       quality: 4, risk: 1.00, speed: 8,  perfectFloor: 1, needsKits: false },
-  ],
-  carving: [
-    { key: "carve",    name: "套件雕刻台", category: "套料机",       model: "数控套料机 SK-2",     quality: 3, risk: 1.10, speed: 10, perfectFloor: 0, needsKits: true },
-    { key: "cnc",      name: "数控取件台", category: "取件机",       model: "数控取件 NC-4",       quality: 5, risk: 0.90, speed: 6,  perfectFloor: 1, needsKits: true },
-    { key: "scan3d",   name: "3D扫描设计台", category: "扫描设计台", model: "3D扫描 SD-5",         quality: 6, risk: 0.95, speed: 5,  perfectFloor: 2, needsKits: true },
-  ],
-  finishing: [
-    { key: "polish",   name: "精加工抛光台", category: "玉雕机·抛光机", model: "精雕抛光一体机 JP-3", quality: 3, risk: 1.10, speed: 8,  perfectFloor: 0, needsKits: false },
-    { key: "inlay",    name: "镶嵌一体机",   category: "镶嵌机",       model: "镶嵌一体 IJ-6",      quality: 5, risk: 1.00, speed: 6,  perfectFloor: 1, needsKits: false },
-    { key: "hiperf",   name: "高光精雕机",   category: "高光精雕机",   model: "高光精雕 HG-7",      quality: 7, risk: 1.15, speed: 4,  perfectFloor: 2, needsKits: false },
-  ],
-};
-// 每工序的物料路由（输入/输出/阶段/绑定员工/工费）
-const DEVICE_STAGE_ROUTING = {
-  opening:   { inputType: "rough",    inputStage: "rough",   outputStage: "opened",   durationStage: "rough",  workerId: "worker-opening",  fee: 620 },
-  carving:   { inputType: "rough",    inputStage: "opened",  outputStage: "carved",   durationStage: "refine", workerId: "worker-polishing", fee: 900 },
-  finishing: { inputType: "bracelet", inputStage: "carved",  outputStage: "finished", durationStage: "inlay",  workerId: "worker-carving",  fee: 680 },
-};
-// 有效属性 = 基础属性 + 阶数加成（型号个性保留，高阶全面更强）
-function deviceEffectiveAttrs(base, tier) {
-  const t = Math.max(1, Math.min(10, Number(tier) || 1));
-  const inc = t - 1;
-  return {
-    quality: +(base.quality + inc * 1.5).toFixed(2),
-    speed: +(base.speed + inc * 2.0).toFixed(2),
-    risk: +Math.max(0.5, base.risk * (1 - inc * 0.025)).toFixed(3),
-    perfectFloor: +Math.min(15, base.perfectFloor + inc * 0.3).toFixed(2),
-  };
-}
-let DEVICE_SEQ = 0;
-function makeDeviceInstance(stage, modelKey, tier) {
-  const models = DEVICE_MODELS[stage];
-  if (!models || !models.length) return null;
-  const m = models.find((x) => x.key === modelKey) || models[0];
-  const tierN = Math.max(1, Math.min(10, Number(tier) || 1));
-  const route = DEVICE_STAGE_ROUTING[stage];
-  DEVICE_SEQ += 1;
-  const base = { quality: m.quality, risk: m.risk, speed: m.speed, perfectFloor: m.perfectFloor };
-  return {
-    id: `dev-${stage}-${m.key}-${tierN}-${DEVICE_SEQ}`,
-    stage,
-    modelKey: m.key,
-    name: m.name,
-    category: m.category,
-    model: m.model,
-    tier: tierN,
-    baseAttrs: base,
-    attrs: deviceEffectiveAttrs(base, tierN),
-    needsKits: Boolean(m.needsKits),
-    capacity: 1,
-    workerId: route.workerId,
-    inputType: route.inputType,
-    inputStage: route.inputStage,
-    outputStage: route.outputStage,
-    durationStage: route.durationStage,
-    fee: route.fee,
-    condition: 100,
-    specs: `品质+${m.quality}% · 风险×${m.risk} · 速度+${m.speed}% · 保底${m.perfectFloor}%`,
-  };
-}
 function starterDevices() {
-  return ["opening", "carving", "finishing"].map((stage) => makeDeviceInstance(stage, DEVICE_MODELS[stage][0].key, 1));
-}
-// 设备商统一定价（占位）：型号基价 × (1 + (阶-1)×0.6)
-const DEVICE_SHOP_BASE_PRICE = { rough: 9000, refine: 12000, waterbed: 11000, carve: 13000, cnc: 16000, scan3d: 18000, polish: 12000, inlay: 15000, hiperf: 20000 };
-function deviceShopPrice(modelKey, tier) {
-  const base = DEVICE_SHOP_BASE_PRICE[modelKey] || 10000;
-  return Math.round(base * (1 + (Math.max(1, tier) - 1) * 0.6));
+  return [
+    createDeviceInstance("opening", "rough", randomUUID()),
+    createDeviceInstance("carving", "carve", randomUUID()),
+    createDeviceInstance("finishing", "polish", randomUUID())
+  ];
 }
 const TIMING_PROFILE = process.env.JADE_TIMING_PROFILE || "normal";
 const TIMING = resolveTiming(TIMING_PROFILE);
@@ -454,6 +394,7 @@ const state = {
   latestAuctionResults: [],
   auctionHistory: []
 };
+const recentRequestIdsByPlayer = new Map();
 
 function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
@@ -502,6 +443,17 @@ function spendCash(player, amount, note, meta = {}) {
   if (player.cash < cost) return false;
   player.cash -= cost;
   recordLedger(player, "expense", cost, note, meta);
+  return true;
+}
+
+function consumeRequestId(player, requestId) {
+  const id = String(requestId || "").trim();
+  if (!player || !id) return true;
+  const key = player.id || player.name || "anonymous";
+  const recent = recentRequestIdsByPlayer.get(key) || [];
+  if (recent.includes(id)) return false;
+  recent.push(id);
+  recentRequestIdsByPlayer.set(key, recent.slice(-100));
   return true;
 }
 
@@ -582,25 +534,12 @@ function mergeWorkerSkills(defSkills, existingSkills) {
 
 function normalizeWorkshop(player) {
   player.workshop ||= {};
-  const existingDevices = new Map((player.workshop.devices || []).map((device) => [device.id, device]));
   const existingWorkers = new Map((player.workshop.workers || []).map((worker) => [worker.id, worker]));
   if (Array.isArray(player.workshop.devices) && player.workshop.devices.length) {
-    // 返回玩家：保留已有设备，重算有效属性
-    player.workshop.devices = player.workshop.devices.map((d) => {
-      const existing = d || {};
-      const base = existing.baseAttrs || { quality: 0, risk: 1, speed: 0, perfectFloor: 0 };
-      const tier = Math.max(1, Math.min(10, Number(existing.tier) || 1));
-      return {
-        ...existing,
-        tier,
-        baseAttrs: base,
-        attrs: deviceEffectiveAttrs(base, tier),
-        capacity: Math.max(1, Number(existing.capacity) || 1),
-        condition: clamp(Number(existing.condition ?? 100), 0, 100),
-      };
-    });
+    // 返回玩家：保留设备实例，但强制统一为固定 1 阶、容量 1。
+    player.workshop.devices = player.workshop.devices.map(normalizeDevice);
   } else {
-    // 新玩家：每工序赠送 1 台 tier-1 默认型号
+    // 新玩家：每工序赠送 1 台固定 1 阶默认型号。
     player.workshop.devices = starterDevices();
   }
   player.workshop.workers = WORKSHOP_WORKER_DEFS.map((definition) => {
@@ -1006,6 +945,7 @@ function snapshotFor(player, now = Date.now()) {
     listings: state.listings.map(publicListing),
     assetListings: assetListingsForPlayer(player),
     materialCatalog: materialCatalogForPlayer(player),
+    equipmentCatalog: equipmentCatalog(),
     auction: publicAuctionSnapshot(auction, player.id, now, state.latestAuctionResults),
     auctionHistory: state.auctionHistory.map((entry) => publicAuctionHistoryEntry(entry, player.id)),
     auctionHalls: publicAuctionHalls(player),
@@ -1570,8 +1510,11 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
   if (!playerOwnsWorkshop(player)) return { ok: false, message: "先去交易行买下街角小工坊。" };
   const device = workshopDeviceForPlayer(player, deviceId);
   if (!device) return { ok: false, message: "这台设备不存在。" };
-  if (workshopJobsForDevice(player, device.id).length >= device.capacity) {
-    return { ok: false, message: "这台设备正在加工，等空位出来再安排。" };
+  if (Number(device.condition ?? 100) <= 0) {
+    return { ok: false, message: "这台设备耐久已耗尽，请先维修。" };
+  }
+  if (workshopJobsForDevice(player, device.id).length >= 1) {
+    return { ok: false, message: "这台设备正在加工；每台设备容量固定为 1，不设等待队列。" };
   }
   const itemId = payload?.itemId || payload?.roughId || payload?.productId || payload?.braceletId;
   const item = takeItem(player, device.inputType, itemId);
@@ -1733,7 +1676,18 @@ function restoreRoughToInventory(player, rough) {
   player.rough.push(rough);
 }
 
+function applyJobDurability(player, job) {
+  if (!job?.deviceId || job.durabilityApplied) return 0;
+  job.durabilityApplied = true;
+  const device = workshopDeviceForPlayer(player, job.deviceId);
+  if (!device) return 0;
+  const loss = durabilityLoss(device);
+  device.condition = clamp(Number(device.condition ?? 100) - loss, 0, 100);
+  return loss;
+}
+
 function completeProductionJob(player, job) {
+  applyJobDurability(player, job);
   const worker = job.workerId ? workshopWorkerForPlayer(player, job.workerId) : null;
   const step = wsStageToStep(job.stage);
   const applyWorker = Boolean(worker && step);
@@ -2510,9 +2464,47 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
+  socket.on("buyWorkshopDevice", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    if (!consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该购买请求已处理，请勿重复提交。");
+    }
+    normalizePlayer(player);
+    if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先购买街角小工坊，再添置设备。");
+    const result = buyEquipment(player, payload.modelKey, {
+      spendCash,
+      makeId: randomUUID
+    });
+    if (!result.ok) return socket.emit("toast", result.message);
+    addNews(`${player.name} 为工坊购入 ${result.device.name}。`, "craft");
+    socket.emit("toast", result.message);
+    broadcast();
+  });
+
+  socket.on("repairWorkshopDevice", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player) return;
+    if (!consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该维修请求已处理，请勿重复提交。");
+    }
+    normalizePlayer(player);
+    if (workshopJobsForDevice(player, payload.deviceId).length) {
+      return socket.emit("toast", "设备加工中，完成后才能维修。");
+    }
+    const result = repairEquipment(player, payload.deviceId, { spendCash });
+    if (!result.ok) return socket.emit("toast", result.message);
+    addNews(`${player.name} 维修了 ${result.device.name}。`, "craft");
+    socket.emit("toast", result.message);
+    broadcast();
+  });
+
   socket.on("startWorkshopJob", (payload = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
+    if (!consumeRequestId(player, payload.requestId)) {
+      return socket.emit("toast", "该开工请求已处理，请勿重复提交。");
+    }
     const result = startWorkshopJobForPlayer(player, payload.deviceId, payload);
     if (!result.ok) return socket.emit("toast", result.message);
     addNews(`${player.name} 将 ${result.job.item.name} 安排到${result.device.name}。`, "craft");
@@ -2969,6 +2961,7 @@ export const __testHooks = {
   normalizePlayer,
   recordLedger,
   spendCash,
+  consumeRequestId,
   earnCash,
   holdDeposit,
   releaseDeposit,
@@ -2985,10 +2978,17 @@ export const __testHooks = {
   normalizeWorkshop,
   materialStageFor,
   workshopDevicesForPlayer,
+  workshopDeviceForPlayer,
+  workshopJobsForDevice,
   workshopProcessableItems,
   startWorkshopJobForPlayer,
   startProductionJob,
   completeProductionJob,
+  applyJobDurability,
+  equipmentCatalog,
+  buyEquipment,
+  repairEquipment,
+  repairQuote,
   scheduleLivestream,
   sellLivestreamNow,
   assetListingsForPlayer,

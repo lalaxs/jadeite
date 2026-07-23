@@ -451,7 +451,7 @@ if (/const startDisabled\s*=\s*device\.id === "carving" && !kits\.length/.test(m
   throw new Error("carving start should not be a disabled dead-end when kits are missing");
 }
 const startWorkshopJobActionBody = extractFunctionBody(workshopModule, "workshopStartJob");
-if (!/deviceId === "carving"/.test(startWorkshopJobActionBody) || !/showToast\("请先在明料上摆放套件。"\)/.test(startWorkshopJobActionBody)) {
+if (!/device\?\.stage === "carving"/.test(startWorkshopJobActionBody) || !/showToast\("请先在明料上摆放套件。"\)/.test(startWorkshopJobActionBody)) {
   throw new Error("carving start should give a visible hint when no kit has been placed");
 }
 

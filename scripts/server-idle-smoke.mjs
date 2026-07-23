@@ -5,6 +5,7 @@ const {
   makePlayer,
   normalizePlayer,
   spendCash,
+  consumeRequestId,
   earnCash,
   settleOfflinePlayer,
   enterAuctionForPlayer,
@@ -32,8 +33,14 @@ const {
   normalizeWorkshop,
   materialStageFor,
   workshopDevicesForPlayer,
+  workshopDeviceForPlayer,
+  workshopJobsForDevice,
   workshopProcessableItems,
   startWorkshopJobForPlayer,
+  equipmentCatalog,
+  buyEquipment,
+  repairEquipment,
+  repairQuote,
   expandKitPlacements,
   placementsOverlap,
   refreshPlayerReport,
@@ -130,6 +137,8 @@ assert.equal(typeof materialStageFor, "function", "materialStageFor should be te
 assert.equal(typeof workshopDevicesForPlayer, "function", "workshopDevicesForPlayer should be testable");
 assert.equal(typeof workshopProcessableItems, "function", "workshopProcessableItems should be testable");
 assert.equal(typeof startWorkshopJobForPlayer, "function", "startWorkshopJobForPlayer should be testable");
+assert.equal(typeof buyEquipment, "function", "buyEquipment should be testable");
+assert.equal(typeof repairEquipment, "function", "repairEquipment should be testable");
 
 const starterPlayer = makePlayer("starter-player");
 assert.equal(starterPlayer.rough.length, 3);
@@ -146,6 +155,8 @@ const starterDevices = starterSnapshot.me.workshop.devices;
 assert.equal(starterDevices.length, 3);
 assert.deepEqual(starterDevices.map((device) => device.stage), ["opening", "carving", "finishing"]);
 assert.equal(starterSnapshot.me.workshop.workers.length, 4);
+assert.equal(starterSnapshot.equipmentCatalog.length, 9);
+assert.equal(equipmentCatalog().every((entry) => entry.tier === 1), true);
 assert.equal(starterDevices.every((device) => device.capacity === 1), true);
 assert.equal(starterDevices.every((device) => device.workerId), true);
 assert.equal(starterDevices.every((device) => !Object.hasOwn(device, "queue")), true);
@@ -174,6 +185,7 @@ assert.equal(blockedSecondOpening.ok, false);
 assert.match(blockedSecondOpening.message, /正在加工|容量/);
 assert.equal(instantOpeningPlayer.jobs.filter((job) => job.deviceId === instantOpeningResult.device.id).length, 1);
 state.players.set(instantOpeningPlayer.id, instantOpeningPlayer);
+const instantOpeningCondition = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
 instantOpeningPlayer.jobs[0].readyAt = 0;
 processProductionJobs(Date.now(), { onlineOnly: false });
 assert.equal(instantOpeningPlayer.jobs.length, 0);
@@ -182,9 +194,64 @@ const instantOpenedRough = instantOpeningPlayer.rough.find((rough) => rough.id =
 assert.equal(instantOpenedRough.revealed, true);
 assert.equal(instantOpenedRough.polished, true);
 assert.equal(instantOpenedRough.materialStage, "opened");
+const instantOpeningConditionAfter = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
+assert.ok(instantOpeningConditionAfter < instantOpeningCondition, "completion should consume device durability exactly once");
 const instantCarvingDevice = workshopDevicesForPlayer(instantOpeningPlayer).find((device) => device.stage === "carving");
 assert.ok(instantCarvingDevice);
 assert.equal(workshopProcessableItems(instantOpeningPlayer, instantCarvingDevice.id).some((rough) => rough.id === instantOpeningRoughId), true);
+
+const equipmentPlayer = makePlayer("equipment-player");
+equipmentPlayer.cash = 100000;
+const equipmentCountBefore = workshopDevicesForPlayer(equipmentPlayer).length;
+const equipmentCashBefore = equipmentPlayer.cash;
+const equipmentPurchase = buyEquipment(equipmentPlayer, "rough", {
+  spendCash,
+  makeId: () => "equipment-extra-opening"
+});
+assert.equal(equipmentPurchase.ok, true);
+assert.equal(equipmentPlayer.cash, equipmentCashBefore - 9000);
+assert.equal(workshopDevicesForPlayer(equipmentPlayer).length, equipmentCountBefore + 1);
+assert.equal(equipmentPurchase.device.capacity, 1);
+equipmentPurchase.device.workerId = "worker-carving";
+const firstOpeningDevice = workshopDevicesForPlayer(equipmentPlayer).find(
+  (device) => device.stage === "opening" && device.id !== equipmentPurchase.device.id
+);
+const parallelOne = startWorkshopJobForPlayer(equipmentPlayer, firstOpeningDevice.id, {
+  itemId: equipmentPlayer.rough[0].id
+});
+const parallelTwo = startWorkshopJobForPlayer(equipmentPlayer, equipmentPurchase.device.id, {
+  itemId: equipmentPlayer.rough[0].id
+});
+assert.equal(parallelOne.ok, true);
+assert.equal(parallelTwo.ok, true);
+assert.equal(workshopJobsForDevice(equipmentPlayer, firstOpeningDevice.id).length, 1);
+assert.equal(workshopJobsForDevice(equipmentPlayer, equipmentPurchase.device.id).length, 1);
+assert.equal(startWorkshopJobForPlayer(equipmentPlayer, equipmentPurchase.device.id, {
+  itemId: equipmentPlayer.rough[0].id
+}).ok, false, "a device must reject a second job instead of queuing it");
+
+const brokenDevice = workshopDevicesForPlayer(starterPlayer).find((device) => device.stage === "opening");
+brokenDevice.condition = 0;
+assert.equal(startWorkshopJobForPlayer(starterPlayer, brokenDevice.id, {
+  itemId: starterPlayer.rough[0].id
+}).ok, false, "zero-condition equipment must reject new work");
+const repairCost = repairQuote(brokenDevice);
+const repairCashBefore = starterPlayer.cash;
+const repairResult = repairEquipment(starterPlayer, brokenDevice.id, { spendCash });
+assert.equal(repairResult.ok, true);
+assert.equal(workshopDeviceForPlayer(starterPlayer, brokenDevice.id).condition, 100);
+assert.equal(starterPlayer.cash, repairCashBefore - repairCost);
+
+const poorEquipmentPlayer = makePlayer("poor-equipment-player");
+poorEquipmentPlayer.cash = 0;
+const poorDeviceCount = workshopDevicesForPlayer(poorEquipmentPlayer).length;
+assert.equal(buyEquipment(poorEquipmentPlayer, "rough", {
+  spendCash,
+  makeId: () => "should-not-exist"
+}).ok, false);
+assert.equal(workshopDevicesForPlayer(poorEquipmentPlayer).length, poorDeviceCount);
+assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), true);
+assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), false);
 
 const chainPlayer = makePlayer("workshop-chain-player");
 state.players.set(chainPlayer.id, chainPlayer);

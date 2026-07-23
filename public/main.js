@@ -166,6 +166,7 @@ const els = {
   marketBuyBody: document.querySelector("#marketBuyBody"),
   shopBrief: document.querySelector("#shopBrief"),
   shopListings: document.querySelector("#shopListings"),
+  equipmentShop: document.querySelector("#equipmentShop"),
   materialInventory: document.querySelector("#materialInventory"),
   livestream: document.querySelector("#livestreamPanel"),
   reports: document.querySelector("#reportsPanel"),
@@ -1809,6 +1810,21 @@ document.body.addEventListener("click", (event) => {
   if (action === "buyMaterialPack") {
     const [materialId, amount] = String(payload).split("|");
     socket.emit("buyMaterialPack", materialId, Number(amount));
+    return;
+  }
+  if (action === "buyWorkshopDevice") {
+    const modelKey = target.dataset.modelKey || payload;
+    socket.emit("buyWorkshopDevice", {
+      modelKey,
+      requestId: globalThis.crypto?.randomUUID?.() || `equipment-${Date.now()}`
+    });
+    return;
+  }
+  if (action === "repairWorkshopDevice") {
+    socket.emit("repairWorkshopDevice", {
+      deviceId: payload,
+      requestId: globalThis.crypto?.randomUUID?.() || `repair-${Date.now()}`
+    });
     return;
   }
 
