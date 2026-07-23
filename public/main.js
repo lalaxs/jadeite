@@ -1812,7 +1812,11 @@ document.body.addEventListener("click", (event) => {
 
   if (action === "buyMaterialPack") {
     const [materialId, amount] = String(payload).split("|");
-    socket.emit("buyMaterialPack", materialId, Number(amount));
+    socket.emit("buyMaterialPack", {
+      materialId,
+      amount: Number(amount),
+      requestId: globalThis.crypto?.randomUUID?.() || `material-${Date.now()}`
+    });
     return;
   }
   if (action === "buyWorkshopDevice") {

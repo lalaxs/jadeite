@@ -2176,6 +2176,50 @@
 }.game-modal-actions {
   justify-content: flex-end;
   padding: 0 18px 18px;
+}.finish-plan-modal {
+  width: min(720px, 100%);
+}.finish-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}.finish-plan-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}.finish-plan-field select,
+.finish-plan-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  background: var(--paper);
+  font: inherit;
+}.finish-plan-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}.finish-plan-summary > div {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: #f8fbf8;
+  font-size: 12px;
+}.finish-plan-summary span { color: var(--muted);
+}.finish-plan-summary strong { color: var(--ink);
+}.finish-plan-summary strong.pos { color: var(--jade-dark);
+}.finish-plan-summary strong.neg,
+.finish-plan-warning { color: var(--rose);
+}.finish-plan-warning {
+  margin: 0;
+  font-size: 12px;
 }.toast {
   position: fixed;
   right: 20px;
@@ -3753,6 +3797,11 @@ button:active:not(:disabled) { transform: scale(.95); }
     max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 24px);
     overflow: auto;
+  }
+
+  .finish-plan-grid,
+  .finish-plan-summary {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   button,

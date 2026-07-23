@@ -454,6 +454,13 @@ const startWorkshopJobActionBody = extractFunctionBody(workshopModule, "workshop
 if (!/device\?\.stage === "carving"/.test(startWorkshopJobActionBody) || !/showToast\("请先在明料上摆放套件。"\)/.test(startWorkshopJobActionBody)) {
   throw new Error("carving start should give a visible hint when no kit has been placed");
 }
+if (!/device\?\.stage === "finishing"/.test(startWorkshopJobActionBody) || !/openFinishPlanModal/.test(startWorkshopJobActionBody)) {
+  throw new Error("finishing start should open the authoritative inlay plan instead of immediately emitting a job");
+}
+const pickWorkshopItemBody = extractFunctionBody(workshopModule, "workshopPickItem");
+if (!/activeWorkshopPicker\s*=\s*null/.test(pickWorkshopItemBody) || !/renderPicker\(\)/.test(pickWorkshopItemBody)) {
+  throw new Error("material picker should unmount after selecting an item so it cannot cover the start button");
+}
 
 const idleServerExpectations = [
   [/from "\.\/public\/jade-loop\.js"/, "server should import shared idle loop rules"],

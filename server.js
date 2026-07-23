@@ -55,6 +55,14 @@ import {
   isWorkerBusy,
   grantActivityExperience
 } from "./server/systems/employee-system.js";
+import {
+  inlayCatalog,
+  validateFinishPlan,
+  quoteFinishPlan,
+  reserveFinishMaterials,
+  refundFinishMaterials,
+  applyInlay
+} from "./server/systems/inlay-system.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -976,6 +984,7 @@ function snapshotFor(player, now = Date.now()) {
     assetListings: assetListingsForPlayer(player),
     materialCatalog: materialCatalogForPlayer(player),
     equipmentCatalog: equipmentCatalog(),
+    inlayCatalog: inlayCatalog(),
     auction: publicAuctionSnapshot(auction, player.id, now, state.latestAuctionResults),
     auctionHistory: state.auctionHistory.map((entry) => publicAuctionHistoryEntry(entry, player.id)),
     auctionHalls: publicAuctionHalls(player),
@@ -1504,9 +1513,19 @@ function restoreWorkshopItem(player, item) {
   player.bracelets.push(item);
 }
 
+function findWorkshopItem(player, device, itemId) {
+  const bucket = device.inputType === "rough" ? player.rough : player.bracelets;
+  return bucket.find((item) => item.id === itemId) || null;
+}
+
 function startProductionJob(player, stage, item, options = {}) {
   const stageCost = money(options.fee ?? ({ rough: 620, refine: 900, inlay: 680 }[stage] || 620));
-  if (!spendCash(player, stageCost, `${options.label || stage}：${item.name}`, { source: "production", itemId: item.id })) {
+  if (!options.feeAlreadyPaid && !spendCash(
+    player,
+    stageCost,
+    `${options.label || stage}：${item.name}`,
+    { source: "production", itemId: item.id }
+  )) {
     return null;
   }
   const now = Date.now();
@@ -1554,6 +1573,68 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     return { ok: false, code: "WORKER_BUSY", message: "这位师傅正在执行其他任务。" };
   }
   const itemId = payload?.itemId || payload?.roughId || payload?.productId || payload?.braceletId;
+  if (device.stage === "finishing") {
+    const previewItem = findWorkshopItem(player, device, itemId);
+    if (!previewItem) {
+      return { ok: false, code: "NOT_FOUND", message: "找不到可加工物料。" };
+    }
+    if (materialStageFor(previewItem) !== device.inputStage) {
+      return {
+        ok: false,
+        code: "INVALID_COMBINATION",
+        message: "这台设备不能处理当前阶段的物料。"
+      };
+    }
+    const validation = validateFinishPlan(previewItem, payload.finishPlan);
+    if (!validation.ok) return validation;
+    const quote = quoteFinishPlan(previewItem, payload.finishPlan);
+    if (player.cash < quote.laborFee) {
+      return {
+        ok: false,
+        code: "INSUFFICIENT_CASH",
+        message: `精加工人工费需要 ¥${quote.laborFee}。`
+      };
+    }
+    const item = takeItem(player, device.inputType, itemId);
+    const reserve = reserveFinishMaterials(player, quote);
+    if (!reserve.ok) {
+      restoreWorkshopItem(player, item);
+      return reserve;
+    }
+    if (!spendCash(
+      player,
+      quote.laborFee,
+      `精加工：${item.name}`,
+      { source: "workshop", itemId: item.id }
+    )) {
+      refundFinishMaterials(player, reserve.reservedMaterials);
+      restoreWorkshopItem(player, item);
+      return {
+        ok: false,
+        code: "INSUFFICIENT_CASH",
+        message: "现金不足，无法开工。"
+      };
+    }
+    const devSpeed = Number(device.attrs?.speed || 0);
+    const devTimeScale = Math.max(0.2, 1 - Math.min(0.8, devSpeed / 100));
+    const job = startProductionJob(player, device.stage, item, {
+      label: device.name,
+      fee: quote.laborFee,
+      feeAlreadyPaid: true,
+      durationStage: device.durationStage,
+      deviceId: device.id,
+      deviceAttrs: device.attrs,
+      workerId: worker.id,
+      timeScale: wsSpeedTimeScale(worker) * devTimeScale,
+      outputStage: device.outputStage,
+      outputPreview: { materialStage: device.outputStage }
+    });
+    job.finishPlan = structuredClone(payload.finishPlan);
+    job.inlayQuote = quote;
+    job.reservedMaterials = reserve.reservedMaterials;
+    refreshPlayerReport(player);
+    return { ok: true, message: `${device.name} 已开工。`, job, device, worker, fee: job.fee };
+  }
   const item = takeItem(player, device.inputType, itemId);
   if (!item) return { ok: false, message: "找不到可加工物料。" };
   const inputStage = materialStageFor(item);
@@ -1749,6 +1830,18 @@ function completeProductionJob(player, job) {
     if (Math.random() < shatterProb) shattered = true;
   }
   if (shattered) {
+    if (activity === "finishing") {
+      restoreWorkshopItem(player, job.item);
+      refundFinishMaterials(player, job.reservedMaterials);
+      job.reservedMaterials = {};
+      return {
+        text: `${job.item.name} 精加工失败，翡翠与镶嵌材料已退回`,
+        item: null,
+        shattered: true,
+        refunded: true,
+        xpResult
+      };
+    }
     return { text: `碎裂！${job.item?.name || "物料"} 材料全损`, item: null, shattered: true, xpResult };
   }
 
@@ -1802,13 +1895,24 @@ function completeProductionJob(player, job) {
     player.stats.craftCount += products.length;
     return { text: `${job.item.name} 精雕完成`, item: job.item, xpResult };
   }
-  // 精加工 = 抛光 + 镶嵌 合并为一步：先抛光(×1.08)再镶嵌(×1.12)，并结算员工技能品质/完美率
-  const finished = stagedProduct(job.item, "finished", "", 1.2096, { inlaid: true, polished: true });
+  // 精加工 = 员工工分结算 + 玩家镶嵌方案，材料与工艺倍率由权威报价统一应用。
+  const hasFinishPlan = Boolean(job.finishPlan && job.inlayQuote);
+  const finished = stagedProduct(
+    job.item,
+    "finished",
+    "",
+    hasFinishPlan ? 1 : 1.2096,
+    { inlaid: hasFinishPlan, polished: true }
+  );
   const finInBase = Number(job.item.baseValue ?? job.item.value ?? job.item.price ?? 0);
   const finInVal = Number(job.item.value ?? job.item.price ?? 0);
   const finTf = finInVal > 0 ? (Number(finished.value || 0) / finInVal) : 1;
   finished.baseValue = finInBase * finTf; // 纯料值（剥离上一步工分加成）
   priceByCraft(finished);
+  if (hasFinishPlan) {
+    applyInlay(finished, job.finishPlan, job.inlayQuote);
+    job.reservedMaterials = {};
+  }
   player.bracelets.push(finished);
   return { text: `${finished.name} 精加工完成`, item: finished, xpResult };
 }
@@ -2887,8 +2991,11 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("buyMaterialPack", (materialId, amount) => {
+  socket.on("buyMaterialPack", ({ materialId, amount, requestId } = {}) => {
     const player = getPlayer(socket);
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该材料购买请求已处理，请勿重复提交。");
+    }
     if (!player || !materialId || !Number.isFinite(Number(amount))) return;
     const result = buyMaterialPack(player, materialId, Number(amount));
     socket.emit("toast", result.message);
@@ -3120,6 +3227,11 @@ export const __testHooks = {
   startProductionJob,
   completeProductionJob,
   applyJobDurability,
+  validateFinishPlan,
+  quoteFinishPlan,
+  reserveFinishMaterials,
+  refundFinishMaterials,
+  applyInlay,
   equipmentCatalog,
   buyEquipment,
   repairEquipment,

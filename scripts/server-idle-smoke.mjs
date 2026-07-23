@@ -37,6 +37,9 @@ const {
   workshopJobsForDevice,
   workshopProcessableItems,
   startWorkshopJobForPlayer,
+  completeProductionJob,
+  validateFinishPlan,
+  quoteFinishPlan,
   equipmentCatalog,
   buyEquipment,
   repairEquipment,
@@ -312,14 +315,191 @@ const carvedProduct = chainPlayer.bracelets.find((item) => item.materialStage ==
 assert.ok(carvedProduct);
 assert.equal(carvedProduct.sourceRoughId, chainOpenedRough.id);
 assert.equal(workshopProcessableItems(chainPlayer, chainFinishingDevice.id).some((item) => item.id === carvedProduct.id), true);
-const finishStart = startWorkshopJobForPlayer(chainPlayer, chainFinishingDevice.id, { itemId: carvedProduct.id });
+const chainFinishPlan = {
+  productType: "bracelet",
+  settingId: "cord",
+  metalId: null,
+  gemId: null,
+  gemCount: 0,
+  polishId: "bright",
+  backingId: null
+};
+const finishStart = startWorkshopJobForPlayer(chainPlayer, chainFinishingDevice.id, {
+  itemId: carvedProduct.id,
+  finishPlan: chainFinishPlan
+});
 assert.equal(finishStart.ok, true);
 assert.equal(chainPlayer.jobs[0].outputStage, "finished");
 chainPlayer.jobs[0].readyAt = 0;
-processProductionJobs(Date.now(), { onlineOnly: false });
+const chainRandom = Math.random;
+Math.random = () => 1;
+try {
+  processProductionJobs(Date.now(), { onlineOnly: false });
+} finally {
+  Math.random = chainRandom;
+}
 const finishedProduct = chainPlayer.bracelets.find((item) => item.materialStage === "finished");
 assert.ok(finishedProduct);
 assert.equal(finishedProduct.inlaid, true);
+assert.equal(finishedProduct.inlay.settingId, "cord");
+assert.equal(finishedProduct.inlay.productType, "bracelet");
+
+function carvedCabochon(id) {
+  return {
+    id,
+    type: "bracelet",
+    name: "测试蛋面毛坯",
+    kind: "cabochon",
+    materialStage: "carved",
+    stage: "carved",
+    value: 10000,
+    baseValue: 10000,
+    craftScores: {},
+    craftWorkers: {}
+  };
+}
+
+const inlayPlan = {
+  productType: "ring",
+  settingId: "claw",
+  metalId: "gold18k",
+  gemId: "diamond",
+  gemCount: 2,
+  polishId: "bright",
+  backingId: "open"
+};
+assert.equal(validateFinishPlan(carvedCabochon("validate-item"), inlayPlan).ok, true);
+assert.equal(quoteFinishPlan(carvedCabochon("quote-item"), inlayPlan).laborFee, 410);
+
+function inlayTransactionState(player) {
+  return JSON.stringify({
+    cash: player.cash,
+    materials: player.externalMaterials,
+    bracelets: player.bracelets,
+    jobs: player.jobs
+  });
+}
+
+const rejectedInlayPlayer = makePlayer("rejected-inlay-player");
+normalizePlayer(rejectedInlayPlayer);
+rejectedInlayPlayer.cash = 5000;
+rejectedInlayPlayer.externalMaterials.gold18k = 10;
+rejectedInlayPlayer.externalMaterials.diamond = 10;
+rejectedInlayPlayer.bracelets = [carvedCabochon("rejected-cabochon")];
+const rejectedFinishDevice = workshopDevicesForPlayer(rejectedInlayPlayer).find((device) => device.stage === "finishing");
+let rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
+let rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+  itemId: "rejected-cabochon",
+  finishPlan: { ...inlayPlan, metalId: "goldPure" }
+});
+assert.equal(rejectedResult.ok, false);
+assert.equal(rejectedResult.code, "INVALID_COMBINATION");
+assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+
+rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
+rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+  itemId: "rejected-cabochon",
+  finishPlan: { ...inlayPlan, gemCount: 13 }
+});
+assert.equal(rejectedResult.code, "INVALID_QUANTITY");
+assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+
+rejectedInlayPlayer.externalMaterials.gold18k = 0;
+rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
+rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+  itemId: "rejected-cabochon",
+  finishPlan: inlayPlan
+});
+assert.equal(rejectedResult.code, "INSUFFICIENT_MATERIAL");
+assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+
+rejectedInlayPlayer.externalMaterials.gold18k = 10;
+rejectedInlayPlayer.externalMaterials.diamond = 0;
+rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
+rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+  itemId: "rejected-cabochon",
+  finishPlan: inlayPlan
+});
+assert.equal(rejectedResult.code, "INSUFFICIENT_MATERIAL");
+assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+
+rejectedInlayPlayer.externalMaterials.diamond = 10;
+rejectedInlayPlayer.cash = 0;
+rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
+rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+  itemId: "rejected-cabochon",
+  finishPlan: inlayPlan
+});
+assert.equal(rejectedResult.code, "INSUFFICIENT_CASH");
+assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+
+const successfulInlayPlayer = makePlayer("successful-inlay-player");
+state.players.set(successfulInlayPlayer.id, successfulInlayPlayer);
+normalizePlayer(successfulInlayPlayer);
+successfulInlayPlayer.cash = 5000;
+successfulInlayPlayer.externalMaterials.gold18k = 10;
+successfulInlayPlayer.externalMaterials.diamond = 10;
+successfulInlayPlayer.bracelets = [carvedCabochon("successful-cabochon")];
+const successfulFinishDevice = workshopDevicesForPlayer(successfulInlayPlayer).find((device) => device.stage === "finishing");
+const successCashBefore = successfulInlayPlayer.cash;
+const successfulStart = startWorkshopJobForPlayer(successfulInlayPlayer, successfulFinishDevice.id, {
+  itemId: "successful-cabochon",
+  finishPlan: inlayPlan
+});
+assert.equal(successfulStart.ok, true);
+assert.equal(successfulInlayPlayer.cash, successCashBefore - 410);
+assert.equal(successfulInlayPlayer.externalMaterials.gold18k, 8.35);
+assert.equal(successfulInlayPlayer.externalMaterials.diamond, 8);
+assert.deepEqual(successfulStart.job.reservedMaterials, { gold18k: 1.65, diamond: 2 });
+successfulStart.job.readyAt = 0;
+const successRandom = Math.random;
+Math.random = () => 1;
+try {
+  processProductionJobs(Date.now(), { onlineOnly: false });
+} finally {
+  Math.random = successRandom;
+}
+const successfulFinished = successfulInlayPlayer.bracelets.find((item) => item.id === "successful-cabochon");
+assert.equal(successfulFinished.materialStage, "finished");
+assert.equal(successfulFinished.inlay.productType, "ring");
+assert.equal(successfulFinished.inlay.settingId, "claw");
+assert.equal(successfulFinished.inlay.metalId, "gold18k");
+assert.equal(successfulFinished.inlay.gemCount, 2);
+assert.equal(successfulFinished.inlay.polishId, "bright");
+assert.equal(successfulFinished.inlay.backingId, "open");
+
+const failedInlayPlayer = makePlayer("failed-inlay-player");
+normalizePlayer(failedInlayPlayer);
+failedInlayPlayer.cash = 5000;
+failedInlayPlayer.externalMaterials.gold18k = 10;
+failedInlayPlayer.externalMaterials.diamond = 10;
+failedInlayPlayer.bracelets = [carvedCabochon("failed-cabochon")];
+const failedFinishDevice = workshopDevicesForPlayer(failedInlayPlayer).find((device) => device.stage === "finishing");
+const failedCashBefore = failedInlayPlayer.cash;
+const failedConditionBefore = failedFinishDevice.condition;
+const failedStart = startWorkshopJobForPlayer(failedInlayPlayer, failedFinishDevice.id, {
+  itemId: "failed-cabochon",
+  finishPlan: inlayPlan
+});
+assert.equal(failedStart.ok, true);
+failedStart.job.deviceAttrs = { ...failedStart.job.deviceAttrs, risk: 100 };
+const failedRandom = Math.random;
+Math.random = () => 0;
+let failedCompletion;
+try {
+  failedCompletion = completeProductionJob(failedInlayPlayer, failedStart.job);
+} finally {
+  Math.random = failedRandom;
+}
+assert.equal(failedCompletion.shattered, true);
+assert.equal(failedCompletion.refunded, true);
+assert.equal(failedInlayPlayer.cash, failedCashBefore - 410);
+assert.equal(failedInlayPlayer.externalMaterials.gold18k, 10);
+assert.equal(failedInlayPlayer.externalMaterials.diamond, 10);
+assert.equal(failedInlayPlayer.bracelets.some((item) => item.id === "failed-cabochon" && item.materialStage === "carved"), true);
+assert.ok(workshopDeviceForPlayer(failedInlayPlayer, failedFinishDevice.id).condition < failedConditionBefore);
+assert.ok(Object.keys(failedCompletion.xpResult.grants).length > 0);
+failedInlayPlayer.jobs = [];
 
 const existingEmptyPlayer = {
   id: "existing-empty-player",

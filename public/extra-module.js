@@ -283,7 +283,11 @@ function openBuyModal(id) {
   confirmBtn.addEventListener("click", () => {
     const q = Math.floor(Number(qtyInput.value)) || 0;
     if (q < 1) return;
-    if (socketRef) socketRef.emit("buyMaterialPack", id, q);
+    if (socketRef) socketRef.emit("buyMaterialPack", {
+      materialId: id,
+      amount: q,
+      requestId: globalThis.crypto?.randomUUID?.() || `material-${Date.now()}`
+    });
     closeShopModal();
   });
   el.querySelector(".modal-close").addEventListener("click", closeShopModal);
