@@ -16,6 +16,17 @@ assert.doesNotMatch(
 );
 assert.match(styles, /\.goal-card\.is-entering/);
 assert.match(styles, /prefers-reduced-motion:\s*reduce/);
+const finishModalRule = styles.match(/\.finish-plan-modal\s*\{[^}]*\}/)?.[0] || "";
+const finishBodyRule = styles.match(/\.finish-plan-modal \.game-modal-body\s*\{[^}]*\}/)?.[0] || "";
+const finishChromeRule = styles.match(
+  /\.finish-plan-modal \.game-modal-head,\s*\.finish-plan-modal \.game-modal-actions\s*\{[^}]*\}/
+)?.[0] || "";
+assert.match(finishModalRule, /display:\s*flex/);
+assert.match(finishModalRule, /flex-direction:\s*column/);
+assert.match(finishBodyRule, /flex:\s*1 1 auto/);
+assert.match(finishBodyRule, /min-height:\s*0/);
+assert.match(finishBodyRule, /overflow:\s*auto/);
+assert.match(finishChromeRule, /flex-shrink:\s*0/);
 assert.match(workshop, /function mountFinishPlanShell\b/);
 assert.match(workshop, /function patchFinishPlanModal\b/);
 assert.doesNotMatch(

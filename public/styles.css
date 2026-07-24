@@ -2178,10 +2178,16 @@
   padding: 0 18px 18px;
 }.finish-plan-modal {
   width: min(720px, 100%);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }.finish-plan-modal .game-modal-body {
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
+}.finish-plan-modal .game-modal-head,
+.finish-plan-modal .game-modal-actions {
+  flex-shrink: 0;
 }.finish-plan-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

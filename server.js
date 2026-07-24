@@ -1,6 +1,7 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import { handleStartWorkshopJobRequest } from "./workshop-start-handler.js";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -2738,42 +2739,32 @@ io.on("connection", (socket) => {
   });
 
   socket.on("startWorkshopJob", (payload = {}, acknowledge) => {
-    const reply = (result) => {
-      if (typeof acknowledge === "function") acknowledge(result);
-    };
     const player = getPlayer(socket);
-    if (!player) {
-      reply({ ok: false, message: "玩家状态不可用。" });
-      return;
-    }
-    if (!consumeRequestId(player, payload.requestId)) {
-      const message = "该开工请求已处理，请勿重复提交。";
-      socket.emit("toast", message);
-      reply({ ok: false, message });
-      return;
-    }
-    const result = startWorkshopJobForPlayer(player, payload.deviceId, payload);
-    if (!result.ok) {
-      socket.emit("toast", result.message);
-      reply({ ok: false, message: result.message });
-      return;
-    }
-    addNews(`${player.name} 将 ${result.job.item.name} 安排到${result.device.name}。`, "craft");
-    advanceTask(player, "workshop_craft");
-    emitUiEvent(socket, {
-      type: "modal",
-      tone: "craft",
-      title: `${result.device.name}已开工`,
-      subtitle: result.job.item.name,
-      body: "设备和师傅已经按当前工序开始处理，完成后会回到对应阶段库存。",
-      stats: [
-        { label: "员工", value: result.worker?.name || "默认师傅" },
-        { label: "加工费", value: `-${uiMoney(result.fee)}` }
-      ],
-      floatText: `加工 -${uiMoney(result.fee)}`
+    const result = handleStartWorkshopJobRequest({
+      player,
+      payload,
+      acknowledge,
+      consumeRequestId,
+      startWorkshopJob: startWorkshopJobForPlayer,
+      emitToast: (message) => socket.emit("toast", message),
+      onSuccess: (started) => {
+        addNews(`${player.name} 将 ${started.job.item.name} 安排到${started.device.name}。`, "craft");
+        advanceTask(player, "workshop_craft");
+        emitUiEvent(socket, {
+          type: "modal",
+          tone: "craft",
+          title: `${started.device.name}已开工`,
+          subtitle: started.job.item.name,
+          body: "设备和师傅已经按当前工序开始处理，完成后会回到对应阶段库存。",
+          stats: [
+            { label: "员工", value: started.worker?.name || "默认师傅" },
+            { label: "加工费", value: `-${uiMoney(started.fee)}` }
+          ],
+          floatText: `加工 -${uiMoney(started.fee)}`
+        });
+      }
     });
-    reply({ ok: true, message: "已开工", requestId: payload.requestId });
-    broadcast();
+    if (result.ok) broadcast();
   });
 
   socket.on("assignWorkshopWorker", (payload = {}) => {

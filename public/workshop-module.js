@@ -5,6 +5,7 @@ import {
   normalizeFinishPlanDraft,
   validateFinishPlanDraft
 } from "./finish-plan-model.js";
+import { createFinishPlanModalController } from "./finish-plan-modal-controller.js";
 
 let socketRef;
 let getState;
@@ -19,6 +20,7 @@ let activePickerWorkerId = null; // 选工弹窗内临时选中的员工（点�
 let activeWorkerSort = "default"; // 选工弹窗列表排序：default=品阶降序 / quality / flawless / speed
 let activeKitPlanner = null;
 let activeFinishPlanModal = null;
+let finishPlanController = null;
 let stageDrawerOpen = false;
 let formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor;
 
@@ -27,6 +29,16 @@ export function initWorkshopModule(deps) {
   getState = deps.getState;
   elsRef = deps.els;
   ({ formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor } = deps.helpers);
+  finishPlanController = createFinishPlanModalController({
+    mount: mountFinishPlanShell,
+    patch: patchFinishPlanModal,
+    unmount: () => document.getElementById("finish-plan-root")?.remove(),
+    emit: (payload, acknowledge) => socketRef.emit("startWorkshopJob", payload, acknowledge),
+    createRequestId: () => globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`,
+    onActiveChange: (modal) => {
+      activeFinishPlanModal = modal;
+    }
+  });
 }
 
 const WORKSHOP_DEVICE_FALLBACKS = [
@@ -746,7 +758,7 @@ export function renderWorkshop() {
   // 注意：选工/选料弹窗不再挂在 workshopRoot 内，改为挂到 body 下的独立容器（见 renderPicker），
   // 这样服务端每秒推送 state 触发 renderWorkshop 重建工坊页时，不会连带重建弹窗导致闪烁。
   if (activeKitPlanner) workshopRefreshPlanner(activeKitPlanner.itemId);
-  if (activeFinishPlanModal) patchFinishPlanModal();
+  if (activeFinishPlanModal) finishPlanController.refresh();
 }
 
 function plannerRootEl() {
@@ -1144,8 +1156,7 @@ export function finishOptions(keys, labels, selected, {
 }
 
 function closeFinishPlanModal() {
-  activeFinishPlanModal = null;
-  document.getElementById("finish-plan-root")?.remove();
+  finishPlanController.close();
 }
 
 function updateFinishPlanFromControl(event) {
@@ -1157,7 +1168,7 @@ function updateFinishPlanFromControl(event) {
     : event.target.value === "" ? null : event.target.value;
   if (field === "gemId" && draft.gemId && draft.gemCount < 1) draft.gemCount = 1;
   activeFinishPlanModal.error = "";
-  patchFinishPlanModal();
+  finishPlanController.refresh();
 }
 
 function finishRootEl() {
@@ -1184,7 +1195,7 @@ function finishRootEl() {
 
 function openFinishPlanModal(device, item, workerId) {
   const shape = finishItemShape(item);
-  activeFinishPlanModal = {
+  finishPlanController.open({
     deviceId: device.id,
     itemId: item.id,
     workerId,
@@ -1192,34 +1203,11 @@ function openFinishPlanModal(device, item, workerId) {
     draft: createFinishPlanDraft(shape, finishCatalog()),
     submitting: false,
     error: ""
-  };
-  mountFinishPlanShell();
-  patchFinishPlanModal();
+  });
 }
 
 function confirmFinishPlan() {
-  if (!activeFinishPlanModal || activeFinishPlanModal.submitting) return;
-  const modal = activeFinishPlanModal;
-  const requestId = globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`;
-  modal.submitting = true;
-  modal.error = "";
-  patchFinishPlanModal();
-  socketRef.emit("startWorkshopJob", {
-    deviceId: modal.deviceId,
-    itemId: modal.itemId,
-    workerId: modal.workerId,
-    finishPlan: structuredClone(modal.draft),
-    requestId
-  }, (result = {}) => {
-    if (!activeFinishPlanModal || activeFinishPlanModal !== modal) return;
-    if (result.ok) {
-      closeFinishPlanModal();
-      return;
-    }
-    modal.submitting = false;
-    modal.error = result.message || "开工失败，请检查方案后重试。";
-    patchFinishPlanModal();
-  });
+  finishPlanController.confirm();
 }
 
 function mountFinishPlanShell() {
