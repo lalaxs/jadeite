@@ -6,6 +6,10 @@ import {
   validateFinishPlanDraft
 } from "./finish-plan-model.js";
 import { createFinishPlanModalController } from "./finish-plan-modal-controller.js";
+import {
+  patchFinishPlanSelectOptions,
+  preserveFinishPlanUiState
+} from "./finish-plan-dom.js";
 
 let socketRef;
 let getState;
@@ -1253,21 +1257,15 @@ function mountFinishPlanShell() {
   return root;
 }
 
-function setSelectOptions(select, html, value) {
-  if (!select) return;
-  if (select.dataset.optionsHtml !== html) {
-    select.innerHTML = html;
-    select.dataset.optionsHtml = html;
-  }
-  select.value = value ?? "";
-}
-
 function patchFinishPlanModal() {
   if (!activeFinishPlanModal) return;
   const root = document.getElementById("finish-plan-root");
   const item = workshopStageItems().find((entry) => entry.id === activeFinishPlanModal.itemId);
   if (!root || !item) return closeFinishPlanModal();
+  preserveFinishPlanUiState(root, () => patchFinishPlanModalFields(root, item));
+}
 
+function patchFinishPlanModalFields(root, item) {
   const catalog = finishCatalog();
   const { shape, draft } = activeFinishPlanModal;
   normalizeFinishPlanDraft(shape, draft, catalog);
@@ -1291,20 +1289,20 @@ function patchFinishPlanModal() {
     Object.entries(catalog.settings || {}).map(([key, value]) => [key, value.name])
   );
 
-  setSelectOptions(fields.productType,
+  patchFinishPlanSelectOptions(fields.productType,
     finishOptions(Object.keys(catalog.productTypeNames || {}), catalog.productTypeNames, draft.productType, {
       enabledKeys: catalog.productTypes?.[shape] || []
     }), draft.productType);
-  setSelectOptions(fields.settingId,
+  patchFinishPlanSelectOptions(fields.settingId,
     finishOptions(Object.keys(catalog.settings || {}), settingNames, draft.settingId, { enabledKeys: settings }),
     draft.settingId);
-  setSelectOptions(fields.metalId,
+  patchFinishPlanSelectOptions(fields.metalId,
     `<option value="">${metals.length ? "请选择金属种类" : "不使用金属"}</option>${finishOptions(Object.keys(catalog.metals || {}), catalog.metals, draft.metalId, { enabledKeys: metals })}`,
     draft.metalId);
-  setSelectOptions(fields.polishId,
+  patchFinishPlanSelectOptions(fields.polishId,
     finishOptions(Object.keys(catalog.polishes || {}), catalog.polishNames, draft.polishId),
     draft.polishId);
-  setSelectOptions(fields.gemId,
+  patchFinishPlanSelectOptions(fields.gemId,
     `<option value="">不使用配石</option>${finishOptions(Object.keys(catalog.gems || {}), catalog.gems, draft.gemId)}`,
     draft.gemId);
 
@@ -1314,7 +1312,7 @@ function patchFinishPlanModal() {
   const backingField = root.querySelector("[data-finish-backing]");
   backingField.hidden = !backingAllowed;
   if (backingAllowed) {
-    setSelectOptions(fields.backingId,
+    patchFinishPlanSelectOptions(fields.backingId,
       finishOptions(Object.keys(catalog.backings || {}), catalog.backingNames, draft.backingId),
       draft.backingId);
   }
