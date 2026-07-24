@@ -25,3 +25,48 @@
 - Track the current runtime code, runtime modules, package smoke scripts, migrated task smoke test, README, package metadata, ignore rules and this report.
 - Preserve the intentional template SVG/PNG deletions.
 - Keep local logs, style snapshots and the port-bound exploratory test outside version control.
+
+## Final actual change list
+
+### Modified
+
+- Root/runtime: `.gitignore`, `README.md`, `package.json`, `server.js`.
+- Shared rules/rendering: `public/jade-auction.js`, `public/jade-loop.js`, `public/jade-renderer.js`, `public/jade-rules.js`.
+- Main UI shell: `public/index.html`, `public/main.js`, `public/styles.css`.
+- Existing smoke coverage: `scripts/jade-auction-smoke.mjs`, `scripts/jade-loop-smoke.mjs`, `scripts/jade-renderer-smoke.mjs`, `scripts/server-idle-smoke.mjs`, `scripts/simplified-flow-smoke.mjs`.
+
+### Created
+
+- Frontend feature modules: `public/auction-module.js`, `public/chat-module.js`, `public/extra-module.js`, `public/livestream-module.js`, `public/market-module.js`, `public/orders-module.js`, `public/ranking-module.js`, `public/workshop-module.js`.
+- Shared frontend logic: `public/jade-categories.js`, `public/jade-opening-engine.js`, `public/product-meta.js`.
+- Server systems: `server/systems/equipment-system.js`, `server/systems/employee-system.js`, `server/systems/inlay-system.js`.
+- New smoke coverage: `scripts/equipment-system-smoke.mjs`, `scripts/employee-system-smoke.mjs`, `scripts/inlay-system-smoke.mjs`, `scripts/jade-opening-engine-smoke.mjs`, `scripts/responsive-layout-smoke.mjs`, `scripts/task-smoke.mjs`, `scripts/ui-overlay-smoke.mjs`.
+- Approved design/plan and QA evidence under `docs/superpowers/` and `docs/reports/`.
+
+### Restored
+
+- Historical project references: `docs/design-plan.md`, `docs/project-notes.md`, `docs/翡翠风云_GDD_v2.1.md`, `docs/翡翠风云_UI交互设计文档.md`.
+- Historical implementation specifications/plans under `docs/superpowers/plans/` and `docs/superpowers/specs/`.
+- Existing tracked review reports under `.superpowers/sdd/`.
+
+### Intentionally deleted
+
+- Ten generated PNG files under `public/assets/template-icons/`.
+- Ten legacy SVG files under `public/assets/templates/`.
+
+The runtime uses canvas/SVG generation from code, and `npm run test:canvas` rejects reintroducing these file-based template assets.
+
+### Ignored local artifacts
+
+- `node_modules/`, `.env*`, `dist/`, `coverage/`, `server.log`.
+- `public/*.bak`, `public/styles.css.*bak`.
+- `.superpowers/` only for untracked local artifacts; already tracked reports remain tracked.
+- `test-task-e2e.mjs`; the maintained assertions live in `scripts/task-smoke.mjs`.
+
+### Final invariants
+
+- Every equipment model and owned device has `capacity: 1`.
+- No waiting/production queue exists.
+- A worker can be occupied by only one workshop or livestream job.
+- Invalid finishing plans and insufficient resources have no partial side effects.
+- Repository-delivered screenshots and reports are intentional QA evidence.
