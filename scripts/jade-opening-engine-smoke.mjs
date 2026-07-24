@@ -166,6 +166,9 @@ assert.equal(productUseTransform, plannerUseTransform, "finished product cutout 
 assert.match(productCutoutSvg, /class="jade-opening-product-svg"/, "finished product cutout should render as a dedicated SVG");
 assert.match(productCutoutSvg, /clip-path="url\(#.*productClip/, "finished product cutout should clip to the kit shape");
 assert.match(productCutoutSvg, /viewBox="-/, "finished product cutout should use a local kit viewBox instead of the whole rough board");
+assert.match(productCutoutSvg, /clip-path="url\(#.*productClip/);
+assert.match(productCutoutSvg, /preserveAspectRatio="xMidYMid meet"/);
+assert.doesNotMatch(productCutoutSvg, /overflow="visible"/);
 
 const mainSource = readFileSync(new URL("../public/main.js", import.meta.url), "utf8");
 const stylesSource = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
@@ -179,6 +182,10 @@ assert.match(mainSource, /evaluateOpeningKit/, "workshop should show grid-based 
 assert.match(stylesSource, /\.jade-opening-board\b/, "styles should include a dedicated opening board shell");
 assert.match(stylesSource, /\.jade-opening-svg\b/, "styles should size the migrated SVG opening scene");
 assert.match(stylesSource, /\.opening-kit-choice\b/, "styles should distinguish reference kit palette buttons");
+assert.match(mainSource, /function productCutoutPlaceholder\b/);
+assert.match(mainSource, /sourceMaterial[\s\S]*productCutoutPlaceholder/);
+assert.match(stylesSource, /\.workshop-product-preview[\s\S]*overflow:\s*hidden/);
+assert.match(stylesSource, /\.jade-opening-product-svg[\s\S]*max-width:\s*100%/);
 assert.match(serverSource, /from "\.\/public\/jade-opening-engine\.js"/, "server should share the opening valuation engine");
 assert.match(serverSource, /openingTpl/, "server should preserve the source KIT_LIB template id on extraction kits");
 assert.match(serverSource, /evaluateOpeningKit/, "server should price refined products from jadeMap kit evaluation");

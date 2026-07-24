@@ -1295,6 +1295,9 @@
   display: block;
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
 }.route-meta {
   display: grid;
   gap: 2px;
@@ -1795,11 +1798,33 @@
   background: #fff7d8;
   font-size: 12px;
   font-weight: 700;
-}.workshop-recipe-summary > .rough-output-preview, .workshop-recipe-summary > .workshop-product-preview {
+}.workshop-product-preview,
+.workshop-product-preview .jade-opening-product,
+.ws-pick-material .wsp-thumb,
+.jade-opening-product {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}.workshop-product-preview .jade-opening-product {
+  width: 100%;
+  height: 100%;
+}.jade-opening-product.is-placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: var(--surface-2, transparent);
+}.workshop-recipe-summary > .rough-output-preview {
   justify-self: start;
   transform: scale(1.28);
   transform-origin: top left;
   margin-bottom: 18px;
+}.workshop-recipe-summary > .workshop-product-preview {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 0;
+  overflow: hidden;
+  transform: none;
 }.impact-box {
   display: grid;
   gap: 8px;

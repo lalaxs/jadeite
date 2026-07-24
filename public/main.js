@@ -1055,9 +1055,26 @@ function openingProductSvg(item, size = "finished") {
   `;
 }
 
+function productCutoutPlaceholder(item, size = "finished") {
+  const label = escapeHtml(item?.name || "套件");
+  return `
+    <div class="jade-opening-product ${escapeHtml(size)} is-placeholder" aria-label="${label}裁切数据缺失">
+      <svg class="jade-opening-product-svg" viewBox="-80 -80 160 160" preserveAspectRatio="xMidYMid meet" role="img">
+        <path d="M0-58C39-58 58-32 58 2C58 39 33 58 0 58C-36 58-58 34-58 0C-58-35-34-58 0-58Z"
+          fill="rgba(48,166,105,.16)" stroke="currentColor" stroke-width="4" stroke-dasharray="8 7"/>
+      </svg>
+      <span class="sr-only">${label}缺少原始裁切数据</span>
+    </div>
+  `;
+}
+
 function productCanvas(item, size = "finished") {
   const exactCutout = openingProductSvg(item, size);
   if (exactCutout) return exactCutout;
+  const stage = materialStageForClient(item);
+  if (item?.sourceMaterial || stage === "carved" || stage === "finished") {
+    return productCutoutPlaceholder(item, size);
+  }
   return jadeCanvasMarkup("product", item, size);
 }
 

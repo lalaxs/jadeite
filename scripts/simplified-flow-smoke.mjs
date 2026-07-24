@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { inlaySummary } from "../public/product-meta.js";
 import {
@@ -428,6 +429,10 @@ if (!/normalizeExtractionKits/.test(server) || !/expandKitPlacements/.test(serve
 if (!/sourceMaterial\s*:/.test(server) || !/visual\s*:\s*rough\.visual/.test(server)) {
   throw new Error("products extracted from polished rough should carry source material data for cutout rendering");
 }
+const extractedProductBody = extractFunctionBody(server, "extractProductsFromJob");
+assert.match(extractedProductBody, /visual\s*:\s*rough\.visual/, "carved item should preserve source visual data");
+assert.match(extractedProductBody, /placement\s*[,}]/, "carved item should preserve exact kit placement");
+assert.match(extractedProductBody, /openingTpl\s*:\s*placement\.openingTpl/, "placement should preserve opening template id");
 
 if (!/templateSize\s*=\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(server)) {
   throw new Error("server should preserve extraction template size on finished products for matching material sampling");
