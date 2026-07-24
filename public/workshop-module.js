@@ -26,6 +26,7 @@ let activeKitPlanner = null;
 let activeFinishPlanModal = null;
 let finishPlanController = null;
 let stageDrawerOpen = false;
+const finishPlanPreviewMarkupCache = new WeakMap();
 let formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor;
 
 export function initWorkshopModule(deps) {
@@ -1350,7 +1351,9 @@ export function patchFinishPlanPreview(root, item) {
   const preview = root.querySelector("[data-finish-item-preview]");
   if (!preview) return;
   const markup = productCanvas(item, "compact");
-  if (preview.innerHTML !== markup) preview.innerHTML = markup;
+  if (finishPlanPreviewMarkupCache.get(preview) === markup) return;
+  preview.innerHTML = markup;
+  finishPlanPreviewMarkupCache.set(preview, markup);
 }
 
 export function workshopStartJob(target, payload) {

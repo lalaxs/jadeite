@@ -272,7 +272,7 @@ Object.defineProperty(previewElement, "innerHTML", {
   get: () => previewHtml,
   set(value) {
     previewWrites += 1;
-    previewHtml = value;
+    previewHtml = value.replace("<div ", '<div data-browser-canonical="true" ');
   }
 });
 const previewRoot = {
@@ -283,12 +283,15 @@ const previewRoot = {
 const previewItem = { id: "carved-preview", materialStage: "carved" };
 workshopModule.patchFinishPlanPreview(previewRoot, previewItem);
 workshopModule.patchFinishPlanPreview(previewRoot, previewItem);
+const changedPreviewItem = { id: "carved-preview-changed", materialStage: "carved" };
+workshopModule.patchFinishPlanPreview(previewRoot, changedPreviewItem);
 assert.deepEqual(previewCalls, [
   { item: previewItem, size: "compact" },
-  { item: previewItem, size: "compact" }
+  { item: previewItem, size: "compact" },
+  { item: changedPreviewItem, size: "compact" }
 ]);
-assert.equal(previewHtml, '<div data-preview="carved-preview:compact"></div>');
-assert.equal(previewWrites, 1, "unchanged modal preview should not remount its contents");
+assert.equal(previewHtml, '<div data-browser-canonical="true" data-preview="carved-preview-changed:compact"></div>');
+assert.equal(previewWrites, 2, "canonicalized DOM should write once per distinct source markup");
 
 const workshopSource = readFileSync("public/workshop-module.js", "utf8");
 assert.match(
