@@ -1,5 +1,10 @@
 // 工坊系统模块（从 main.js 抽离，依赖注入解耦）
 import { inlaySummary } from "./product-meta.js";
+import {
+  createFinishPlanDraft,
+  normalizeFinishPlanDraft,
+  validateFinishPlanDraft
+} from "./finish-plan-model.js";
 
 let socketRef;
 let getState;
@@ -741,7 +746,7 @@ export function renderWorkshop() {
   // 注意：选工/选料弹窗不再挂在 workshopRoot 内，改为挂到 body 下的独立容器（见 renderPicker），
   // 这样服务端每秒推送 state 触发 renderWorkshop 重建工坊页时，不会连带重建弹窗导致闪烁。
   if (activeKitPlanner) workshopRefreshPlanner(activeKitPlanner.itemId);
-  if (activeFinishPlanModal) renderFinishPlanModal();
+  if (activeFinishPlanModal) patchFinishPlanModal();
 }
 
 function plannerRootEl() {
@@ -1126,67 +1131,6 @@ function finishCatalog() {
   return getState().inlayCatalog || {};
 }
 
-function defaultFinishPlan(item) {
-  const shape = finishItemShape(item);
-  const defaults = {
-    cabochon: { productType: "ring", settingId: "claw", metalId: "gold18k", backingId: "open" },
-    carving: { productType: "pendant", settingId: "claw", metalId: "gold18k", backingId: null },
-    pierced: { productType: "pendant", settingId: "bezel", metalId: "gold18k", backingId: null },
-    whole: { productType: "bracelet", settingId: "cord", metalId: null, backingId: null }
-  };
-  return {
-    ...(defaults[shape] || defaults.whole),
-    gemId: null,
-    gemCount: 0,
-    polishId: "bright"
-  };
-}
-
-function normalizeFinishPlan(item, plan) {
-  const catalog = finishCatalog();
-  const shape = finishItemShape(item);
-  const productTypes = catalog.productTypes?.[shape] || [];
-  const settings = catalog.shapeSettings?.[shape] || [];
-  if (!productTypes.includes(plan.productType)) plan.productType = productTypes[0];
-  if (!settings.includes(plan.settingId)) plan.settingId = settings[0];
-  const allowedMetals = catalog.settings?.[plan.settingId]?.metals || [];
-  plan.metalId = allowedMetals.length
-    ? (allowedMetals.includes(plan.metalId) ? plan.metalId : allowedMetals[0])
-    : null;
-  plan.gemCount = Math.max(0, Math.min(12, Math.round(Number(plan.gemCount) || 0)));
-  if (plan.gemCount === 0) plan.gemId = null;
-  else if (!catalog.gems?.[plan.gemId]) plan.gemId = Object.keys(catalog.gems || {})[0] || null;
-  if (!catalog.polishes?.[plan.polishId]) plan.polishId = Object.keys(catalog.polishes || {})[0] || "bright";
-  const backingAllowed = shape === "cabochon" && plan.productType === "ring";
-  plan.backingId = backingAllowed && catalog.backings?.[plan.backingId]
-    ? plan.backingId
-    : backingAllowed ? "open" : null;
-  return plan;
-}
-
-function quoteFinishPlanForClient(item, plan) {
-  const catalog = finishCatalog();
-  const setting = catalog.settings?.[plan.settingId];
-  const polish = catalog.polishes?.[plan.polishId];
-  const backing = plan.backingId ? catalog.backings?.[plan.backingId] : { labor: 0, value: 0 };
-  if (!item || !setting || !polish || !backing) return null;
-  const metalAmount = Number((Number(setting.grams || 0) * (1 + Number(plan.gemCount || 0) * 0.05)).toFixed(2));
-  return {
-    metalId: plan.metalId,
-    metalAmount,
-    gemId: plan.gemId,
-    gemCount: Number(plan.gemCount || 0),
-    laborFee: Number(setting.labor || 0) + Number(plan.gemCount || 0) * 80 + Number(polish.labor || 0) + Number(backing.labor || 0),
-    valueMultiplier: Number((
-      1 +
-      Number(plan.metalId ? catalog.metalValues?.[plan.metalId] || 0 : 0) +
-      Number(plan.gemCount || 0) * 0.05 +
-      Number(polish.value || 0) +
-      Number(backing.value || 0)
-    ).toFixed(2))
-  };
-}
-
 export function finishOptions(keys, labels, selected, {
   enabledKeys = keys,
   disabledReason = "当前组合不兼容"
@@ -1206,15 +1150,14 @@ function closeFinishPlanModal() {
 
 function updateFinishPlanFromControl(event) {
   const field = event.target?.dataset?.finishField;
-  if (!field || !activeFinishPlanModal) return;
-  const plan = activeFinishPlanModal.plan;
-  plan[field] = field === "gemCount"
+  if (!field || !activeFinishPlanModal || activeFinishPlanModal.submitting) return;
+  const draft = activeFinishPlanModal.draft;
+  draft[field] = field === "gemCount"
     ? Number(event.target.value)
     : event.target.value === "" ? null : event.target.value;
-  const item = workshopStageItems().find((entry) => entry.id === activeFinishPlanModal.itemId);
-  if (!item) return closeFinishPlanModal();
-  normalizeFinishPlan(item, plan);
-  renderFinishPlanModal();
+  if (field === "gemId" && draft.gemId && draft.gemCount < 1) draft.gemCount = 1;
+  activeFinishPlanModal.error = "";
+  patchFinishPlanModal();
 }
 
 function finishRootEl() {
@@ -1240,96 +1183,179 @@ function finishRootEl() {
 }
 
 function openFinishPlanModal(device, item, workerId) {
+  const shape = finishItemShape(item);
   activeFinishPlanModal = {
     deviceId: device.id,
     itemId: item.id,
     workerId,
-    plan: defaultFinishPlan(item)
+    shape,
+    draft: createFinishPlanDraft(shape, finishCatalog()),
+    submitting: false,
+    error: ""
   };
-  renderFinishPlanModal();
+  mountFinishPlanShell();
+  patchFinishPlanModal();
 }
 
 function confirmFinishPlan() {
-  if (!activeFinishPlanModal) return;
-  const { deviceId, itemId, workerId, plan } = activeFinishPlanModal;
-  const item = workshopStageItems().find((entry) => entry.id === itemId);
-  if (!item) {
-    showToast("套件已不在库存中。");
-    closeFinishPlanModal();
-    return;
-  }
+  if (!activeFinishPlanModal || activeFinishPlanModal.submitting) return;
+  const modal = activeFinishPlanModal;
+  const requestId = globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`;
+  modal.submitting = true;
+  modal.error = "";
+  patchFinishPlanModal();
   socketRef.emit("startWorkshopJob", {
-    deviceId,
-    itemId,
-    workerId,
-    finishPlan: structuredClone(plan),
-    requestId: globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`
+    deviceId: modal.deviceId,
+    itemId: modal.itemId,
+    workerId: modal.workerId,
+    finishPlan: structuredClone(modal.draft),
+    requestId
+  }, (result = {}) => {
+    if (!activeFinishPlanModal || activeFinishPlanModal !== modal) return;
+    if (result.ok) {
+      closeFinishPlanModal();
+      return;
+    }
+    modal.submitting = false;
+    modal.error = result.message || "开工失败，请检查方案后重试。";
+    patchFinishPlanModal();
   });
-  closeFinishPlanModal();
 }
 
-function renderFinishPlanModal() {
-  if (!activeFinishPlanModal) return;
+function mountFinishPlanShell() {
   const root = finishRootEl();
-  const catalog = finishCatalog();
-  const item = workshopStageItems().find((entry) => entry.id === activeFinishPlanModal.itemId);
-  if (!item) return closeFinishPlanModal();
-  const shape = finishItemShape(item);
-  const plan = normalizeFinishPlan(item, activeFinishPlanModal.plan);
-  const quote = quoteFinishPlanForClient(item, plan);
-  if (!quote) {
-    showToast("无法生成精加工报价。");
-    closeFinishPlanModal();
-    return;
-  }
-  const productTypes = catalog.productTypes?.[shape] || [];
-  const settings = catalog.shapeSettings?.[shape] || [];
-  const metals = catalog.settings?.[plan.settingId]?.metals || [];
-  const allProductTypes = Object.keys(catalog.productTypeNames || {});
-  const allSettings = Object.keys(catalog.settings || {});
-  const allMetals = Object.keys(catalog.metals || {});
-  const materials = getState().me.externalMaterials || {};
-  const metalHeld = plan.metalId ? Number(materials[plan.metalId] || 0) : 0;
-  const gemHeld = plan.gemId ? Number(materials[plan.gemId] || 0) : 0;
-  const hasMaterials = (!plan.metalId || metalHeld >= quote.metalAmount)
-    && (!plan.gemId || gemHeld >= quote.gemCount);
-  const hasCash = Number(getState().me.cash || 0) >= quote.laborFee;
-  const canStart = hasMaterials && hasCash;
-  const backingAllowed = shape === "cabochon" && plan.productType === "ring";
-  const settingNames = Object.fromEntries(Object.entries(catalog.settings || {}).map(([key, value]) => [key, value.name]));
   root.innerHTML = `
     <section class="game-modal finish-plan-modal" role="dialog" aria-modal="true" aria-label="精加工方案">
       <header class="game-modal-head">
         <div class="game-modal-title">
           <h3>制定精加工方案</h3>
-          <p>${escapeHtml(item.name)} · 每台设备容量固定为 1</p>
+          <p data-finish-item-title></p>
         </div>
         <button class="modal-close" data-finish-action="close" type="button" aria-label="关闭">×</button>
       </header>
       <div class="game-modal-body">
         <div class="finish-plan-grid">
-          <label class="finish-plan-field"><span>成品类型</span><select data-finish-field="productType">${finishOptions(allProductTypes, catalog.productTypeNames, plan.productType, { enabledKeys: productTypes, disabledReason: "当前套件形态不兼容" })}</select></label>
-          <label class="finish-plan-field"><span>镶嵌方式</span><select data-finish-field="settingId">${finishOptions(allSettings, settingNames, plan.settingId, { enabledKeys: settings, disabledReason: "当前套件形态不兼容" })}</select></label>
-          <label class="finish-plan-field"><span>金属</span><select data-finish-field="metalId"><option value="" ${plan.metalId == null ? "selected" : ""} ${metals.length ? 'disabled title="当前镶法必须使用兼容金属"' : ""}>不使用金属${metals.length ? "（当前镶法不兼容）" : ""}</option>${finishOptions(allMetals, catalog.metals, plan.metalId, { enabledKeys: metals, disabledReason: "当前镶法不兼容" })}</select></label>
-          <label class="finish-plan-field"><span>抛光</span><select data-finish-field="polishId">${finishOptions(Object.keys(catalog.polishes || {}), catalog.polishNames, plan.polishId)}</select></label>
-          <label class="finish-plan-field"><span>配石</span><select data-finish-field="gemId"><option value="" ${plan.gemCount === 0 ? "selected" : ""}>不配石</option>${finishOptions(Object.keys(catalog.gems || {}), catalog.gems, plan.gemId)}</select></label>
-          <label class="finish-plan-field"><span>配石数量</span><input data-finish-field="gemCount" type="number" min="0" max="12" step="1" value="${plan.gemCount}"></label>
-          ${backingAllowed ? `<label class="finish-plan-field"><span>底托</span><select data-finish-field="backingId">${finishOptions(Object.keys(catalog.backings || {}), catalog.backingNames, plan.backingId)}</select></label>` : ""}
+          <label class="finish-plan-field"><span>成品类型</span><select data-finish-field="productType"></select></label>
+          <label class="finish-plan-field"><span>镶嵌方式</span><select data-finish-field="settingId"></select></label>
+          <label class="finish-plan-field"><span>金属</span><select data-finish-field="metalId"></select></label>
+          <div class="finish-plan-stock" data-finish-stock="metal" hidden></div>
+          <label class="finish-plan-field"><span>抛光</span><select data-finish-field="polishId"></select></label>
+          <label class="finish-plan-field"><span>配石</span><select data-finish-field="gemId"></select></label>
+          <label class="finish-plan-field" data-finish-count="gem" hidden>
+            <span>配石数量</span>
+            <input data-finish-field="gemCount" type="number" min="1" max="12" step="1">
+          </label>
+          <div class="finish-plan-stock" data-finish-stock="gem" hidden></div>
+          <label class="finish-plan-field" data-finish-backing hidden>
+            <span>底托</span><select data-finish-field="backingId"></select>
+          </label>
         </div>
         <div class="finish-plan-summary">
-          <div><span>金属库存</span><strong class="${!plan.metalId || metalHeld >= quote.metalAmount ? "pos" : "neg"}">${plan.metalId ? `${metalHeld.toFixed(2)} / ${quote.metalAmount.toFixed(2)} 克` : "无需"}</strong></div>
-          <div><span>配石库存</span><strong class="${!plan.gemId || gemHeld >= quote.gemCount ? "pos" : "neg"}">${plan.gemId ? `${gemHeld} / ${quote.gemCount} 颗` : "无需"}</strong></div>
-          <div><span>人工费</span><strong class="${hasCash ? "" : "neg"}">${formatMoney(quote.laborFee)}</strong></div>
-          <div><span>成品价值倍率</span><strong class="pos">×${quote.valueMultiplier.toFixed(2)}</strong></div>
+          <div><span>人工费</span><strong data-finish-summary="labor"></strong></div>
+          <div><span>成品价值倍率</span><strong class="pos" data-finish-summary="value"></strong></div>
         </div>
-        ${!hasMaterials ? '<p class="finish-plan-warning">材料库存不足，请先到商店购买镶嵌材料。</p>' : ""}
-        ${!hasCash ? '<p class="finish-plan-warning">现金不足，无法支付精加工人工费。</p>' : ""}
+        <p class="finish-plan-warning" data-finish-warning hidden></p>
       </div>
       <footer class="game-modal-actions">
         <button class="secondary" data-finish-action="close" type="button">取消</button>
-        <button class="primary" data-finish-action="confirm" type="button" ${canStart ? "" : "disabled"}>确认开工 · ${formatMoney(quote.laborFee)}</button>
+        <button class="primary" data-finish-action="confirm" type="button"></button>
       </footer>
-    </section>`;
+    </section>
+  `;
+  return root;
+}
+
+function setSelectOptions(select, html, value) {
+  if (!select) return;
+  if (select.dataset.optionsHtml !== html) {
+    select.innerHTML = html;
+    select.dataset.optionsHtml = html;
+  }
+  select.value = value ?? "";
+}
+
+function patchFinishPlanModal() {
+  if (!activeFinishPlanModal) return;
+  const root = document.getElementById("finish-plan-root");
+  const item = workshopStageItems().find((entry) => entry.id === activeFinishPlanModal.itemId);
+  if (!root || !item) return closeFinishPlanModal();
+
+  const catalog = finishCatalog();
+  const { shape, draft } = activeFinishPlanModal;
+  normalizeFinishPlanDraft(shape, draft, catalog);
+  const validation = validateFinishPlanDraft({
+    shape,
+    draft,
+    catalog,
+    materials: getState().me.externalMaterials || {},
+    cash: Number(getState().me.cash || 0)
+  });
+
+  root.querySelector("[data-finish-item-title]").textContent =
+    `${item.name} · 每台设备容量固定为 1`;
+
+  const fields = Object.fromEntries(
+    [...root.querySelectorAll("[data-finish-field]")].map((field) => [field.dataset.finishField, field])
+  );
+  const settings = catalog.shapeSettings?.[shape] || [];
+  const metals = catalog.settings?.[draft.settingId]?.metals || [];
+  const settingNames = Object.fromEntries(
+    Object.entries(catalog.settings || {}).map(([key, value]) => [key, value.name])
+  );
+
+  setSelectOptions(fields.productType,
+    finishOptions(Object.keys(catalog.productTypeNames || {}), catalog.productTypeNames, draft.productType, {
+      enabledKeys: catalog.productTypes?.[shape] || []
+    }), draft.productType);
+  setSelectOptions(fields.settingId,
+    finishOptions(Object.keys(catalog.settings || {}), settingNames, draft.settingId, { enabledKeys: settings }),
+    draft.settingId);
+  setSelectOptions(fields.metalId,
+    `<option value="">${metals.length ? "请选择金属种类" : "不使用金属"}</option>${finishOptions(Object.keys(catalog.metals || {}), catalog.metals, draft.metalId, { enabledKeys: metals })}`,
+    draft.metalId);
+  setSelectOptions(fields.polishId,
+    finishOptions(Object.keys(catalog.polishes || {}), catalog.polishNames, draft.polishId),
+    draft.polishId);
+  setSelectOptions(fields.gemId,
+    `<option value="">不使用配石</option>${finishOptions(Object.keys(catalog.gems || {}), catalog.gems, draft.gemId)}`,
+    draft.gemId);
+
+  fields.gemCount.value = String(draft.gemCount || 1);
+  root.querySelector('[data-finish-count="gem"]').hidden = !draft.gemId;
+  const backingAllowed = shape === "cabochon" && draft.productType === "ring";
+  const backingField = root.querySelector("[data-finish-backing]");
+  backingField.hidden = !backingAllowed;
+  if (backingAllowed) {
+    setSelectOptions(fields.backingId,
+      finishOptions(Object.keys(catalog.backings || {}), catalog.backingNames, draft.backingId),
+      draft.backingId);
+  }
+
+  const metalStock = root.querySelector('[data-finish-stock="metal"]');
+  metalStock.hidden = !validation.showMetalInventory;
+  metalStock.textContent = draft.metalId
+    ? `当前持有 ${validation.metalHeld.toFixed(2)} 克 · 需要 ${Number(validation.quote?.metalAmount || 0).toFixed(2)} 克`
+    : "";
+
+  const gemStock = root.querySelector('[data-finish-stock="gem"]');
+  gemStock.hidden = !validation.showGemInventory;
+  gemStock.textContent = draft.gemId
+    ? `当前持有 ${validation.gemHeld} 颗 · 需要 ${Number(validation.quote?.gemCount || 0)} 颗`
+    : "";
+
+  root.querySelector('[data-finish-summary="labor"]').textContent = formatMoney(validation.quote?.laborFee || 0);
+  root.querySelector('[data-finish-summary="value"]').textContent =
+    `×${Number(validation.quote?.valueMultiplier || 1).toFixed(2)}`;
+
+  const warning = root.querySelector("[data-finish-warning]");
+  warning.hidden = validation.reasons.length === 0 && !activeFinishPlanModal.error;
+  warning.textContent = activeFinishPlanModal.error || validation.reasons.join("；");
+
+  const confirm = root.querySelector('[data-finish-action="confirm"]');
+  confirm.disabled = !validation.canStart || activeFinishPlanModal.submitting;
+  confirm.textContent = activeFinishPlanModal.submitting
+    ? "正在提交…"
+    : `确认开工 · ${formatMoney(validation.quote?.laborFee || 0)}`;
 }
 
 export function workshopStartJob(target, payload) {

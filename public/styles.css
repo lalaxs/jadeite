@@ -2178,6 +2178,10 @@
   padding: 0 18px 18px;
 }.finish-plan-modal {
   width: min(720px, 100%);
+  overflow: hidden;
+}.finish-plan-modal .game-modal-body {
+  min-height: 0;
+  overflow: auto;
 }.finish-plan-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2200,6 +2204,16 @@
   color: var(--ink);
   background: var(--paper);
   font: inherit;
+}.finish-plan-stock {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2, var(--panel));
+  color: var(--muted);
+  font-size: 12px;
+}.finish-plan-stock[hidden],
+.finish-plan-field[hidden] {
+  display: none;
 }.finish-plan-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

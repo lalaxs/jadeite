@@ -2737,14 +2737,27 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("startWorkshopJob", (payload = {}) => {
+  socket.on("startWorkshopJob", (payload = {}, acknowledge) => {
+    const reply = (result) => {
+      if (typeof acknowledge === "function") acknowledge(result);
+    };
     const player = getPlayer(socket);
-    if (!player) return;
+    if (!player) {
+      reply({ ok: false, message: "玩家状态不可用。" });
+      return;
+    }
     if (!consumeRequestId(player, payload.requestId)) {
-      return socket.emit("toast", "该开工请求已处理，请勿重复提交。");
+      const message = "该开工请求已处理，请勿重复提交。";
+      socket.emit("toast", message);
+      reply({ ok: false, message });
+      return;
     }
     const result = startWorkshopJobForPlayer(player, payload.deviceId, payload);
-    if (!result.ok) return socket.emit("toast", result.message);
+    if (!result.ok) {
+      socket.emit("toast", result.message);
+      reply({ ok: false, message: result.message });
+      return;
+    }
     addNews(`${player.name} 将 ${result.job.item.name} 安排到${result.device.name}。`, "craft");
     advanceTask(player, "workshop_craft");
     emitUiEvent(socket, {
@@ -2759,6 +2772,7 @@ io.on("connection", (socket) => {
       ],
       floatText: `加工 -${uiMoney(result.fee)}`
     });
+    reply({ ok: true, message: "已开工", requestId: payload.requestId });
     broadcast();
   });
 
