@@ -50,9 +50,10 @@ function compareSpecificity(left, right) {
 function simpleSelectorMatches(simple, node) {
   if (!node || simple.includes("::")) return false;
   let normalized = simple;
-  const excludesDisabled = normalized.includes(":not(:disabled)");
-  normalized = normalized.replaceAll(":not(:disabled)", "");
-  if (excludesDisabled && node.states.has("disabled")) return false;
+  for (const [, excluded] of normalized.matchAll(/:not\(([^)]*)\)/g)) {
+    if (simpleSelectorMatches(excluded, node)) return false;
+  }
+  normalized = normalized.replace(/:not\([^)]*\)/g, "");
 
   for (const [, pseudo] of normalized.matchAll(/:([\w-]+)/g)) {
     if (!node.states.has(pseudo)) return false;
@@ -116,7 +117,7 @@ function fixtureFor(selector) {
     .split(/\s+/);
 
   for (const simple of targetPath) {
-    const normalized = simple.replaceAll(":not(:disabled)", "");
+    const normalized = simple.replace(/:not\([^)]*\)/g, "");
     const node = {
       tag: normalized.match(/^[a-z][\w-]*/i)?.[0]?.toLowerCase() || "div",
       id: normalized.match(/#([\w-]+)/)?.[1] || "",
@@ -172,6 +173,37 @@ function contrastRatio(foreground, background) {
   const lighter = Math.max(relativeLuminance(foreground), relativeLuminance(background));
   const darker = Math.min(relativeLuminance(foreground), relativeLuminance(background));
   return (lighter + 0.05) / (darker + 0.05);
+}
+
+const rootVariables = exactDeclarations(":root");
+
+function resolveHex(value) {
+  let resolved = value;
+  const seen = new Set();
+  while (String(resolved || "").startsWith("var(")) {
+    const variable = String(resolved).match(/^var\((--[\w-]+)\)$/)?.[1];
+    assert.ok(variable && !seen.has(variable), `cannot resolve cyclic CSS color ${value}`);
+    seen.add(variable);
+    resolved = nightVariables[variable] || rootVariables[variable];
+  }
+  assert.match(resolved || "", /^#[0-9a-f]{6}$/i, `cannot resolve ${value} to a hex color`);
+  return resolved;
+}
+
+function compositeHex(foreground, background, alpha) {
+  const channels = (hex) => hex.slice(1).match(/.{2}/g).map((value) => Number.parseInt(value, 16));
+  const blended = channels(foreground).map(
+    (value, index) => Math.round(value * alpha + channels(background)[index] * (1 - alpha))
+  );
+  return `#${blended.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function compositedContrast({ color, background, backdrop, opacity }) {
+  const alpha = Number(opacity);
+  const base = resolveHex(backdrop);
+  const renderedBackground = compositeHex(resolveHex(background), base, alpha);
+  const renderedText = compositeHex(resolveHex(color), base, alpha);
+  return contrastRatio(renderedText, renderedBackground);
 }
 
 const nightVariables = exactDeclarations('[data-theme="night"]');
@@ -343,11 +375,6 @@ assert.equal(
   "#e5ad9c",
   "negative finishing summary text must remain readable"
 );
-assert.equal(
-  cascadedDeclarations('[data-theme="night"] .wrs-plan-step.is-ready').values["border-color"],
-  "#2d6c52",
-  "the ready planning state must survive the shared surface override"
-);
 assert.deepEqual(
   (() => {
     const disabled = cascadedDeclarations('[data-theme="night"] button.secondary:disabled:hover').values;
@@ -355,6 +382,122 @@ assert.deepEqual(
   })(),
   ["var(--night-muted)", "var(--night-surface-1)"],
   "disabled secondary buttons must not pick up enabled hover colors"
+);
+
+for (const selector of [
+  '[data-theme="night"] .layout-tools',
+  '[data-theme="night"] .kit-choice'
+]) {
+  const { values, winners } = cascadedDeclarations(selector);
+  const expectedSurface = selector.endsWith(".layout-tools")
+    ? "var(--night-surface-2)"
+    : "var(--night-surface-3)";
+  assert.equal(values.background, expectedSurface, `${selector} must replace its light planner surface`);
+  assert.equal(values.color, "var(--night-text)", `${selector} must keep readable night text`);
+  assert.match(values["border-color"] || values.border || "", /142,\s*178,\s*160|#327f61/i);
+  assert.match(winners.background.selector, /^\[data-theme="night"\]/, `${selector} needs a night cascade winner`);
+}
+
+const kitHover = cascadedDeclarations('[data-theme="night"] .kit-choice:hover').values;
+assert.deepEqual(
+  [kitHover.color, kitHover.background, kitHover["border-color"]],
+  ["#e4f1eb", "var(--night-primary)", "#327f61"],
+  "planner kit hover must remain low luminance and readable"
+);
+for (const state of ["hover", "focus-visible"]) {
+  const kitLabel = cascadedDeclarations(
+    `[data-theme="night"] .kit-choice.opening-kit-choice:${state} span`
+  ).values;
+  assert.equal(kitLabel.color, "#e4f1eb", `planner kit labels need readable ${state} text`);
+  assert.ok(
+    contrastRatio(resolveHex(kitLabel.color), resolveHex("var(--night-primary)")) >= 4.5,
+    `planner kit labels need 4.5:1 contrast during ${state}`
+  );
+}
+for (const [selector, surface] of [
+  ['[data-theme="night"] .layout-tools label', "var(--night-surface-2)"],
+  ['[data-theme="night"] .opening-kit-choice span', "var(--night-surface-3)"]
+]) {
+  const textColor = cascadedDeclarations(selector).values.color;
+  assert.ok(
+    contrastRatio(resolveHex(textColor), resolveHex(surface)) >= 4.5,
+    `${selector} must retain readable planner text`
+  );
+}
+
+const navHover = cascadedDeclarations(
+  '[data-theme="night"] .main-nav-item:hover:not(.active):not(.locked)'
+);
+assert.deepEqual(
+  [navHover.values.color, navHover.values.background],
+  ["var(--night-text)", "var(--night-surface-3)"],
+  "shared desktop/mobile inactive nav hover must use the night palette"
+);
+assert.equal(
+  navHover.winners.background.selector,
+  '[data-theme="night"] .main-nav-item:hover:not(.active):not(.locked)',
+  "the shared night nav hover must win over the legacy white hover"
+);
+assert.equal(
+  cascadedDeclarations(
+    '[data-theme="night"] .main-nav-item:hover:not(.active):not(.locked) .nav-ico'
+  ).values.color,
+  "var(--night-muted)",
+  "inactive nav hover icons must remain readable"
+);
+const activeNavHover = cascadedDeclarations('[data-theme="night"] .main-nav-item.active:hover').values;
+assert.deepEqual(
+  [activeNavHover.color, activeNavHover.background],
+  ["#e4f1eb", "var(--night-primary)"],
+  "active nav styling must survive hover"
+);
+assert.equal(
+  cascadedDeclarations('[data-theme="night"] .main-nav-item.active:hover .nav-ico').values.color,
+  "#e4f1eb",
+  "active nav icons must retain their active treatment"
+);
+const lockedNavHover = cascadedDeclarations(
+  '[data-theme="night"] button.main-nav-item.locked:disabled:hover'
+).values;
+assert.deepEqual(
+  [lockedNavHover.color, lockedNavHover.background],
+  ["var(--night-muted)", "var(--night-surface-1)"],
+  "locked nav hover must not fall through to the legacy white surface"
+);
+assert.equal(
+  cascadedDeclarations(
+    '[data-theme="night"] button.main-nav-item.locked:disabled:hover .nav-ico'
+  ).values.color,
+  "var(--night-muted)",
+  "locked nav hover icons must remain readable"
+);
+assert.ok(
+  compositedContrast({
+    color: lockedNavHover.color,
+    background: lockedNavHover.background,
+    backdrop: "var(--night-surface-2)",
+    opacity: lockedNavHover.opacity
+  }) >= 4.5,
+  "locked nav text needs 4.5:1 contrast after opacity compositing"
+);
+
+const readyStep = cascadedDeclarations('[data-theme="night"] .wrs-plan-step.is-ready').values;
+assert.ok(
+  contrastRatio(resolveHex(readyStep["border-color"]), nightVariables["--night-surface-2"]) >= 3,
+  "ready planner border needs at least 3:1 contrast against its surface"
+);
+
+const disabledButton = cascadedDeclarations('[data-theme="night"] button.secondary:disabled:hover').values;
+assert.ok(Number(disabledButton.opacity) < 1, "disabled buttons must retain a disabled affordance");
+assert.ok(Number(disabledButton.opacity) >= 0.7, "disabled opacity must not erase text legibility");
+assert.ok(
+  compositedContrast({
+    color: disabledButton.color,
+    background: disabledButton.background,
+    backdrop: "var(--night-surface-2)",
+    opacity: disabledButton.opacity
+  }) >= 4.5,
+  "disabled button text needs 4.5:1 contrast after opacity compositing"
 );
 
 assert.match(css, /prefers-reduced-motion:\s*reduce/);
