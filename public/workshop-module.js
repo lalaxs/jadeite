@@ -12,6 +12,7 @@ let activeWorkshopPicker = null;
 let pickerMountKey = null; // 当前已挂载到 DOM 的弹窗标识（kind:deviceId），避免每次重绘重建外壳
 let activePickerWorkerId = null; // 选工弹窗内临时选中的员工（点详情用，不直接指派）
 let activeWorkerSort = "default"; // 选工弹窗列表排序：default=品阶降序 / quality / flawless / speed
+let activeKitPlanner = null;
 let activeFinishPlanModal = null;
 let stageDrawerOpen = false;
 let formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor;
@@ -495,6 +496,22 @@ export function workshopRecipeSummary(device, selected) {
   const estimate = workshopJobEstimate(device, selected);
   const kits = device.stage === "carving" ? kitsFor(selected.id) : [];
   const needsKits = device.stage === "carving" && !kits.length;
+  const planReady = device.stage !== "carving" || kits.length > 0;
+  const planStep = device.stage === "carving" ? `
+    <div class="wrs-plan-step ${planReady ? "is-ready" : "is-pending"}">
+      <div>
+        <span>步骤 2 · 规划套件</span>
+        <strong>${planReady ? `已规划 ${kits.length} 件` : "尚未规划"}</strong>
+        <p>${planReady ? "点击查看或修改石头与套件布局。" : "先选择石头，再进入规划画布。"}</p>
+      </div>
+      <button
+        class="${planReady ? "secondary" : "primary"}"
+        data-action="openWorkshopPlanner"
+        data-payload="${device.id}"
+        type="button"
+      >${planReady ? "查看 / 修改规划" : "规划套件"}</button>
+    </div>
+  ` : "";
   const busy = workshopJobs(device.id).length >= 1;
   const broken = Number(device.condition ?? 100) <= 0;
   const worker = (selectedWorkshopWorkerId && workshopWorkers().find((w) => w.id === selectedWorkshopWorkerId)) || workshopWorkerFor(device);
@@ -526,7 +543,7 @@ export function workshopRecipeSummary(device, selected) {
       </div>
       ${workerEffectBlock}
       <p class="recipe-hint">${escapeHtml(estimate.duration)} · 费用 ${formatMoney(estimate.fee)} · 产出 ${escapeHtml(estimate.output)}</p>
-      ${device.stage === "carving" ? roughBoard(selected) + roughPlannerControls(selected) + placementAnalysisRows(selected, kits) : ""}
+      ${planStep}
       ${needsKits ? `<p class="recipe-hint">请先在明料上摆放套件，然后再开工。</p>` : ""}
       <div class="row-actions">
         <button class="${needsKits ? "warn" : "primary"}" data-action="startWorkshopJob" data-payload="${device.id}" data-item-id="${selected.id}" data-needs-kits="${needsKits ? "1" : "0"}" ${busy || broken || workerBusy ? "disabled" : ""}>${broken ? "请先维修设备" : busy ? "设备加工中（容量 1）" : workerBusy ? "员工正在执行其他任务" : needsKits ? "先摆套件" : `开工 ${formatMoney(estimate.fee)}`}</button>
@@ -723,7 +740,99 @@ export function renderWorkshop() {
   }
   // 注意：选工/选料弹窗不再挂在 workshopRoot 内，改为挂到 body 下的独立容器（见 renderPicker），
   // 这样服务端每秒推送 state 触发 renderWorkshop 重建工坊页时，不会连带重建弹窗导致闪烁。
+  if (activeKitPlanner) workshopRefreshPlanner(activeKitPlanner.itemId);
   if (activeFinishPlanModal) renderFinishPlanModal();
+}
+
+function plannerRootEl() {
+  let root = document.getElementById("ws-planner-root");
+  if (root) return root;
+  root = document.createElement("div");
+  root.id = "ws-planner-root";
+  root.className = "ws-picker-overlay";
+  root.addEventListener("click", (event) => {
+    if (event.target === root || event.target.closest('[data-planner-action="cancel"]')) {
+      workshopClosePlanner(false);
+      return;
+    }
+    if (event.target.closest('[data-planner-action="confirm"]')) {
+      workshopClosePlanner(true);
+    }
+  });
+  document.body.appendChild(root);
+  return root;
+}
+
+function buildPlannerShell(device, item) {
+  return `
+    <section class="ws-planner-modal" role="dialog" aria-modal="true" aria-label="规划套件">
+      <header class="ws-picker-head">
+        <div class="wsp-head-text">
+          <h3>规划套件</h3>
+          <p>${escapeHtml(item.name)} · ${escapeHtml(device.name)}</p>
+        </div>
+        <button class="ws-picker-close" data-planner-action="cancel" type="button" aria-label="关闭">×</button>
+      </header>
+      <div class="ws-planner-body" data-planner-body></div>
+      <footer class="game-modal-actions">
+        <button class="secondary" data-planner-action="cancel" type="button">取消</button>
+        <button class="primary" data-planner-action="confirm" type="button">确认规划</button>
+      </footer>
+    </section>
+  `;
+}
+
+export function workshopOpenPlanner(payload) {
+  const deviceId = payload || activeWorkshopDeviceId;
+  const device = workshopDevices().find((entry) => entry.id === deviceId);
+  if (!device || device.stage !== "carving") {
+    showToast("请先选择需要规划的石头。");
+    return;
+  }
+  const item = workshopProcessableItems(device).find((entry) => entry.id === selectedWorkshopItemId);
+  if (!item) {
+    showToast("请先选择需要规划的石头。");
+    return;
+  }
+  activeKitPlanner = {
+    deviceId,
+    itemId: item.id,
+    originalKits: structuredClone(kitsFor(item.id))
+  };
+  const root = plannerRootEl();
+  root.innerHTML = buildPlannerShell(device, item);
+  workshopRefreshPlanner(item.id);
+}
+
+export function workshopRefreshPlanner(roughId) {
+  if (!activeKitPlanner || activeKitPlanner.itemId !== roughId) return;
+  const item = workshopStageItems().find((entry) => entry.id === roughId);
+  const body = document.querySelector("#ws-planner-root [data-planner-body]");
+  if (!item) {
+    activeKitPlanner = null;
+    document.getElementById("ws-planner-root")?.remove();
+    return;
+  }
+  if (!body) return;
+  const kits = kitsFor(roughId);
+  body.innerHTML = `
+    <div class="ws-planner-canvas">${roughBoard(item)}</div>
+    <div class="ws-planner-tools">
+      ${roughPlannerControls(item)}
+      ${placementAnalysisRows(item, kits)}
+    </div>
+  `;
+  paintJades();
+}
+
+export function workshopClosePlanner(commit = false) {
+  if (!activeKitPlanner) return;
+  if (!commit) {
+    roughKits.set(activeKitPlanner.itemId, structuredClone(activeKitPlanner.originalKits));
+  }
+  activeKitPlanner = null;
+  document.getElementById("ws-planner-root")?.remove();
+  renderWorkshop();
 }
 
 // 弹窗挂载容器（独立于 workshopRoot，挂在 body 上，renderWorkshop 不触碰）
@@ -990,6 +1099,11 @@ export function workshopBackDevices() {
   paintJades();
 }
 export function workshopSelectItem(payload) {
+  const previousItemId = selectedWorkshopItemId;
+  const device = workshopDevices().find((entry) => entry.id === activeWorkshopDeviceId);
+  if (device?.stage === "carving" && previousItemId && previousItemId !== payload) {
+    roughKits.delete(previousItemId);
+  }
   selectedWorkshopItemId = payload;
   renderWorkshop();
   paintJades();

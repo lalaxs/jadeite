@@ -45,7 +45,8 @@ import {
   workshopMaterialRow, workshopRecipeSummary, workshopStageDrawer, workshopRecommendedWorkerId, workshopWorkerColumn,
   workshopRecipePage, renderWorkshop,
   workshopOpenDevice, workshopBackDevices, workshopSelectItem, workshopStartJob, workshopAssignWorker, workshopRecommendWorker, workshopSelectStep,
-  workshopOpenPicker, workshopClosePicker, workshopPickItem, workshopPickWorker, workshopConfirmPickerWorker, workshopSetSort
+  workshopOpenPicker, workshopClosePicker, workshopPickItem, workshopPickWorker, workshopConfirmPickerWorker, workshopSetSort,
+  workshopRefreshPlanner, workshopOpenPlanner, workshopClosePlanner
 } from "./workshop-module.js";
 import {
   initChatModule,
@@ -1097,6 +1098,12 @@ function findSafeOpeningPosition(tplId, preferX, preferY, current) {
   return first;
 }
 
+function refreshOpeningPlanUi(roughId) {
+  workshopRefreshPlanner(roughId);
+  if (!document.getElementById("ws-planner-root")) renderWorkshop();
+  paintJades();
+}
+
 function addRoughKit(roughId, tplId) {
   const current = kitsFor(roughId);
   const safeTpl = OPENING_KIT_LIB.some((kit) => kit.id === tplId) ? tplId : "bangle";
@@ -1116,22 +1123,19 @@ function addRoughKit(roughId, tplId) {
     svgSpace: true
   };
   roughKits.set(roughId, [...current, kit].slice(0, 10));
-  renderWorkshop();
-  paintJades();
+  refreshOpeningPlanUi(roughId);
 }
 
 function clearRoughKits(roughId) {
   roughKits.set(roughId, []);
-  renderWorkshop();
-  paintJades();
+  refreshOpeningPlanUi(roughId);
 }
 
 function moveRoughKit(roughId, kitId, x, y) {
   roughKits.set(roughId, kitsFor(roughId).map((kit) => (
     kit.id === kitId ? { ...kit, ...clampOpeningKitPosition(kit.tpl || "bangle", x, y, kit.scale || 1), svgSpace: true } : kit
   )));
-  renderWorkshop();
-  paintJades();
+  refreshOpeningPlanUi(roughId);
 }
 
 function openingKitsForServer(roughId) {
@@ -1975,6 +1979,8 @@ document.body.addEventListener("click", (event) => {
   if (action === "pickWorkshopWorker") { workshopPickWorker(target, payload); return; }
   if (action === "confirmPickerWorker") { workshopConfirmPickerWorker(target, payload); return; }
   if (action === "setWorkerSort") { workshopSetSort(target); return; }
+  if (action === "openWorkshopPlanner") { workshopOpenPlanner(payload); return; }
+  if (action === "closeWorkshopPlanner") { workshopClosePlanner(false); return; }
 
   if (action === "extractFromRough") {
     socket.emit("extractFromRough", {
