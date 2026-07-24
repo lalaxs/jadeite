@@ -69,7 +69,8 @@ import {
 } from "./livestream-module.js";
 import {
   initExtraModule,
-  renderShop, renderRecruitCandidates, renderReports, renderCollection
+  renderShop, renderRecruitCandidates, renderReports, renderCollection,
+  openRecruitCandidateDetail, closeRecruitCandidateDetail, confirmRecruitCandidate
 } from "./extra-module.js";
 
 const playerId = sessionStorage.getItem("jade-player-id");
@@ -1938,13 +1939,9 @@ document.body.addEventListener("click", (event) => {
     });
     return;
   }
-  if (action === "recruitWorker") {
-    socket.emit("recruitWorker", {
-      candidateId: payload,
-      requestId: globalThis.crypto?.randomUUID?.() || `recruit-${Date.now()}`
-    });
-    return;
-  }
+  if (action === "openRecruitCandidateDetail") { openRecruitCandidateDetail(payload); return; }
+  if (action === "closeRecruitCandidateDetail") { closeRecruitCandidateDetail(); return; }
+  if (action === "confirmRecruitCandidate") { confirmRecruitCandidate(); return; }
 
   // ---- 交易行（游戏化）----
   if (action === "marketStall") { marketSetStall(target); return; }

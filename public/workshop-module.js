@@ -10,6 +10,10 @@ import {
   patchFinishPlanSelectOptions,
   preserveFinishPlanUiState
 } from "./finish-plan-dom.js";
+import {
+  WORKER_SKILL_DEFS,
+  renderWorkerDetailPanel
+} from "./worker-detail-view.js";
 
 let socketRef;
 let getState;
@@ -103,18 +107,6 @@ function tierBorder(tier) {
 }
 // 等级 → 效能系数 k（共用形状，Lv1=12% → Lv10=100%，索引 0 不用）
 const K_CURVE = [0, 0.12, 0.24, 0.37, 0.5, 0.63, 0.74, 0.83, 0.9, 0.95, 1.0];
-// 9 个具体技能 → 独占属性（白板 Lv10 满值 / 完美率贡献% / 所属方向）
-const SKILL_DEFS = {
-  jieliao:   { name: "解料", attr: "完整度",     full: 18, dir: "cut" },
-  damo:      { name: "打磨", attr: "光泽度",     full: 15, dir: "cut" },
-  qieliao:   { name: "切料", attr: "瑕疵控制",   full: 12, dir: "set" },
-  xiuxing:   { name: "修形", attr: "造型精度",   full: 14, dir: "set" },
-  diaozhuo:  { name: "雕琢", attr: "雕琢精细度", full: 22, dir: "finish" },
-  xiangqian: { name: "镶嵌", attr: "镶嵌贴合度", full: 16, dir: "finish" },
-  huashu:    { name: "话术", attr: "溢价力",     full: 12, dir: "speak" },
-  kongchang: { name: "控场", attr: "控场流速",   full: 10, dir: "speak" },
-  cuidan:    { name: "催单", attr: "逼单转化",   full: 10, dir: "speak" }
-};
 const PROCESS_SKILLS = ["jieliao", "damo", "qieliao", "xiuxing", "diaozhuo", "xiangqian"];
 // 工序 → 本工序计入评分/价格的属性（按工序取相关属性）
 const STEP_ATTRS = { open: ["jieliao", "damo"], plan: ["qieliao", "xiuxing"], finish: ["diaozhuo", "xiangqian"] };
@@ -123,21 +115,6 @@ const FLAW_DEFS = {
   易裂: -0.08, 易出绵: -0.06, 易脏: -0.05, 手重: -0.04,
   巧手: 0.05, 净料: 0.06, 稳手: 0.04, 心细: 0.04
 };
-// 词条说明（点击词条 chip 时在旁边弹出小 tooltip）
-const TRAIT_DESC = {
-  稳手: "手感稳健，压裂与崩口风险更低。",
-  按线稳: "下刀贴合设计线，取件边界更准。",
-  细光: "抛光细腻，表面光感更润。",
-  收口准: "镶嵌 / 圈口收口更贴合。",
-  巧手: "手法灵巧，降低瑕疵倾向，更易出完美件。",
-  心细: "观察细致，降低瑕疵倾向。",
-  净料: "净料处理到位，减少脏点 / 棉絮。",
-  易裂: "料性偏脆，出裂风险较高。",
-  易出绵: "易出棉絮 / 绵，影响净度。",
-  易脏: "工序中易带入脏点。",
-  手重: "下手偏重，压裂 / 崩口风险略高。"
-};
-
 function clamp(value, min, max) { return Math.max(min, Math.min(max, Number(value) || 0)); }
 function skillThreshold(level) { return 50 * level; }
 function skillK(level, exp) {
@@ -153,12 +130,12 @@ function workerTierM(worker) {
   return base * (1 + 0.06 * (tl - 1));
 }
 function workerSkill(worker, key) {
-  const dir = SKILL_DEFS[key].dir;
+  const dir = WORKER_SKILL_DEFS[key].dir;
   return (worker.skills?.[dir]?.[key]) || { level: 1, exp: 0 };
 }
 function skillAttrValue(worker, key) {
   const sk = workerSkill(worker, key);
-  return SKILL_DEFS[key].full * skillK(sk.level, sk.exp) * workerTierM(worker);
+  return WORKER_SKILL_DEFS[key].full * skillK(sk.level, sk.exp) * workerTierM(worker);
 }
 // ===== 加工「工分」评分体系（与 server.js 共用同一套权重/评级）=====
 const STEP_ATTR_WEIGHTS = {
@@ -208,7 +185,7 @@ function craftScoreLine(item) {
 // 某员工在指定工序下的属性预览
 function workerStepPreview(worker, step) {
   const attrKeys = STEP_ATTRS[step] || [];
-  const attrs = attrKeys.map((key) => ({ key, attr: SKILL_DEFS[key].attr, value: skillAttrValue(worker, key) }));
+  const attrs = attrKeys.map((key) => ({ key, attr: WORKER_SKILL_DEFS[key].attr, value: skillAttrValue(worker, key) }));
   const quality = workerStepScore(worker, step); // 新：本工序工分子分（0~120）
   const grade = craftGrade(quality);
   let speed = 0;
@@ -219,39 +196,6 @@ function workerStepPreview(worker, step) {
 }
 function flawClass(flaw) { return (FLAW_DEFS[flaw] || 0) >= 0 ? "pos" : "neg"; }
 function pct(n) { return (n > 0 ? "+" : "") + n + "%"; }
-function skillBarHtml(level, exp) {
-  const pctw = clamp(Math.round((Number(exp) || 0) / skillThreshold(clamp(level, 1, 10)) * 100), 0, 100);
-  return `<span class="wsp-bar"><i style="width:${pctw}%"></i></span>`;
-}
-// 技能卡片：每个技能一张底图卡片，名称 + Lv + 经验进度条 + 经验数字。
-// 按「当前工序」排序：本工序相关技能置顶，并在名字后标「本工序」标签。
-function renderSkillCards(worker, step) {
-  const stepSkills = STEP_ATTRS[step] || [];
-  const stepSet = new Set(stepSkills);
-  const keys = Object.keys(SKILL_DEFS);
-  const ordered = keys.slice().sort((a, b) => {
-    const pa = stepSet.has(a) ? 0 : (SKILL_DEFS[a].dir === "speak" ? 2 : 1);
-    const pb = stepSet.has(b) ? 0 : (SKILL_DEFS[b].dir === "speak" ? 2 : 1);
-    if (pa !== pb) return pa - pb;
-    return keys.indexOf(a) - keys.indexOf(b);
-  });
-  return ordered.map((key) => {
-    const sk = workerSkill(worker, key);
-    const L = clamp(sk.level, 1, 10);
-    const cur = Math.round(Number(sk.exp) || 0);
-    const max = skillThreshold(L);
-    const pctw = clamp(Math.round((cur / max) * 100), 0, 100);
-    const isStep = stepSet.has(key);
-    return `<div class="wsp-skill-card ${isStep ? "is-step" : ""}">
-      <div class="wsp-skill-card-head">
-        <strong class="wsp-skill-name">${escapeHtml(SKILL_DEFS[key].name)}${isStep ? '<span class="wsp-skill-tag">本工序</span>' : ""}</strong>
-        <span class="wsp-skill-lv">Lv.${sk.level}</span>
-      </div>
-      <div class="wsp-skill-card-bar"><span class="wsp-bar"><i style="width:${pctw}%"></i></span></div>
-      <div class="wsp-skill-card-foot"><span class="wsp-skill-exp">${cur} / ${max}</span></div>
-    </div>`;
-  }).join("");
-}
 // 左卡完整效果评分：品质分 + 提速 + 完美率 + 本工序各属性贡献，全部使用与上方相同的 chip UI（不再分两版）
 function renderWorkerMiniScores(worker, step) {
   const pv = workerStepPreview(worker, step);
@@ -279,24 +223,6 @@ function renderWorkerMiniTraitChips(worker) {
     const isTrait = traits.includes(t);
     const cls = isTrait ? "pos" : flawClass(t);
     return `<span class="wsp-trait-chip ${cls}">${escapeHtml(t)}</span>`;
-  }).join("");
-}
-// 天赋行：每条天赋整行展示（名称 + 描述），底图颜色按天赋品质（正/负）区分
-function renderTraitRows(worker) {
-  const traits = worker.traits || [];
-  const flaws = worker.flaws || [];
-  const list = [...traits, ...flaws];
-  if (!list.length) {
-    return `<div class="wsp-trait-row muted"><strong class="wsp-trait-name">无天赋</strong><span class="wsp-trait-desc">该员工没有特性或缺陷。</span></div>`;
-  }
-  return list.map((trait) => {
-    const isTrait = traits.includes(trait);
-    const cls = isTrait ? "pos" : flawClass(trait);
-    const desc = TRAIT_DESC[trait] || "暂无说明";
-    return `<div class="wsp-trait-row ${cls}">
-      <strong class="wsp-trait-name">${escapeHtml(trait)}</strong>
-      <span class="wsp-trait-desc">${escapeHtml(desc)}</span>
-    </div>`;
   }).join("");
 }
 export function workshopDevices() {
@@ -1012,30 +938,19 @@ export function renderPicker() {
 function renderWorkerDetail(worker, device) {
   const pv = workerStepPreview(worker, deviceStep(device));
   const assigned = worker.id === device.workerId;
-  const skillsHtml = renderSkillCards(worker, deviceStep(device));
-  const skillCount = Object.keys(SKILL_DEFS).length;
-  return `
-    <div class="wsp-pick-side">
-      <div class="wsp-pick-side-head">
-        <div class="wsp-pick-side-id">
-          <strong>${escapeHtml(worker.name)}</strong>
-        </div>
-        <span class="wsp-tier-badge" style="${tierBadgeStyle(worker.tier)}">${escapeHtml(tierLabel(worker))}</span>
-      </div>
-      <div class="wsp-pick-side-body">
-        <div class="wsp-pick-side-block">
-          <h5>天赋</h5>
-          <div class="wsp-trait-rows">${renderTraitRows(worker)}</div>
-        </div>
-        <div class="wsp-pick-side-block">
-          <h5>技能（${skillCount}）</h5>
-          <div class="wsp-skill-cards">${skillsHtml}</div>
-        </div>
-      </div>
-      <div class="wsp-pick-side-foot">
-        <button class="primary" data-action="confirmPickerWorker" data-payload="${device.id}" data-worker-id="${worker.id}" type="button" ${worker.busy ? "disabled" : ""}>${worker.busy ? "正在执行其他任务" : "选择"}</button>
-      </div>
-    </div>`;
+  return renderWorkerDetailPanel({
+    worker,
+    step: deviceStep(device),
+    mode: "workshop",
+    summaryHtml: renderWorkerMiniScores(worker, deviceStep(device)),
+    footerHtml: `
+      <button class="primary" data-action="confirmPickerWorker"
+        data-payload="${device.id}" data-worker-id="${worker.id}" type="button"
+        ${worker.busy ? "disabled" : ""}>
+        ${worker.busy ? "正在执行其他任务" : assigned ? "已选择" : `选择 · 工分 ${pv.quality.toFixed(0)}`}
+      </button>
+    `
+  });
 }
 
 export function workshopOpenPicker(payload) {

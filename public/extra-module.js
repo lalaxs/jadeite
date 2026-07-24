@@ -3,9 +3,17 @@
 // 后端 server.js 不受影响。
 
 import { inlaySummary } from "./product-meta.js";
+import {
+  renderWorkerDetailPanel,
+  workerStepForJob
+} from "./worker-detail-view.js";
+import { patchRecruitDetailView } from "./recruit-detail-dom.js";
 
 let socketRef, getState, elsRef, getActiveView;
 let activeShopTab = "building";
+let activeRecruitCandidateId = null;
+let recruitSubmitting = false;
+let recruitError = "";
 
 let currentReportSummary, formatMoney, escapeHtml, empty, productCanvas, formatNumber;
 
@@ -153,7 +161,6 @@ export function renderRecruitCandidates() {
       ...(candidate.traits || []).map((trait) => `<span class="trait-chip">${escapeHtml(trait)}</span>`),
       ...(candidate.flaws || []).map((trait) => `<span class="flaw-chip neg">${escapeHtml(trait)}</span>`)
     ].join("");
-    const disabled = workers.length >= 8 || cash < Number(candidate.price || 0);
     return `
       <article class="recruit-candidate-card">
         <div class="recruit-card-head">
@@ -162,10 +169,96 @@ export function renderRecruitCandidates() {
         </div>
         <div class="recruit-skill-row">${skills}</div>
         <div class="trait-row">${traits}</div>
-        <button data-action="recruitWorker" data-payload="${escapeHtml(candidate.id)}" ${disabled ? "disabled" : ""}>${workers.length >= 8 ? "员工已满" : "招聘入职"}</button>
+        <button data-action="openRecruitCandidateDetail"
+          data-payload="${escapeHtml(candidate.id)}" type="button">查看完整详情</button>
       </article>
     `;
   }).join("") || empty(workers.length >= 8 ? "员工人数已达到 8 人上限。" : "暂无候选人，请刷新。");
+  renderRecruitCandidateDetail();
+}
+
+function recruitDetailRoot() {
+  let root = document.getElementById("recruit-detail-root");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "recruit-detail-root";
+    root.className = "modal-root";
+    document.body.appendChild(root);
+  }
+  return root;
+}
+
+export function openRecruitCandidateDetail(candidateId) {
+  activeRecruitCandidateId = candidateId;
+  recruitSubmitting = false;
+  recruitError = "";
+  renderRecruitCandidateDetail();
+}
+
+export function closeRecruitCandidateDetail() {
+  activeRecruitCandidateId = null;
+  recruitSubmitting = false;
+  recruitError = "";
+  document.getElementById("recruit-detail-root")?.remove();
+}
+
+function renderRecruitCandidateDetail() {
+  if (!activeRecruitCandidateId || !getState()) return;
+  const candidate = (getState().me.recruitCandidates || [])
+    .find((entry) => entry.id === activeRecruitCandidateId);
+  if (!candidate) {
+    closeRecruitCandidateDetail();
+    return;
+  }
+
+  const workers = getState().me.workshop?.workers || [];
+  const cash = Number(getState().me.cash || 0);
+  const disabledReason = workers.length >= 8
+    ? "员工人数已达到 8 人上限"
+    : cash < Number(candidate.price || 0) ? "现金不足" : "";
+  const root = recruitDetailRoot();
+  if (!root.querySelector(".recruit-detail-modal")) {
+    root.innerHTML = `<section class="game-modal recruit-detail-modal" role="dialog" aria-modal="true" aria-label="候选人完整详情">
+      <button class="modal-close recruit-detail-close" data-action="closeRecruitCandidateDetail" type="button" aria-label="关闭">×</button>
+      <div data-recruit-detail-body></div>
+    </section>`;
+  }
+
+  patchRecruitDetailView(root, {
+    candidateId: candidate.id,
+    detailHtml: renderWorkerDetailPanel({
+      worker: candidate,
+      step: workerStepForJob(candidate.job),
+      mode: "recruit",
+      footerHtml: '<div data-recruit-footer></div>'
+    }),
+    footerHtml: `
+      ${recruitError ? `<p class="recruit-detail-error" role="alert">${escapeHtml(recruitError)}</p>` : ""}
+      <button class="primary" data-action="confirmRecruitCandidate" type="button"
+        ${disabledReason || recruitSubmitting ? "disabled" : ""}>
+        ${recruitSubmitting ? "正在招募…" : disabledReason || `确认招募 · ${formatMoney(candidate.price)}`}
+      </button>
+    `
+  });
+}
+
+export function confirmRecruitCandidate() {
+  if (!activeRecruitCandidateId || recruitSubmitting) return;
+  const candidateId = activeRecruitCandidateId;
+  const requestId = globalThis.crypto?.randomUUID?.() || `recruit-${Date.now()}`;
+  recruitSubmitting = true;
+  recruitError = "";
+  renderRecruitCandidateDetail();
+  socketRef.emit("recruitWorker", { candidateId, requestId }, (result = {}) => {
+    if (candidateId !== activeRecruitCandidateId) return;
+    if (result.ok) {
+      closeRecruitCandidateDetail();
+      return;
+    }
+    recruitSubmitting = false;
+    recruitError = result.message || "招募失败，请稍后重试。";
+    renderRecruitCandidateDetail();
+  });
 }
 
 // ---- 商铺页签切换 + 材料自由数量购买 ----

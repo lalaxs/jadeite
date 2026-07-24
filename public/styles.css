@@ -2016,6 +2016,39 @@
   font-size: 12px;
   font-weight: 700;
 }
+.recruit-detail-modal {
+  position: relative;
+  width: min(720px, 100%);
+  overflow: hidden;
+}
+.recruit-detail-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 2;
+}
+.recruit-detail-modal .mode-recruit {
+  max-height: calc(100vh - 36px);
+  padding-top: 22px;
+}
+.recruit-detail-modal .wsp-pick-side-head {
+  padding-right: 46px;
+}
+.recruit-detail-modal .wsp-pick-side-foot {
+  flex-direction: column;
+  gap: 10px;
+}
+.recruit-detail-modal [data-recruit-footer] {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+.recruit-detail-error {
+  margin: 0;
+  color: var(--rose);
+  font-size: 13px;
+  font-weight: 700;
+}
 .livestream-worker-field {
   display: grid;
   gap: 5px;

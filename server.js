@@ -2689,17 +2689,30 @@ io.on("connection", (socket) => {
     if (result.ok) broadcast();
   });
 
-  socket.on("recruitWorker", (payload = {}) => {
+  socket.on("recruitWorker", (payload = {}, acknowledge) => {
+    const reply = (result) => {
+      if (typeof acknowledge === "function") acknowledge(result);
+    };
     const player = getPlayer(socket);
-    if (!player) return;
+    if (!player) {
+      reply({ ok: false, message: "玩家状态不可用。" });
+      return;
+    }
     if (!consumeRequestId(player, payload.requestId)) {
-      return socket.emit("toast", "该招聘请求已处理，请勿重复提交。");
+      const message = "该招聘请求已处理，请勿重复提交。";
+      socket.emit("toast", message);
+      reply({ ok: false, message });
+      return;
     }
     normalizePlayer(player);
     const result = recruitWorker(player, payload.candidateId, { spendCash });
     socket.emit("toast", result.message);
-    if (!result.ok) return;
+    if (!result.ok) {
+      reply({ ok: false, message: result.message });
+      return;
+    }
     addNews(`${player.name} 招聘了 ${result.worker.name}。`, "craft");
+    reply({ ok: true, message: result.message, requestId: payload.requestId });
     broadcast();
   });
 
