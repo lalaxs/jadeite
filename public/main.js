@@ -72,6 +72,7 @@ import {
   renderShop, renderRecruitCandidates, renderReports, renderCollection,
   openRecruitCandidateDetail, closeRecruitCandidateDetail, confirmRecruitCandidate
 } from "./extra-module.js";
+import { activateModalLifecycle } from "./modal-lifecycle.js";
 
 const playerId = sessionStorage.getItem("jade-player-id");
 const socket = io({ auth: { playerId } });
@@ -107,6 +108,7 @@ let activeView = "overview";
 let activeDragKit = null;
 let serverClockOffset = 0;
 let activeModal = null;
+let gameModalLifecycleCleanup = null;
 
 const shownUiEventIds = new Set();
 const roughKits = new Map();
@@ -404,6 +406,8 @@ function modalActionHtml(action = {}, index = 0) {
 
 function openGameModal(payload = {}) {
   if (!els.modalRoot) return;
+  gameModalLifecycleCleanup?.();
+  gameModalLifecycleCleanup = null;
   activeModal = payload;
   const actions = Array.isArray(payload.actions) && payload.actions.length
     ? payload.actions
@@ -429,12 +433,19 @@ function openGameModal(payload = {}) {
     </section>
   `;
   els.modalRoot.hidden = false;
-  els.modalRoot.querySelector("[data-modal-close], button")?.focus();
+  gameModalLifecycleCleanup = activateModalLifecycle({
+    root: els.modalRoot,
+    dialog: els.modalRoot.querySelector('[role="dialog"]'),
+    shell: els.shell,
+    onClose: closeGameModal
+  });
 }
 
 function closeGameModal() {
   if (!els.modalRoot) return;
   activeModal = null;
+  gameModalLifecycleCleanup?.();
+  gameModalLifecycleCleanup = null;
   els.modalRoot.hidden = true;
   els.modalRoot.innerHTML = "";
 }
@@ -2062,7 +2073,6 @@ document.body.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   setMobileResourcesOpen(false);
-  if (els.modalRoot && !els.modalRoot.hidden) closeGameModal();
 });
 
 if (els.saveNameBtn && els.nameInput) {

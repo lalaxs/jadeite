@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { activateModalLifecycle } from "../public/modal-lifecycle.js";
 import { patchPlannerBody } from "../public/planner-dom.js";
+
+const mainSource = readFileSync("public/main.js", "utf8");
+assert.match(mainSource, /import\s+\{\s*activateModalLifecycle\s*\}\s+from\s+"\.\/modal-lifecycle\.js"/);
+assert.match(
+  mainSource.match(/function openGameModal\([^)]*\)\s*\{[\s\S]*?\n\}/)?.[0] || "",
+  /activateModalLifecycle/
+);
+assert.doesNotMatch(
+  mainSource.match(/document\.addEventListener\("keydown"[\s\S]*?\n\}\);/)?.[0] || "",
+  /closeGameModal/
+);
 
 class FakeEventTarget {
   constructor() {
@@ -151,6 +163,30 @@ function modalFixture() {
 
 {
   const fixture = modalFixture();
+  fixture.opener.setAttribute("data-action", "startWorkshopJob");
+  const disabledReplacement = new FakeElement(fixture.document, "disabled-start");
+  disabledReplacement.setAttribute("data-action", "startWorkshopJob");
+  disabledReplacement.disabled = true;
+  const nearbyControl = new FakeElement(fixture.document, "nearby-control");
+  fixture.shell.querySelectorAll = () => [disabledReplacement, nearbyControl];
+
+  const deactivate = activateModalLifecycle({
+    root: fixture.root,
+    dialog: fixture.dialog,
+    shell: fixture.shell,
+    onClose: () => {}
+  });
+  fixture.opener.isConnected = false;
+  deactivate();
+  assert.equal(
+    fixture.document.activeElement,
+    nearbyControl,
+    "a disabled replacement opener should fall back to a nearby enabled control"
+  );
+}
+
+{
+  const fixture = modalFixture();
   let deactivate = () => {};
   deactivate = activateModalLifecycle({
     root: fixture.root,
@@ -167,6 +203,48 @@ function modalFixture() {
     fixture.document.activeElement,
     fixture.opener,
     "focus restoration should survive the browser removing the focused modal control after Escape"
+  );
+}
+
+{
+  const fixture = modalFixture();
+  const successRoot = new FakeElement(fixture.document, "success-root");
+  const successDialog = new FakeElement(fixture.document, "success-dialog");
+  const successClose = new FakeElement(fixture.document, "success-close");
+  successDialog.append(successClose);
+  successRoot.append(successDialog);
+  successDialog.querySelectorAll = () => [successClose];
+
+  const deactivateFinish = activateModalLifecycle({
+    root: fixture.root,
+    dialog: fixture.dialog,
+    shell: fixture.shell,
+    onClose: () => {}
+  });
+  fixture.confirm.focus();
+  const deactivateSuccess = activateModalLifecycle({
+    root: successRoot,
+    dialog: successDialog,
+    shell: fixture.shell,
+    onClose: () => {}
+  });
+
+  deactivateFinish();
+  fixture.confirm.isConnected = false;
+  assert.equal(fixture.shell.inert, true, "closing an underlying modal must keep the shell inert");
+  assert.equal(
+    fixture.document.activeElement,
+    successClose,
+    "closing an underlying modal must not steal focus from the topmost success modal"
+  );
+
+  deactivateSuccess();
+  await Promise.resolve();
+  assert.equal(fixture.shell.inert, false, "closing the final stacked modal should unlock the shell");
+  assert.equal(
+    fixture.document.activeElement,
+    fixture.opener,
+    "the topmost modal should inherit the underlying modal's background return target"
   );
 }
 

@@ -25,8 +25,12 @@ function focusableControls(dialog) {
   });
 }
 
+function isUsableFocusTarget(control) {
+  return Boolean(control && !control.disabled && !control.hidden && control.isConnected !== false);
+}
+
 function focusWithoutScroll(control) {
-  if (!control?.focus) return;
+  if (!isUsableFocusTarget(control) || !control.focus) return;
   try {
     control.focus({ preventScroll: true });
   } catch {
@@ -84,11 +88,14 @@ function equivalentOpener(description) {
   if (description.attributes.length) {
     const candidates = description.shell.querySelectorAll?.(description.tagName) || [];
     const match = [...candidates].find((candidate) =>
+      isUsableFocusTarget(candidate) &&
       description.attributes.every(([name, value]) => candidate.getAttribute?.(name) === value)
     );
     if (match) return match;
   }
-  return elementAtPath(description.shell, description.path);
+  const pathTarget = elementAtPath(description.shell, description.path);
+  if (isUsableFocusTarget(pathTarget)) return pathTarget;
+  return focusableControls(description.shell)[0] || null;
 }
 
 function lockShell(shell) {
@@ -124,8 +131,21 @@ export function activateModalLifecycle({
   const opener = documentRef?.activeElement || null;
   const openerDescription = describeOpener(opener, shell);
   let active = true;
+  let inheritedReturnTarget = null;
 
-  const entry = { document: documentRef, root };
+  const resolveReturnTarget = () => {
+    const ownTarget = isUsableFocusTarget(opener) ? opener : equivalentOpener(openerDescription);
+    return ownTarget || inheritedReturnTarget?.() || null;
+  };
+  const entry = {
+    document: documentRef,
+    opener,
+    resolveReturnTarget,
+    root,
+    setInheritedReturnTarget(resolver) {
+      inheritedReturnTarget = resolver;
+    }
+  };
   activeModals.push(entry);
   lockShell(shell);
 
@@ -179,12 +199,14 @@ export function activateModalLifecycle({
     const wasTopmost = topmostModal(documentRef) === entry;
     const index = activeModals.lastIndexOf(entry);
     if (index >= 0) activeModals.splice(index, 1);
+    const successor = topmostModal(documentRef);
+    if (!wasTopmost && successor && root.contains?.(successor.opener)) {
+      successor.setInheritedReturnTarget(resolveReturnTarget);
+    }
     documentRef?.removeEventListener?.("keydown", handleKeydown);
     root.removeEventListener?.("click", handleBackdropClick);
     unlockShell(shell);
     if (wasTopmost) {
-      const resolveReturnTarget = () =>
-        opener?.isConnected !== false ? opener : equivalentOpener(openerDescription);
       focusWithoutScroll(resolveReturnTarget());
       globalThis.queueMicrotask?.(() => {
         if (topmostModal(documentRef)) return;
