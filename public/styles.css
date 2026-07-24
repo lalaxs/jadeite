@@ -3837,9 +3837,13 @@ button:active:not(:disabled) { transform: scale(.95); }
     display: none;
   }
 
-  .shell[data-mobile-pane="side"] .sidepanel,
-  .shell[data-mobile-pane="chat"] .chatdock {
+  .shell[data-mobile-pane="side"] .sidepanel {
     display: block;
+  }
+
+  .shell[data-mobile-pane="chat"] .chatdock {
+    display: flex;
+    flex-direction: column;
   }
 
   .workshop-recipe-main,

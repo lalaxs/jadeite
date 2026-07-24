@@ -29,5 +29,9 @@ assert.match(css, /height:\s*100dvh/);
 assert.match(main, /function setMobileContentPane\b/);
 assert.match(main, /function setMobileResourcesOpen\b/);
 assert.match(main, /mobileResourcesToggle/);
+assert.match(
+  css,
+  /\.shell\[data-mobile-pane="chat"\] \.chatdock\s*\{\s*display:\s*flex;\s*flex-direction:\s*column;/
+);
 
 console.log("responsive-layout-smoke: desktop guards ok");
