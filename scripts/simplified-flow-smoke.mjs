@@ -198,6 +198,10 @@ if (!/OPENING_KIT_LIB/.test(main) || !/data-opening-kit-choice/.test(main) || !/
   throw new Error("main.js should use draggable reference opening kit templates on rough boards");
 }
 
+if (!/disabledReason/.test(workshopModule) || !/disabled/.test(workshopModule) || !/不兼容/.test(workshopModule)) {
+  throw new Error("finish-plan selectors should keep incompatible options visible, disabled, and explain why");
+}
+
 if (!/findSafeOpeningPosition/.test(main) || !/computeOpeningOverlaps/.test(main) || /offset \* 4/.test(main) || /offset \* 3/.test(main)) {
   throw new Error("new extraction templates should be dropped through safe reference-geometry placement, not tiny overlapping offsets");
 }

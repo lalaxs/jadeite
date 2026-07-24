@@ -271,6 +271,16 @@ assert.equal(buyEquipment(poorEquipmentPlayer, "rough", {
   makeId: () => "should-not-exist"
 }).ok, false);
 assert.equal(workshopDevicesForPlayer(poorEquipmentPlayer).length, poorDeviceCount);
+assert.equal(
+  consumeRequestId(equipmentPlayer, ""),
+  false,
+  "cash, inventory, or occupancy mutations must reject a missing request id"
+);
+assert.equal(
+  consumeRequestId(equipmentPlayer, null),
+  false,
+  "null request ids must not bypass mutation deduplication"
+);
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), true);
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), false);
 

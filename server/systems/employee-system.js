@@ -115,9 +115,14 @@ function newCandidateBatch(deps) {
 }
 
 export function ensureRecruitCandidates(player, deps) {
+  if (player.recruitCandidatesInitialized === true) {
+    if (!Array.isArray(player.recruitCandidates)) player.recruitCandidates = [];
+    return player.recruitCandidates;
+  }
   if (!Array.isArray(player.recruitCandidates) || player.recruitCandidates.length === 0) {
     player.recruitCandidates = newCandidateBatch(deps);
   }
+  player.recruitCandidatesInitialized = true;
   return player.recruitCandidates;
 }
 
@@ -135,6 +140,7 @@ export function refreshRecruitCandidates(player, { rng, makeId, spendCash }) {
     };
   }
   player.recruitCandidates = newCandidateBatch({ rng, makeId });
+  player.recruitCandidatesInitialized = true;
   return { ok: true, message: "候选人已经刷新。", candidates: player.recruitCandidates };
 }
 

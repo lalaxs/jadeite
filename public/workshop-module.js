@@ -1073,8 +1073,16 @@ function quoteFinishPlanForClient(item, plan) {
   };
 }
 
-function finishOptions(keys, labels, selected) {
-  return keys.map((key) => `<option value="${escapeHtml(key)}" ${key === selected ? "selected" : ""}>${escapeHtml(labels?.[key] || key)}</option>`).join("");
+function finishOptions(keys, labels, selected, {
+  enabledKeys = keys,
+  disabledReason = "当前组合不兼容"
+} = {}) {
+  const enabled = new Set(enabledKeys);
+  return keys.map((key) => {
+    const disabled = !enabled.has(key);
+    const reason = disabled ? `（${disabledReason}）` : "";
+    return `<option value="${escapeHtml(key)}" ${key === selected ? "selected" : ""} ${disabled ? `disabled title="${escapeHtml(disabledReason)}"` : ""}>${escapeHtml(labels?.[key] || key)}${escapeHtml(reason)}</option>`;
+  }).join("");
 }
 
 function closeFinishPlanModal() {
@@ -1163,6 +1171,9 @@ function renderFinishPlanModal() {
   const productTypes = catalog.productTypes?.[shape] || [];
   const settings = catalog.shapeSettings?.[shape] || [];
   const metals = catalog.settings?.[plan.settingId]?.metals || [];
+  const allProductTypes = Object.keys(catalog.productTypeNames || {});
+  const allSettings = Object.keys(catalog.settings || {});
+  const allMetals = Object.keys(catalog.metals || {});
   const materials = getState().me.externalMaterials || {};
   const metalHeld = plan.metalId ? Number(materials[plan.metalId] || 0) : 0;
   const gemHeld = plan.gemId ? Number(materials[plan.gemId] || 0) : 0;
@@ -1183,9 +1194,9 @@ function renderFinishPlanModal() {
       </header>
       <div class="game-modal-body">
         <div class="finish-plan-grid">
-          <label class="finish-plan-field"><span>成品类型</span><select data-finish-field="productType">${finishOptions(productTypes, catalog.productTypeNames, plan.productType)}</select></label>
-          <label class="finish-plan-field"><span>镶嵌方式</span><select data-finish-field="settingId">${finishOptions(settings, settingNames, plan.settingId)}</select></label>
-          <label class="finish-plan-field"><span>金属</span><select data-finish-field="metalId" ${metals.length ? "" : "disabled"}>${metals.length ? finishOptions(metals, catalog.metals, plan.metalId) : '<option value="">不使用金属</option>'}</select></label>
+          <label class="finish-plan-field"><span>成品类型</span><select data-finish-field="productType">${finishOptions(allProductTypes, catalog.productTypeNames, plan.productType, { enabledKeys: productTypes, disabledReason: "当前套件形态不兼容" })}</select></label>
+          <label class="finish-plan-field"><span>镶嵌方式</span><select data-finish-field="settingId">${finishOptions(allSettings, settingNames, plan.settingId, { enabledKeys: settings, disabledReason: "当前套件形态不兼容" })}</select></label>
+          <label class="finish-plan-field"><span>金属</span><select data-finish-field="metalId"><option value="" ${plan.metalId == null ? "selected" : ""} ${metals.length ? 'disabled title="当前镶法必须使用兼容金属"' : ""}>不使用金属${metals.length ? "（当前镶法不兼容）" : ""}</option>${finishOptions(allMetals, catalog.metals, plan.metalId, { enabledKeys: metals, disabledReason: "当前镶法不兼容" })}</select></label>
           <label class="finish-plan-field"><span>抛光</span><select data-finish-field="polishId">${finishOptions(Object.keys(catalog.polishes || {}), catalog.polishNames, plan.polishId)}</select></label>
           <label class="finish-plan-field"><span>配石</span><select data-finish-field="gemId"><option value="" ${plan.gemCount === 0 ? "selected" : ""}>不配石</option>${finishOptions(Object.keys(catalog.gems || {}), catalog.gems, plan.gemId)}</select></label>
           <label class="finish-plan-field"><span>配石数量</span><input data-finish-field="gemCount" type="number" min="0" max="12" step="1" value="${plan.gemCount}"></label>

@@ -46,11 +46,14 @@ The mobile implementation reuses the desktop DOM. The topbar, horizontal feature
 | Waiting production queue | Pass: none implemented or shown |
 | Equipment purchase, durability loss and repair | Pass |
 | Recruitment, paid refresh and 8-person cap | Pass |
+| Exhausted free recruit batch stays empty until paid refresh | Pass |
 | Worker busy state across workshop/live work | Pass |
 | Finishing plan compatibility and live quote | Pass |
+| Incompatible finishing options stay visible, disabled, with reasons | Pass |
 | Insufficient material/cash leaves state unchanged | Pass |
 | Finishing failure refunds jade and materials | Pass |
 | Successful finish persists full inlay metadata | Pass |
+| Missing or duplicate mutation request IDs are rejected | Pass |
 | Collection action and collection metadata | Pass |
 | Order product selector metadata | Pass |
 | Market listing metadata | Pass |
@@ -79,3 +82,6 @@ Covered suites: loop, auction, server-idle, tasks, equipment, employee, inlay, r
 - Override the chat input and navigation-item specificity conflicts to preserve 44px controls and horizontal labels.
 - Unmount the independent material picker after selection so its invisible cards cannot cover the workshop start button.
 - Preserve the collapsed stage-inventory drawer state across server renders so the collection action remains reachable.
+- Preserve an exhausted first recruit batch so new candidates require the explicit ¥500 refresh.
+- Reject missing mutation request IDs and require them on legacy workshop/live-sale compatibility events.
+- Keep incompatible product, setting and metal options visible but disabled with an explicit reason.

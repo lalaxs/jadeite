@@ -472,7 +472,7 @@ function spendCash(player, amount, note, meta = {}) {
 
 function consumeRequestId(player, requestId) {
   const id = String(requestId || "").trim();
-  if (!player || !id) return true;
+  if (!player || !id) return false;
   const key = player.id || player.name || "anonymous";
   const recent = recentRequestIdsByPlayer.get(key) || [];
   if (recent.includes(id)) return false;
@@ -2646,9 +2646,12 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("startPolish", (roughId) => {
+  socket.on("startPolish", ({ roughId, requestId } = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该开工请求缺少有效编号或已处理，请勿重复提交。");
+    }
     const result = startRoughOpeningForPlayer(player, roughId);
     if (!result.ok) return socket.emit("toast", result.message);
     addNews(`${player.name} 将 ${result.job.item.name} 安排到开料机。`, "craft");
@@ -2779,9 +2782,12 @@ io.on("connection", (socket) => {
     socket.emit("state", snapshotFor(getPlayer(socket)));
   });
 
-  socket.on("extractFromRough", ({ roughId, kits: rawKits, placements: rawPlacements }) => {
+  socket.on("extractFromRough", ({ roughId, kits: rawKits, placements: rawPlacements, requestId } = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该开工请求缺少有效编号或已处理，请勿重复提交。");
+    }
     normalizePlayer(player);
     const kits = normalizeExtractionKits(rawKits);
     const legacyKits = !kits.length && Array.isArray(rawPlacements)
@@ -2878,8 +2884,9 @@ io.on("connection", (socket) => {
     if (!player) return;
     const braceletId = typeof payload === "object" ? payload.productId || payload.braceletId : payload;
     const workerId = typeof payload === "object" ? payload.workerId : null;
-    if (typeof payload === "object" && !consumeRequestId(player, payload.requestId)) {
-      return socket.emit("toast", "该直播请求已处理，请勿重复提交。");
+    const requestId = typeof payload === "object" ? payload.requestId : null;
+    if (!consumeRequestId(player, requestId)) {
+      return socket.emit("toast", "该直播请求缺少有效编号或已处理，请勿重复提交。");
     }
     const sale = sellLivestreamNow(player, braceletId, Date.now(), workerId);
     if (!sale) return socket.emit("toast", playerCanLivestream(player) ? "没有空闲员工或找不到可直播成品。" : "先去交易行购买直播经营许可。");

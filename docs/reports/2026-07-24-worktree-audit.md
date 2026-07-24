@@ -68,5 +68,8 @@ The runtime uses canvas/SVG generation from code, and `npm run test:canvas` reje
 - Every equipment model and owned device has `capacity: 1`.
 - No waiting/production queue exists.
 - A worker can be occupied by only one workshop or livestream job.
+- The free recruit batch is generated once; an exhausted batch remains empty until a paid refresh.
+- Cash, inventory and occupancy mutations reject missing or duplicate request IDs.
 - Invalid finishing plans and insufficient resources have no partial side effects.
+- Incompatible finishing choices remain visible but disabled with a reason.
 - Repository-delivered screenshots and reports are intentional QA evidence.

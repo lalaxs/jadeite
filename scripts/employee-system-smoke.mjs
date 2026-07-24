@@ -70,4 +70,33 @@ assert.equal(
 );
 assert.equal(fullPlayer.cash, cashBeforeFullHire);
 
+const exhaustedPlayer = {
+  cash: 100000,
+  workshop: { workers: [] },
+  jobs: [],
+  livestreamJobs: []
+};
+assert.equal(
+  ensureRecruitCandidates(exhaustedPlayer, { rng, makeId }).length,
+  3,
+  "the first candidate batch should be generated for free"
+);
+for (const candidateId of exhaustedPlayer.recruitCandidates.map((item) => item.id)) {
+  assert.equal(recruitWorker(exhaustedPlayer, candidateId, { spendCash }).ok, true);
+}
+const exhaustedCash = exhaustedPlayer.cash;
+assert.equal(exhaustedPlayer.recruitCandidates.length, 0);
+assert.equal(
+  ensureRecruitCandidates(exhaustedPlayer, { rng, makeId }).length,
+  0,
+  "an exhausted free batch must not silently regenerate"
+);
+assert.equal(exhaustedPlayer.cash, exhaustedCash);
+assert.equal(
+  refreshRecruitCandidates(exhaustedPlayer, { rng, makeId, spendCash }).ok,
+  true
+);
+assert.equal(exhaustedPlayer.cash, exhaustedCash - 500);
+assert.equal(exhaustedPlayer.recruitCandidates.length, 3);
+
 console.log("employee-system-smoke: ok");

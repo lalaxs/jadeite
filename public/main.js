@@ -1903,7 +1903,11 @@ document.body.addEventListener("click", (event) => {
   if (action === "setWorkerSort") { workshopSetSort(target); return; }
 
   if (action === "extractFromRough") {
-    socket.emit("extractFromRough", { roughId: payload, kits: openingKitsForServer(payload) });
+    socket.emit("extractFromRough", {
+      roughId: payload,
+      kits: openingKitsForServer(payload),
+      requestId: globalThis.crypto?.randomUUID?.() || `extract-${Date.now()}`
+    });
     roughKits.set(payload, []);
     return;
   }
@@ -1914,7 +1918,10 @@ document.body.addEventListener("click", (event) => {
   }
 
   if (action === "startPolish") {
-    socket.emit("startPolish", payload);
+    socket.emit("startPolish", {
+      roughId: payload,
+      requestId: globalThis.crypto?.randomUUID?.() || `polish-${Date.now()}`
+    });
     return;
   }
 
