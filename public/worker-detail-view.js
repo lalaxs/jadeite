@@ -95,7 +95,10 @@ function skillCardsHtml(worker, step) {
         <span class="wsp-skill-lv">Lv.${level}</span>
       </div>
       <div class="wsp-skill-card-bar"><span class="wsp-bar"><i style="width:${pct}%"></i></span></div>
-      <div class="wsp-skill-card-foot"><span class="wsp-skill-exp">${current} / ${maximum}</span></div>
+      <div class="wsp-skill-card-foot">
+        <span class="wsp-skill-attr">${escapeHtml(definition.attr)} / ${definition.full}</span>
+        <span class="wsp-skill-exp">${current} / ${maximum}</span>
+      </div>
     </div>`;
   }).join("");
 }

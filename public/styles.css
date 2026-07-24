@@ -2016,9 +2016,10 @@
   font-size: 12px;
   font-weight: 700;
 }
-.recruit-detail-modal {
+.game-modal.recruit-detail-modal {
   position: relative;
   width: min(720px, 100%);
+  max-height: calc(100dvh - 36px);
   overflow: hidden;
 }
 .recruit-detail-close {
@@ -2028,7 +2029,9 @@
   z-index: 2;
 }
 .recruit-detail-modal .mode-recruit {
-  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  overscroll-behavior: contain;
   padding-top: 22px;
 }
 .recruit-detail-modal .wsp-pick-side-head {
@@ -3657,7 +3660,8 @@ button:active:not(:disabled) { transform: scale(.95); }
 .wsp-skill-lv { font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(48,166,105,.16); color: var(--jade-dark); }
 .wsp-skill-card-bar { width: 100%; display: block; }
 .wsp-skill-card-bar .wsp-bar { display: block; width: 100%; height: 10px; }
-.wsp-skill-card-foot { font-size: 12.5px; color: var(--muted); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.wsp-skill-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+.wsp-skill-attr { color: var(--jade-dark); text-align: left; }
 .flaw-chip { font-size: 14px; font-weight: 700; padding: 4px 13px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; line-height: 1.5; }
 .flaw-chip.pos { background: rgba(48,166,105,.16); color: var(--jade-dark); }
 .flaw-chip.neg { background: rgba(216,90,48,.16); color: #b9482a; }
@@ -4026,6 +4030,17 @@ button:active:not(:disabled) { transform: scale(.95); }
     max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 24px);
     overflow: auto;
+  }
+
+  .game-modal.recruit-detail-modal {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow: hidden;
+  }
+
+  .recruit-detail-modal .mode-recruit {
+    max-height: calc(100dvh - 24px);
   }
 
   .finish-plan-grid,

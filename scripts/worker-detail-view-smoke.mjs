@@ -55,6 +55,17 @@ assert.deepEqual(
 );
 assert.equal((workshopHtml.match(/class="wsp-skill-card /g) || []).length, 9);
 assert.equal((recruitHtml.match(/class="wsp-skill-card /g) || []).length, 9);
+for (const definition of Object.values(WORKER_SKILL_DEFS)) {
+  const renderedAttribute = `${definition.attr} / ${definition.full}`;
+  assert.ok(
+    workshopHtml.includes(`<span class="wsp-skill-attr">${renderedAttribute}</span>`),
+    `workshop detail should visibly render ${renderedAttribute}`
+  );
+  assert.ok(
+    recruitHtml.includes(`<span class="wsp-skill-attr">${renderedAttribute}</span>`),
+    `recruit detail should visibly render ${renderedAttribute}`
+  );
+}
 assert.match(workshopHtml, /净料/);
 assert.match(workshopHtml, /净料处理到位，减少脏点 \/ 棉絮。/);
 assert.match(recruitHtml, /手重/);
@@ -128,10 +139,25 @@ const extraSource = readFileSync("public/extra-module.js", "utf8");
 assert.match(extraSource, /data-action="openRecruitCandidateDetail"/);
 assert.match(extraSource, /if\s*\(!root\.querySelector\("\.recruit-detail-modal"\)\)/);
 assert.match(extraSource, /patchRecruitDetailView\(root,\s*\{/);
-assert.match(extraSource, /socketRef\.emit\("recruitWorker",[\s\S]*?,\s*\(result = \{\}\) =>/);
+assert.match(extraSource, /createRecruitDetailController\(\{/);
+assert.match(extraSource, /emit:\s*\(event, payload, acknowledge\) => socketRef\.emit\(event, payload, acknowledge\)/);
 
 const server = readFileSync("server.js", "utf8");
 assert.match(server, /socket\.on\("recruitWorker",\s*\(payload = \{\}, acknowledge\)/);
 assert.match(server, /typeof acknowledge === "function"/);
+
+const styles = readFileSync("public/styles.css", "utf8");
+assert.match(
+  styles,
+  /\.game-modal\.recruit-detail-modal\s*\{[^}]*width:\s*min\(720px,\s*100%\)[^}]*overflow:\s*hidden/
+);
+assert.match(
+  styles,
+  /\.recruit-detail-modal \.mode-recruit\s*\{[^}]*max-height:\s*calc\(100dvh - 36px\)[^}]*overflow:\s*auto/
+);
+assert.match(
+  styles,
+  /@media \(max-width: 767px\)[\s\S]*?\.game-modal\.recruit-detail-modal\s*\{[^}]*width:\s*calc\(100vw - 24px\)[^}]*overflow:\s*hidden/
+);
 
 console.log("worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok");
