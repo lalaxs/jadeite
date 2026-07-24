@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "npm run test:loop && npm run test:auction && npm run test:server-idle && npm run test:tasks && npm run test:equipment && npm run test:workshop-planner-ui && npm run test:employee && npm run test:worker-detail-view && npm run test:recruit-detail-controller && npm run test:inlay && npm run test:finish-plan-model && npm run test:finish-plan-controller && npm run test:rules && npm run test:renderer && npm run test:opening && npm run test:volume && npm run test:canvas && npm run test:flow && npm run test:ui && npm run test:ui-stability && npm run test:responsive",
+    "test": "npm run test:loop && npm run test:auction && npm run test:server-idle && npm run test:tasks && npm run test:equipment && npm run test:workshop-planner-ui && npm run test:employee && npm run test:worker-detail-view && npm run test:recruit-detail-controller && npm run test:inlay && npm run test:finish-plan-model && npm run test:finish-plan-controller && npm run test:rules && npm run test:renderer && npm run test:opening && npm run test:volume && npm run test:canvas && npm run test:flow && npm run test:ui && npm run test:ui-stability && npm run test:night-theme && npm run test:responsive",
     "test:loop": "node scripts/jade-loop-smoke.mjs",
     "test:auction": "node scripts/jade-auction-smoke.mjs",
     "test:server-idle": "node scripts/server-idle-smoke.mjs",
@@ -27,6 +27,7 @@
     "test:flow": "node scripts/simplified-flow-smoke.mjs",
     "test:ui": "node scripts/ui-overlay-smoke.mjs",
     "test:ui-stability": "node scripts/ui-stability-smoke.mjs",
+    "test:night-theme": "node scripts/night-theme-smoke.mjs",
     "test:responsive": "node scripts/responsive-layout-smoke.mjs"
   },
   "dependencies": {

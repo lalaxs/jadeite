@@ -47,6 +47,18 @@
   --font-num: "AlimamaFangYuan", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
+[data-theme="night"] {
+  --night-surface-1: #0c1b16;
+  --night-surface-2: #12251e;
+  --night-surface-3: #193229;
+  --night-text: #d7e4de;
+  --night-muted: #91a69c;
+  --night-primary: #246b51;
+  --panel: var(--night-surface-1);
+  --ink: var(--night-text);
+  --muted: var(--night-muted);
+}
+
 /* ============================================================
    白天模式（暖玉宣纸风）：米白/淡青底 + 墨绿描边 + 金色点缀
    高于基础规则优先级，仅在 <html data-theme="day"> 时生效
@@ -3783,6 +3795,161 @@ button:active:not(:disabled) { transform: scale(.95); }
 [data-theme="night"] .wsp-cs i { color: var(--jade-light); }
 [data-theme="night"] .wsp-tip { background: #07140f; color: #eafff5; border-color: rgba(255,255,255,.16); }
 [data-theme="night"] .wsp-tip::before { border-bottom-color: #07140f; }
+
+/* Night workshop/recruit surfaces: one late token layer wins over light component defaults. */
+[data-theme="night"] .ws-picker-modal,
+[data-theme="night"] .ws-planner-modal,
+[data-theme="night"] .game-modal,
+[data-theme="night"] .worker-detail-panel,
+[data-theme="night"] .recruit-candidate-card,
+[data-theme="night"] .ws-big-card,
+[data-theme="night"] .ws-picker-item,
+[data-theme="night"] .finish-plan-summary > div,
+[data-theme="night"] .finish-plan-stock,
+[data-theme="night"] .game-modal-line,
+[data-theme="night"] .game-modal-stat,
+[data-theme="night"] .wrs-plan-step {
+  color: var(--night-text);
+  background: var(--night-surface-2);
+  border-color: rgba(142, 178, 160, .24);
+  box-shadow: none;
+}
+
+[data-theme="night"] .recruit-candidate-card {
+  background-image: linear-gradient(160deg, rgba(42, 91, 70, .22), transparent 58%);
+}
+
+[data-theme="night"] .recruit-candidate-card .pill,
+[data-theme="night"] .recruit-skill-row span {
+  color: #a9d9c4;
+  background: #153d2e;
+}
+
+[data-theme="night"] .recruit-candidate-card > button {
+  color: #e4f1eb;
+  background: var(--night-primary);
+  border-color: #327f61;
+}
+
+[data-theme="night"] .ws-pick-worker,
+[data-theme="night"] .recruit-candidate-card {
+  background-color: var(--night-surface-2);
+  background-blend-mode: normal;
+}
+
+[data-theme="night"] .wsp-worker-top,
+[data-theme="night"] .recruit-card-head,
+[data-theme="night"] .ws-big-worker-top {
+  padding: 7px 8px;
+  border-radius: var(--r-sm);
+  background: rgba(4, 13, 10, .58);
+}
+
+[data-theme="night"] .wsp-pick-side-head {
+  border-radius: var(--r-sm);
+  background: rgba(4, 13, 10, .58);
+}
+
+[data-theme="night"] .recruit-card-head h3,
+[data-theme="night"] .wsp-worker-name,
+[data-theme="night"] .ws-big-worker-id strong,
+[data-theme="night"] .wsp-pick-side-id strong,
+[data-theme="night"] .wsp-head-text h3 {
+  color: var(--night-text);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+}
+
+[data-theme="night"] button.primary,
+[data-theme="night"] .main-nav-item.active {
+  color: #e4f1eb;
+  background: var(--night-primary);
+  border-color: #327f61;
+}
+
+[data-theme="night"] button.primary:hover,
+[data-theme="night"] .wsp-pick-side-foot .primary:hover {
+  color: #e4f1eb;
+  background: var(--night-primary);
+}
+
+[data-theme="night"] button.secondary,
+[data-theme="night"] .mobile-resources-toggle {
+  color: var(--night-text);
+  background: var(--night-surface-3);
+  border-color: rgba(142, 178, 160, .3);
+}
+
+[data-theme="night"] button.secondary:hover:not(:disabled),
+[data-theme="night"] .mobile-resources-toggle:hover {
+  color: var(--night-text);
+  background: var(--night-surface-3);
+  border-color: #327f61;
+}
+
+[data-theme="night"] button.secondary:disabled {
+  color: var(--night-muted);
+  background: var(--night-surface-1);
+  border-color: rgba(142, 178, 160, .18);
+}
+
+[data-theme="night"] .wsp-trait-row.pos,
+[data-theme="night"] .trait-chip,
+[data-theme="night"] .wsp-trait-chip.pos,
+[data-theme="night"] .flaw-chip.pos {
+  color: #a9d9c4;
+  background: #153d2e;
+  border-color: #2d6c52;
+}
+
+[data-theme="night"] .wsp-trait-row.neg,
+[data-theme="night"] .wsp-trait-chip.neg,
+[data-theme="night"] .flaw-chip.neg {
+  color: #e5ad9c;
+  background: #3b241e;
+  border-color: #78493b;
+}
+
+[data-theme="night"] .wsp-trait-row.muted,
+[data-theme="night"] .trait-chip.muted,
+[data-theme="night"] .wsp-trait-chip.muted,
+[data-theme="night"] .flaw-chip.muted {
+  color: var(--night-muted);
+  background: var(--night-surface-3);
+  border-color: rgba(142, 178, 160, .24);
+}
+
+[data-theme="night"] .finish-plan-warning {
+  color: #e7bd8e;
+  background: #3c2d1c;
+  border-color: #72532e;
+}
+
+[data-theme="night"] .finish-plan-summary strong.pos {
+  color: #a9d9c4;
+}
+
+[data-theme="night"] .finish-plan-summary strong.neg {
+  color: #e5ad9c;
+}
+
+[data-theme="night"] .wrs-plan-step.is-ready {
+  border-color: #2d6c52;
+}
+
+[data-theme="night"] .worker-avatar {
+  color: #b9d8ca;
+  background: #24463a;
+}
+
+[data-theme="night"] .ws-picker-close:hover,
+[data-theme="night"] .wsp-tier-badge {
+  color: var(--night-text);
+}
+
+[data-theme="night"] .wsp-toolbar-btn.is-active {
+  color: var(--night-text);
+  background: var(--night-primary);
+}
 
 /* Desktop correction layer: preserve the existing regions and make each one own its overflow. */
 @media (min-width: 768px) {
