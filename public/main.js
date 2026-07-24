@@ -1501,16 +1501,12 @@ function renderOverview() {
       { id: "cash", label: "现金榜" },
       { id: "inventory", label: "库存榜" }
     ];
-    els.homeStatusPane.innerHTML = `
-      ${currentGoalHtml()}
-      <h1 class="status-title">状态</h1>
-      <div class="rank-pills">
-        ${rankBoards.map((b) => `<span class="rank-pill">${escapeHtml(b.label)} 第 ${myRankFor(b.id) ?? "—"} 名</span>`).join("")}
-      </div>
-      <div class="status-rows">
-        ${statusRows().join("")}
-      </div>
-    `;
+    const { goalSlot, ranksSlot, rowsSlot } = ensureOverviewStatusShell();
+    patchCurrentGoal(goalSlot, currentGoalViewModel());
+    ranksSlot.innerHTML = rankBoards.map((board) =>
+      `<span class="rank-pill">${escapeHtml(board.label)} 第 ${myRankFor(board.id) ?? "—"} 名</span>`
+    ).join("");
+    rowsSlot.innerHTML = statusRows().join("");
   }
   if (els.homeTaskPane) {
     renderTasks();
@@ -1542,18 +1538,79 @@ function goalFmt(g, v) {
   if (g.id === "rep3") return `Lv.${v} / ${g.target}`;
   return `${v} / ${g.target}`;
 }
-function currentGoalHtml() {
+function currentGoalViewModel() {
   const { me } = state;
-  const next = GOALS.find((g) => Math.min(g.target, g.prog(me)) < g.target);
-  if (!next) return `<div class="goal-card is-done"><div class="goal-head"><span class="goal-label">当前目标</span><b>全部达成</b></div><div class="goal-desc">江湖路远，去公盘再淘块好料吧！</div></div>`;
-  const cur = Math.min(next.target, next.prog(me));
-  const pct = Math.round((cur / next.target) * 100);
-  return `<div class="goal-card">
-    <div class="goal-head"><span class="goal-label">当前目标</span><b>${escapeHtml(next.title)}</b></div>
-    <div class="goal-desc">${escapeHtml(next.desc)}</div>
-    <div class="goal-bar"><i style="width:${pct}%"></i></div>
-    <div class="goal-prog">${goalFmt(next, cur)} · ${pct}%</div>
-  </div>`;
+  const next = GOALS.find((goal) => Math.min(goal.target, goal.prog(me)) < goal.target);
+  if (!next) {
+    return {
+      id: "all-done",
+      title: "全部达成",
+      desc: "江湖路远，去公盘再淘块好料吧！",
+      progressText: "",
+      pct: 100,
+      done: true
+    };
+  }
+  const current = Math.min(next.target, next.prog(me));
+  const pct = Math.round((current / next.target) * 100);
+  return {
+    id: next.id,
+    title: next.title,
+    desc: next.desc,
+    progressText: `${goalFmt(next, current)} · ${pct}%`,
+    pct,
+    done: false
+  };
+}
+function goalCardHtml(model) {
+  return `
+    <div class="goal-card is-entering ${model.done ? "is-done" : ""}">
+      <div class="goal-head"><span class="goal-label">当前目标</span><b data-goal-title>${escapeHtml(model.title)}</b></div>
+      <div class="goal-desc" data-goal-desc>${escapeHtml(model.desc)}</div>
+      <div class="goal-bar" ${model.done ? "hidden" : ""}><i data-goal-bar style="width:${model.pct}%"></i></div>
+      <div class="goal-prog" data-goal-progress ${model.done ? "hidden" : ""}>${escapeHtml(model.progressText)}</div>
+    </div>
+  `;
+}
+function ensureOverviewStatusShell() {
+  if (!els.homeStatusPane) return {};
+  let goalSlot = els.homeStatusPane.querySelector('[data-overview-slot="goal"]');
+  if (!goalSlot) {
+    els.homeStatusPane.innerHTML = `
+      <div data-overview-slot="goal"></div>
+      <h1 class="status-title">状态</h1>
+      <div class="rank-pills" data-overview-slot="ranks"></div>
+      <div class="status-rows" data-overview-slot="rows"></div>
+    `;
+    goalSlot = els.homeStatusPane.querySelector('[data-overview-slot="goal"]');
+  }
+  return {
+    goalSlot,
+    ranksSlot: els.homeStatusPane.querySelector('[data-overview-slot="ranks"]'),
+    rowsSlot: els.homeStatusPane.querySelector('[data-overview-slot="rows"]')
+  };
+}
+function patchCurrentGoal(goalSlot, model) {
+  if (!goalSlot) return;
+  const currentId = goalSlot.dataset.goalId;
+  if (currentId !== model.id || !goalSlot.querySelector(".goal-card")) {
+    goalSlot.dataset.goalId = model.id;
+    goalSlot.innerHTML = goalCardHtml(model);
+    goalSlot.querySelector(".goal-card")?.addEventListener("animationend", (event) => {
+      event.currentTarget.classList.remove("is-entering");
+    }, { once: true });
+    return;
+  }
+  const card = goalSlot.querySelector(".goal-card");
+  card.classList.toggle("is-done", model.done);
+  card.querySelector("[data-goal-title]").textContent = model.title;
+  card.querySelector("[data-goal-desc]").textContent = model.desc;
+  const bar = card.querySelector(".goal-bar");
+  const progress = card.querySelector("[data-goal-progress]");
+  bar.hidden = model.done;
+  progress.hidden = model.done;
+  card.querySelector("[data-goal-bar]").style.width = `${model.pct}%`;
+  progress.textContent = model.progressText;
 }
 function achievementsHtml() {
   const { me } = state;

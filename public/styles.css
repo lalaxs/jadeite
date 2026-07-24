@@ -2941,8 +2941,8 @@
   border: 1px solid rgba(70,135,108,.5);
   border-radius: var(--r-md);
   padding: 14px 16px; margin-bottom: 14px;
-  animation: cardIn .45s ease both;
 }
+.goal-card.is-entering { animation: cardIn .45s ease both; }
 .goal-card.is-done { background: linear-gradient(135deg, rgba(218,184,92,.18), rgba(18,43,35,.55)); border-color: rgba(222,184,92,.5); }
 .goal-head { display: flex; align-items: baseline; gap: 8px; }
 .goal-label { font-size: 11px; color: var(--muted); letter-spacing: .12em; }
@@ -2973,6 +2973,13 @@ button:active:not(:disabled) { transform: scale(.95); }
 
 /* 尊重系统"减少动效"偏好 */
 @media (prefers-reduced-motion: reduce) {
+  .goal-card.is-entering,
+  .ws-picker-overlay,
+  .ws-picker-modal,
+  .game-modal {
+    animation: none !important;
+    transition: none !important;
+  }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
 

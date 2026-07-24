@@ -726,8 +726,8 @@ const renderOverviewBody = extractFunctionBody(main, "renderOverview");
 if (/rank-row|news-row|playersList|newsList/.test(renderOverviewBody)) {
   throw new Error("renderOverview should not render the old broad ranking or news panels");
 }
-if (!/homeStatusPane\.innerHTML/.test(renderOverviewBody) || !/rank-pills/.test(renderOverviewBody) || !/status-rows/.test(renderOverviewBody)) {
-  throw new Error("renderOverview should render ranking and operating status in the status pane");
+if (!/ensureOverviewStatusShell\(\)/.test(renderOverviewBody) || !/patchCurrentGoal\(/.test(renderOverviewBody) || !/ranksSlot\.innerHTML/.test(renderOverviewBody) || !/rowsSlot\.innerHTML/.test(renderOverviewBody)) {
+  throw new Error("renderOverview should patch ranking and operating status in the stable status shell");
 }
 if (!/renderHomeMessages\(\)/.test(renderOverviewBody)) {
   throw new Error("renderOverview should refresh the persistent play log");
