@@ -4110,6 +4110,7 @@ button:active:not(:disabled) { transform: scale(.95); }
     position: relative;
     display: flex;
     flex-direction: column;
+    flex-wrap: nowrap;
     min-width: 0;
     max-height: none;
     padding: max(8px, env(safe-area-inset-top)) 5px max(8px, env(safe-area-inset-bottom));
