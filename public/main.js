@@ -124,6 +124,7 @@ const OPENING_KIT_BY_SERVER_TYPE = Object.fromEntries(
 
 
 const els = {
+  shell: document.querySelector(".shell"),
   sidebarStatus: document.querySelector("#sidebarStatus"),
   locationCards: document.querySelector("#locationCards"),
   messageChannelTabs: document.querySelector("#messageChannelTabs"),
@@ -177,6 +178,7 @@ const els = {
   modalRoot: document.querySelector("#modalRoot"),
   toast: document.querySelector("#toast"),
   topHud: document.querySelector("#topHud"),
+  mobileResourcesToggle: document.querySelector("#mobileResourcesToggle"),
   playerCard: document.querySelector("#playerCard"),
   chatInput: document.querySelector("#chatInput"),
   chatSend: document.querySelector("#chatSend"),
@@ -1173,6 +1175,7 @@ function roughPlannerControls(rough) {
 // 玩法底图已移除：用户要求不使用图片底图，整页改用浅玉渐变背景。
 
 function setView(view) {
+  setMobileContentPane("main");
   activeView = view;
   document.querySelectorAll(".view").forEach((node) => node.classList.toggle("active", node.dataset.view === view));
   document.querySelectorAll(".location-card").forEach((node) => node.classList.toggle("active", node.dataset.location === view));
@@ -1185,30 +1188,50 @@ function setView(view) {
   if (els.mainStage) els.mainStage.scrollTop = 0;
 }
 
+let mobileContentPane = "main";
+
+function setMobileResourcesOpen(open) {
+  const expanded = Boolean(open) && window.matchMedia("(max-width: 767px)").matches;
+  els.topHud?.classList.toggle("is-mobile-open", expanded);
+  els.mobileResourcesToggle?.setAttribute("aria-expanded", String(expanded));
+}
+
+function setMobileContentPane(name = "main") {
+  const next = ["main", "side", "chat"].includes(name) ? name : "main";
+  mobileContentPane = next;
+  els.shell?.setAttribute("data-mobile-pane", next);
+  els.sidePanelToggle?.setAttribute("aria-expanded", String(next === "side"));
+  els.chatDockToggle?.setAttribute("aria-expanded", String(next === "chat"));
+  setMobileResourcesOpen(false);
+}
+
 function toggleMobilePanel(targetName) {
-  const target = targetName === "side" ? els.sidePanel : els.chatDock;
-  const targetButton = targetName === "side"
-    ? els.sidePanelToggle
-    : els.chatDockToggle;
-  const shouldOpen = !target?.classList.contains("is-mobile-open");
+  const next = targetName === "side" ? "side" : "chat";
+  setMobileContentPane(mobileContentPane === next ? "main" : next);
+}
 
-  for (const [panel, button] of [
-    [els.sidePanel, els.sidePanelToggle],
-    [els.chatDock, els.chatDockToggle]
-  ]) {
-    panel?.classList.remove("is-mobile-open");
-    button?.setAttribute("aria-expanded", "false");
-  }
-
-  if (shouldOpen) {
-    target?.classList.add("is-mobile-open");
-    targetButton?.setAttribute("aria-expanded", "true");
-  }
+function closeMobileTransientUi() {
+  setMobileResourcesOpen(false);
+  setMobileContentPane("main");
 }
 
 function initShell() {
   setView(activeView);
   renderMainNav();
+  els.mobileResourcesToggle?.addEventListener("click", () => {
+    const open = els.mobileResourcesToggle.getAttribute("aria-expanded") !== "true";
+    setMobileResourcesOpen(open);
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (
+      els.topHud?.classList.contains("is-mobile-open")
+      && !els.topHud.contains(event.target)
+      && !els.mobileResourcesToggle?.contains(event.target)
+    ) {
+      setMobileResourcesOpen(false);
+    }
+  });
+  window.addEventListener("popstate", closeMobileTransientUi);
   els.sidePanelToggle?.addEventListener("click", () => {
     toggleMobilePanel("side");
   });
@@ -1274,13 +1297,7 @@ function initShell() {
   }
   window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
     if (!event.matches) return;
-    for (const [panel, button] of [
-      [els.sidePanel, els.sidePanelToggle],
-      [els.chatDock, els.chatDockToggle]
-    ]) {
-      panel?.classList.remove("is-mobile-open");
-      button?.setAttribute("aria-expanded", "false");
-    }
+    closeMobileTransientUi();
   });
   // 顶栏时钟/公盘倒计时 + 右侧进行事项面板 每秒刷新
   setInterval(() => {
@@ -1963,9 +1980,9 @@ document.body.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && els.modalRoot && !els.modalRoot.hidden) {
-    closeGameModal();
-  }
+  if (event.key !== "Escape") return;
+  setMobileResourcesOpen(false);
+  if (els.modalRoot && !els.modalRoot.hidden) closeGameModal();
 });
 
 if (els.saveNameBtn && els.nameInput) {

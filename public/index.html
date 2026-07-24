@@ -15,6 +15,13 @@
       <!-- 顶栏：独占整行；内部「个人信息卡」与「资源栏卡」为两个独立卡片 -->
       <header class="topbar">
         <div class="player-card" id="playerCard" aria-label="掌柜信息"></div>
+        <button
+          id="mobileResourcesToggle"
+          class="mobile-resources-toggle"
+          type="button"
+          aria-controls="topHud"
+          aria-expanded="false"
+        >资源</button>
         <div class="top-hud" id="topHud" aria-label="资源信息"></div>
         <div class="topbar-right">
           <button class="theme-toggle" id="themeToggle" type="button" title="切换昼夜模式" aria-label="切换昼夜模式"></button>
@@ -24,6 +31,12 @@
       <!-- 左导航：仅用于功能切换 -->
       <aside class="sidebar">
         <nav class="main-nav" id="mainNav" aria-label="功能导航"></nav>
+        <nav class="mobile-utility-tabs" aria-label="移动端事项与消息">
+          <button id="sidePanelToggle" class="mobile-panel-toggle" type="button"
+            aria-controls="sidePanel" aria-expanded="false">事项</button>
+          <button id="chatDockToggle" class="mobile-panel-toggle" type="button"
+            aria-controls="chatDock" aria-expanded="false">消息</button>
+        </nav>
       </aside>
 
       <section class="main-stage" id="mainStage">
@@ -267,22 +280,6 @@
           <button id="chatSend" type="button">发送</button>
         </div>
       </footer>
-      <nav class="mobile-dock-controls" aria-label="移动端快捷面板">
-        <button
-          id="sidePanelToggle"
-          class="mobile-panel-toggle"
-          type="button"
-          aria-controls="sidePanel"
-          aria-expanded="false"
-        >进行事项</button>
-        <button
-          id="chatDockToggle"
-          class="mobile-panel-toggle"
-          type="button"
-          aria-controls="chatDock"
-          aria-expanded="false"
-        >消息</button>
-      </nav>
     </main>
     <div class="jm-modal-root" id="marketListModal" hidden>
       <div class="jm-modal">

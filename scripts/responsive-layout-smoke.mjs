@@ -20,4 +20,14 @@ assert.match(main, /function toggleMobilePanel/);
 assert.match(html, /id="sidePanelToggle"/);
 assert.match(html, /id="chatDockToggle"/);
 
+assert.match(html, /id="mobileResourcesToggle"/);
+assert.match(html, /class="mobile-utility-tabs"/);
+assert.match(css, /\.shell\[data-mobile-pane="side"\]/);
+assert.match(css, /\.shell\[data-mobile-pane="chat"\]/);
+assert.match(css, /grid-template-columns:\s*66px\s+minmax\(0,\s*1fr\)/);
+assert.match(css, /height:\s*100dvh/);
+assert.match(main, /function setMobileContentPane\b/);
+assert.match(main, /function setMobileResourcesOpen\b/);
+assert.match(main, /mobileResourcesToggle/);
+
 console.log("responsive-layout-smoke: desktop guards ok");
