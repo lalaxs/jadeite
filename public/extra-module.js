@@ -9,10 +9,12 @@ import {
 } from "./worker-detail-view.js";
 import { patchRecruitDetailView } from "./recruit-detail-dom.js";
 import { createRecruitDetailController } from "./recruit-detail-controller.js";
+import { activateModalLifecycle } from "./modal-lifecycle.js";
 
 let socketRef, getState, elsRef, getActiveView;
 let activeShopTab = "building";
 let recruitDetailController = null;
+let recruitModalLifecycleCleanup = null;
 
 let currentReportSummary, formatMoney, escapeHtml, empty, productCanvas, formatNumber;
 
@@ -25,7 +27,11 @@ export function initExtraModule(deps) {
   recruitDetailController = createRecruitDetailController({
     mount: mountRecruitDetailShell,
     patch: patchRecruitCandidateDetail,
-    unmount: (root) => root?.remove(),
+    unmount: (root) => {
+      recruitModalLifecycleCleanup?.();
+      recruitModalLifecycleCleanup = null;
+      root?.remove();
+    },
     emit: (event, payload, acknowledge) => socketRef.emit(event, payload, acknowledge),
     createRequestId: () => globalThis.crypto?.randomUUID?.() || `recruit-${Date.now()}`
   });
@@ -202,6 +208,13 @@ function mountRecruitDetailShell() {
       <div data-recruit-detail-body></div>
     </section>`;
   }
+  recruitModalLifecycleCleanup?.();
+  recruitModalLifecycleCleanup = activateModalLifecycle({
+    root,
+    dialog: root.querySelector('[role="dialog"]'),
+    shell: document.querySelector(".shell"),
+    onClose: closeRecruitCandidateDetail
+  });
   return root;
 }
 

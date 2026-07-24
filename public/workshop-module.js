@@ -10,6 +10,8 @@ import {
   patchFinishPlanSelectOptions,
   preserveFinishPlanUiState
 } from "./finish-plan-dom.js";
+import { activateModalLifecycle } from "./modal-lifecycle.js";
+import { patchPlannerBody } from "./planner-dom.js";
 import {
   WORKER_SKILL_DEFS,
   renderWorkerDetailPanel
@@ -29,6 +31,8 @@ let activeWorkerSort = "default"; // 选工弹窗列表排序：default=品阶�
 let activeKitPlanner = null;
 let activeFinishPlanModal = null;
 let finishPlanController = null;
+let plannerModalLifecycleCleanup = null;
+let finishModalLifecycleCleanup = null;
 let stageDrawerOpen = false;
 const finishPlanPreviewMarkupCache = new WeakMap();
 let formatMoney, formatDuration, escapeHtml, empty, nowMs, typeName, materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer, roughKits, paintJades, showToast, productionJobsFor;
@@ -41,7 +45,11 @@ export function initWorkshopModule(deps) {
   finishPlanController = createFinishPlanModalController({
     mount: mountFinishPlanShell,
     patch: patchFinishPlanModal,
-    unmount: () => document.getElementById("finish-plan-root")?.remove(),
+    unmount: (root) => {
+      finishModalLifecycleCleanup?.();
+      finishModalLifecycleCleanup = null;
+      root?.remove();
+    },
     emit: (payload, acknowledge) => socketRef.emit("startWorkshopJob", payload, acknowledge),
     createRequestId: () => globalThis.crypto?.randomUUID?.() || `workshop-${Date.now()}`,
     onActiveChange: (modal) => {
@@ -699,7 +707,7 @@ function plannerRootEl() {
   root.id = "ws-planner-root";
   root.className = "ws-picker-overlay";
   root.addEventListener("click", (event) => {
-    if (event.target === root || event.target.closest('[data-planner-action="cancel"]')) {
+    if (event.target.closest('[data-planner-action="cancel"]')) {
       workshopClosePlanner(false);
       return;
     }
@@ -749,6 +757,13 @@ export function workshopOpenPlanner(payload) {
   };
   const root = plannerRootEl();
   root.innerHTML = buildPlannerShell(device, item);
+  plannerModalLifecycleCleanup?.();
+  plannerModalLifecycleCleanup = activateModalLifecycle({
+    root,
+    dialog: root.querySelector('[role="dialog"]'),
+    shell: document.querySelector(".shell"),
+    onClose: () => workshopClosePlanner(false)
+  });
   workshopRefreshPlanner(item.id);
 }
 
@@ -758,27 +773,36 @@ export function workshopRefreshPlanner(roughId) {
   const body = document.querySelector("#ws-planner-root [data-planner-body]");
   if (!item) {
     activeKitPlanner = null;
+    plannerModalLifecycleCleanup?.();
+    plannerModalLifecycleCleanup = null;
     document.getElementById("ws-planner-root")?.remove();
     return;
   }
   if (!body) return;
   const kits = kitsFor(roughId);
-  body.innerHTML = `
+  const markup = `
     <div class="ws-planner-canvas">${roughBoard(item)}</div>
     <div class="ws-planner-tools">
       ${roughPlannerControls(item)}
       ${placementAnalysisRows(item, kits)}
     </div>
   `;
-  paintJades();
+  patchPlannerBody(body, markup, paintJades);
 }
 
 export function workshopClosePlanner(commit = false) {
-  if (!activeKitPlanner) return;
+  if (!activeKitPlanner) {
+    plannerModalLifecycleCleanup?.();
+    plannerModalLifecycleCleanup = null;
+    document.getElementById("ws-planner-root")?.remove();
+    return;
+  }
   if (!commit) {
     roughKits.set(activeKitPlanner.itemId, structuredClone(activeKitPlanner.originalKits));
   }
   activeKitPlanner = null;
+  plannerModalLifecycleCleanup?.();
+  plannerModalLifecycleCleanup = null;
   document.getElementById("ws-planner-root")?.remove();
   renderWorkshop();
 }
@@ -1100,10 +1124,7 @@ function finishRootEl() {
   root.addEventListener("click", (event) => {
     const actionTarget = event.target.closest("[data-finish-action]");
     const action = actionTarget?.dataset.finishAction;
-    if (!action) {
-      if (event.target === root) closeFinishPlanModal();
-      return;
-    }
+    if (!action) return;
     if (action === "close") closeFinishPlanModal();
     else if (action === "confirm") confirmFinishPlan();
   });
@@ -1171,6 +1192,13 @@ function mountFinishPlanShell() {
       </footer>
     </section>
   `;
+  finishModalLifecycleCleanup?.();
+  finishModalLifecycleCleanup = activateModalLifecycle({
+    root,
+    dialog: root.querySelector('[role="dialog"]'),
+    shell: document.querySelector(".shell"),
+    onClose: closeFinishPlanModal
+  });
   return root;
 }
 
