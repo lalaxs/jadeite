@@ -6,6 +6,7 @@ const {
   normalizePlayer,
   spendCash,
   consumeRequestId,
+  normalizeMutationPayload,
   earnCash,
   settleOfflinePlayer,
   enterAuctionForPlayer,
@@ -280,6 +281,16 @@ assert.equal(
   consumeRequestId(equipmentPlayer, null),
   false,
   "null request ids must not bypass mutation deduplication"
+);
+assert.deepEqual(
+  normalizeMutationPayload(null),
+  {},
+  "null socket payloads must be normalized before handler destructuring"
+);
+assert.deepEqual(
+  normalizeMutationPayload("legacy-id"),
+  {},
+  "legacy scalar payloads must be rejected safely instead of being read as objects"
 );
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), true);
 assert.equal(consumeRequestId(equipmentPlayer, "equipment-request-1"), false);

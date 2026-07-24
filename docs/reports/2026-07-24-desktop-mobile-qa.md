@@ -84,4 +84,5 @@ Covered suites: loop, auction, server-idle, tasks, equipment, employee, inlay, r
 - Preserve the collapsed stage-inventory drawer state across server renders so the collection action remains reachable.
 - Preserve an exhausted first recruit batch so new candidates require the explicit ¥500 refresh.
 - Reject missing mutation request IDs and require them on legacy workshop/live-sale compatibility events.
+- Normalize null and scalar compatibility-event payloads before validation so malformed network input is rejected without an exception.
 - Keep incompatible product, setting and metal options visible but disabled with an explicit reason.

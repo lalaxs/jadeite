@@ -1073,7 +1073,7 @@ function quoteFinishPlanForClient(item, plan) {
   };
 }
 
-function finishOptions(keys, labels, selected, {
+export function finishOptions(keys, labels, selected, {
   enabledKeys = keys,
   disabledReason = "当前组合不兼容"
 } = {}) {

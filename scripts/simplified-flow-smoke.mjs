@@ -1,5 +1,37 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { inlaySummary } from "../public/product-meta.js";
+import {
+  finishOptions,
+  initWorkshopModule
+} from "../public/workshop-module.js";
+
+initWorkshopModule({
+  socket: null,
+  getState: () => ({}),
+  els: {},
+  helpers: {
+    escapeHtml: (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;")
+  }
+});
+
+const incompatibleOptions = finishOptions(
+  ["ring", "bracelet"],
+  { ring: "戒指", bracelet: "手链" },
+  "ring",
+  { enabledKeys: ["ring"], disabledReason: "当前套件形态不兼容" }
+);
+if (
+  !/value="ring"[^>]*selected/.test(incompatibleOptions)
+  || !/value="bracelet"[^>]*disabled/.test(incompatibleOptions)
+  || !/手链（当前套件形态不兼容）/.test(incompatibleOptions)
+) {
+  throw new Error("finishOptions should render incompatible choices as visible, disabled options with reasons");
+}
 
 const sampleInlaySummary = inlaySummary({
   inlay: {
@@ -198,8 +230,10 @@ if (!/OPENING_KIT_LIB/.test(main) || !/data-opening-kit-choice/.test(main) || !/
   throw new Error("main.js should use draggable reference opening kit templates on rough boards");
 }
 
-if (!/disabledReason/.test(workshopModule) || !/disabled/.test(workshopModule) || !/不兼容/.test(workshopModule)) {
-  throw new Error("finish-plan selectors should keep incompatible options visible, disabled, and explain why");
+for (const eventName of ["startPolish", "extractFromRough", "livestreamSell"]) {
+  if (!/normalizeMutationPayload/.test(extractSocketHandlerBody(server, eventName))) {
+    throw new Error(`${eventName} should normalize null or scalar payloads before reading fields`);
+  }
 }
 
 if (!/findSafeOpeningPosition/.test(main) || !/computeOpeningOverlaps/.test(main) || /offset \* 4/.test(main) || /offset \* 3/.test(main)) {

@@ -481,6 +481,12 @@ function consumeRequestId(player, requestId) {
   return true;
 }
 
+function normalizeMutationPayload(payload) {
+  return payload && typeof payload === "object" && !Array.isArray(payload)
+    ? payload
+    : {};
+}
+
 function earnCash(player, amount, note, meta = {}) {
   const income = money(amount);
   player.cash += income;
@@ -2646,9 +2652,10 @@ io.on("connection", (socket) => {
     broadcast();
   });
 
-  socket.on("startPolish", ({ roughId, requestId } = {}) => {
+  socket.on("startPolish", (rawPayload) => {
     const player = getPlayer(socket);
     if (!player) return;
+    const { roughId, requestId } = normalizeMutationPayload(rawPayload);
     if (!consumeRequestId(player, requestId)) {
       return socket.emit("toast", "该开工请求缺少有效编号或已处理，请勿重复提交。");
     }
@@ -2782,9 +2789,15 @@ io.on("connection", (socket) => {
     socket.emit("state", snapshotFor(getPlayer(socket)));
   });
 
-  socket.on("extractFromRough", ({ roughId, kits: rawKits, placements: rawPlacements, requestId } = {}) => {
+  socket.on("extractFromRough", (rawPayload) => {
     const player = getPlayer(socket);
     if (!player) return;
+    const {
+      roughId,
+      kits: rawKits,
+      placements: rawPlacements,
+      requestId
+    } = normalizeMutationPayload(rawPayload);
     if (!consumeRequestId(player, requestId)) {
       return socket.emit("toast", "该开工请求缺少有效编号或已处理，请勿重复提交。");
     }
@@ -2882,9 +2895,10 @@ io.on("connection", (socket) => {
   socket.on("livestreamSell", (payload) => {
     const player = getPlayer(socket);
     if (!player) return;
-    const braceletId = typeof payload === "object" ? payload.productId || payload.braceletId : payload;
-    const workerId = typeof payload === "object" ? payload.workerId : null;
-    const requestId = typeof payload === "object" ? payload.requestId : null;
+    const mutation = normalizeMutationPayload(payload);
+    const braceletId = mutation.productId || mutation.braceletId;
+    const workerId = mutation.workerId || null;
+    const requestId = mutation.requestId;
     if (!consumeRequestId(player, requestId)) {
       return socket.emit("toast", "该直播请求缺少有效编号或已处理，请勿重复提交。");
     }
@@ -3216,6 +3230,7 @@ export const __testHooks = {
   recordLedger,
   spendCash,
   consumeRequestId,
+  normalizeMutationPayload,
   earnCash,
   holdDeposit,
   releaseDeposit,
