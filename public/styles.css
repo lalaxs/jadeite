@@ -81,6 +81,18 @@
   --jade-soft: rgba(31,138,91,.16);
 }
 
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 白天模式：主要表面覆盖（基础规则用硬编码色，这里用主题变量重设） */
 [data-theme="day"] body { background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%); }
 [data-theme="day"] .sidebar { background: var(--surface); border-right-color: rgba(180,170,140,.22); }
@@ -3377,8 +3389,14 @@ button:active:not(:disabled) { transform: scale(.95); }
 .ws-big-card.empty { align-items: center; justify-content: center; min-height: 260px; border-style: dashed; }
 .ws-big-plus { font-size: 46px; line-height: 1; color: var(--jade); opacity: .55; }
 .ws-big-label { font-size: 15px; font-weight: 700; color: var(--muted); }
-.ws-big-material > .rough-output-preview,
-.ws-big-material > .workshop-product-preview { width: 100%; max-width: 220px; margin: 0 auto; }
+.ws-big-material > .rough-output-preview { width: 100%; max-width: 220px; margin: 0 auto; }
+.ws-big-material > .workshop-product-preview {
+  width: min(100%, 220px);
+  height: auto;
+  max-width: 220px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
 .ws-big-meta { display: grid; gap: 2px; text-align: center; }
 .ws-big-meta strong { font-size: 15px; }
 .ws-big-meta em { font-style: normal; color: var(--muted); font-size: 12px; }

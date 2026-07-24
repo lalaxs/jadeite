@@ -1226,6 +1226,7 @@ function mountFinishPlanShell() {
         <button class="modal-close" data-finish-action="close" type="button" aria-label="关闭">×</button>
       </header>
       <div class="game-modal-body">
+        <div class="workshop-product-preview finish-plan-item-preview" data-finish-item-preview></div>
         <div class="finish-plan-grid">
           <label class="finish-plan-field"><span>成品类型</span><select data-finish-field="productType"></select></label>
           <label class="finish-plan-field"><span>镶嵌方式</span><select data-finish-field="settingId"></select></label>
@@ -1268,6 +1269,7 @@ function patchFinishPlanModal() {
 function patchFinishPlanModalFields(root, item) {
   const catalog = finishCatalog();
   const { shape, draft } = activeFinishPlanModal;
+  patchFinishPlanPreview(root, item);
   normalizeFinishPlanDraft(shape, draft, catalog);
   const validation = validateFinishPlanDraft({
     shape,
@@ -1342,6 +1344,13 @@ function patchFinishPlanModalFields(root, item) {
   confirm.textContent = activeFinishPlanModal.submitting
     ? "正在提交…"
     : `确认开工 · ${formatMoney(validation.quote?.laborFee || 0)}`;
+}
+
+export function patchFinishPlanPreview(root, item) {
+  const preview = root.querySelector("[data-finish-item-preview]");
+  if (!preview) return;
+  const markup = productCanvas(item, "compact");
+  if (preview.innerHTML !== markup) preview.innerHTML = markup;
 }
 
 export function workshopStartJob(target, payload) {

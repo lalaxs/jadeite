@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { inlaySummary } from "../public/product-meta.js";
+import { __testHooks } from "../server.js";
 import {
   finishOptions,
   initWorkshopModule
@@ -429,10 +430,47 @@ if (!/normalizeExtractionKits/.test(server) || !/expandKitPlacements/.test(serve
 if (!/sourceMaterial\s*:/.test(server) || !/visual\s*:\s*rough\.visual/.test(server)) {
   throw new Error("products extracted from polished rough should carry source material data for cutout rendering");
 }
-const extractedProductBody = extractFunctionBody(server, "extractProductsFromJob");
-assert.match(extractedProductBody, /visual\s*:\s*rough\.visual/, "carved item should preserve source visual data");
-assert.match(extractedProductBody, /placement\s*[,}]/, "carved item should preserve exact kit placement");
-assert.match(extractedProductBody, /openingTpl\s*:\s*placement\.openingTpl/, "placement should preserve opening template id");
+const sourceVisual = {
+  seed: 24680,
+  shape: "chunk",
+  skin: "#58665d",
+  vein: "#3d8d69",
+  belt: true,
+  beltAngle: 21
+};
+const exactKit = {
+  id: "flow-drop-kit",
+  type: "dropPendant",
+  openingTpl: "drop",
+  x: 42,
+  y: 61,
+  rot: 17,
+  scale: 0.9
+};
+const [carvedItem] = __testHooks.extractProductsFromJob({
+  item: {
+    id: "flow-rough",
+    name: "测试明料",
+    price: 12000,
+    value: 18000,
+    rep: 4,
+    score: 3,
+    qualityKey: "glutinous",
+    quality: "糯种",
+    color: "翠绿",
+    mass: 2.6,
+    visual: sourceVisual,
+    windows: []
+  },
+  options: { kits: [exactKit] }
+});
+assert.ok(carvedItem, "real extraction path should produce a carved item");
+assert.strictEqual(carvedItem.sourceMaterial?.visual, sourceVisual, "carved item should preserve source visual data");
+assert.equal(carvedItem.sourceMaterial?.placement?.x, exactKit.x, "carved item should preserve exact kit x");
+assert.equal(carvedItem.sourceMaterial?.placement?.y, exactKit.y, "carved item should preserve exact kit y");
+assert.equal(carvedItem.sourceMaterial?.placement?.rot, exactKit.rot, "carved item should preserve exact kit rotation");
+assert.equal(carvedItem.sourceMaterial?.placement?.scale, exactKit.scale, "carved item should preserve exact kit scale");
+assert.equal(carvedItem.sourceMaterial?.placement?.openingTpl, exactKit.openingTpl, "placement should preserve opening template id");
 
 if (!/templateSize\s*=\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(server)) {
   throw new Error("server should preserve extraction template size on finished products for matching material sampling");
@@ -1126,3 +1164,4 @@ if (/\]\.join\(""\)\s*\|\|\s*empty\("暂无可直播成品。"\)[\s\S]*livestrea
 }
 
 console.log("Simplified rough-to-bracelet flow checks passed");
+process.exit(0);

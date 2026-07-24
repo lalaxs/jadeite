@@ -5,6 +5,7 @@ import {
   PRODUCT_CATEGORIES,
   productKindLabel
 } from "../public/jade-categories.js";
+import * as productMeta from "../public/product-meta.js";
 import {
   SVG_FILTER_IDS,
   JADE_OPENING_DEFS,
@@ -166,9 +167,45 @@ assert.equal(productUseTransform, plannerUseTransform, "finished product cutout 
 assert.match(productCutoutSvg, /class="jade-opening-product-svg"/, "finished product cutout should render as a dedicated SVG");
 assert.match(productCutoutSvg, /clip-path="url\(#.*productClip/, "finished product cutout should clip to the kit shape");
 assert.match(productCutoutSvg, /viewBox="-/, "finished product cutout should use a local kit viewBox instead of the whole rough board");
-assert.match(productCutoutSvg, /clip-path="url\(#.*productClip/);
 assert.match(productCutoutSvg, /preserveAspectRatio="xMidYMid meet"/);
 assert.doesNotMatch(productCutoutSvg, /overflow="visible"/);
+
+assert.equal(
+  typeof productMeta.resolveExactOpeningProductPlacement,
+  "function",
+  "product source metadata should expose a directly testable exact-placement gate"
+);
+const resolveExactOpeningProductPlacement = productMeta.resolveExactOpeningProductPlacement;
+const placementOptions = {
+  validTemplateIds: new Set(KIT_LIB.map((template) => template.id)),
+  templateByKitType: { dropPendant: "drop" }
+};
+assert.equal(
+  resolveExactOpeningProductPlacement({ visual: { seed: 1 }, placement: {} }, placementOptions),
+  null,
+  "an empty placement must not fabricate an exact cutout"
+);
+for (const placement of [
+  { openingTpl: "drop", y: 48, scale: 1 },
+  { openingTpl: "drop", x: 42, scale: 1 },
+  { openingTpl: "drop", x: 42, y: 48 },
+  { openingTpl: "drop", x: 42, y: 48, scale: 0 },
+  { openingTpl: "unknown", x: 42, y: 48, scale: 1 }
+]) {
+  assert.equal(
+    resolveExactOpeningProductPlacement({ visual: { seed: 1 }, placement }, placementOptions),
+    null,
+    "incomplete or unknown placement metadata must use the safe placeholder"
+  );
+}
+assert.deepEqual(
+  resolveExactOpeningProductPlacement({
+    visual: { seed: 1 },
+    placement: { kitType: "dropPendant", x: 42, y: 48, scale: 0.9, rot: 17 }
+  }, placementOptions),
+  { kitType: "dropPendant", openingTpl: "drop", x: 42, y: 48, scale: 0.9, rot: 17 },
+  "a valid kit type mapping should retain the exact placement"
+);
 
 const mainSource = readFileSync(new URL("../public/main.js", import.meta.url), "utf8");
 const stylesSource = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
@@ -186,6 +223,19 @@ assert.match(mainSource, /function productCutoutPlaceholder\b/);
 assert.match(mainSource, /sourceMaterial[\s\S]*productCutoutPlaceholder/);
 assert.match(stylesSource, /\.workshop-product-preview[\s\S]*overflow:\s*hidden/);
 assert.match(stylesSource, /\.jade-opening-product-svg[\s\S]*max-width:\s*100%/);
+const placeholderSource = mainSource.match(/function productCutoutPlaceholder[\s\S]*?\n}\n\nfunction productCanvas/)?.[0] || "";
+assert.match(placeholderSource, /aria-label="\$\{label\}裁切数据缺失"/);
+assert.match(placeholderSource, /aria-hidden="true"/);
+assert.match(placeholderSource, /focusable="false"/);
+const srOnlyRule = stylesSource.match(/\.sr-only\s*\{[^}]*\}/)?.[0] || "";
+assert.match(srOnlyRule, /position:\s*absolute/);
+assert.match(srOnlyRule, /width:\s*1px/);
+assert.match(srOnlyRule, /height:\s*1px/);
+assert.match(srOnlyRule, /clip(?:-path)?:/);
+const bigProductPreviewRule = stylesSource.match(/\.ws-big-material\s*>\s*\.workshop-product-preview\s*\{[^}]*\}/)?.[0] || "";
+assert.match(bigProductPreviewRule, /aspect-ratio:\s*1\s*\/\s*1/);
+assert.match(bigProductPreviewRule, /max-width:\s*220px/);
+assert.match(mainSource, /resolveExactOpeningProductPlacement/);
 assert.match(serverSource, /from "\.\/public\/jade-opening-engine\.js"/, "server should share the opening valuation engine");
 assert.match(serverSource, /openingTpl/, "server should preserve the source KIT_LIB template id on extraction kits");
 assert.match(serverSource, /evaluateOpeningKit/, "server should price refined products from jadeMap kit evaluation");

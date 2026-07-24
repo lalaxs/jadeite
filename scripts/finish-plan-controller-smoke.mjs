@@ -27,6 +27,12 @@ const handleStartWorkshopJobRequest = await importRequired(
   "../workshop-start-handler.js",
   "handleStartWorkshopJobRequest"
 );
+const workshopModule = await import("../public/workshop-module.js");
+assert.equal(
+  typeof workshopModule.patchFinishPlanPreview,
+  "function",
+  "finish plan modal should expose its stable product preview patch"
+);
 
 function createDomFixture(initialOptionsHtml) {
   const ownerDocument = { activeElement: null };
@@ -247,11 +253,50 @@ assert.deepEqual(accepted.acknowledgements, [{
 assert.equal(accepted.toasts.length, 0);
 assert.deepEqual(accepted.successes, [{ ok: true, job: { id: "job-1" } }]);
 
+const previewCalls = [];
+workshopModule.initWorkshopModule({
+  socket: null,
+  getState: () => ({}),
+  els: {},
+  helpers: {
+    productCanvas(item, size) {
+      previewCalls.push({ item, size });
+      return `<div data-preview="${item.id}:${size}"></div>`;
+    }
+  }
+});
+let previewWrites = 0;
+let previewHtml = "";
+const previewElement = {};
+Object.defineProperty(previewElement, "innerHTML", {
+  get: () => previewHtml,
+  set(value) {
+    previewWrites += 1;
+    previewHtml = value;
+  }
+});
+const previewRoot = {
+  querySelector(selector) {
+    return selector === "[data-finish-item-preview]" ? previewElement : null;
+  }
+};
+const previewItem = { id: "carved-preview", materialStage: "carved" };
+workshopModule.patchFinishPlanPreview(previewRoot, previewItem);
+workshopModule.patchFinishPlanPreview(previewRoot, previewItem);
+assert.deepEqual(previewCalls, [
+  { item: previewItem, size: "compact" },
+  { item: previewItem, size: "compact" }
+]);
+assert.equal(previewHtml, '<div data-preview="carved-preview:compact"></div>');
+assert.equal(previewWrites, 1, "unchanged modal preview should not remount its contents");
+
 const workshopSource = readFileSync("public/workshop-module.js", "utf8");
 assert.match(
   workshopSource,
   /import\s*\{\s*patchFinishPlanSelectOptions,\s*preserveFinishPlanUiState\s*\}\s*from "\.\/finish-plan-dom\.js"/
 );
 assert.doesNotMatch(workshopSource, /function setSelectOptions\b/);
+assert.match(workshopSource, /data-finish-item-preview/);
+assert.match(workshopSource, /patchFinishPlanPreview\(root,\s*item\)/);
 
 console.log("finish-plan-controller-smoke: stable lifecycle and acknowledgements ok");

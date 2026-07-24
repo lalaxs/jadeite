@@ -39,6 +39,11 @@ assert.doesNotMatch(
 );
 assert.match(workshop, /data-finish-stock="metal"/);
 assert.match(workshop, /data-finish-stock="gem"/);
+assert.match(workshop, /data-finish-item-preview/);
+assert.match(
+  workshop.match(/function patchFinishPlanModalFields\([^)]*\)[\s\S]*?\n}\n/)?.[0] || "",
+  /patchFinishPlanPreview\(root,\s*item\)/
+);
 assert.match(server, /socket\.on\("startWorkshopJob",\s*\(payload = \{\}, acknowledge\)/);
 
 console.log("ui-stability-smoke: stable overview guards ok");

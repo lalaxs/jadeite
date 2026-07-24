@@ -7,6 +7,7 @@ import {
   routeRecommendation
 } from "./jade-rules.js";
 import { productKindLabel } from "./jade-categories.js";
+import { resolveExactOpeningProductPlacement } from "./product-meta.js";
 import {
   KIT_LIB as OPENING_KIT_LIB,
   buildOpeningStone,
@@ -122,6 +123,7 @@ const OPENING_KIT_SERVER_TYPES = {
 const OPENING_KIT_BY_SERVER_TYPE = Object.fromEntries(
   Object.entries(OPENING_KIT_SERVER_TYPES).map(([tpl, type]) => [type, tpl])
 );
+const OPENING_KIT_TEMPLATE_IDS = new Set(OPENING_KIT_LIB.map((template) => template.id));
 
 
 const els = {
@@ -1017,28 +1019,29 @@ function openingStoneSvg(rough, options = {}) {
   });
 }
 
-function openingProductKitFor(item) {
-  const source = item?.sourceMaterial || {};
-  const placement = source.placement || item?.plan || {};
-  const tpl = placement.openingTpl || openingTplForServerType(placement.kitType || item?.kind || item?.type);
-  const rawX = Number(placement.x) || 50;
-  const rawY = Number(placement.y) || 50;
+function openingProductKitFor(item, placement) {
+  const rawX = Number(placement.x);
+  const rawY = Number(placement.y);
   const usesPercent = rawX <= 100 && rawY <= 100 && !placement.svgSpace;
   return {
     uid: item.id || placement.id,
     id: item.id || placement.id,
-    tpl,
+    tpl: placement.openingTpl,
     x: usesPercent ? rawX * 6 : rawX,
     y: usesPercent ? rawY * 6 : rawY,
     rot: Number(placement.rot ?? placement.rotation ?? 0),
-    scale: Number(placement.scale || 1),
-    size: placement.ringSize || item.ringSize || (tpl === "bangle" ? 56 : "M")
+    scale: Number(placement.scale),
+    size: placement.ringSize || item.ringSize || (placement.openingTpl === "bangle" ? 56 : "M")
   };
 }
 
 function openingProductSvg(item, size = "finished") {
   const source = item?.sourceMaterial;
-  if (!source?.visual || !source?.placement) return "";
+  const placement = resolveExactOpeningProductPlacement(source, {
+    validTemplateIds: OPENING_KIT_TEMPLATE_IDS,
+    templateByKitType: OPENING_KIT_BY_SERVER_TYPE
+  });
+  if (!placement) return "";
   const rough = {
     id: source.roughId || item.sourceRoughId || item.id,
     name: source.roughName || item.name,
@@ -1047,7 +1050,7 @@ function openingProductSvg(item, size = "finished") {
   };
   return `
     <div class="jade-opening-product ${escapeHtml(size)}" aria-label="${escapeHtml(item.name)}对应料子裁片">
-      ${renderJadeOpeningProductSvg(openingStoneFor(rough), openingProductKitFor(item), {
+      ${renderJadeOpeningProductSvg(openingStoneFor(rough), openingProductKitFor(item, placement), {
         label: item.name,
         idPrefix: `product-${item.id || source.roughId || source.roughName || "jade"}`
       })}
@@ -1058,8 +1061,8 @@ function openingProductSvg(item, size = "finished") {
 function productCutoutPlaceholder(item, size = "finished") {
   const label = escapeHtml(item?.name || "套件");
   return `
-    <div class="jade-opening-product ${escapeHtml(size)} is-placeholder" aria-label="${label}裁切数据缺失">
-      <svg class="jade-opening-product-svg" viewBox="-80 -80 160 160" preserveAspectRatio="xMidYMid meet" role="img">
+    <div class="jade-opening-product ${escapeHtml(size)} is-placeholder" role="img" aria-label="${label}裁切数据缺失">
+      <svg class="jade-opening-product-svg" viewBox="-80 -80 160 160" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
         <path d="M0-58C39-58 58-32 58 2C58 39 33 58 0 58C-36 58-58 34-58 0C-58-35-34-58 0-58Z"
           fill="rgba(48,166,105,.16)" stroke="currentColor" stroke-width="4" stroke-dasharray="8 7"/>
       </svg>
