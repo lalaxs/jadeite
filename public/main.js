@@ -1,6 +1,12 @@
 import { jadeCanvasMarkup, paintJadeCanvases } from "./jade-renderer.js";
 import { reportSummary } from "./jade-loop.js";
 import {
+  playerExpProgress,
+  achievementViewModels,
+  nextAchievementViewModel,
+  ACHIEVEMENT_DEFINITIONS
+} from "./player-progression.js";
+import {
   productMatchesOrder,
   productOrderFitReasons,
   liveSaleRange,
@@ -24,17 +30,17 @@ import {
   currentAuctionPhase, auctionPhaseMeta, auctionRoundLabel,
   windowCount, isWindowSelectionActive, canOpenWindow, startWindowSelection, requestAuctionWindowAt, clearWindowSelection,
   auctionStoneSizeClass, auctionStoneSizeLabel, auctionStoneBoard, stoneSvg,
-  myBidFor, renderAuctionBidControls,
+  myBidFor, renderAuctionBidControls, syncAuctionBidAffordability,
   selectedAuctionHall, enterAuctionHall, backAuctionHalls, renderAuctionHalls, renderAuctionLotCard,
   formatHistoryTime, auctionResultRow, renderAuctionHistory,
-  renderAuction, updateAuctionChrome, jadeIconSvg
+  renderAuction, updateAuctionChrome, tickAuctionClock, jadeIconSvg
 } from "./auction-module.js";
 import {
   initMarketModule,
   marketQualityKey, marketQualityMeta, marketGemColor, marketRefValue, marketPriceDelta, marketElapsed,
   marketSellables, marketAffordable, renderMarket, renderMarketSection, renderMarketStalls, renderMarketFilters,
   marketFilterSort, marketCardHtml, renderMarketGrid, renderMarketMine, renderMarketWants,
-  bindMarketOnce, syncMarketFilterInputs, openMarketListModal, updateMarketListModal, confirmMarketList,
+  bindMarketOnce, syncMarketFilterInputs, openMarketListModal, confirmMarketList,
   openMarketBuy, confirmMarketBuy, closeMarketModals,
   marketSetStall, marketSetSection, marketToggleQ
 } from "./market-module.js";
@@ -42,13 +48,14 @@ import {
   initWorkshopModule,
   workshopDevices, workshopWorkers, workshopWorkerFor, workshopJobs, workshopProcessableItems, workshopStageItems,
   workshopOutputLabel, workshopDurationLabel, workshopWorkerImpact, workshopDeviceImpact, workshopJobEstimate,
-  workshopJobProgress, workshopItemPreview, workshopRecipeCard, workshopRecipeHome, workshopStageInventory,
-  workshopMaterialRow, workshopRecipeSummary, workshopStageDrawer, workshopRecommendedWorkerId, workshopWorkerColumn,
+  workshopJobProgress, workshopItemPreview, workshopRecipeCard, workshopRecipeHome,
+  workshopMaterialRow, workshopRecipeSummary, workshopRecommendedWorkerId, workshopWorkerColumn,
   workshopRecipePage, renderWorkshop,
   workshopOpenDevice, workshopBackDevices, workshopSelectItem, workshopStartJob, workshopAssignWorker, workshopRecommendWorker, workshopSelectStep,
   workshopOpenPicker, workshopClosePicker, workshopPickItem, workshopPickWorker, workshopConfirmPickerWorker, workshopSetSort,
-  workshopRefreshPlanner, workshopOpenPlanner, workshopClosePlanner
+  workshopRefreshPlanner, workshopOpenPlanner, workshopClosePlanner, openInlayPreviewTester
 } from "./workshop-module.js";
+import { initInventoryModule, renderInventory } from "./inventory-module.js";
 import {
   initChatModule,
   formatMessageTime, messageSortAtFromClock, pushMessageRow, homeMessageRows,
@@ -65,11 +72,14 @@ import {
 } from "./orders-module.js";
 import {
   initLivestreamModule,
-  renderLivestream, livestreamSchedule
+  renderLivestream
 } from "./livestream-module.js";
+import { componentJewelrySvg } from "./inlay-product-renderer.js";
 import {
   initExtraModule,
-  renderShop, renderRecruitCandidates, renderReports, renderCollection,
+  renderShop, renderHireMarket,
+  setHireMarketTab, openOwnedWorkerDetail, closeOwnedWorkerDetail,
+  renderReports, renderCollection,
   openRecruitCandidateDetail, closeRecruitCandidateDetail, confirmRecruitCandidate
 } from "./extra-module.js";
 import { activateModalLifecycle } from "./modal-lifecycle.js";
@@ -82,13 +92,14 @@ const viewLabels = {
   auction: "公盘",
   auctionHistory: "历史拍卖成功",
   workshop: "工坊",
+  inventory: "库存",
   market: "交易行",
   shop: "商铺",
   rankings: "排行榜",
   livestream: "直播间",
   orders: "订单",
   collection: "藏品",
-  hireMarket: "招募",
+  hireMarket: "员工",
   reports: "经营账房"
 };
 
@@ -98,8 +109,8 @@ const locationDefinitions = [
   { id: "shop", view: "shop", label: "商铺", locationImage: "shop", type: "public", description: "购买工坊、直播许可等功能建筑。" },
   { id: "orders", view: "orders", label: "订单", locationImage: "orders", type: "public", description: "接定制单，换现金和口碑。" },
   { id: "collection", view: "collection", label: "藏品", locationImage: "collection", type: "public", description: "收藏精品，提高门面声望。" },
-  { id: "hireMarket", view: "hireMarket", label: "招募", locationImage: "hireMarket", type: "public", description: "招募掌柜与管家，扩展经营人力。" },
-  { id: "livestream", view: "livestream", label: "直播间", locationImage: "livestream", type: "lockedPublic", description: "自动直播卖货，适合处理成品库存。", purchaseId: "livestream-permit" },
+  { id: "hireMarket", view: "hireMarket", label: "员工", locationImage: "hireMarket", type: "public", description: "查看已有员工，并招募新师傅。" },
+  { id: "livestream", view: "livestream", label: "直播间", locationImage: "livestream", type: "public", description: "逛公开直播摊位；取得许可后可自行开播。" },
   { id: "workshop", view: "workshop", label: "工坊", locationImage: "workshop", type: "ownedPrivate", description: "打磨原石、取件、精加工。", ownershipKey: "workshopOwned" }
 ];
 
@@ -127,6 +138,34 @@ const OPENING_KIT_BY_SERVER_TYPE = Object.fromEntries(
   Object.entries(OPENING_KIT_SERVER_TYPES).map(([tpl, type]) => [type, tpl])
 );
 const OPENING_KIT_TEMPLATE_IDS = new Set(OPENING_KIT_LIB.map((template) => template.id));
+const BANGLE_RING_SIZES = [52, 54, 56, 58, 60, 62];
+const PENDANT_SIZE_OPTIONS = [
+  { id: "S", label: "小" },
+  { id: "M", label: "中" },
+  { id: "L", label: "大" }
+];
+let selectedBangleRingSize = 56;
+let selectedPendantSize = "M";
+
+function normalizePendantSize(value) {
+  return PENDANT_SIZE_OPTIONS.some((option) => option.id === value) ? value : "M";
+}
+
+function normalizeBangleRingSize(value) {
+  const n = Math.round(Number(value) || 56);
+  const clamped = Math.max(52, Math.min(62, n));
+  return Math.round(clamped / 2) * 2;
+}
+
+function openingKitSizeValue(tplId) {
+  return tplId === "bangle" ? selectedBangleRingSize : selectedPendantSize;
+}
+
+function openingKitSizeLabel(tplId, sizeVal = openingKitSizeValue(tplId)) {
+  if (tplId === "bangle") return `${normalizeBangleRingSize(sizeVal)}圈口`;
+  const hit = PENDANT_SIZE_OPTIONS.find((option) => option.id === sizeVal);
+  return hit ? `${hit.label}号` : "中号";
+}
 
 
 const els = {
@@ -149,6 +188,7 @@ const els = {
   auctionHistoryList: document.querySelector("#auctionHistoryList"),
   roughPool: document.querySelector("#roughPool"),
   workshopRoot: document.querySelector("#workshopRoot"),
+  inventoryPanel: document.querySelector("#inventoryPanel"),
   orders: document.querySelector("#ordersList"),
   orderBrief: document.querySelector("#orderBrief"),
   refreshOrders: document.querySelector("#refreshOrdersBtn"),
@@ -166,10 +206,6 @@ const els = {
   marketGrid: document.querySelector("#marketGrid"),
   marketListModal: document.querySelector("#marketListModal"),
   marketBuyModal: document.querySelector("#marketBuyModal"),
-  marketListItem: document.querySelector("#marketListItem"),
-  marketListPrice: document.querySelector("#marketListPrice"),
-  marketListSuggest: document.querySelector("#marketListSuggest"),
-  marketListFee: document.querySelector("#marketListFee"),
   marketBuyBody: document.querySelector("#marketBuyBody"),
   shopBrief: document.querySelector("#shopBrief"),
   shopListings: document.querySelector("#shopListings"),
@@ -177,6 +213,10 @@ const els = {
   materialInventory: document.querySelector("#materialInventory"),
   refreshRecruitBtn: document.querySelector("#refreshRecruitBtn"),
   recruitCandidateList: document.querySelector("#recruitCandidateList"),
+  ownedWorkerList: document.querySelector("#ownedWorkerList"),
+  ownedWorkerCount: document.querySelector("#ownedWorkerCount"),
+  hireMarketBrief: document.querySelector("#hireMarketBrief"),
+  hireMarketView: document.querySelector('[data-view="hireMarket"]'),
   livestream: document.querySelector("#livestreamPanel"),
   reports: document.querySelector("#reportsPanel"),
   collectionList: document.querySelector("#collectionList"),
@@ -193,6 +233,7 @@ const els = {
   sidePanel: document.querySelector("#sidePanel"),
   sidePanelToggle: document.querySelector("#sidePanelToggle"),
   chatDock: document.querySelector("#chatDock"),
+  chatDockCompactBtn: document.querySelector("#chatDockCompactBtn"),
   chatDockToggle: document.querySelector("#chatDockToggle"),
   sidePanelBody: document.querySelector("#sidePanelBody"),
   panelTabs: document.querySelector("#panelTabs"),
@@ -503,9 +544,12 @@ function maybeShowStateDrivenModals(nextState = state) {
 
 function inventoryCounts(me = {}) {
   const productionJobs = productionJobsFor(me);
+  // 开料后明料进 materials 桶；rough.revealed 只覆盖尚未迁桶的旧数据
+  const revealedInRough = (me.rough || []).filter((rough) => rough.revealed || materialStageForClient(rough) === "opened").length;
+  const materialsOpened = (me.materials || []).filter((item) => materialStageForClient(item) === "opened").length;
   return {
-    sealed: (me.rough || []).filter((rough) => !rough.revealed).length,
-    revealed: (me.rough || []).filter((rough) => rough.revealed).length,
+    sealed: (me.rough || []).filter((rough) => !rough.revealed && materialStageForClient(rough) === "rough").length,
+    revealed: revealedInRough + materialsOpened,
     jobs: productionJobs.length,
     products: (me.bracelets || []).length,
     collection: (me.collection || []).length
@@ -545,6 +589,7 @@ const NAV_ICONS = {
   market: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0"/></svg>`,
   shop: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-4h15L21 9M5 9v10h14V9M9 19v-5h6v5"/></svg>`,
   workshop: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>`,
+  inventory: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V7a6 6 0 0 1 12 0v2M5 8h14l1 13H4z"/><path d="M9 12v1M15 12v1"/></svg>`,
   orders: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h4"/></svg>`,
   livestream: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>`,
   collection: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l3 5-9 11L3 9zM3 9h18M9 4l3 5 3-5"/></svg>`,
@@ -562,10 +607,11 @@ function renderMainNav() {
   }));
   const extra = [
     { label: "主页", view: "overview", type: "overview", icon: "overview" },
+    { label: "库存", view: "inventory", type: "inventory", icon: "inventory" },
     { label: "黑市", view: "blackmarket", type: "locked", icon: "blackmarket" },
     { label: "排行榜", view: "rankings", type: "rank", icon: "rankings" }
   ];
-  const items = [extra[0], ...locItems, extra[1], extra[2]];
+  const items = [extra[0], ...locItems, extra[1], extra[2], extra[3]];
   els.mainNav.innerHTML = items.map((it) => {
     const active = activeView === it.view ? " active" : "";
     const ico = `<span class="nav-ico">${NAV_ICONS[it.icon] || ""}</span>`;
@@ -578,13 +624,16 @@ function renderMainNav() {
     if (it.type === "overview") {
       return `<button class="main-nav-item${active}" data-action="openLocation" data-payload="overview" type="button">${ico}${escapeHtml(it.label)}</button>`;
     }
+    if (it.type === "inventory") {
+      return `<button class="main-nav-item${active}" data-action="openLocation" data-payload="inventory" type="button">${ico}${escapeHtml(it.label)}</button>`;
+    }
     return `<button class="main-nav-item${active}" data-action="openLocation" data-payload="${escapeHtml(it.id)}" type="button">${ico}${escapeHtml(it.label)}</button>`;
   }).join("");
 }
 
 // ===== 右侧常驻「进行事项」面板 =====
-// 筛选状态：null = 不过滤（显示全部）；否则只显示对应 plane
-let sidePanelFilter = null;
+// 筛选状态：默认选中第一个页签「工坊」；null = 不过滤（显示全部）
+let sidePanelFilter = "workshop";
 function applySidePanelFilter() {
   if (!els.sidePanelBody) return;
   els.sidePanelBody.querySelectorAll("[data-pplane]").forEach((p) => {
@@ -604,9 +653,10 @@ function renderSidePanel() {
     const pct = Math.max(2, Math.min(100, Math.round((elapsed / total) * 100)));
     const remain = Math.max(0, Math.ceil((Number(job.readyAt || nowMs()) - nowMs()) / 60000));
     const name = job.item?.name || "物料";
-    return `<div class="side-prog">
-        <div class="side-prog-top"><span>${escapeHtml(name)}</span><span class="side-prog-eta">${remain} min</span></div>
-        <div class="side-prog-bar"><i class="${pct >= 100 ? "done" : ""}" style="width:${pct}%"></i></div>
+    const jobKey = escapeHtml(job.id || `${job.deviceId || ""}-${job.startedAt || ""}-${name}`);
+    return `<div class="side-prog" data-side-job="${jobKey}">
+        <div class="side-prog-top"><span>${escapeHtml(name)}</span><span class="side-prog-eta" data-side-job-eta>${remain} min</span></div>
+        <div class="side-prog-bar"><i class="${pct >= 100 ? "done" : ""}" data-side-job-bar style="width:${pct}%"></i></div>
       </div>`;
   }).join("") : `<div class="side-empty">暂无加工任务</div>`;
 
@@ -631,6 +681,46 @@ function renderSidePanel() {
     <div data-pplane="achv" hidden>${achievementsHtml()}</div>
   `;
   applySidePanelFilter();
+}
+
+function tickSidePanelProgress() {
+  if (!els.sidePanelBody || !state?.me) return;
+  const jobs = workshopJobs();
+  const plane = els.sidePanelBody.querySelector('[data-pplane="workshop"]');
+  if (!plane) {
+    renderSidePanel();
+    return;
+  }
+  const nodes = [...plane.querySelectorAll("[data-side-job]")];
+  if (!jobs.length) {
+    if (nodes.length || !plane.querySelector(".side-empty")) renderSidePanel();
+    return;
+  }
+  if (nodes.length !== jobs.length) {
+    renderSidePanel();
+    return;
+  }
+  for (let index = 0; index < jobs.length; index += 1) {
+    const job = jobs[index];
+    const node = nodes[index];
+    const name = job.item?.name || "物料";
+    const jobKey = String(job.id || `${job.deviceId || ""}-${job.startedAt || ""}-${name}`);
+    if (node.dataset.sideJob !== jobKey) {
+      renderSidePanel();
+      return;
+    }
+    const total = Math.max(1, Number(job.readyAt || 0) - Number(job.startedAt || nowMs()));
+    const elapsed = Math.max(0, nowMs() - Number(job.startedAt || nowMs()));
+    const pct = Math.max(2, Math.min(100, Math.round((elapsed / total) * 100)));
+    const remain = Math.max(0, Math.ceil((Number(job.readyAt || nowMs()) - nowMs()) / 60000));
+    const eta = node.querySelector("[data-side-job-eta]");
+    const bar = node.querySelector("[data-side-job-bar]");
+    if (eta) eta.textContent = `${remain} min`;
+    if (bar) {
+      bar.style.width = `${pct}%`;
+      bar.classList.toggle("done", pct >= 100);
+    }
+  }
 }
 
 function renderPlayerSidebar() {
@@ -658,13 +748,12 @@ function renderPlayerSidebar() {
   `;
 }
 
-// ===== 顶栏资源条（分段式 HUD）：现金 / 声望·Lv / 客户评级 / 公盘结束 / 时间 =====
-// 客户评级（★1-5）由满意度推导示意；倒计时与时间仅放顶栏。
+// ===== 顶栏资源条：现金 / 声望(口碑) / 客户评级 / 公盘结束 / 时间 =====
 function renderTopHud() {
   if (!els.topHud || !state?.me) return;
   const { me } = state;
   const rep = Number(me.rep || 0);
-  const level = repLevelTier(rep);
+  const level = Number(me.level) || playerExpProgress(me.exp).level;
   const repTitle = repTier(rep);
   const satisfaction = Math.round(Number(me.satisfaction || 0));
   const rating = Math.max(0, Math.min(5, Math.round(satisfaction / 20)));
@@ -692,7 +781,7 @@ function renderTopHud() {
       <span class="hud-ico">${ico.rep}</span>
       <div class="hud-meta">
         <div class="hud-rep-row"><b data-hud="rep">${formatNumber(rep)}</b><i class="hud-rep-title">${escapeHtml(repTitle)}</i></div>
-        <span>声望 · Lv.${level}</span>
+        <span>声望 · 经营 Lv.${level}</span>
       </div>
     </div>
     <div class="hud-stat">
@@ -713,19 +802,11 @@ function renderTopHud() {
   hudPrev.rep = rep;
 }
 
-// ===== 左栏玩家信息卡：头像接口占位 + 等级 + 经验值（经验由声望推导，因 me 无 exp 字段）=====
+// ===== 左栏玩家信息卡：经营等级 + 真实经验条 =====
 function renderPlayerCard() {
   if (!els.playerCard || !state?.me) return;
   const { me } = state;
-  const rep = Number(me.rep || 0);
-  const level = repLevelTier(rep);
-  const thresholds = [0, 30, 80, 160, 320];
-  const lower = thresholds[level - 1];
-  const maxed = repNextThreshold(rep) === null;
-  const upper = thresholds[level] ?? rep;
-  const cur = maxed ? rep : rep - lower;
-  const span = maxed ? 1 : Math.max(1, upper - lower);
-  const pct = Math.max(4, Math.min(100, Math.round((cur / span) * 100)));
+  const progress = playerExpProgress(me.exp);
   const initial = (me.name || "翠").trim().charAt(0) || "翠";
 
   els.playerCard.innerHTML = `
@@ -735,12 +816,12 @@ function renderPlayerCard() {
       </div>
       <div class="player-meta">
         <div class="player-name">${escapeHtml(me.name || "无名")}</div>
-        <div class="player-lv">等级 <b>Lv.${level}</b></div>
+        <div class="player-lv">经营等级 <b>Lv.${progress.level}</b> · ${escapeHtml(progress.label)}</div>
       </div>
     </div>
     <div class="exp">
-      <div class="exp-top"><span>经验值</span><b>${maxed ? "已满级" : `${formatNumber(cur)} / ${formatNumber(span)}`}</b></div>
-      <div class="exp-bar"><i class="${maxed ? "done" : ""}" style="width:${pct}%"></i></div>
+      <div class="exp-top"><span>经验值</span><b>${progress.maxed ? "已满级" : `${formatNumber(progress.current)} / ${formatNumber(progress.span)}`}</b></div>
+      <div class="exp-bar"><i class="${progress.maxed ? "done" : ""}" style="width:${progress.pct}%"></i></div>
     </div>
   `;
 }
@@ -749,9 +830,6 @@ function locationGate(location) {
   const me = state?.me || {};
   if (location.type === "ownedPrivate" && !me.assets?.[location.ownershipKey]) {
     return { visible: false, locked: true, reason: "尚未拥有" };
-  }
-  if (location.id === "livestream" && !me.assets?.livestreamPermitOwned) {
-    return { visible: true, locked: true, reason: "需要直播经营许可" };
   }
   return { visible: true, locked: false, reason: "" };
 }
@@ -801,6 +879,10 @@ function openLocationByView(view) {
     setView("overview");
     return;
   }
+  if (view === "inventory") {
+    setView("inventory");
+    return;
+  }
 
   const location = locationDefinitions.find((item) => item.view === view);
   if (!location) {
@@ -810,6 +892,7 @@ function openLocationByView(view) {
 
   const gate = locationGate(location);
   if (gate.visible && !gate.locked) {
+    if (location.view === "hireMarket") setHireMarketTab("roster");
     setView(location.view);
     return;
   }
@@ -870,22 +953,6 @@ function repTier(rep) {
   if (rep >= 80) return "熟行";
   if (rep >= 30) return "起势";
   return "新人";
-}
-
-function repLevelTier(rep) {
-  if (rep >= 320) return 5;
-  if (rep >= 160) return 4;
-  if (rep >= 80) return 3;
-  if (rep >= 30) return 2;
-  return 1;
-}
-
-function repNextThreshold(rep) {
-  if (rep >= 320) return null;
-  if (rep >= 160) return 320;
-  if (rep >= 80) return 160;
-  if (rep >= 30) return 80;
-  return 30;
 }
 
 function riskTone(risk) {
@@ -951,7 +1018,7 @@ function placementAnalysisRows(rough, kits) {
         const wastePct = Math.round(evalResult.wasteRatio * 100);
         return `
           <div class="analysis-row ${tone}">
-            <strong>${template.name} ${grade.letter} · ${formatMoney(evalResult.price)}</strong>
+            <strong>${template.name} ${openingKitSizeLabel(openingKit.tpl, openingKit.size)} · ${grade.letter} · ${formatMoney(evalResult.price)}</strong>
             <span>${escapeHtml(openingKitProductLabel(openingKit.tpl))} · 裂 ${crackPct}% · 废料 ${wastePct}% · 色${grade.breakdown.color} 种${grade.breakdown.water}</span>
           </div>
         `;
@@ -1063,8 +1130,7 @@ function openingProductSvg(item, size = "finished") {
   return `
     <div class="jade-opening-product ${escapeHtml(size)}" aria-label="${escapeHtml(item.name)}对应料子裁片">
       ${renderJadeOpeningProductSvg(openingStoneFor(rough), openingProductKitFor(item, placement), {
-        label: item.name,
-        idPrefix: `product-${item.id || source.roughId || source.roughName || "jade"}`
+        label: item.name
       })}
     </div>
   `;
@@ -1083,7 +1149,24 @@ function productCutoutPlaceholder(item, size = "finished") {
   `;
 }
 
+function componentJadeCutoutMarkup(item, size = "finished") {
+  const jade = Array.isArray(item?.components)
+    ? item.components.find((component) => component?.type === "jade")
+    : null;
+  const sourceMaterial = jade?.sourceMaterial || item?.sourceMaterial;
+  if (!sourceMaterial) return "";
+  return openingProductSvg({
+    ...item,
+    kind: jade?.kind || item?.kind,
+    sourceMaterial,
+    templateSize: jade?.templateSize || item?.templateSize
+  }, size);
+}
+
 function productCanvas(item, size = "finished") {
+  if (Array.isArray(item?.components) && item.components.length) {
+    return componentJewelrySvg(item, size);
+  }
   const exactCutout = openingProductSvg(item, size);
   if (exactCutout) return exactCutout;
   const stage = materialStageForClient(item);
@@ -1111,9 +1194,9 @@ function openingKitsOverlapAt(current, nextKit) {
   return computeOpeningOverlaps([...current.map((kit) => openingKitFromStored(kit)), nextKit]).has(nextKit.uid);
 }
 
-function findSafeOpeningPosition(tplId, preferX, preferY, current) {
-  const scale = scaleForOpeningKit(tplId, tplId === "bangle" ? 56 : "M");
-  const base = { uid: "candidate", tpl: tplId, x: preferX, y: preferY, rot: 0, scale };
+function findSafeOpeningPosition(tplId, preferX, preferY, current, sizeVal = openingKitSizeValue(tplId)) {
+  const scale = scaleForOpeningKit(tplId, sizeVal);
+  const base = { uid: "candidate", tpl: tplId, x: preferX, y: preferY, rot: 0, scale, size: sizeVal };
   const first = { ...base, ...clampOpeningKitPosition(tplId, preferX, preferY, scale) };
   if (!openingKitsOverlapAt(current, first)) return first;
   for (let radius = 34; radius <= 260; radius += 22) {
@@ -1139,9 +1222,16 @@ function refreshOpeningPlanUi(roughId) {
 function addRoughKit(roughId, tplId) {
   const current = kitsFor(roughId);
   const safeTpl = OPENING_KIT_LIB.some((kit) => kit.id === tplId) ? tplId : "bangle";
+  const sizeVal = openingKitSizeValue(safeTpl);
   const same = current.filter((kit) => kit.tpl === safeTpl).length;
-  const position = findSafeOpeningPosition(safeTpl, 300 + ((same % 4) - 1.5) * 36, 300 + Math.floor(same / 4) * 44, current);
-  const scale = scaleForOpeningKit(safeTpl, safeTpl === "bangle" ? 56 : "M");
+  const position = findSafeOpeningPosition(
+    safeTpl,
+    300 + ((same % 4) - 1.5) * 36,
+    300 + Math.floor(same / 4) * 44,
+    current,
+    sizeVal
+  );
+  const scale = scaleForOpeningKit(safeTpl, sizeVal);
   const kit = {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     tpl: safeTpl,
@@ -1150,8 +1240,8 @@ function addRoughKit(roughId, tplId) {
     y: position.y,
     rot: 0,
     scale,
-    size: safeTpl === "bangle" ? 56 : "M",
-    ringSize: safeTpl === "bangle" ? 56 : undefined,
+    size: sizeVal,
+    ringSize: safeTpl === "bangle" ? normalizeBangleRingSize(sizeVal) : undefined,
     svgSpace: true
   };
   roughKits.set(roughId, [...current, kit].slice(0, 10));
@@ -1179,7 +1269,8 @@ function openingKitsForServer(roughId) {
     y: clampClient(Math.round((Number(kit.y) || 300) / 6), 4, 96),
     rot: Number(kit.rot || 0),
     scale: Number(kit.scale || 1),
-    ringSize: kit.tpl === "bangle" ? kit.ringSize || kit.size || 56 : undefined
+    size: kit.tpl === "bangle" ? undefined : normalizePendantSize(kit.size),
+    ringSize: kit.tpl === "bangle" ? normalizeBangleRingSize(kit.ringSize || kit.size || 56) : undefined
   }));
 }
 
@@ -1198,10 +1289,28 @@ function roughPlannerControls(rough) {
   return `
     <div class="layout-tools">
       <div class="kit-choice-row">
-        ${OPENING_KIT_LIB.map((template) => `<button class="kit-choice opening-kit-choice" data-opening-kit-choice="${template.id}" data-rough="${rough.id}">${template.name}<span>${openingKitProductLabel(template.id)}</span></button>`).join("")}
+        ${OPENING_KIT_LIB.map((template) => `<button class="kit-choice opening-kit-choice" data-opening-kit-choice="${template.id}" data-rough="${rough.id}" type="button">${template.name}<span>${openingKitProductLabel(template.id)}</span></button>`).join("")}
+      </div>
+      <div class="kit-size-row" role="group" aria-label="手镯圈口">
+        <span class="kit-size-label">手镯圈口</span>
+        <div class="kit-size-options">
+          ${BANGLE_RING_SIZES.map((size) => `
+            <button class="kit-size-choice ${selectedBangleRingSize === size ? "on" : ""}" type="button"
+              data-opening-kit-size="${size}" data-opening-kit-size-kind="bangle" data-rough="${rough.id}">${size}</button>
+          `).join("")}
+        </div>
+      </div>
+      <div class="kit-size-row" role="group" aria-label="挂件尺寸">
+        <span class="kit-size-label">挂件尺寸</span>
+        <div class="kit-size-options">
+          ${PENDANT_SIZE_OPTIONS.map((option) => `
+            <button class="kit-size-choice ${selectedPendantSize === option.id ? "on" : ""}" type="button"
+              data-opening-kit-size="${option.id}" data-opening-kit-size-kind="pendant" data-rough="${rough.id}">${option.label}</button>
+          `).join("")}
+        </div>
       </div>
       <div class="placement-summary">
-        <span>本次 ${kits.length} 件 · 已取 ${savedCount} 件</span>
+        <span>本次 ${kits.length} 件 · 已取 ${savedCount} 件 · 下手镯用 ${selectedBangleRingSize} 圈口 · 挂件用${openingKitSizeLabel("drop", selectedPendantSize)}</span>
         <button class="secondary" data-action="clearRoughKits" data-payload="${rough.id}" ${kits.length ? "" : "disabled"}>清空</button>
       </div>
     </div>
@@ -1220,7 +1329,10 @@ function setView(view) {
     b.classList.toggle("active", v === view);
   });
   document.querySelector(".main-stage")?.classList.toggle("overview-mode", view === "overview");
-  if (state) paintJades();
+  if (state) {
+    renderActiveView();
+    paintJades(activeViewRoot());
+  }
   if (els.mainStage) els.mainStage.scrollTop = 0;
 }
 
@@ -1296,7 +1408,7 @@ function initShell() {
       });
     });
   }
-  // 右侧面板分类切换（筛选页签：默认不选中=显示全部，点击选中筛选，再点取消）
+  // 右侧面板分类切换（筛选页签：默认选中「工坊」；点击切换筛选，再点已选中页签可取消=显示全部）
   if (els.panelTabs) {
     els.panelTabs.querySelectorAll("button").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -1314,6 +1426,12 @@ function initShell() {
       });
     });
   }
+  // 公盘出价：输入即时校验现金是否足够
+  document.addEventListener("input", (event) => {
+    const input = event.target?.closest?.("[data-bid-amount]");
+    if (!input) return;
+    syncAuctionBidAffordability(input);
+  });
   // 任务面板：点击重置/领取/前往
   if (els.homeTaskPane) {
     els.homeTaskPane.addEventListener("click", (event) => {
@@ -1335,41 +1453,61 @@ function initShell() {
     if (!event.matches) return;
     closeMobileTransientUi();
   });
-  // 顶栏时钟/公盘倒计时 + 右侧进行事项面板 每秒刷新
+  // 顶栏时钟/公盘倒计时 + 右侧加工进度条：只做轻量 patch，不重建业务视图
   setInterval(() => {
     if (!state) return;
     tickHudClock();
-    renderSidePanel();
+    tickSidePanelProgress();
+    tickAuctionClock();
     updateTaskCountdown();
   }, 1000);
+}
+
+const VIEW_RENDERERS = {
+  overview: () => renderOverview(),
+  rankings: () => renderRankingBoard(),
+  auction: () => renderAuction(),
+  auctionHistory: () => renderAuctionHistory(),
+  workshop: () => renderWorkshop(),
+  inventory: () => renderInventory(),
+  orders: () => renderOrders(),
+  market: () => renderMarket(),
+  shop: () => renderShop(),
+  livestream: () => renderLivestream(),
+  reports: () => renderReports(),
+  collection: () => renderCollection(),
+  hireMarket: () => renderHireMarket()
+};
+
+function activeViewRoot() {
+  return document.querySelector(`.view[data-view="${activeView}"]`) || document;
+}
+
+function renderShell() {
+  renderMainNav();
+  renderPlayerCard();
+  renderTopHud();
+  renderSidePanel();
+  renderPlayerSidebar();
+}
+
+function renderActiveView() {
+  const renderView = VIEW_RENDERERS[activeView];
+  if (renderView) renderView();
 }
 
 function render() {
   if (!state) return;
   const { me } = state;
   if (els.nameInput) els.nameInput.value = me.name;
-
-  renderMainNav();
-  renderPlayerCard();
-  renderTopHud();
-  renderSidePanel();
-  renderOverview();
-  renderAuction();
-  renderAuctionHistory();
-  renderWorkshop();
-  renderOrders();
-  renderMarket();
-  renderShop();
-  renderRecruitCandidates();
-  renderRankingBoard();
-  renderLivestream();
-  renderReports();
-  renderCollection();
+  renderShell();
+  renderActiveView();
+  // 签名跳过已实现：扫整页可覆盖弹层 canvas，未改动的画布几乎零成本。
   paintJades();
 }
 
-function paintJades() {
-  paintJadeCanvases();
+function paintJades(root = document) {
+  paintJadeCanvases(root);
 }
 
 const ACTION_ICONS = {
@@ -1398,7 +1536,7 @@ function currentAuctionHall() {
     return { label: open[0].label, nextLevel: higher ? higher.requiredLevel : null };
   }
   const locked = halls.filter((h) => h.active).sort((a, b) => a.requiredLevel - b.requiredLevel)[0];
-  return { label: locked ? `声望 Lv.${locked.requiredLevel} 解锁` : "未开放", nextLevel: null };
+  return { label: locked ? `经营 Lv.${locked.requiredLevel} 解锁` : "未开放", nextLevel: null };
 }
 
 function myTradeInfo() {
@@ -1435,10 +1573,10 @@ function statusRows() {
   }
   const workers = me.workshop?.workers?.length || 0;
   if (workers === 0) {
-    rows.push(statusRow("掌柜", "0 名 · 前往招募", viewButton("前往", "hireMarket", "s-go")));
+    rows.push(statusRow("掌柜", "0 名 · 前往员工", viewButton("前往", "hireMarket", "s-go")));
   }
   const hall = currentAuctionHall();
-  rows.push(statusRow("公盘", hall ? `可进 ${hall.label}${hall.nextLevel ? ` · 更高档需声望 Lv.${hall.nextLevel}` : ""}` : "未开放", viewButton("查看", "auction", "s-go")));
+  rows.push(statusRow("公盘", hall ? `可进 ${hall.label}${hall.nextLevel ? ` · 更高档需经营 Lv.${hall.nextLevel}` : ""}` : "未开放", viewButton("查看", "auction", "s-go")));
   const trade = myTradeInfo();
   const tradeBtn = trade.claimable > 0 ? button("领取", "collectPayouts", "", "s-go") : viewButton("查看", "market", "s-go");
   rows.push(statusRow("交易行", `可领取 ${trade.claimable} · 已售出 ${trade.sold} · 栏位 ${trade.slots}`, tradeBtn));
@@ -1483,7 +1621,7 @@ function taskCardHtml(task) {
         </div>
         <div class="task-card-meta">
           <span>进度：<b>${Number(task.progress || 0)}/${task.target}</b></span>
-          <span>奖励：<b class="task-reward">${formatMoney(task.reward)}</b>${task.rep ? ` <b class="task-rep">+声望 ${task.rep}</b>` : ""}</span>
+          <span>奖励：<b class="task-reward">${formatMoney(task.reward)}</b>${task.exp ? ` <b class="task-rep">+经验 ${task.exp}</b>` : ""}</span>
         </div>
         <div class="task-card-actions">
           ${resetBtn}
@@ -1533,6 +1671,7 @@ function renderOverview() {
   if (els.homeStatusPane) {
     const rankBoards = [
       { id: "rep", label: "声望榜" },
+      { id: "achievement", label: "成就榜" },
       { id: "collection", label: "藏品榜" },
       { id: "cash", label: "现金榜" },
       { id: "inventory", label: "库存榜" }
@@ -1557,46 +1696,35 @@ function renderOverview() {
 }
 
 // ===== 目标 / 成就系统（游戏化：给玩家"下一步做什么"的牵引）=====
-function hasImperial(me = {}) {
-  const scan = [...(me.rough || []), ...(me.bracelets || []), ...(me.collection || [])];
-  return scan.some((it) => it && (it.quality === "imperial" || it.qualityKey === "imperial" || String(it.color || "").includes("帝王")));
-}
-const GOALS = [
-  { id: "first-open", title: "初试开窗", desc: "完成第一次原石开窗", prog: (me) => (me.rough || []).filter((r) => r.revealed).length, target: 1 },
-  { id: "first-bracelet", title: "匠心初成", desc: "打磨出第一只翡翠镯", prog: (me) => (me.bracelets || []).length, target: 1 },
-  { id: "cash1w", title: "小有积蓄", desc: "现金达到 ¥10,000", prog: (me) => Number(me.cash || 0), target: 10000 },
-  { id: "rep3", title: "崭露头角", desc: "声望达到 Lv.3", prog: (me) => repLevelTier(Number(me.rep || 0)), target: 3 },
-  { id: "imperial", title: "帝王之绿", desc: "拥有或经手一件帝王绿", prog: (me) => (hasImperial(me) ? 1 : 0), target: 1 },
-  { id: "collection5", title: "藏珍纳宝", desc: "藏品达到 5 件", prog: (me) => (me.collection || []).length, target: 5 }
-];
-function goalFmt(g, v) {
-  if (g.id === "cash1w") return `${formatMoney(v)} / ${formatMoney(g.target)}`;
-  if (g.id === "rep3") return `Lv.${v} / ${g.target}`;
-  return `${v} / ${g.target}`;
-}
-function currentGoalViewModel() {
-  const { me } = state;
-  const next = GOALS.find((goal) => Math.min(goal.target, goal.prog(me)) < goal.target);
-  if (!next) {
-    return {
-      id: "all-done",
-      title: "全部达成",
-      desc: "江湖路远，去公盘再淘块好料吧！",
-      progressText: "",
-      pct: 100,
-      done: true
-    };
+function goalFmt(achievement) {
+  if (achievement.id === "cash_10k" || achievement.id === "cash_100k") {
+    return `${formatMoney(achievement.progress)} / ${formatMoney(achievement.target)}`;
   }
-  const current = Math.min(next.target, next.prog(me));
-  const pct = Math.round((current / next.target) * 100);
-  return {
-    id: next.id,
-    title: next.title,
-    desc: next.desc,
-    progressText: `${goalFmt(next, current)} · ${pct}%`,
-    pct,
-    done: false
-  };
+  if (achievement.id === "level_5") return `Lv.${achievement.progress} / ${achievement.target}`;
+  if (achievement.id === "rep_100") return `${formatNumber(achievement.progress)} / ${formatNumber(achievement.target)}`;
+  return `${achievement.progress} / ${achievement.target}`;
+}
+
+function currentGoalViewModel() {
+  return nextAchievementViewModel(state?.me || {});
+}
+
+function achievementsHtml() {
+  const me = state?.me || {};
+  const ap = Number(me.achievementPoints || 0);
+  const rows = achievementViewModels(me).map((g) => {
+    const pct = g.pct;
+    return `<div class="achv ${g.done ? "is-done" : ""}">
+      <div class="achv-ico">${g.done ? "★" : "○"}</div>
+      <div class="achv-main">
+        <div class="achv-top"><b>${escapeHtml(g.title)}</b>${g.done ? '<span class="achv-tag">已达成</span>' : `<span class="achv-tag">+${g.ap} AP</span>`}</div>
+        <div class="achv-desc">${escapeHtml(g.desc)}</div>
+        <div class="achv-bar"><i style="width:${pct}%"></i></div>
+        <div class="achv-prog">${goalFmt(g)} · ${g.tier}</div>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="achv-summary">成就值 <b>${formatNumber(ap)}</b> AP · 共 ${ACHIEVEMENT_DEFINITIONS.length} 项</div>${rows}`;
 }
 function goalCardHtml(model) {
   return `
@@ -1647,23 +1775,6 @@ function patchCurrentGoal(goalSlot, model) {
   progress.hidden = model.done;
   card.querySelector("[data-goal-bar]").style.width = `${model.pct}%`;
   progress.textContent = model.progressText;
-}
-function achievementsHtml() {
-  const { me } = state;
-  return GOALS.map((g) => {
-    const cur = Math.min(g.target, g.prog(me));
-    const done = cur >= g.target;
-    const pct = Math.round((cur / g.target) * 100);
-    return `<div class="achv ${done ? "is-done" : ""}">
-      <div class="achv-ico">${done ? "★" : "○"}</div>
-      <div class="achv-main">
-        <div class="achv-top"><b>${escapeHtml(g.title)}</b>${done ? '<span class="achv-tag">已达成</span>' : ""}</div>
-        <div class="achv-desc">${escapeHtml(g.desc)}</div>
-        <div class="achv-bar"><i style="width:${pct}%"></i></div>
-        <div class="achv-prog">${goalFmt(g, cur)}</div>
-      </div>
-    </div>`;
-  }).join("");
 }
 
 function renderNextActions() {
@@ -1831,6 +1942,17 @@ document.body.addEventListener("click", (event) => {
     return;
   }
 
+  const kitSizeChoice = event.target.closest("[data-opening-kit-size]");
+  if (kitSizeChoice) {
+    const kind = kitSizeChoice.dataset.openingKitSizeKind;
+    const value = kitSizeChoice.dataset.openingKitSize;
+    if (kind === "bangle") selectedBangleRingSize = normalizeBangleRingSize(value);
+    else selectedPendantSize = normalizePendantSize(value);
+    const roughId = kitSizeChoice.dataset.rough;
+    if (roughId) refreshOpeningPlanUi(roughId);
+    return;
+  }
+
   const kitChoice = event.target.closest("[data-opening-kit-choice]");
   if (kitChoice) {
     addRoughKit(kitChoice.dataset.rough, kitChoice.dataset.openingKitChoice);
@@ -1944,12 +2066,15 @@ document.body.addEventListener("click", (event) => {
     });
     return;
   }
+  if (action === "hireMarketTab") { setHireMarketTab(payload); return; }
   if (action === "refreshRecruitCandidates") {
     socket.emit("refreshRecruitCandidates", {
       requestId: globalThis.crypto?.randomUUID?.() || `recruit-refresh-${Date.now()}`
     });
     return;
   }
+  if (action === "openOwnedWorkerDetail") { openOwnedWorkerDetail(payload); return; }
+  if (action === "closeOwnedWorkerDetail") { closeOwnedWorkerDetail(); return; }
   if (action === "openRecruitCandidateDetail") { openRecruitCandidateDetail(payload); return; }
   if (action === "closeRecruitCandidateDetail") { closeRecruitCandidateDetail(); return; }
   if (action === "confirmRecruitCandidate") { confirmRecruitCandidate(); return; }
@@ -1990,6 +2115,7 @@ document.body.addEventListener("click", (event) => {
       const minimum = Number(amountInput.dataset.minBid || 0);
       const current = Math.max(minimum, Number(amountInput.value || 0));
       amountInput.value = Math.round(current + increment);
+      syncAuctionBidAffordability(amountInput);
     }
     return;
   }
@@ -2009,6 +2135,7 @@ document.body.addEventListener("click", (event) => {
   if (action === "setWorkerSort") { workshopSetSort(target); return; }
   if (action === "openWorkshopPlanner") { workshopOpenPlanner(payload); return; }
   if (action === "closeWorkshopPlanner") { workshopClosePlanner(false); return; }
+  if (action === "openInlayPreviewTester") { openInlayPreviewTester(); return; }
 
   if (action === "extractFromRough") {
     socket.emit("extractFromRough", {
@@ -2052,13 +2179,18 @@ document.body.addEventListener("click", (event) => {
     return;
   }
 
-  if (action === "scheduleLivestream") {
-    livestreamSchedule(target, payload);
-    return;
-  }
-
   if (action === "submitAuctionBid") {
     const amountInput = document.querySelector(`[data-bid-amount="${CSS.escape(payload)}"]`);
+    const amount = Number(String(amountInput?.value || "").replace(/[^\d]/g, "")) || 0;
+    const controls = amountInput?.closest?.(".bid-controls");
+    const liquidCash = Number(controls?.dataset?.bidCash ?? state.me?.cash ?? 0);
+    const escrowed = Number(controls?.dataset?.bidEscrowed || 0);
+    const budget = liquidCash + escrowed;
+    if (amount > budget) {
+      showToast(`可用现金不足，还差 ${formatMoney(amount - budget)}`);
+      syncAuctionBidAffordability(amountInput);
+      return;
+    }
     socket.emit("submitAuctionBid", {
       roughId: payload,
       hallId: state.auction?.hallId,
@@ -2150,7 +2282,8 @@ initMarketModule({
   els,
   getActiveView: () => activeView,
   helpers: {
-    formatMoney, escapeHtml, empty, showToast, typeName
+    formatMoney, escapeHtml, empty, showToast, typeName,
+    productCanvas, openingStoneSvg, jadeCanvasMarkup
   }
 });
 
@@ -2164,6 +2297,15 @@ initWorkshopModule({
     materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg, openingKitsForRender,
     kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, openingKitsForServer,
     roughKits, paintJades, showToast, productionJobsFor
+  }
+});
+
+initInventoryModule({
+  getState: () => state,
+  els,
+  helpers: {
+    formatMoney, formatNumber, escapeHtml, typeName,
+    materialStageForClient, materialStageLabel, productCanvas, openingStoneSvg
   }
 });
 
@@ -2206,7 +2348,8 @@ initLivestreamModule({
   els,
   getActiveView: () => activeView,
   helpers: {
-    finishedProducts, productCanvas, formatMoney, escapeHtml, empty
+    finishedProducts, productCanvas, formatMoney, escapeHtml, empty,
+    paintProductCanvases: paintJades
   }
 });
 
@@ -2219,10 +2362,3 @@ initExtraModule({
     currentReportSummary, formatMoney, escapeHtml, empty, productCanvas, formatNumber
   }
 });
-
-window.setInterval(() => {
-  if (!state) return;
-  renderPlayerSidebar();
-  renderAuction();
-  paintJades();
-}, 1000);

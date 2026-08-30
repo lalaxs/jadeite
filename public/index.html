@@ -122,6 +122,17 @@
           <div id="workshopRoot" class="workshop-root"></div>
         </section>
 
+        <section class="view" data-view="inventory">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">背包管理</p>
+              <h3>库存</h3>
+              <p>查看所有可用物品</p>
+            </div>
+          </div>
+          <div id="inventoryPanel" class="inventory-panel"></div>
+        </section>
+
         <section class="view" data-view="orders">
           <div class="section-head">
             <div>
@@ -216,9 +227,9 @@
 
         <section class="view" data-view="livestream">
           <div class="section-head">
-            <div><p class="eyebrow">自动模式</p><h3>直播卖货</h3></div>
+            <div><p class="eyebrow">公开营业 · AI 与玩家共逛</p><h3>直播间</h3></div>
           </div>
-          <div id="livestreamPanel" class="card-grid"></div>
+          <div id="livestreamPanel" class="livestream-root"></div>
         </section>
 
         <section class="view" data-view="reports">
@@ -242,10 +253,22 @@
           <div class="section-head">
             <div>
               <p class="eyebrow">工坊人力</p>
-              <h3>招募</h3>
+              <h3>员工</h3>
             </div>
+            <span id="hireMarketBrief" class="view-title-desc"></span>
           </div>
-          <section class="panel hire-panel">
+          <div class="shop-tabs hire-market-tabs" role="tablist" aria-label="员工与招募">
+            <button class="shop-tab active" type="button" role="tab" aria-selected="true" data-action="hireMarketTab" data-payload="roster">我的员工</button>
+            <button class="shop-tab" type="button" role="tab" aria-selected="false" data-action="hireMarketTab" data-payload="recruit">招募</button>
+          </div>
+          <section class="panel roster-panel tab-panel" data-tab-panel="roster" id="ownedWorkerPanel">
+            <div class="panel-head">
+              <h3>我的员工</h3>
+              <span id="ownedWorkerCount"></span>
+            </div>
+            <div id="ownedWorkerList" class="owned-worker-list"></div>
+          </section>
+          <section class="panel hire-panel tab-panel is-hidden" data-tab-panel="recruit">
             <div class="panel-head">
               <h3>师傅招募</h3>
               <button id="refreshRecruitBtn" data-action="refreshRecruitCandidates" type="button">刷新候选人 ¥500</button>
@@ -263,7 +286,7 @@
             <div class="hint">常驻 · 多界面</div>
           </div>
           <div class="panel-tabs" id="panelTabs">
-            <button data-ptab="workshop" type="button">工坊</button>
+            <button data-ptab="workshop" class="on" type="button">工坊</button>
             <button data-ptab="order" type="button">订单</button>
             <button data-ptab="remind" type="button">提醒</button>
             <button data-ptab="achv" type="button">成就</button>
@@ -272,7 +295,15 @@
         </div>
       </aside>
       <!-- 底部聊天坞（原主页消息面板，提升为全局常驻，但不占左导航列） -->
-      <footer class="chatdock" id="chatDock" aria-label="游玩消息">
+      <footer class="chatdock" id="chatDock" data-chatdock="expanded" aria-label="游玩消息">
+        <button
+          id="chatDockCompactBtn"
+          class="chatdock-compact-btn"
+          type="button"
+          aria-expanded="true"
+          aria-controls="homeMessageLog"
+          title="收起频道"
+        >收起</button>
         <div class="chatdock-tabs" id="messageChannelTabs"></div>
         <div class="chatdock-log" id="homeMessageLog"></div>
         <div class="chatdock-input">
@@ -282,17 +313,35 @@
       </footer>
     </main>
     <div class="jm-modal-root" id="marketListModal" hidden>
-      <div class="jm-modal">
+      <div class="jm-modal jm-modal-wide">
         <div class="jm-modal-head"><h3>挂牌出售</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
-        <div class="jm-modal-body">
-          <div class="jm-field"><label>选择库存物品</label><select id="marketListItem"></select></div>
-          <div class="jm-field"><label>挂牌价（不低于 ¥100）</label><input id="marketListPrice" type="number" inputmode="numeric" min="100" />
-            <div class="jm-suggest" id="marketListSuggest"></div></div>
-          <div class="jm-fee" id="marketListFee"></div>
+        <div class="jm-modal-body ml-body">
+          <div class="ml-left">
+            <div class="ml-toolbar">
+              <input id="mlSearch" type="search" placeholder="搜索名称 / 种水 / 类型" aria-label="搜索库存">
+              <select id="mlCategory" aria-label="分类">
+                <option value="all">全部分类</option>
+                <option value="rough">原石</option>
+                <option value="material">明料</option>
+                <option value="slice">片料</option>
+                <option value="bracelet">成品</option>
+              </select>
+              <select id="mlSort" aria-label="排序">
+                <option value="valueDesc">估值从高到低</option>
+                <option value="valueAsc">估值从低到高</option>
+                <option value="name">名称</option>
+                <option value="rarity">稀有度</option>
+                <option value="type">类型</option>
+              </select>
+            </div>
+            <div class="ml-grid" id="mlGrid"></div>
+          </div>
+          <div class="ml-right" id="mlDetail">
+            <div class="ml-detail-empty">从左侧选择一个物品进行挂牌</div>
+          </div>
         </div>
         <div class="jm-modal-foot">
           <button class="jm-btn-ghost" data-action="closeMarketModal" type="button">取消</button>
-          <button class="jm-btn-gold" data-action="confirmMarketList" type="button">确认挂牌</button>
         </div>
       </div>
     </div>

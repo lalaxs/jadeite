@@ -2,12 +2,66 @@
 let getState;
 let elsRef;
 let activeMessageChannel = "all";
+let chatdockCompact = false;
+const CHATDOCK_COMPACT_KEY = "jade-chatdock-compact";
 let nowMs, formatMoney, formatDuration, escapeHtml, empty, gameClock, auctionPhaseMeta, reminderRows, inventoryCounts, showToast;
+
+function desktopChatdockEnabled() {
+  return typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+}
+
+function readStoredChatdockCompact() {
+  try {
+    return localStorage.getItem(CHATDOCK_COMPACT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeStoredChatdockCompact(compact) {
+  try {
+    localStorage.setItem(CHATDOCK_COMPACT_KEY, compact ? "1" : "0");
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+export function applyChatdockCompact(forceCompact = null) {
+  if (forceCompact != null) chatdockCompact = Boolean(forceCompact);
+  const compact = desktopChatdockEnabled() && chatdockCompact;
+  const mode = compact ? "compact" : "expanded";
+  elsRef?.chatDock?.setAttribute("data-chatdock", mode);
+  elsRef?.shell?.setAttribute("data-chatdock", mode);
+  const btn = elsRef?.chatDockCompactBtn;
+  if (btn) {
+    btn.setAttribute("aria-expanded", String(!compact));
+    btn.title = compact ? "展开频道" : "收起频道";
+    btn.textContent = compact ? "展开" : "收起";
+  }
+  if (!compact) scrollHomeMessagesToLatest();
+}
+
+export function toggleChatdockCompact() {
+  if (!desktopChatdockEnabled()) return;
+  chatdockCompact = !chatdockCompact;
+  writeStoredChatdockCompact(chatdockCompact);
+  applyChatdockCompact();
+}
 
 export function initChatModule(deps) {
   getState = deps.getState;
   elsRef = deps.els;
   ({ nowMs, formatMoney, formatDuration, escapeHtml, empty, gameClock, auctionPhaseMeta, reminderRows, inventoryCounts, showToast } = deps.helpers);
+  chatdockCompact = readStoredChatdockCompact();
+  applyChatdockCompact();
+  elsRef?.chatDockCompactBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleChatdockCompact();
+  });
+  if (typeof window !== "undefined") {
+    window.matchMedia("(min-width: 768px)").addEventListener("change", () => applyChatdockCompact());
+  }
 }
 
 const messageChannelDefinitions = [
@@ -17,6 +71,29 @@ const messageChannelDefinitions = [
   { id: "trade", label: "交易" },
   { id: "announcement", label: "通告" },
 ];
+
+const seenMessageIds = new Set();
+
+function channelRows(rows, channelId) {
+  return channelId === "all" ? rows : rows.filter((row) => row.channel === channelId);
+}
+
+function markChannelMessagesRead(rows, channelId) {
+  for (const row of channelRows(rows, channelId)) {
+    if (row?.id != null) seenMessageIds.add(String(row.id));
+  }
+}
+
+function unreadCountForChannel(rows, channelId) {
+  return channelRows(rows, channelId).filter((row) => row?.id != null && !seenMessageIds.has(String(row.id))).length;
+}
+
+function formatUnreadBadge(count) {
+  const unread = Number(count || 0);
+  if (!unread) return "";
+  const label = unread > 99 ? "99+" : String(unread);
+  return `<span class="chatdock-tab-cnt">${escapeHtml(label)}</span>`;
+}
 export function formatMessageTime(value) {
   const time = Number(value || 0);
   if (!time) return new Date(nowMs()).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
@@ -223,11 +300,17 @@ export function homeMessageRows() {
 export function renderHomeMessages() {
   if (!elsRef.homeMessageLog || !elsRef.messageChannelTabs || !getState()?.me) return;
   const rows = homeMessageRows();
+
+  // 进入具体频道时清该频道未读；停在「综合」只汇总展示，不清空各频道
+  if (activeMessageChannel !== "all") {
+    markChannelMessagesRead(rows, activeMessageChannel);
+  }
+
   elsRef.messageChannelTabs.innerHTML = messageChannelDefinitions.map((channel) => {
-    const count = channel.id === "all" ? rows.length : rows.filter((row) => row.channel === channel.id).length;
+    const unread = unreadCountForChannel(rows, channel.id);
     return `
       <button class="${channel.id === activeMessageChannel ? "active" : ""}" data-action="selectMessageChannel" data-message-channel="${escapeHtml(channel.id)}" type="button">
-        ${escapeHtml(channel.label)}<span>${count}</span>
+        ${escapeHtml(channel.label)}${formatUnreadBadge(unread)}
       </button>
     `;
   }).join("");
