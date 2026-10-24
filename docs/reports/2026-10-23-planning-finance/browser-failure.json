@@ -1,0 +1,10 @@
+{
+  "error": "locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#workshopStepTab-plan')\u001b[22m\n\n    at openPlanner (C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\scripts\\planning-finance-browser.mjs:93:51)\n    at async file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/scripts/planning-finance-browser.mjs:138:3",
+  "serverOutput": "[persist] migrated JSON save C:\\Users\\ZhuanZ\\AppData\\Local\\Temp\\jade-planning-finance-UYRvXE\\seed.json into C:\\Users\\ZhuanZ\\AppData\\Local\\Temp\\jade-planning-finance-UYRvXE\\world.sqlite\n[persist] restored 2 player(s) from C:\\Users\\ZhuanZ\\AppData\\Local\\Temp\\jade-planning-finance-UYRvXE\\world.sqlite\nJade Market Prototype running at http://127.0.0.1:48708\n",
+  "errors": [],
+  "checks": [
+    "pointer drag is one undo operation",
+    "add/undo/redo through keyboard",
+    "switch A/B/A preserves layout"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "beforeFinish": {
+    "gemCount": "48",
+    "modalWidth": 366,
+    "pageWidth": 390,
+    "pieceIds": [
+      "3747816c-a608-432e-a7ae-829686ca816b",
+      "3747816c-a608-432e-a7ae-829686ca816b",
+      "3747816c-a608-432e-a7ae-829686ca816b",
+      "3747816c-a608-432e-a7ae-829686ca816b"
+    ],
+    "signatures": [
+      "6be42103",
+      "6be42103",
+      "6be42103",
+      "6be42103"
+    ],
+    "viewportWidth": 390
+  },
+  "afterReload": {
+    "gemSeats": 48,
+    "scrollWidth": 1280,
+    "signatures": [
+      "6be42103",
+      "6be42103",
+      "6be42103"
+    ],
+    "width": 1280
+  },
+  "errors": []
+}

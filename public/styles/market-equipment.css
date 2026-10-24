@@ -1,0 +1,28 @@
+.jm-equipment-visual { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; min-height: 90px; padding: 12px; color: var(--jade); gap: 3px; box-sizing: border-box; }
+.jm-equipment-visual svg { width: min(160px, 100%); height: 82px; flex-shrink: 1; }
+.jm-equipment-visual small { font-size: 11px; text-align: center; overflow-wrap: anywhere; }
+.jm-equipment-profile { display: flex; flex-wrap: wrap; gap: 5px; font-size: 12px; }
+.jm-equipment-profile p { width: 100%; margin: 5px 0; color: var(--muted); line-height: 1.6; }
+.jm-equipment-note { font-size: 12px; line-height: 1.7; color: var(--muted); margin: 8px 0; }
+#marketQFilters select { max-width: 100%; min-width: 0; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); font: inherit; }
+.jm-filters-bar .jm-fgroup-quality #marketQFilters.is-equipment { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; min-width: 0; }
+.ml-info-visual .jm-equipment-visual { min-height: 0; padding: 0; }
+.ml-info-visual .jm-equipment-visual .bm-resource-art { min-height: 0; padding: 0; background: transparent; }
+.ml-info-visual .jm-equipment-visual svg { width: 100%; height: 100%; }
+.ml-info-visual .jm-equipment-visual small { display: none; }
+.ml-slot-visual .jm-equipment-visual { width: var(--ml-slot-art-size, 86px); height: var(--ml-slot-art-size, 86px); min-height: 0; padding: 0; }
+.ml-slot-visual .jm-equipment-visual .bm-resource-art { min-height: 0; padding: 0; background: transparent; }
+.ml-slot-visual .jm-equipment-visual svg { width: 100%; height: 100%; }
+.ml-info-chips .jm-chips { margin: 0; }
+#marketListModal .ml-info-profile .equipment-param-pills { position: relative; }
+#marketListModal .ml-info-profile .equipment-param-help { position: static; }
+#marketListModal .ml-info-profile .equipment-param-help::after { left: 0; max-width: 100%; transform: translateY(-2px); }
+#marketListModal .ml-info-profile .equipment-param-help:hover::after,
+#marketListModal .ml-info-profile .equipment-param-help:focus::after { transform: translateY(0); }
+.ml-slot-state { color: var(--muted); font-size: 10px; }
+@media (max-width: 767px) {
+  .jm-filters-bar .jm-fgroup-quality #marketQFilters.is-equipment { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jm-filters-bar .jm-fgroup-price { min-width: 0; }
+  .jm-filters-bar .jm-fgroup-price .jm-price-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; min-width: 0; flex: 1 1 auto; }
+  .jm-filters-bar .jm-fgroup-price .jm-price-row input { width: 100%; min-width: 0; box-sizing: border-box; }
+}

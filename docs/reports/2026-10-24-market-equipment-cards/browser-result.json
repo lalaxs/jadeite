@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "checks": [
+    "shared black-market outline card and two summary lines",
+    "day/night and desktop/mobile layouts",
+    "own listing and withdrawal",
+    "relisting and equipment filters",
+    "purchase costs and tax",
+    "purchase into workshop with original durability",
+    "no overflow or browser errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "action": "routeInventoryItem",
+    "text": "匹配订单"
+  },
+  {
+    "action": "routeInventoryItem",
+    "text": "挂牌出售"
+  },
+  {
+    "action": "routeInventoryItem",
+    "text": "加入直播"
+  },
+  {
+    "action": "collectBracelet",
+    "text": "收入藏宝阁"
+  }
+]

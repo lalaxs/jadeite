@@ -1,0 +1,413 @@
+{
+  "reports": [
+    {
+      "name": "day-1440-detail-hidden",
+      "width": 840,
+      "top": 152.8125,
+      "bottom": 747.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 680.1875,
+        "bottom": 746.1875,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-detail-windowed",
+      "width": 840,
+      "top": 114.8125,
+      "bottom": 785.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 718.1875,
+        "bottom": 784.1875,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-detail-opened",
+      "width": 840,
+      "top": 136.40625,
+      "bottom": 763.59375,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 696.59375,
+        "bottom": 762.59375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-detail-finished",
+      "width": 840,
+      "top": 136.40625,
+      "bottom": 763.59375,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 696.59375,
+        "bottom": 762.59375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-detail-employee",
+      "width": 840,
+      "top": 107,
+      "bottom": 793,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 726,
+        "bottom": 792,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-detail-equipment",
+      "width": 840,
+      "top": 152.8125,
+      "bottom": 747.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 680.1875,
+        "bottom": 746.1875,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-hidden",
+      "width": 840,
+      "top": 151.8125,
+      "bottom": 748.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 679.1875,
+        "bottom": 747.1875,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-windowed",
+      "width": 840,
+      "top": 113.8125,
+      "bottom": 786.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 717.1875,
+        "bottom": 785.1875,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-opened",
+      "width": 840,
+      "top": 135.40625,
+      "bottom": 764.59375,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 695.59375,
+        "bottom": 763.59375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-finished",
+      "width": 840,
+      "top": 135.40625,
+      "bottom": 764.59375,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 695.59375,
+        "bottom": 763.59375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-employee",
+      "width": 840,
+      "top": 106,
+      "bottom": 794,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 725,
+        "bottom": 793,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-detail-equipment",
+      "width": 840,
+      "top": 151.8125,
+      "bottom": 748.1875,
+      "previewHeight": 170,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 2,
+      "footer": {
+        "top": 679.1875,
+        "bottom": 747.1875,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-hidden",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-employee",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-detail-equipment",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-hidden",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-employee",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-detail-equipment",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 150,
+      "titleSize": "20px",
+      "fieldSize": "14px",
+      "columns": 1,
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

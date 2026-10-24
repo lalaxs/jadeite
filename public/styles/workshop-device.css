@@ -1,0 +1,595 @@
+/* styles/workshop-device.css — sliced from styles.css (order preserved) */
+}
+[data-theme="night"] .workshop-step-desc {
+  color: var(--muted);
+}
+
+/* ===== 工坊设备详情页：信息栏 / 进度条 / 大卡 / 弹窗（2026-07-22 重构） ===== */
+
+/* 顶栏：返回 + 机器名 + 环节标签 */
+.workshop-recipe-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.workshop-recipe-page-head .back-link { flex: none; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px; font-weight: 700;
+  padding: 11px 22px; border-radius: 10px; cursor: pointer;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+.back-link:hover { color: var(--jade); border-color: var(--jade); background: rgba(48,166,105,.12); }
+.wsp-title { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.wsp-title h3 { margin: 0; font-size: 26px; white-space: nowrap; }
+.wsp-step-tag {
+  flex: none;
+  font-size: 13px; font-weight: 700;
+  color: var(--jade-dark);
+  background: #e7f6ef;
+  border: 1px solid var(--jade);
+  border-radius: var(--r-pill);
+  padding: 3px 12px;
+}
+
+/* 机器信息栏：带底框的卡片 */
+.machine-info-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md, 14px);
+  padding: 16px 20px;
+  background: var(--panel);
+}
+.mib-item { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.mib-item em { font-style: normal; color: var(--muted); }
+.mib-item strong { font-weight: 700; }
+.mib-item.name-item strong { font-size: 18px; color: var(--jade); }
+.mib-item strong.pos { color: var(--jade); }
+.mib-item strong.neg { color: #c76046; }
+.mib-param-pills {
+  flex: 1 1 360px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.mib-equipment-param-pills {
+  display: inline-flex;
+}
+.mib-dura { flex: 1 1 100%; min-width: 220px; margin-top: 2px; }
+.mib-dura em { margin-right: 4px; }
+.mib-dura-track { flex: 1; height: 9px; border-radius: 999px; background: rgba(8,22,18,.45); overflow: hidden; }
+.mib-dura-fill { display: block; height: 100%; border-radius: 999px; }
+.mib-dura-fill.high { background: linear-gradient(90deg, #2f9e6b, #43c98a); }
+.mib-dura-fill.mid { background: linear-gradient(90deg, #c9a23a, #e7c45c); }
+.mib-dura-fill.low { background: linear-gradient(90deg, #c76046, #e08a73); }
+.mib-specs { flex: 1 1 100%; margin-top: 2px; }
+.mib-specs strong { color: var(--gold); }
+
+/* 进度条 + 暂未开工 */
+.workshop-progress {
+  display: grid;
+  gap: 10px;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  padding: 0;
+}
+.workshop-progress.job-empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  background: repeating-linear-gradient(45deg, #f6faf7, #f6faf7 10px, #eef4f0 10px, #eef4f0 20px);
+  padding: 12px 16px;
+  overflow: hidden;
+}
+.job-empty-text { color: var(--muted); font-size: 14px; font-weight: 600; }
+
+/* 加工中任务进度：名称与倒计时同行，轨道在文字下方 */
+.workshop-progress .machine-row.inline-machine {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 4px 0 2px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+.workshop-progress .machine-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+.workshop-progress .machine-top strong {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.workshop-progress .machine-eta {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--gold-dark, #7d5b2d);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.workshop-progress .machine-track {
+  height: 12px;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--track, rgba(31, 50, 40, 0.14));
+  box-shadow: inset 0 1px 3px rgba(40, 60, 50, 0.14);
+}
+.workshop-progress .machine-track i {
+  display: block;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--jade-light), var(--jade) 55%, var(--jade-dark));
+  box-shadow: 0 0 8px rgba(31, 138, 91, 0.35);
+  transition: width 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.workshop-progress .machine-track i.done {
+  background: linear-gradient(90deg, #f0d28a, var(--gold) 60%, var(--gold-dark));
+}
+.workshop-progress .machine-track i::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: progShine 2.4s ease-in-out infinite;
+}
+
+/* 加工中：物料/员工大卡置灰不可点 */
+.ws-big-card.is-locked {
+  opacity: 0.58;
+  filter: grayscale(0.35);
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+  border-color: var(--line);
+  transform: none;
+}
+.ws-big-card.is-locked:hover {
+  border-color: var(--line);
+  box-shadow: none;
+  transform: none;
+}
+.ws-big-locked-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* 加工队列条 */
+.workshop-queue-strip { display: grid; gap: 6px; }
+.queue-row { font-size: 13px; color: var(--ink); }
+.queue-row.muted { color: var(--muted); }
+
+/* 三列主区：大卡 + 汇总 */
+.workshop-recipe-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) minmax(280px, 1.1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* 大卡（物料 / 员工） */
+.ws-big-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 260px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  background: linear-gradient(180deg, #fbfdfb, #f1f7f3);
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.ws-big-card:hover { border-color: var(--jade); box-shadow: 0 8px 20px rgba(29,64,47,.12); }
+.ws-big-card.empty { align-items: center; justify-content: center; min-height: 260px; border-style: dashed; }
+.ws-big-plus { font-size: 46px; line-height: 1; color: var(--jade); opacity: .55; }
+.ws-big-label { font-size: 15px; font-weight: 700; color: var(--muted); }
+/* 覆盖 compact 的 58px，保留大卡预览尺寸；仅去掉浅色底框 */
+.ws-big-material > .rough-output-preview,
+.ws-big-material > .rough-output-preview.compact,
+.ws-big-material > .workshop-product-preview {
+  width: min(100%, 220px);
+  max-width: 220px;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  flex: none;
+  min-height: unset;
+}
+.ws-big-material > .rough-output-preview .jade-opening-svg,
+.ws-big-material > .rough-output-preview.compact .jade-opening-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: transparent;
+}
+/* 大卡内层也要填满预览区，不能沿用列表缩略图的 58px 尺寸。 */
+.ws-big-material > .workshop-product-preview {
+  display: grid;
+  place-items: center;
+}
+.ws-big-material > .workshop-product-preview .component-jewelry-product,
+.ws-big-material > .workshop-product-preview .jade-opening-product,
+.ws-big-material > .workshop-product-preview .jade-canvas {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  background: transparent;
+}
+.ws-big-meta { display: grid; gap: 2px; text-align: center; }
+.ws-big-meta strong { font-size: 15px; }
+.ws-big-meta em { font-style: normal; color: var(--muted); font-size: 12px; }
+.ws-big-worker-top { display: flex; align-items: center; gap: 10px; }
+.ws-big-worker-id { display: grid; gap: 2px; min-width: 0; }
+.ws-big-worker-id strong { font-size: 16px; }
+.ws-big-worker-id em { font-style: normal; color: var(--muted); font-size: 12px; }
+.ws-worker-fields { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+.ws-worker-fields li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.ws-worker-fields li em { font-style: normal; color: var(--muted); }
+.ws-worker-fields li strong { font-weight: 700; }
+.wsp-recommend { align-self: flex-start; margin-top: auto; }
+.ws-big-card.empty .wsp-recommend { align-self: center; margin-top: 6px; }
+
+/* 右侧汇总：属性 + 效果 chip */
+.workshop-recipe-summary { gap: 14px; min-height: 260px; }
+.workshop-recipe-summary.empty-summary { align-content: center; justify-items: start; }
+.wrs-block { display: grid; gap: 8px; }
+.wrs-block h4 { margin: 0; font-size: 15px; }
+.wrs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.wrs-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); border-radius: var(--r-pill);
+  padding: 5px 12px; font-size: 13px; background: var(--panel);
+}
+.wrs-chip em { font-style: normal; color: var(--muted); font-size: 12px; }
+.wrs-chip strong { font-weight: 700; }
+.wrs-plan-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2, var(--panel));
+}
+.wrs-plan-step > div { display: grid; gap: 4px; min-width: 0; }
+.wrs-plan-step span,
+.wrs-plan-step p { color: var(--muted); font-size: 12px; }
+.wrs-plan-step p { margin: 0; line-height: 1.45; }
+.wrs-plan-step > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.wrs-plan-step.is-ready { border-color: rgba(48, 166, 105, .45); }
+
+/* 弹窗 */
+@keyframes wsp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wsp-pop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+.ws-picker-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8,20,16,.58);
+  backdrop-filter: blur(3px);
+  padding: 24px;
+  animation: wsp-fade .18s ease both;
+}
+.ws-picker-modal {
+  width: min(580px, 100%);
+  max-height: 82vh;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--jade);
+  border-radius: var(--r-md, 14px);
+  background: #fffdf6;
+  box-shadow: 0 26px 64px rgba(0,0,0,.34);
+  overflow: hidden;
+  animation: wsp-pop .22s cubic-bezier(.2,.8,.3,1) both;
+}
+.ws-planner-modal {
+  width: min(1180px, 100%);
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--jade);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  overflow: hidden;
+  box-shadow: 0 26px 64px rgba(0, 0, 0, .34);
+}
+.ws-planner-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr);
+  gap: 18px;
+  min-height: 0;
+  padding: 0 22px 18px;
+  overflow: auto;
+}
+.ws-planner-canvas,
+.ws-planner-tools {
+  min-width: 0;
+}
+.ws-picker-modal.kind-worker { width: min(1180px, 100%); }
+.ws-picker-modal.step-plan { border-top-color: #4896b8; }
+.ws-picker-modal.step-finish { border-top-color: var(--gold); }
+.ws-picker-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 22px 14px; flex-shrink: 0; }
+.wsp-head-text h3 { margin: 0; font-size: 23px; font-weight: 800; }
+.wsp-head-text p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.wsp-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 22px 14px; flex-shrink: 0; }
+.wsp-count { font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: .02em; }
+.wsp-search { width: 260px; max-width: 55%; padding: 9px 15px; border: 1px solid var(--line); border-radius: 999px; background: #f3f8f5; font-size: 15px; color: var(--ink); transition: border-color .15s ease, background .15s ease; }
+.wsp-search:focus { outline: none; border-color: var(--jade); background: #fff; }
+.wsp-search::placeholder { color: var(--muted); }
+/* 排序/筛选工具条（仅员工弹窗显示） */
+.wsp-toolbar-extra { display: flex; flex-wrap: wrap; gap: 10px; padding: 6px 22px 14px; align-items: center; flex-shrink: 0; }
+.wsp-toolbar-group { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 12px; background: rgba(8,22,18,.05); }
+.wsp-toolbar-label { font-size: 12.5px; color: var(--muted); font-weight: 700; padding: 0 8px 0 4px; letter-spacing: .02em; }
+.wsp-toolbar-btn { border: none; background: transparent; padding: 6px 14px; border-radius: 9px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; font-family: inherit; transition: background .15s ease, color .15s ease; }
+.wsp-toolbar-btn:hover { color: var(--ink); background: rgba(255,255,255,.65); }
+.wsp-toolbar-btn.is-active { background: var(--jade); color: #fff; box-shadow: 0 2px 6px rgba(48,166,105,.25); }
+.wsp-toolbar-btn.is-active:hover { background: var(--jade-dark); color: #fff; }
+.ws-picker-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ws-picker-list { display: grid; gap: 14px; padding: 4px 22px 22px; overflow: auto; align-content: start; flex: 1; min-height: 0; overscroll-behavior: contain; }
+.ws-picker-hint { display: inline-block; margin-top: 8px; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.ws-picker-list.picker-material {
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  grid-auto-rows: max-content;
+}
+@media (max-width: 600px) {
+  .ws-picker-list.picker-material { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ws-picker-list.picker-material > .ws-picker-empty,
+.ws-picker-list.picker-material > .empty {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: max-content;
+  max-width: min(100%, 28rem);
+  margin: 28px auto 12px;
+  padding: 8px 12px;
+}
+.ws-picker-empty-title {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.ws-picker-empty .ws-picker-hint {
+  display: block;
+  margin-top: 8px;
+  white-space: normal;
+}
+.ws-picker-list.picker-worker { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; padding: 18px; }
+.ws-picker-body { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(360px, 1.05fr); gap: 0; min-height: 0; flex: 1; overflow: hidden; }
+.ws-picker-body > .ws-picker-list { max-height: none; height: 100%; border-right: 1px solid var(--line); }
+.ws-picker-body > .wsp-pick-side { max-height: none; height: 100%; overflow: auto; }
+.ws-picker-item {
+  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+  width: 100%; text-align: left; cursor: pointer;
+  border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px;
+  background: #fbfdfb; color: inherit;
+  transition: border-color .15s ease, background .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.ws-picker-item:hover { border-color: var(--jade); background: #eef9f2; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(29,64,47,.1); }
+.ws-picker-item:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+.ws-picker-item.is-hidden { display: none; }
+
+/* 料子卡片：图片为主 */
+.ws-picker-item.ws-pick-material {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+.ws-picker-item.ws-pick-material .wsp-thumb {
+  position: relative;
+  width: 100%; aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  background: transparent;
+  overflow: hidden;
+}
+.ws-pick-material .wsp-thumb > .lazy-preview {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+}
+.ws-pick-material .wsp-thumb .rough-output-preview,
+.ws-pick-material .wsp-thumb .workshop-product-preview {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.ws-pick-material .wsp-thumb .component-jewelry-product,
+.ws-pick-material .wsp-thumb .jade-opening-product,
+.ws-pick-material .wsp-thumb .jade-canvas {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  background: transparent;
+}
+.ws-pick-material .wsp-thumb .rough-output-preview .jade-opening-svg {
+  background: transparent;
+  min-height: 0;
+}
+.ws-pick-material .wsp-thumb-meta { display: grid; gap: 2px; min-width: 0; }
+.ws-pick-material .wsp-thumb-meta strong { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-pick-material .wsp-thumb-meta em { font-style: normal; color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-pick-material .wsp-thumb-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
+/* 员工卡片：品阶徽章 / 词条 / 本工序属性预览 / 技能经验条 */
+/* 员工卡片：网格内只显示基础信息（姓名/品阶/本工序关键数值/技能等级） */
+.ws-pick-worker { display: flex; flex-direction: column; gap: 9px; align-items: stretch; text-align: left; padding: 16px 18px; min-height: 184px; background: var(--panel); border: 2px solid var(--tier-border, var(--line)); }
+.wsp-worker-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.wsp-worker-name { font-size: 18px; font-weight: 800; }
+.wsp-tier-badge { font-size: 13px; font-weight: 800; padding: 3px 12px; border-radius: 999px; color: #fff; white-space: nowrap; }
+.tier-white { background: #9aa6a0; }
+.tier-green { background: #2f9e6e; }
+.tier-blue { background: #2f7fc1; }
+.tier-purple { background: #8a5cc4; }
+.tier-gold { background: #c79a3a; }
+.wsp-worker-role { font-style: normal; color: var(--muted); font-size: 14px; }
+.wsp-worker-mini { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 2px; }
+.wsp-worker-mini > span { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-radius: 8px; background: rgba(8,22,18,.05); }
+.wsp-worker-mini em { font-style: normal; font-size: 12.5px; color: var(--muted); }
+.wsp-worker-mini strong { font-size: 14.5px; color: var(--jade-dark); font-weight: 800; }
+.wsp-worker-attrs { margin-top: 6px; font-size: 12px; line-height: 1.55; color: var(--muted); word-break: break-word; }
+.wsp-card-skills { display: flex; flex-wrap: wrap; gap: 5px 8px; margin-top: 2px; }
+.wsp-cs { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: rgba(8,22,18,.06); color: var(--muted); white-space: nowrap; }
+.wsp-cs b { color: var(--ink); font-weight: 700; }
+.wsp-cs i { font-style: normal; color: var(--jade-dark); font-weight: 800; margin-left: 2px; }
+.wsp-assigned-flag { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(48,166,105,.16); color: var(--jade-dark); align-self: flex-start; }
+.wsp-assigned-flag.inline { background: transparent; color: var(--jade-dark); padding: 0; }
+/* 左卡天赋：仅名字，正天赋绿、负缺陷红 */
+.wsp-worker-traits { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.wsp-trait-chip { font-size: 11.5px; font-weight: 700; padding: 1px 9px; border-radius: 999px; line-height: 1.5; }
+.wsp-trait-chip.pos { background: rgba(48,166,105,.18); color: var(--jade-dark); }
+.wsp-trait-chip.neg { background: rgba(199,80,46,.18); color: #b9482a; }
+.wsp-trait-chip.muted { background: rgba(120,130,125,.16); color: var(--muted); font-weight: 600; }
+.wsp-worker-traits-empty { font-size: 11.5px; color: var(--muted); }
+/* 右详情技能：本工序技能底图 + 名字后「本工序」标签 */
+.wsp-skill-tag { font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: rgba(206,184,124,.22); color: var(--gold); margin-left: 8px; }
+.wsp-skill-card.is-step { background: rgba(206,184,124,.1); }
+.ws-pick-worker.is-assigned { border-left: 3px solid var(--jade); }
+.ws-pick-worker.is-active { border-color: var(--jade); background: var(--panel); box-shadow: 0 0 0 2px rgba(48,166,105,.18) inset, 0 4px 14px rgba(48,166,105,.2); }
+
+/* 员工弹窗右侧详情面板 — block 滚动容器 + sticky footer */
+.wsp-pick-side { display: block; overflow: auto; max-height: 62vh; padding: 18px 22px 0; background: rgba(8,22,18,.025); }
+.wsp-pick-side.empty { display: flex; align-items: center; justify-content: center; background: transparent; padding: 24px; }
+.wsp-pick-side-hint { color: var(--muted); font-size: 14.5px; }
+.wsp-pick-side-head { display: flex; align-items: center; gap: 14px; padding-bottom: 12px; border-radius: var(--r-sm); }
+.wsp-pick-side-head .worker-avatar.big { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, rgba(48,166,105,.18), rgba(48,166,105,.4)); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; flex: none; }
+.wsp-pick-side-id { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.wsp-pick-side-id strong { font-size: 19px; font-weight: 800; }
+.wsp-pick-side-id em { font-style: normal; color: var(--muted); font-size: 14px; }
+.wsp-pick-side-body { padding-bottom: 16px; }
+.wsp-pick-side-block h5 { margin: 0 0 7px; font-size: 14px; font-weight: 800; color: var(--muted); letter-spacing: .04em; }
+.wsp-pick-side-block + .wsp-pick-side-block { margin-top: 14px; }
+.wsp-pick-side-foot { display: flex; align-items: stretch; position: sticky; bottom: 0; margin: 0 -22px 0; padding: 16px 22px 18px; border-top: 1px solid var(--line); border-bottom-left-radius: var(--r-md, 14px); border-bottom-right-radius: var(--r-md, 14px); background: var(--bg2); box-shadow: 0 -10px 20px -10px rgba(0,0,0,.22); }
+.wsp-pick-side-foot .primary { flex: 1 1 auto; width: 100%; font-size: 18px; font-weight: 800; padding: 16px 0; border-radius: 14px; background: var(--jade); color: #fff; border: none; box-shadow: 0 6px 16px rgba(48,166,105,.32); cursor: pointer; transition: background .15s ease, transform .12s ease; }
+.wsp-pick-side-foot .primary:hover { background: var(--jade-dark); }
+.wsp-pick-side-foot .primary[disabled] { opacity: .55; cursor: not-allowed; }
+.wsp-skill-bars { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.wsp-flaw-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.wsp-trait-wrap { position: relative; display: inline-flex; }
+.wsp-tip {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 6;
+  max-width: 300px; width: max-content;
+  padding: 9px 12px; border-radius: 10px;
+  background: #10221b; color: #eafff5;
+  font-size: 13px; line-height: 1.55; font-weight: 500; text-align: left;
+  box-shadow: 0 10px 26px rgba(0,0,0,.34);
+  border: 1px solid rgba(255,255,255,.12);
+}
+.wsp-tip::before {
+  content: ""; position: absolute; bottom: 100%; left: 14px;
+  border: 6px solid transparent; border-bottom-color: #10221b;
+}
+/* 天赋整行（替换原 chip + tooltip）：整行底图，按天赋品质（正/负）着色 */
+.wsp-trait-rows { display: flex; flex-direction: column; gap: 8px; }
+.wsp-trait-row { display: flex; flex-direction: column; gap: 5px; padding: 11px 15px; border-radius: 12px; border-left: 4px solid; line-height: 1.45; }
+.wsp-trait-row.pos { background: rgba(48,166,105,.13); border-left-color: var(--jade); color: var(--jade-dark); }
+.wsp-trait-row.neg { background: rgba(199,80,46,.13); border-left-color: #b9482a; color: #b9482a; }
+.wsp-trait-row.muted { background: rgba(120,130,125,.12); border-left-color: var(--muted); color: var(--muted); }
+.wsp-trait-name { font-size: 15px; font-weight: 800; letter-spacing: .02em; }
+.wsp-trait-desc { font-size: 13px; opacity: .9; }
+/* 技能卡片（替换原 .wsp-skill 单行）：每个技能一张独立底图卡片 */
+.wsp-skill-cards { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.wsp-skill-card { display: flex; flex-direction: column; gap: 7px; padding: 11px 15px; border-radius: 12px; background: rgba(8,22,18,.06); }
+.wsp-skill-card-head { display: flex; align-items: center; justify-content: space-between; }
+.wsp-skill-card-head .wsp-skill-name { font-size: 15.5px; font-weight: 800; color: var(--ink); }
+.wsp-skill-lv { font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(48,166,105,.16); color: var(--jade-dark); }
+.wsp-skill-card-bar { width: 100%; display: block; }
+.wsp-skill-card-bar .wsp-bar { display: block; width: 100%; height: 10px; }
+.wsp-skill-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+.wsp-skill-attr { color: var(--jade-dark); text-align: left; }
+.flaw-chip { font-size: 14px; font-weight: 700; padding: 4px 13px; border-radius: 999px; border: none; cursor: pointer; font-family: inherit; line-height: 1.5; }
+.flaw-chip.pos { background: rgba(48,166,105,.16); color: var(--jade-dark); }
+.flaw-chip.neg { background: rgba(216,90,48,.16); color: #b9482a; }
+.flaw-chip.muted { background: rgba(120,130,125,.12); color: var(--muted); }
+/* 加工工分评级徽章 */
+.craft-grade { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 13px; font-weight: 800; line-height: 1; }
+.craft-grade.grade-S { background: rgba(218,184,92,.22); color: var(--gold); }
+.craft-grade.grade-A { background: rgba(48,166,105,.20); color: var(--jade); }
+.craft-grade.grade-B { background: rgba(72,150,184,.18); color: #3f8fb0; }
+.craft-grade.grade-C { background: rgba(136,105,180,.18); color: #8869b4; }
+.craft-grade.grade-D { background: rgba(150,150,150,.16); color: var(--muted); }
+.item-craft-score { margin: 2px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.item-craft-score strong { color: var(--ink); font-weight: 800; }
+/* 加工完美度确定性标签：完美 / 瑕疵·类型（纯分数判定，无随机） */
+.craft-tag { display: inline-flex; align-items: center; justify-content: center; height: 20px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 700; line-height: 1; }
+.craft-tag.tag-perfect { background: rgba(48,166,105,.22); color: var(--jade); }
+.craft-tag.tag-flaw { background: rgba(199,96,70,.20); color: #c76046; }
+.wsp-worker-mini span.grade-S strong, .wsp-worker-mini span.grade-S em,
+.wrs-chip.grade-S strong, .wrs-chip.grade-S em { color: var(--gold); }
+.wsp-worker-mini span.grade-A strong, .wsp-worker-mini span.grade-A em,
+.wrs-chip.grade-A strong, .wrs-chip.grade-A em { color: var(--jade); }
+.wsp-attr-preview { display: grid; gap: 3px; padding: 11px 13px; border-radius: var(--r-sm); background: rgba(8,22,18,.05); }
+.wsp-attr-head { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; align-items: baseline; }
+.wsp-attr-head strong { color: var(--jade-dark); font-size: 15.5px; }
+.wsp-attr-row { display: flex; justify-content: space-between; font-size: 14.5px; }
+.wsp-attr-row span { color: var(--muted); }
+.wsp-attr-row strong { font-weight: 800; color: var(--ink); }
+.wsp-dir { display: grid; gap: 5px; padding-top: 5px; }
+.wsp-dir-head { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; color: var(--muted); }
+.wsp-dir-head em { font-style: normal; color: var(--jade-dark); }
+.wsp-skill { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.wsp-skill-name { min-width: 72px; color: var(--ink); }
+.wsp-skill-name em { font-style: normal; color: var(--muted); font-size: 12.5px; }
+.wsp-skill-exp { font-size: 12.5px; color: var(--muted); flex: none; min-width: 58px; text-align: right; font-variant-numeric: tabular-nums; }
+.wsp-bar { display: block; width: 100%; height: 10px; border-radius: 999px; background: rgba(8,22,18,.16); overflow: hidden; position: relative; }
+.wsp-bar > i { display: block; height: 100%; min-width: 2px; border-radius: 999px; background: linear-gradient(90deg, var(--jade), var(--jade-light)); transition: width .25s ease; }
+.ws-big-worker-preview { display: flex; flex-wrap: wrap; gap: 5px 14px; font-size: 14px; color: var(--muted); }
+.ws-big-worker-preview strong { color: var(--jade-dark); }
+.ws-big-worker-flaws { display: flex; flex-wrap: wrap; gap: 6px; }
+.ws-big-worker-flaws .trait-chip { font-family: inherit; font-size: 14px; font-weight: 700; line-height: 1.5; }
+.worker-mini { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }

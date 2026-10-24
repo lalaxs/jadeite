@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "pointer drag is one undo operation",
+    "add/undo/redo through keyboard",
+    "switch A/B/A preserves layout",
+    "page reload restores layout",
+    "other window keeps an independent version and requires explicit loading",
+    "inventory detail keeps recorded cost and removes the two finance shortcuts",
+    "unknown historical cost is not presented as zero-cost profit",
+    "cash ledger removes the finance explanation and shortcut"
+  ],
+  "errors": [],
+  "screenshots": [
+    "01-planner-desktop.png",
+    "02-planner-mobile.png",
+    "03-cost-detail-desktop.png",
+    "04-cost-detail-mobile.png",
+    "09-bill-mobile.png",
+    "10-bill-desktop.png"
+  ],
+  "temporaryWorld": "C:\\Users\\ZhuanZ\\AppData\\Local\\Temp\\jade-planning-finance-GfXcQd"
+}

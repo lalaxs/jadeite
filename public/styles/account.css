@@ -1,0 +1,117 @@
+.account-entry {
+  min-width: 48px;
+  min-height: 44px;
+  padding-inline: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.account-modal-root {
+  z-index: var(--z-game-modal, 320);
+}
+
+.account-modal {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+.account-modal .jm-modal-body {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.account-status {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--overlay);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.account-status[data-tone="error"] {
+  border-color: color-mix(in srgb, var(--danger, #d85b58) 50%, var(--line));
+  color: var(--danger, #d85b58);
+}
+
+.account-status[data-tone="success"] {
+  border-color: color-mix(in srgb, var(--jade, #2d8a6f) 55%, var(--line));
+  color: var(--jade-light, #67c7a8);
+}
+
+.account-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.account-tabs button {
+  min-height: 44px;
+}
+
+.account-tabs button[aria-selected="true"] {
+  border-color: var(--jade-light);
+  background: color-mix(in srgb, var(--jade) 18%, var(--panel));
+}
+
+.account-panel,
+.account-session-view {
+  min-height: 246px;
+}
+
+.account-form {
+  display: grid;
+  gap: 12px;
+}
+
+.account-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.account-form input {
+  min-height: 44px;
+  width: 100%;
+}
+
+.account-form button,
+.account-session-view button,
+.account-modal .jm-modal-foot button {
+  min-height: 44px;
+}
+
+.account-form-note,
+.account-session-view p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.account-session-view {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.account-session-view strong {
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.account-modal .jm-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 560px) {
+  .account-entry { max-width: 92px; }
+  .account-modal-root { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+  .account-modal { width: 100%; }
+}

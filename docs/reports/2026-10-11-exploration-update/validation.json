@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-11",
+  "preview": "http://127.0.0.1:3005",
+  "environment": "独立测试服务，世界存档不持久化；截图使用测试账号，包含开发工具生成的库存和调整后的矿区资格。",
+  "browserFlow": [
+    "实际开料、规划四件套、完成雕刻和四次精加工",
+    "手动选择佛公交付订单，题材保留且现金直接入账",
+    "等待批发商自然报价，主动接受后挂单下架、现金入账",
+    "正常开播，AI自然购买一件，关播后两件未售商品退库",
+    "直播结算：营收1276、已售货品成本462、货品毛利814",
+    "手机390×844与桌面1280×900截图核对"
+  ],
+  "automatedChecks": {
+    "fullSuite": "通过；后续调整又运行了对应回归",
+    "latestAffectedChecks": ["livestream-ui", "livestream-buy-flow", "market-card", "flow", "responsive", "workshop-planner-ui", "ui-stability", "player-exploration", "quality"],
+    "newRegression": "2000个订单可制作性、完整加工、成本守恒、报价接受幂等、声望衰减、救助防重复、矿池分阶段开放及冻结",
+    "browserConsoleErrors": 0,
+    "optionalMixedLoad": "未运行完成：未配置TEST_DATABASE_URL，不计为通过"
+  },
+  "screenshots": [
+    "01-home-mobile.jpg",
+    "02-planner-mobile.jpg",
+    "03-finish-mobile.jpg",
+    "04-workshop-mobile.jpg",
+    "05-orders-mobile.jpg",
+    "06-order-choice-mobile.jpg",
+    "07-mining-desktop.jpg",
+    "08-market-offer-desktop.jpg",
+    "09-market-confirm-desktop.jpg",
+    "10-livestream-settlement-desktop.jpg",
+    "11-livestream-pricing-desktop.jpg"
+  ]
+}

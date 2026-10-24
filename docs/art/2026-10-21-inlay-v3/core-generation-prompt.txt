@@ -1,0 +1,31 @@
+Generation mode: built-in image_gen
+Production atlas: public/assets/inlay/jade-and-mounts-handpainted-v2.png
+Size: 1774x887 RGBA; 872820 bytes. Original generated PNG copied without pixel edits.
+Style reference: docs/art/2026-10-21-inlay-v2/inlay-assembled-products-v1.png
+Geometry guide: native-art-guide.png, derived from the actual game template outlines in native-outlines.json.
+Runtime crop coordinates: public/inlay-artwork.js (INLAY_CORE_FRAMES).
+
+Final prompt:
+Use case: precise-object-edit / stylized-concept.
+Asset type: ONE transparent 4-COLUMN by 2-ROW PRODUCTION ATLAS containing the remaining jade body painting and complete metal mount art needed to implement a Chinese jade crafting game design.
+Reference Image 1 role: APPROVED GAME ART STYLE ONLY. Use its softly hand-painted 2D gouache item art, fine gentle brush grain, muted antique gold and soft warm silver, calm readable shapes. Do not reproduce its finished jewelry, text, panels or backgrounds.
+Reference Image 2 role: EXACT GEOMETRY AND LAYOUT GUIDE. Preserve its FOUR COLUMNS / TWO ROWS arrangement and the particular silhouette of each object. Especially preserve the two-lobed Buddha outline exactly: narrow round-topped head, shoulders taper out to a broad rounded base; NO protruding ear/arm lobes outside this guide. Each of 8 components must be separate with generous transparent gutters.
+Primary request: Paint these eight components into actual production artwork with true RGBA transparency. No typography, labels, grid, paper, checkerboard, ground shadow, magic glow or background. Output landscape, ideally same 1600x800 proportions as the geometry guide. Each object must stay within its original cell and keep its original aspect ratio.
+ROW 1 from left to right:
+1. OVAL JADE PAINTING MAP, in NEUTRAL GRAYSCALE ONLY: an upright smooth oval matching guide cell 1, frontal cabochon painted in the reference's soft 2D game style. Base flat areas approximately 50% neutral grey RGB128. Gently painted convex volume, subtle fine gouache mottling, small broad softly brushed upper-left highlight, soft darker edge. No single hard white oval specular reflection, no faceting, no photorealism. This will be used as a luminance overlay over the player's real jade color, so NO GREEN or colored pixels. The oval interior is opaque; outside the oval is transparent.
+2. BUDDHA CARVING PAINTING MAP, in NEUTRAL GRAYSCALE ONLY: a friendly smiling seated jade Buddha relief painted INSIDE EXACTLY the silhouette in guide cell 2. Flat areas around RGB128, relief highlights brighter grey, carving creases darker grey. Use the approved art's charming clear sculptural facial features, two smiling gently closed eyes, broad calm laughing mouth, soft cheeks, understated raised brows, robe folds, rounded prominent belly, hands resting naturally on belly sides, and a rounded bottom base. Richly legible soft hand-painted relief, natural coherent anatomy. Keep all ears, hands, robe folds inside the guide silhouette; do not expand its boundary. This must look like a properly illustrated game jade carving, not the simplistic few SVG arcs of a placeholder. The carving is opaque within its silhouette, true transparency outside. NO GREEN, NO metal rim, NO diamonds, NO bail or cord. Intended for luminance-only tinting over an existing jade material.
+3. COMPLETE GOLD OVAL BEZEL FRAME: paint the EXACT oval outline in guide cell 3 into a refined softly hand-painted antique pale gold rim with narrow highlight, painted bevel volume and fine brush grain. Thin functional continuous bezel, uniformly hollow OPEN center. No jade, stones, bail, chain or prongs. The transparent aperture must stay aligned to the guide. No oversized thickness.
+4. Matching COMPLETE SILVER OVAL BEZEL FRAME following guide cell 4, softly hand-painted muted warm silver grey, same width and hollow center. No jade or extra components.
+ROW 2 from left to right:
+5. COMPLETE GOLD BUDDHA OUTLINE MOUNT: the EXACT two-lobed silhouette outline in guide cell 5 as a thin softly hand-painted antique gold frame. This is a SINGLE continuous EMPTY frame with true transparent inner aperture. Keep guide geometry closely. Plain rim with lovely painterly cross-section depth and restrained highlights. NO gem stones, NO engraved fake diamond dots, NO jade, NO bail, NO prongs. It will be combined with independently positioned gems in code.
+6. Matching COMPLETE SILVER BUDDHA OUTLINE MOUNT following guide cell 6 exactly, muted hand-painted warm grey-silver. Empty center and true alpha outside. No gems, no jade, no bail.
+7. GOLD RIM RIBBON: a plain long horizontal RECTANGULAR strip occupying the guide cell 7 rectangle. Antique muted gold with a gently raised softly painted cross-section: a fine bright top edge, warm middle, gently shaded bottom edge, subtle brush grain. Completely filled opaque rectangle with straight top and bottom. Its left and right ends must have NO end caps, no vertical outlines, no rounded ends and no holes; tonal bands continue all the way through so the strip can tile horizontally along arbitrary jade outlines. Actual rectangular height about 1/5 its width as in guide. Outside is transparent.
+8. SILVER RIM RIBBON: exactly matching straight rectangular strip from guide cell 8, same painted cross-section, muted warm grey-silver, no end cap borders. For horizontal tiling.
+Critical requirements:
+- Exactly eight independent parts, no loose additional marks.
+- First two cells NEUTRAL GRAYSCALE height/shading art, last six gold/silver as specified.
+- Frames and strips are full painted bitmap artwork, not flat vector strokes.
+- Main object geometry from Image 2 takes priority over the jewelry silhouette from Image 1. Keep cells on a regular 4x2 arrangement.
+- All holes, gutters and outside silhouettes have TRUE TRANSPARENT ALPHA, zero glow/shadow halos.
+- Matte gentle 2D GAME illustration, coherent with reference. No photorealistic jade, PBR jewelry, chrome, saturated yellow or luxury catalog lighting.
+

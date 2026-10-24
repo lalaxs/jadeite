@@ -1,0 +1,403 @@
+/* styles/theme-night-panels.css ??sliced from styles.css (order preserved) */
+    transition: none !important;
+  }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* ===== ?????????????????????????????===== */
+[data-theme="night"] .topbar,
+[data-theme="night"] .sidebar,
+[data-theme="night"] .sidepanel,
+[data-theme="night"] .chatdock,
+[data-theme="night"] .main-stage {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-theme="night"] .panel {
+  background: transparent !important;
+  border-color: transparent !important;
+  border-bottom-width: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 进行事项内容区与主栏空态同底，避免右侧残留深色井 */
+[data-theme="night"] .sidepanel .panel-body,
+[data-theme="night"] .sidepanel .panel-head,
+[data-theme="night"] .sidepanel .panel-tabs,
+[data-theme="night"] .jm-empty {
+  background: transparent !important;
+}
+
+/* ===== ????????????????????? ===== */
+[data-theme="night"] button.secondary {
+  background: rgba(255,255,255,.10);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+[data-theme="night"] button.secondary:hover {
+  background: rgba(255,255,255,.16);
+  border-color: var(--jade);
+}
+[data-theme="night"] button.secondary:disabled {
+  background: rgba(255,255,255,.05);
+  border-color: var(--hair);
+  color: var(--muted);
+}
+[data-theme="night"] .auction-window-board {
+  background: rgba(16,36,28,.55);
+}
+[data-theme="night"] .auction-window-board .jade-opening-svg {
+  --stone-outline: rgba(150,195,170,.55);
+}
+[data-theme="night"] .window-selection-hint {
+  background: rgba(8,22,18,.85);
+  color: var(--jade-light);
+}
+[data-theme="night"] .lot-price {
+  background: rgba(8,22,18,.45);
+}
+[data-theme="night"] .rough-card.is-mine-bid {
+  border-color: rgba(72, 190, 140, 0.62);
+  background:
+    linear-gradient(90deg, rgba(72, 190, 140, 0.96) 0 6px, transparent 6px),
+    linear-gradient(180deg, rgba(48, 166, 105, 0.2), transparent 30%),
+    var(--panel);
+  box-shadow: 0 0 0 1px rgba(72, 190, 140, 0.22);
+}
+[data-theme="night"] .rough-card.is-windowed:not(.is-mine-bid) {
+  border-color: rgba(110, 160, 210, 0.55);
+  background:
+    linear-gradient(90deg, rgba(110, 160, 210, 0.88) 0 4px, transparent 4px),
+    linear-gradient(180deg, rgba(90, 140, 190, 0.14), transparent 30%),
+    var(--panel);
+  box-shadow: 0 0 0 1px rgba(110, 160, 210, 0.18);
+}
+[data-theme="night"] .rough-card.is-mine-bid.is-windowed {
+  border-color: rgba(72, 190, 140, 0.68);
+  background:
+    linear-gradient(90deg, rgba(72, 190, 140, 0.96) 0 6px, transparent 6px),
+    linear-gradient(180deg, rgba(48, 166, 105, 0.2), transparent 30%),
+    var(--panel);
+  box-shadow: 0 0 0 1px rgba(72, 190, 140, 0.24);
+}
+[data-theme="night"] .rough-card.is-mine-bid .lot-status-meta {
+  color: #9ee0c2;
+}
+[data-theme="night"] .rough-card.is-windowed:not(.is-mine-bid) .lot-status-meta {
+  color: #9db8d4;
+}
+[data-theme="night"] .lot-badge.is-bid {
+  color: #0b2a1f;
+  background: rgba(158, 224, 194, 0.92);
+  border-color: rgba(158, 224, 194, 0.92);
+}
+[data-theme="night"] .lot-badge.is-windowed {
+  color: #9db8d4;
+  background: transparent;
+  border-color: rgba(110, 160, 210, 0.4);
+}
+[data-theme="night"] .auction-window-board.is-windowed {
+  box-shadow: inset 3px 0 0 rgba(110, 160, 210, 0.55);
+}
+[data-theme="night"] .lot-seal {
+  color: #0b2a1f;
+  background: rgba(158, 224, 194, 0.94);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+[data-theme="night"] .lot-bid-chip {
+  color: #e8f7ef;
+  background: rgba(6, 22, 16, 0.82);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+[data-theme="night"] .lot-window-bar {
+  color: #c5d7ea;
+  background: linear-gradient(180deg, rgba(18, 36, 48, 0.72), rgba(14, 30, 42, 0.9));
+  border-top-color: rgba(110, 160, 210, 0.32);
+}
+[data-theme="night"] .lot-price.is-bid {
+  background: rgba(48, 166, 105, 0.16);
+  border-color: rgba(72, 190, 140, 0.36);
+}
+[data-theme="night"] .bid-controls {
+  background: transparent;
+  border-color: transparent;
+}
+[data-theme="night"] .bid-status {
+  background: rgba(8,22,18,.45);
+}
+[data-theme="night"] .bid-status.success {
+  background: rgba(48,166,105,.14);
+  border-color: rgba(31,155,114,.30);
+}
+[data-theme="night"] .bid-amount-shell {
+  background: rgba(8,22,18,.65);
+  border-color: var(--line);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.25);
+}
+[data-theme="night"] .bid-amount-shell:focus-within {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 3px rgba(31,155,114,.14), inset 0 1px 3px rgba(0,0,0,.25);
+}
+[data-theme="night"] .bid-amount-field input {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+  box-shadow: none;
+}
+[data-theme="night"] .bid-amount-field input:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+[data-theme="night"] .bid-currency {
+  color: var(--muted);
+}
+[data-theme="night"] .bid-cash {
+  color: var(--jade-light);
+}
+[data-theme="night"] .bid-cash.is-short,
+[data-theme="night"] .bid-cash.is-short b {
+  color: #ff7b7b;
+}
+[data-theme="night"] .bid-short-hint {
+  color: #ff8a8a;
+}
+[data-theme="night"] .bid-controls.is-short .bid-amount-shell {
+  background: rgba(120, 28, 28, 0.28);
+  border-color: rgba(255, 123, 123, 0.45);
+}
+[data-theme="night"] .bid-controls.is-short .bid-amount-shell:focus-within {
+  border-color: #ff7b7b;
+  box-shadow: 0 0 0 3px rgba(255, 123, 123, 0.16), inset 0 1px 3px rgba(0,0,0,.25);
+}
+[data-theme="night"] .bid-controls.is-short .bid-currency,
+[data-theme="night"] .bid-controls.is-short .bid-amount-field input {
+  color: #ff9a9a;
+}
+[data-theme="night"] .bid-controls.is-short button[data-action="submitAuctionBid"]:disabled {
+  background: rgba(255, 123, 123, 0.12);
+  color: #d9a0a0;
+  border-color: rgba(255, 123, 123, 0.28);
+}
+[data-theme="night"] .auction-history-row.success {
+  background: rgba(31,155,114,.12);
+}
+[data-theme="night"] .auction-history-row.risk {
+  background: rgba(187,119,102,.12);
+}
+
+/* ===== ????????????????? ===== */
+[data-theme="night"] .workshop-recipe-hero {
+  background: rgba(18,43,35,.72);
+  border-color: var(--line);
+}
+[data-theme="night"] .workshop-recipe-totals span,
+[data-theme="night"] .workshop-device-stats span,
+[data-theme="night"] .recipe-card-grid span {
+  background: rgba(8,22,18,.55);
+  border-color: var(--line);
+}
+[data-theme="night"] .workshop-recipe-totals strong,
+[data-theme="night"] .workshop-device-stats strong {
+  color: var(--jade-light);
+}
+[data-theme="night"] .workshop-recipe-card {
+  background: rgba(18,43,35,.82);
+  border-color: var(--line);
+  box-shadow: 0 8px 20px rgba(0,0,0,.16);
+}
+[data-theme="night"] .workshop-recipe-card:hover {
+  border-color: var(--jade);
+  background: rgba(24,56,45,.88);
+}
+[data-theme="night"] .recipe-card-title {
+  color: var(--ink);
+}
+[data-theme="night"] .recipe-card-copy {
+  color: var(--muted);
+}
+[data-theme="night"] .recipe-card-current {
+  background: rgba(31,155,114,.18);
+  color: var(--jade-light);
+}
+[data-theme="night"] .equipment-type-field,
+[data-theme="night"] .wsp-device-type-field {
+  background: rgba(31,155,114,.18);
+  border-color: rgba(70,135,108,.55);
+  color: var(--jade-light);
+}
+[data-theme="night"] .equipment-type-field em,
+[data-theme="night"] .wsp-device-type-field em {
+  color: var(--muted);
+}
+[data-theme="night"] .equipment-param-pill {
+  background: rgba(8,22,18,.45);
+  border-color: var(--line);
+}
+[data-theme="night"] .equipment-param-pill strong {
+  color: var(--jade-light);
+}
+[data-theme="night"] .equipment-param-help::after {
+  color: var(--ink);
+  background: rgba(10,26,21,.98);
+  border-color: rgba(139,202,172,.28);
+  box-shadow: 0 14px 30px rgba(0,0,0,.34);
+}
+[data-theme="night"] .wrc-badge {
+  color: #bfe9d6;
+  background: rgba(31,155,114,.18);
+}
+[data-theme="night"] .wrc-tier {
+  background: var(--jade-light);
+  color: #06231a;
+}
+[data-theme="night"] .wrc-model {
+  color: var(--muted);
+}
+[data-theme="night"] .wrc-dur-track {
+  background: rgba(255,255,255,.1);
+}
+[data-theme="night"] .wrc-dur-label,
+[data-theme="night"] .wrc-specs {
+  color: var(--muted);
+}
+[data-theme="night"] .wrc-specs {
+  border-left-color: var(--jade-light);
+}
+[data-theme="night"] .wrc-upgrade {
+  color: var(--muted);
+  border-color: rgba(255,255,255,.18);
+}
+[data-theme="night"] .stage-chip {
+  background: rgba(31,155,114,.15);
+  border-color: rgba(70,135,108,.55);
+  color: var(--jade-light);
+}
+[data-theme="night"] .workshop-material-column,
+[data-theme="night"] .workshop-recipe-summary,
+[data-theme="night"] .workshop-stage-drawer,
+[data-theme="night"] .workshop-worker-column {
+  background: rgba(18,43,35,.72);
+  border-color: var(--line);
+}
+[data-theme="night"] .workshop-material-card {
+  background: rgba(8,22,18,.45);
+  border-color: var(--line);
+}
+[data-theme="night"] .workshop-material-card:hover {
+  background: rgba(8,22,18,.62);
+  border-color: var(--jade);
+}
+[data-theme="night"] .workshop-material-card.selected {
+  background: rgba(31,155,114,.14);
+  border-color: var(--jade);
+  box-shadow: inset 3px 0 0 var(--jade);
+}
+[data-theme="night"] .workshop-worker-card {
+  background: rgba(8,22,18,.45);
+  border-color: var(--line);
+}
+[data-theme="night"] .workshop-worker-card:hover {
+  background: rgba(8,22,18,.62);
+  border-color: var(--jade);
+}
+[data-theme="night"] .workshop-worker-card.assigned {
+  background: rgba(31,155,114,.14);
+  border-color: var(--jade);
+  box-shadow: inset 3px 0 0 var(--jade);
+}
+[data-theme="night"] .worker-avatar {
+  background: linear-gradient(135deg, rgba(48,166,105,.35), rgba(31,155,114,.25));
+  color: var(--jade-light);
+}
+[data-theme="night"] .worker-body strong {
+  color: var(--ink);
+}
+[data-theme="night"] .trait-chip {
+  background: rgba(31,155,114,.16);
+  border-color: rgba(70,135,108,.45);
+  color: var(--jade-light);
+}
+[data-theme="night"] .trait-chip.muted {
+  background: rgba(255,255,255,.08);
+  border-color: var(--line);
+  color: var(--muted);
+}
+[data-theme="night"] .workshop-worker-card.assigned .worker-state {
+  color: var(--jade-light);
+}
+[data-theme="night"] .recipe-summary-head .recipe-hint {
+  background: rgba(218,184,92,.14);
+  border-color: rgba(218,184,92,.35);
+  color: var(--gold);
+}
+[data-theme="night"] .impact-box {
+  background: rgba(8,22,18,.45);
+  border-color: var(--line);
+}
+[data-theme="night"] .impact-box strong {
+  color: var(--jade-light);
+}
+[data-theme="night"] .machine-row {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 4px 0 2px;
+}
+[data-theme="night"] .machine-track {
+  background: rgba(255,255,255,.12);
+}
+[data-theme="night"] .workshop-progress .machine-eta {
+  color: var(--gold);
+}
+[data-theme="night"] .workshop-progress .machine-track {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.32);
+}
+[data-theme="night"] .workshop-progress .machine-track i {
+  background: linear-gradient(90deg, var(--jade-light), var(--jade) 55%, var(--jade-dark));
+  box-shadow: 0 0 8px rgba(48, 166, 105, 0.5);
+}
+[data-theme="night"] .ws-big-card.is-locked {
+  opacity: 0.5;
+  filter: grayscale(0.45);
+  background: rgba(8, 22, 18, 0.45);
+}
+[data-theme="night"] .workshop-stage-drawer summary {
+  color: var(--jade-light);
+}
+[data-theme="night"] .workshop-stage-drawer summary:hover {
+  background: rgba(255,255,255,.06);
+}
+[data-theme="night"] .bm-rate-order-row {
+  background: rgba(12, 33, 27, .72);
+  border-color: rgba(255, 255, 255, .12);
+}
+[data-theme="night"] .bm-rate-order-copy strong { color: var(--ink); }
+[data-theme="night"] .bm-rate-modal-count {
+  background: rgba(48, 166, 105, .22);
+  color: var(--jade-light, #7dcea0);
+}
+[data-theme="night"] .workshop-step-tab:hover {
+  border-color: rgba(255, 255, 255, .45);
+  color: #fff;
+  background: rgba(10, 24, 20, .55);
+}
+[data-theme="night"] .workshop-step-tab.active,
+[data-theme="night"] .workshop-step-tab.on {
+  background: rgba(10, 24, 20, .55);
+  border-color: rgba(125, 206, 160, .95);
+  color: #fff;
+  box-shadow:
+    0 0 0 2px rgba(125, 206, 160, .45),
+    0 14px 30px rgba(0, 0, 0, .45);
+}
+[data-theme="night"] .workshop-step-tab .wst-current-badge {
+  background: rgba(18, 42, 34, .92);
+  color: var(--jade-light, #7dcea0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+[data-theme="night"] .workshop-step-tab .wst-content {
+  color: #fff;
+}

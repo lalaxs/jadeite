@@ -1,0 +1,42 @@
+{
+  "lifecycle": {
+    "ok": true,
+    "checks": [
+      "single startup, migration checkpoint, original shutdown order, idempotent disposal",
+      "dispose before start never overwrites an unopened save",
+      "load failure disposes every resource without writing a partial world",
+      "reconcile failure disposes every resource without writing a partial world",
+      "listen failure disposes every resource without writing a partial world",
+      "shutdown during load prevents a late listener or autosave",
+      "queue drain and cleanup-error continuation",
+      "per-game material history and timer ownership",
+      "CLI signals exit once, propagate close failure, remove handlers",
+      "CLI deadline and explicit signal-adapter disposal"
+    ]
+  },
+  "instances": {
+    "ok": true,
+    "checks": [
+      "two independent worlds, HTTP assets, websocket and polling, same-id session isolation",
+      "owned reward hooks, legacy-rebind isolation, durable purchase and duplicate request",
+      "stopping one game leaves the other's health, socket, queue and timers active",
+      "new instance reopens the same SQLite save, sessions, pending deliveries and request deduplication",
+      "listen failure cleans up its own resources and leaves the serving game intact",
+      "constructor failure and corrupt save release resources without replacing the source save",
+      "unstarted game disposal"
+    ],
+    "activeIntervalsRemaining": 0
+  },
+  "boundaries": {
+    "ok": true,
+    "frozenUnchangedProductionFiles": 380,
+    "unchangedClientAndDomainFiles": 266,
+    "normalizedCompositionAndServices": 12,
+    "materialFunctions": 12,
+    "added": [
+      "server/boot/game-lifecycle.js",
+      "server/boot/process-lifecycle.js",
+      "server/create-game.js"
+    ]
+  }
+}

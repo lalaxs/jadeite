@@ -1,0 +1,78 @@
+/* Stock selection shares the order product card, with editable live-sale prices. */
+.livestream-stock-picker .livestream-stock-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  align-items: stretch;
+  gap: 12px;
+  padding: 2px 2px 4px;
+}
+.livestream-stock-row.order-pick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--r-md);
+  background: var(--panel);
+  box-shadow: none;
+  cursor: default;
+}
+.livestream-stock-row.order-pick-card.is-selected {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 1px var(--jade);
+  background: var(--panel);
+}
+.livestream-stock-select { position: relative; cursor: pointer; }
+.livestream-stock-select > input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.livestream-stock-select:has(input:focus-visible) {
+  outline: 2px solid var(--jade);
+  outline-offset: -3px;
+}
+.livestream-stock-select:has(input:disabled) { cursor: not-allowed; }
+.livestream-stock-row.order-pick-card .livestream-stock-check {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border-color: var(--line);
+  background: var(--panel);
+  color: transparent;
+}
+.livestream-stock-row.order-pick-card.is-selected .livestream-stock-check {
+  color: #fff;
+  border-color: var(--jade-dark);
+  background: var(--jade-dark);
+}
+.livestream-stock-pricing.order-pick-fit {
+  display: grid;
+  gap: 8px;
+  margin: auto 10px 10px;
+  padding-top: 10px;
+}
+.livestream-stock-row.order-pick-card .livestream-price-field {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.livestream-stock-pricing .livestream-price-field input {
+  min-height: 36px;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.livestream-stock-list > .game-empty-state { grid-column: 1 / -1; }
+
+@media (max-width: 767px) {
+  .livestream-stock-picker .livestream-stock-list { grid-template-columns: minmax(0, 1fr); }
+  .livestream-stock-pricing .livestream-price-field input { min-height: 44px; }
+}

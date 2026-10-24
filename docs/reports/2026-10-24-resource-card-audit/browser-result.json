@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop: employee, recruit, workshop, market listing/buy, host picker, service profiles/showcases, black-market resource listing/detail/buy",
+    "mobile: employee, recruit, workshop, market listing/buy, host picker, service profiles/showcases, black-market resource listing/detail/buy",
+    "shop equipment detail and purchase confirmation; black-market price input; night employee detail and host picker"
+  ],
+  "errors": []
+}

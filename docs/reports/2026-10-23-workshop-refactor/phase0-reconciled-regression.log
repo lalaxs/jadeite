@@ -1,0 +1,161 @@
+scripts/architecture-quality-gate.mjs [0]
+architecture-quality-gate: 9 module budgets, 10 black-market modules, 17 assets ok
+
+scripts/refactor-contracts-smoke.mjs [0]
+refactor-contracts-smoke: 71 socket events + 14 views frozen
+
+scripts/shared-domain-smoke.mjs [0]
+shared-domain-smoke: ok
+
+scripts/planning-authority-smoke.mjs [0]
+planning-authority-smoke: ok
+
+scripts/atomic-mutation-smoke.mjs [0]
+atomic-mutation-smoke: rollback + post-commit effects ok
+
+scripts/durable-mutation-coordinator-smoke.mjs [0]
+durable-mutation-coordinator-smoke: commit barrier + rollback ok
+
+scripts/state-patch-smoke.mjs [0]
+state-patch-smoke: capability negotiation + top-level deltas ok
+
+scripts/socket-event-schema-smoke.mjs [0]
+socket-event-schema-smoke: mutation envelopes + semantic fields ok
+
+scripts/workshop-service-smoke.mjs [0]
+workshop-service-smoke: ok
+
+scripts/workshop-delivery-smoke.mjs [0]
+workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok
+
+scripts/workshop-scratch-smoke.mjs [0]
+workshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok
+
+scripts/workshop-delivery-socket-e2e.mjs [0]
+workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok
+
+scripts/workshop-planner-ui-smoke.mjs [0]
+workshop-planner-ui-smoke: independent planning step ok
+
+scripts/opening-planner-drag-smoke.mjs [0]
+opening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed
+
+scripts/finish-plan-model-smoke.mjs [0]
+finish-plan-model-smoke: progressive material selection ok
+
+scripts/finished-product-design-smoke.mjs [0]
+finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok
+
+scripts/jade-piece-smoke.mjs [0]
+jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok
+
+scripts/finish-plan-controller-smoke.mjs [0]
+finish-plan-controller-smoke: stable lifecycle and acknowledgements ok
+
+scripts/inlay-preview-tester-smoke.mjs [0]
+inlay-preview-tester-smoke: model ok
+
+scripts/workshop-craft-scoring-smoke.mjs [0]
+workshop-craft-scoring-smoke: ok
+
+scripts/worker-detail-view-smoke.mjs [0]
+worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok
+
+scripts/inventory-module-smoke.mjs [0]
+inventory-module-smoke: normalization, filters, sorting and inventory view ok
+
+scripts/styles-split-smoke.mjs [0]
+styles-split-smoke: 18 parts, resolved 739531 bytes ok
+
+scripts/action-router-smoke.mjs [0]
+action-router-smoke: ok
+
+scripts/simplified-flow-smoke.mjs [0]
+Simplified rough-to-bracelet flow checks passed
+
+scripts/ui-overlay-smoke.mjs [0]
+
+scripts/ui-stability-smoke.mjs [0]
+ui-stability-smoke: stable overview guards ok
+
+scripts/modal-lifecycle-smoke.mjs [0]
+modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok
+
+scripts/responsive-layout-smoke.mjs [0]
+responsive-layout-smoke: desktop guards ok
+
+scripts/bangle-finish-smoke.mjs [0]
+bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok
+
+scripts/bangle-finish-socket-e2e.mjs [0]
+bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart
+
+scripts/inlay-system-smoke.mjs [0]
+inlay-system-smoke: ok
+
+scripts/inlay-artwork-smoke.mjs [1]
+node:fs:622
+  return binding.open(
+                 ^
+
+Error: ENOENT: no such file or directory, open 'C:\Users\ZhuanZ\Desktop\yeyou\jade-market-refactor-baselines\workshop-2026-10-23-final-02\docs\art\2026-10-23-buddha-original-lines\buddha-original-clean-lines-v1.png'
+    at Object.openSync (node:fs:622:18)
+    at readFileSync (node:fs:488:35)
+    at file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-refactor-baselines/workshop-2026-10-23-final-02/scripts/inlay-artwork-smoke.mjs:30:86
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-refactor-baselines\\workshop-2026-10-23-final-02\\docs\\art\\2026-10-23-buddha-original-lines\\buddha-original-clean-lines-v1.png'
+}
+
+Node.js v24.19.0
+
+scripts/world-store-smoke.mjs [0]
+world-store-smoke: memory store + server wiring ok
+
+scripts/world-persist-smoke.mjs [0]
+world-persist-smoke: ok
+
+scripts/sqlite-world-persist-smoke.mjs [0]
+sqlite-world-persist-smoke: transactions + migration + fallback ok
+
+scripts/persistence-crash-recovery-smoke.mjs [0]
+persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok
+
+scripts/starter-economy-smoke.mjs [0]
+{
+  "ok": true,
+  "qualityDraws": {
+    "glutinous": 7000,
+    "bean": 3000
+  },
+  "loops": [
+    {
+      "quality": "glutinous",
+      "initialCash": 12000,
+      "giftReference": 4290,
+      "productValue": 1378,
+      "sale": 1543,
+      "cashAfterSale": 13543,
+      "repurchase": 2453,
+      "finalCash": 11890,
+      "introRewards": 1000,
+      "minutesIncludingForcedFailures": 20
+    },
+    {
+      "quality": "bean",
+      "initialCash": 12000,
+      "giftReference": 2383,
+      "productValue": 2017,
+      "sale": 2259,
+      "cashAfterSale": 14259,
+      "repurchase": 2453,
+      "finalCash": 12606,
+      "introRewards": 1000,
+      "minutesIncludingForcedFailures": 20
+    }
+  ]
+}

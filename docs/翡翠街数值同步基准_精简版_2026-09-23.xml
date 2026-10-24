@@ -1,0 +1,3461 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gameBalanceDocument schemaVersion="1.0" game="翡翠街" baselineDate="2026-09-23" language="zh-CN" paragraphCount="119" tableCount="87">
+  <metadata>
+    <title>翡翠街数值同步基准</title>
+    <purpose>用于向另一款游戏同步当前生效数值</purpose>
+    <sourceFile>翡翠街数值同步基准_2026-09-23.docx</sourceFile>
+    <generatedDate>2026-09-23</generatedDate>
+    <contentPolicy>仅保留正文、章节和表格数据，不包含 Word 版式资源</contentPolicy>
+  </metadata>
+  <content>
+    <paragraph id="p0001" style="Normal">翡翠街</paragraph>
+    <paragraph id="p0002" style="Normal">数值同步基准</paragraph>
+    <paragraph id="p0003" style="Normal">当前生效配置 · 策划与程序交接版</paragraph>
+    <table id="t001" rows="1" columns="4">
+      <row index="1" header="true">
+        <cell index="1">18
+成就轨道</cell>
+        <cell index="2">9
+玩家等级</cell>
+        <cell index="3">5
+公盘分层</cell>
+        <cell index="4">8
+员工上限</cell>
+      </row>
+    </table>
+    <table id="t002" rows="4" columns="2">
+      <row index="1" header="true">
+        <cell index="1">基线日期</cell>
+        <cell index="2">2026年9月23日</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">版本标识</cell>
+        <cell index="2">Balance Baseline 1.0</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">适用范围</cell>
+        <cell index="2">新玩家成长、功能解锁、经济循环、AI 买家、成就与保护机制</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">同步原则</cell>
+        <cell index="2">以本表当前值整体替换；若目标游戏结构不同，先映射参数再换算单位</cell>
+      </row>
+    </table>
+    <paragraph id="p0004" style="Normal">使用说明：金额默认单位为“元”；百分比均按最终显示值记录；时间按秒、分钟或小时明确标注；概率在目标项目中如使用 0–1 小数，需要按表中百分比除以 100。</paragraph>
+    <paragraph id="p0005" style="Normal">用于另一款游戏的逐项同步、联调与验收</paragraph>
+    <table id="t003" rows="1" columns="2">
+      <row index="1" header="true">
+        <cell index="1">00</cell>
+        <cell index="2">同步使用指南
+先看速查表，再按模块完整抄录；最后按验收清单核对</cell>
+      </row>
+    </table>
+    <paragraph id="p0006" style="Heading 2" headingLevel="2">口径约定</paragraph>
+    <paragraph id="p0007" style="List Bullet">本文件记录的是当前代码中的最终生效值，不是修改前后对照。</paragraph>
+    <paragraph id="p0008" style="List Bullet">同一模块存在客户端展示值与服务端结算值时，以服务端结算值为主，并要求客户端同步展示。</paragraph>
+    <paragraph id="p0009" style="List Bullet">“上限”表示硬封顶；“软上限”表示继续增长但边际收益降低；“门槛”表示达成后解锁或升级。</paragraph>
+    <paragraph id="p0010" style="List Bullet">AI 买家概率采用多项修正，单项参数不能脱离价格比、主播加成和硬上下限单独搬运。</paragraph>
+    <paragraph id="p0011" style="List Bullet">成就奖励中的材料数量是件数或克数，具体单位已在材料表中标明。</paragraph>
+    <paragraph id="p0012" style="Heading 2" headingLevel="2">推荐同步顺序</paragraph>
+    <table id="t004" rows="6" columns="4" section="推荐同步顺序">
+      <row index="1" header="true">
+        <cell index="1">顺序</cell>
+        <cell index="2">模块</cell>
+        <cell index="3">原因</cell>
+        <cell index="4">验收重点</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初始资源与解锁</cell>
+        <cell index="3">决定前 30 分钟节奏</cell>
+        <cell index="4">资产价格、AP 门槛、初始库存</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">原石、公盘、工坊</cell>
+        <cell index="3">构成主要成本链</cell>
+        <cell index="4">价格公式、进场费、工资与加工风险</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">直播、订单、市场</cell>
+        <cell index="3">构成主要变现链</cell>
+        <cell index="4">成交概率、税费、刷新与满意度</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">任务、成长、成就</cell>
+        <cell index="3">决定中长期目标感</cell>
+        <cell index="4">经验门槛、奖励总量、无穷档增长</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">回收、声望与保护</cell>
+        <cell index="3">决定失败容错</cell>
+        <cell index="4">触发条件、冷却、偿还与衰减</cell>
+      </row>
+    </table>
+    <paragraph id="p0013" style="Heading 2" headingLevel="2">本轮重点调整速查</paragraph>
+    <table id="t005" rows="13" columns="4" section="本轮重点调整速查">
+      <row index="1" header="true">
+        <cell index="1">模块</cell>
+        <cell index="2">参数</cell>
+        <cell index="3">当前值</cell>
+        <cell index="4">同步意图</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">资产</cell>
+        <cell index="2">工坊购买价</cell>
+        <cell index="3">8,000 元</cell>
+        <cell index="4">早期可达，但需要经营取舍</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">资产</cell>
+        <cell index="2">直播许可证</cell>
+        <cell index="3">10,000 元</cell>
+        <cell index="4">晚于工坊解锁，形成第二目标</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">公盘</cell>
+        <cell index="2">五档进场费</cell>
+        <cell index="3">800 / 1,200 / 1,800 / 2,800 / 4,000 元</cell>
+        <cell index="4">随档位提升</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">公盘</cell>
+        <cell index="2">五档窗口费率</cell>
+        <cell index="3">3% / 4% / 5% / 6% / 7%</cell>
+        <cell index="4">成交前报价摩擦成本</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">公盘</cell>
+        <cell index="2">五档窗口费下限</cell>
+        <cell index="3">100 / 150 / 250 / 400 / 600 元</cell>
+        <cell index="4">低价标的也有最低成本</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">恢复</cell>
+        <cell index="2">低现金触发线</cell>
+        <cell index="3">2,000 元</cell>
+        <cell index="4">低于该值进入恢复判断</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">恢复</cell>
+        <cell index="2">恢复目标</cell>
+        <cell index="3">12,000 元</cell>
+        <cell index="4">援助后回到可经营区间</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">恢复</cell>
+        <cell index="2">冷却与债务</cell>
+        <cell index="3">30 分钟；1.05 倍；收入偿还 10%</cell>
+        <cell index="4">防刷且保留长期代价</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">声望</cell>
+        <cell index="2">在线衰减</cell>
+        <cell index="3">每 10 分钟 -0.5，最低 10</cell>
+        <cell index="4">等价每小时 -3</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">员工</cell>
+        <cell index="2">1–10级工资</cell>
+        <cell index="3">240 至 1,230 元</cell>
+        <cell index="4">按级递增，见完整表</cell>
+      </row>
+      <row index="12" header="false">
+        <cell index="1">员工</cell>
+        <cell index="2">招聘价格</cell>
+        <cell index="3">2,800 至 53,500 元</cell>
+        <cell index="4">高等级员工显著稀缺</cell>
+      </row>
+      <row index="13" header="false">
+        <cell index="1">直播 AI</cell>
+        <cell index="2">价格比成交带</cell>
+        <cell index="3">64% → 0.6%</cell>
+        <cell index="4">价格越高，基础购买率快速衰减</cell>
+      </row>
+    </table>
+    <table id="t006" rows="1" columns="2" section="本轮重点调整速查">
+      <row index="1" header="true">
+        <cell index="1">01</cell>
+        <cell index="2">初始资源与玩家成长
+决定首局体验、功能到达速度和长期等级目标</cell>
+      </row>
+    </table>
+    <paragraph id="p0014" style="Heading 2" headingLevel="2">新玩家初始状态</paragraph>
+    <table id="t007" rows="8" columns="4" section="新玩家初始状态">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">单位/条件</cell>
+        <cell index="4">同步备注</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">初始现金</cell>
+        <cell index="2">30,000</cell>
+        <cell index="3">元</cell>
+        <cell index="4">支持买料、经营和一次明显决策</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">初始声望</cell>
+        <cell index="2">0</cell>
+        <cell index="3">点</cell>
+        <cell index="4">从零起步</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">初始经验</cell>
+        <cell index="2">0</cell>
+        <cell index="3">点</cell>
+        <cell index="4">等级 1</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">初始行动点 AP</cell>
+        <cell index="2">0</cell>
+        <cell index="3">点</cell>
+        <cell index="4">通过玩法与成就获得</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">初始原石</cell>
+        <cell index="2">3</cell>
+        <cell index="3">块</cell>
+        <cell index="4">受保护的新手原石组合</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">工坊</cell>
+        <cell index="2">默认拥有</cell>
+        <cell index="3">资产状态</cell>
+        <cell index="4">可直接体验加工</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">直播许可证</cell>
+        <cell index="2">未拥有</cell>
+        <cell index="3">资产状态</cell>
+        <cell index="4">需支付 10,000 元</cell>
+      </row>
+    </table>
+    <paragraph id="p0015" style="Normal">代码依据：server/world-store.js；server/services/assets-service.js</paragraph>
+    <paragraph id="p0016" style="Heading 2" headingLevel="2">玩家等级</paragraph>
+    <table id="t008" rows="10" columns="3" section="玩家等级">
+      <row index="1" header="true">
+        <cell index="1">等级</cell>
+        <cell index="2">称号</cell>
+        <cell index="3">累计经验门槛</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">新人</cell>
+        <cell index="3">0</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">起势</cell>
+        <cell index="3">250</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">熟行</cell>
+        <cell index="3">800</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">名店</cell>
+        <cell index="3">1800</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">宗师</cell>
+        <cell index="3">3600</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">掌柜</cell>
+        <cell index="3">7000</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">名坊</cell>
+        <cell index="3">12000</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">8</cell>
+        <cell index="2">堂口</cell>
+        <cell index="3">20000</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">9</cell>
+        <cell index="2">泰斗</cell>
+        <cell index="3">35000</cell>
+      </row>
+    </table>
+    <paragraph id="p0017" style="Normal">代码依据：shared/domain/progression/player-progression.js；public/player-progression.js</paragraph>
+    <paragraph id="p0018" style="Heading 2" headingLevel="2">功能解锁与资产购买</paragraph>
+    <table id="t009" rows="7" columns="4" section="功能解锁与资产购买">
+      <row index="1" header="true">
+        <cell index="1">功能/资产</cell>
+        <cell index="2">解锁方式</cell>
+        <cell index="3">当前门槛</cell>
+        <cell index="4">补充</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">交易行</cell>
+        <cell index="2">行动点 AP</cell>
+        <cell index="3">80</cell>
+        <cell index="4">公开交易入口</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">黑市浏览</cell>
+        <cell index="2">行动点 AP</cell>
+        <cell index="3">300</cell>
+        <cell index="4">先开放查看</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">黑市购买</cell>
+        <cell index="2">行动点 AP</cell>
+        <cell index="3">420</cell>
+        <cell index="4">开放消费</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">黑市摆摊</cell>
+        <cell index="2">行动点 AP</cell>
+        <cell index="3">600</cell>
+        <cell index="4">开放经营</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">工坊</cell>
+        <cell index="2">现金购买</cell>
+        <cell index="3">8,000 元</cell>
+        <cell index="4">新档默认已拥有；用于其他继承场景</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">直播许可证</cell>
+        <cell index="2">现金购买</cell>
+        <cell index="3">10,000 元</cell>
+        <cell index="4">直播间入口</cell>
+      </row>
+    </table>
+    <paragraph id="p0019" style="Normal">代码依据：shared/domain/progression/player-progression.js；server/services/assets-service.js</paragraph>
+    <paragraph id="p0020" style="Heading 2" headingLevel="2">玩法经验奖励</paragraph>
+    <table id="t010" rows="11" columns="2" section="玩法经验奖励">
+      <row index="1" header="true">
+        <cell index="1">行为</cell>
+        <cell index="2">单次经验</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">市场购买</cell>
+        <cell index="2">12</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">公盘中标</cell>
+        <cell index="2">16</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">工坊完成</cell>
+        <cell index="2">14</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">直播成交</cell>
+        <cell index="2">20</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">市场卖出</cell>
+        <cell index="2">10</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">订单完成</cell>
+        <cell index="2">18</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">收藏入库</cell>
+        <cell index="2">16</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">12</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">招聘员工</cell>
+        <cell index="2">12</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">购买材料</cell>
+        <cell index="2">10</cell>
+      </row>
+    </table>
+    <paragraph id="p0021" style="Heading 2" headingLevel="2">每日经验计次上限</paragraph>
+    <table id="t011" rows="7" columns="4" section="每日经验计次上限">
+      <row index="1" header="true">
+        <cell index="1">行为</cell>
+        <cell index="2">全额经验次数</cell>
+        <cell index="3">半额经验次数</cell>
+        <cell index="4">超过后</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">开窗完成</cell>
+        <cell index="2">20</cell>
+        <cell index="3">40</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">雕刻完成</cell>
+        <cell index="2">20</cell>
+        <cell index="3">40</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">精加工完成</cell>
+        <cell index="2">20</cell>
+        <cell index="3">40</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">直播成交</cell>
+        <cell index="2">15</cell>
+        <cell index="3">30</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">市场购买</cell>
+        <cell index="2">10</cell>
+        <cell index="3">20</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">市场卖出</cell>
+        <cell index="2">10</cell>
+        <cell index="3">20</cell>
+        <cell index="4">不再计经验</cell>
+      </row>
+    </table>
+    <paragraph id="p0022" style="Normal">代码依据：shared/domain/progression/player-progression.js</paragraph>
+    <table id="t012" rows="1" columns="2" section="每日经验计次上限">
+      <row index="1" header="true">
+        <cell index="1">02</cell>
+        <cell index="2">周期任务
+提供短周期现金与经验目标，避免玩家只走单一玩法</cell>
+      </row>
+    </table>
+    <table id="t013" rows="5" columns="3" section="每日经验计次上限">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">任务刷新周期</cell>
+        <cell index="2">6 小时</cell>
+        <cell index="3">周期生成</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">同时展示任务</cell>
+        <cell index="2">6 个</cell>
+        <cell index="3">从任务池抽取</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">手动重置次数上限</cell>
+        <cell index="2">3 次</cell>
+        <cell index="3">每周期</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">第 1–4 次重置成本</cell>
+        <cell index="2">0 / 1,000 / 2,000 / 4,000 元</cell>
+        <cell index="3">首次免费，之后递增</cell>
+      </row>
+    </table>
+    <paragraph id="p0023" style="Heading 2" headingLevel="2">任务定义</paragraph>
+    <table id="t014" rows="11" columns="4" section="任务定义">
+      <row index="1" header="true">
+        <cell index="1">任务</cell>
+        <cell index="2">目标次数</cell>
+        <cell index="3">现金奖励</cell>
+        <cell index="4">经验奖励</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">市场购买</cell>
+        <cell index="2">1</cell>
+        <cell index="3">2,000 元</cell>
+        <cell index="4">12</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">公盘中标</cell>
+        <cell index="2">1</cell>
+        <cell index="3">3,500 元</cell>
+        <cell index="4">16</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">工坊完成</cell>
+        <cell index="2">3</cell>
+        <cell index="3">2,800 元</cell>
+        <cell index="4">14</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">直播成交</cell>
+        <cell index="2">2</cell>
+        <cell index="3">5,000 元</cell>
+        <cell index="4">20</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">市场卖出</cell>
+        <cell index="2">1</cell>
+        <cell index="3">1,500 元</cell>
+        <cell index="4">10</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">订单完成</cell>
+        <cell index="2">1</cell>
+        <cell index="3">3,000 元</cell>
+        <cell index="4">18</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">收藏入库</cell>
+        <cell index="2">1</cell>
+        <cell index="3">2,500 元</cell>
+        <cell index="4">16</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">1</cell>
+        <cell index="3">1,800 元</cell>
+        <cell index="4">12</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">招聘员工</cell>
+        <cell index="2">1</cell>
+        <cell index="3">2,400 元</cell>
+        <cell index="4">12</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">购买材料</cell>
+        <cell index="2">1</cell>
+        <cell index="3">1,600 元</cell>
+        <cell index="4">10</cell>
+      </row>
+    </table>
+    <paragraph id="p0024" style="Normal">当前全部周期任务的声望奖励均为 0，避免通过重复任务无限推高声望。</paragraph>
+    <paragraph id="p0025" style="Normal">代码依据：server/services/task-service.js</paragraph>
+    <table id="t015" rows="1" columns="2" section="任务定义">
+      <row index="1" header="true">
+        <cell index="1">03</cell>
+        <cell index="2">原石与开窗
+控制进货品质、价格预期和高稀有度事件</cell>
+      </row>
+    </table>
+    <paragraph id="p0026" style="Heading 2" headingLevel="2">原石池与价格</paragraph>
+    <table id="t016" rows="7" columns="3" section="原石池与价格">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">单位/公式</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">新手原石数量</cell>
+        <cell index="2">3</cell>
+        <cell index="3">块</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">普通原石池容量</cell>
+        <cell index="2">8</cell>
+        <cell index="3">块</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">价格随机系数</cell>
+        <cell index="2">0.82–1.22</cell>
+        <cell index="3">乘数</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">基础价格公式</cell>
+        <cell index="2">900 + 品质分² × 720 + 重量 × 620</cell>
+        <cell index="3">元</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">挂牌价</cell>
+        <cell index="2">基础价格 × 价格随机系数</cell>
+        <cell index="3">元</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">真实价值</cell>
+        <cell index="2">挂牌价 × 品质价值系数</cell>
+        <cell index="3">元</cell>
+      </row>
+    </table>
+    <paragraph id="p0027" style="Heading 2" headingLevel="2">品质分布与价值</paragraph>
+    <table id="t017" rows="7" columns="5" section="品质分布与价值">
+      <row index="1" header="true">
+        <cell index="1">品质</cell>
+        <cell index="2">品质分</cell>
+        <cell index="3">普通池权重</cell>
+        <cell index="4">声望</cell>
+        <cell index="5">价值系数</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">豆种</cell>
+        <cell index="2">1</cell>
+        <cell index="3">38%</cell>
+        <cell index="4">1</cell>
+        <cell index="5">0.75×</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">糯种</cell>
+        <cell index="2">2</cell>
+        <cell index="3">30%</cell>
+        <cell index="4">4</cell>
+        <cell index="5">1.00×</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">糯冰</cell>
+        <cell index="2">3</cell>
+        <cell index="3">18%</cell>
+        <cell index="4">10</cell>
+        <cell index="5">1.30×</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">正冰</cell>
+        <cell index="2">4</cell>
+        <cell index="3">9%</cell>
+        <cell index="4">22</cell>
+        <cell index="5">1.70×</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">高冰</cell>
+        <cell index="2">5</cell>
+        <cell index="3">4%</cell>
+        <cell index="4">45</cell>
+        <cell index="5">2.40×</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">玻璃</cell>
+        <cell index="2">6</cell>
+        <cell index="3">1%</cell>
+        <cell index="4">80</cell>
+        <cell index="5">3.40×</cell>
+      </row>
+    </table>
+    <paragraph id="p0028" style="Heading 2" headingLevel="2">新手保护原石</paragraph>
+    <table id="t018" rows="4" columns="4" section="新手保护原石">
+      <row index="1" header="true">
+        <cell index="1">顺序</cell>
+        <cell index="2">品质</cell>
+        <cell index="3">置信度</cell>
+        <cell index="4">保护标记</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">糯种</cell>
+        <cell index="3">82%</cell>
+        <cell index="4">是</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">糯冰</cell>
+        <cell index="3">68%</cell>
+        <cell index="4">否</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">豆种</cell>
+        <cell index="3">74%</cell>
+        <cell index="4">否</cell>
+      </row>
+    </table>
+    <table id="t019" rows="3" columns="3" section="新手保护原石">
+      <row index="1" header="true">
+        <cell index="1">特殊事件</cell>
+        <cell index="2">触发品质</cell>
+        <cell index="3">概率</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">帝王绿</cell>
+        <cell index="2">玻璃种</cell>
+        <cell index="3">15%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">帝王绿</cell>
+        <cell index="2">高冰种</cell>
+        <cell index="3">3%</cell>
+      </row>
+    </table>
+    <paragraph id="p0029" style="Normal">代码依据：server/services/rough-pool-service.js；shared/domain/jade/jade-rules.js</paragraph>
+    <table id="t020" rows="1" columns="2" section="新手保护原石">
+      <row index="1" header="true">
+        <cell index="1">04</cell>
+        <cell index="2">公盘竞价
+通过档位、进场费、窗口成本与 AI 竞争强度形成风险梯度</cell>
+      </row>
+    </table>
+    <table id="t021" rows="6" columns="6" section="新手保护原石">
+      <row index="1" header="true">
+        <cell index="1">档位</cell>
+        <cell index="2">进场费</cell>
+        <cell index="3">窗口费率</cell>
+        <cell index="4">窗口费下限</cell>
+        <cell index="5">重量范围</cell>
+        <cell index="6">品质权重 豆/糯/糯冰/冰/高冰/玻璃</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">新手场</cell>
+        <cell index="2">800 元</cell>
+        <cell index="3">3%</cell>
+        <cell index="4">100 元</cell>
+        <cell index="5">0.7–2.2 kg</cell>
+        <cell index="6">38/30/18/9/4/1</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">常规场</cell>
+        <cell index="2">1,200 元</cell>
+        <cell index="3">4%</cell>
+        <cell index="4">150 元</cell>
+        <cell index="5">0.9–2.8 kg</cell>
+        <cell index="6">24/30/24/14/6.5/1.5</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">精品场</cell>
+        <cell index="2">1,800 元</cell>
+        <cell index="3">5%</cell>
+        <cell index="4">250 元</cell>
+        <cell index="5">1.1–3.3 kg</cell>
+        <cell index="6">0/18/32/28/16/6</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">专场</cell>
+        <cell index="2">2,800 元</cell>
+        <cell index="3">6%</cell>
+        <cell index="4">400 元</cell>
+        <cell index="5">1.8–3.5 kg</cell>
+        <cell index="6">0/10/25/30/23/12</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">传奇场</cell>
+        <cell index="2">4,000 元</cell>
+        <cell index="3">7%</cell>
+        <cell index="4">600 元</cell>
+        <cell index="5">1.4–3.5 kg</cell>
+        <cell index="6">0/0/12/32/34/22</cell>
+      </row>
+    </table>
+    <paragraph id="p0030" style="Heading 2" headingLevel="2">轮次与竞价</paragraph>
+    <table id="t022" rows="11" columns="3" section="轮次与竞价">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">单轮时长</cell>
+        <cell index="2">10 分钟</cell>
+        <cell index="3">服务器轮次</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">每轮拍品</cell>
+        <cell index="2">8 件</cell>
+        <cell index="3">所有档位</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">每块原石窗口数</cell>
+        <cell index="2">1</cell>
+        <cell index="3">避免重复开窗</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">AI 最低竞拍者</cell>
+        <cell index="2">3 名/原石</cell>
+        <cell index="3">默认生成下限</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">AI 竞争区间</cell>
+        <cell index="2">0.88–1.36</cell>
+        <cell index="3">围绕真实价值的竞争乘数</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">AI 价值底线</cell>
+        <cell index="2">0.96</cell>
+        <cell index="3">低估保护</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">AI 价值斜率</cell>
+        <cell index="2">0.45</cell>
+        <cell index="3">随标的价值修正</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">AI 价值封顶</cell>
+        <cell index="2">1.42</cell>
+        <cell index="3">总出价意愿上限</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">保证金规则</cell>
+        <cell index="2">全额出价冻结</cell>
+        <cell index="3">落槌后结算；未中标释放</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">进场费规则</cell>
+        <cell index="2">沉没成本</cell>
+        <cell index="3">不返还</cell>
+      </row>
+    </table>
+    <paragraph id="p0031" style="Heading 2" headingLevel="2">加价档</paragraph>
+    <table id="t023" rows="5" columns="2" section="加价档">
+      <row index="1" header="true">
+        <cell index="1">当前价区间</cell>
+        <cell index="2">可选加价</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">低于 1,000</cell>
+        <cell index="2">50 / 100 / 200 元</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">1,000–9,999</cell>
+        <cell index="2">100 / 500 / 1,000 元</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">10,000–99,999</cell>
+        <cell index="2">1,000 / 2,000 / 5,000 元</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">100,000 及以上</cell>
+        <cell index="2">5,000 / 10,000 / 20,000 元</cell>
+      </row>
+    </table>
+    <paragraph id="p0032" style="Normal">代码依据：shared/domain/auction/jade-auction.js；server/services/auction-service.js</paragraph>
+    <table id="t024" rows="1" columns="2" section="加价档">
+      <row index="1" header="true">
+        <cell index="1">05</cell>
+        <cell index="2">工坊与员工
+控制固定经营成本、升级回报、失败风险与加工价值</cell>
+      </row>
+    </table>
+    <paragraph id="p0033" style="Heading 2" headingLevel="2">员工经济</paragraph>
+    <table id="t025" rows="11" columns="3" section="员工经济">
+      <row index="1" header="true">
+        <cell index="1">员工等级</cell>
+        <cell index="2">工资</cell>
+        <cell index="3">招聘价</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">240</cell>
+        <cell index="3">2800</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">310</cell>
+        <cell index="3">4800</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">390</cell>
+        <cell index="3">7500</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">480</cell>
+        <cell index="3">11000</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">580</cell>
+        <cell index="3">15500</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">690</cell>
+        <cell index="3">21000</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">810</cell>
+        <cell index="3">27500</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">8</cell>
+        <cell index="2">940</cell>
+        <cell index="3">35000</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">9</cell>
+        <cell index="2">1080</cell>
+        <cell index="3">43500</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">10</cell>
+        <cell index="2">1230</cell>
+        <cell index="3">53500</cell>
+      </row>
+    </table>
+    <table id="t026" rows="3" columns="2" section="员工经济">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">工坊员工上限</cell>
+        <cell index="2">8 人</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">招聘列表刷新费</cell>
+        <cell index="2">350 元</cell>
+      </row>
+    </table>
+    <paragraph id="p0034" style="Heading 2" headingLevel="2">设备维修与加工管理费</paragraph>
+    <table id="t027" rows="7" columns="5" section="设备维修与加工管理费">
+      <row index="1" header="true">
+        <cell index="1">项目</cell>
+        <cell index="2">1级</cell>
+        <cell index="3">2级</cell>
+        <cell index="4">3级</cell>
+        <cell index="5">补充</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">设备维修费率</cell>
+        <cell index="2">25%</cell>
+        <cell index="3">20%</cell>
+        <cell index="4">15%</cell>
+        <cell index="5">按设备价值/损耗逻辑结算</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">设备能力倍率</cell>
+        <cell index="2">1×</cell>
+        <cell index="3">3×</cell>
+        <cell index="4">8×</cell>
+        <cell index="5">升级产能</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">品质加成</cell>
+        <cell index="2">0</cell>
+        <cell index="3">+6</cell>
+        <cell index="4">+18</cell>
+        <cell index="5">加工评分</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">速度加成</cell>
+        <cell index="2">0%</cell>
+        <cell index="3">15%</cell>
+        <cell index="4">32%</cell>
+        <cell index="5">缩短加工时间</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">完美保底</cell>
+        <cell index="2">0%</cell>
+        <cell index="3">12%</cell>
+        <cell index="4">30%</cell>
+        <cell index="5">降低低结果</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">风险保护</cell>
+        <cell index="2">0%</cell>
+        <cell index="3">5%</cell>
+        <cell index="4">12%</cell>
+        <cell index="5">降低事故概率</cell>
+      </row>
+    </table>
+    <table id="t028" rows="4" columns="4" section="设备维修与加工管理费">
+      <row index="1" header="true">
+        <cell index="1">加工环节</cell>
+        <cell index="2">费率</cell>
+        <cell index="3">最低</cell>
+        <cell index="4">最高</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">2%</cell>
+        <cell index="3">100 元</cell>
+        <cell index="4">800 元</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">雕刻</cell>
+        <cell index="2">3%</cell>
+        <cell index="3">150 元</cell>
+        <cell index="4">1,500 元</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">精加工</cell>
+        <cell index="2">2%</cell>
+        <cell index="3">120 元</cell>
+        <cell index="4">1,200 元</cell>
+      </row>
+    </table>
+    <paragraph id="p0035" style="Normal">代码依据：shared/domain/economy/worker-economy.js；shared/domain/economy/equipment-maintenance.js；server/services/workshop-service.js</paragraph>
+    <paragraph id="p0036" style="Heading 2" headingLevel="2">员工熟练度与加工曲线</paragraph>
+    <table id="t029" rows="11" columns="2" section="员工熟练度与加工曲线">
+      <row index="1" header="true">
+        <cell index="1">等级</cell>
+        <cell index="2">熟练度曲线 K</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">12%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">24%</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">37%</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">50%</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">63%</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">74%</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">83%</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">8</cell>
+        <cell index="2">90%</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">9</cell>
+        <cell index="2">95%</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">10</cell>
+        <cell index="2">100%</cell>
+      </row>
+    </table>
+    <table id="t030" rows="11" columns="2" section="员工熟练度与加工曲线">
+      <row index="1" header="true">
+        <cell index="1">等级</cell>
+        <cell index="2">价值倍率</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">1.00×</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">1.07×</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">1.15×</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">1.24×</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">1.35×</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">1.47×</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">1.60×</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">8</cell>
+        <cell index="2">1.72×</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">9</cell>
+        <cell index="2">1.85×</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">10</cell>
+        <cell index="2">2.00×</cell>
+      </row>
+    </table>
+    <paragraph id="p0037" style="Heading 2" headingLevel="2">加工事故与评分</paragraph>
+    <table id="t031" rows="4" columns="5" section="加工事故与评分">
+      <row index="1" header="true">
+        <cell index="1">阶段</cell>
+        <cell index="2">基础破损率</cell>
+        <cell index="3">风险系数</cell>
+        <cell index="4">概率上限</cell>
+        <cell index="5">流程权重</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">1.2%</cell>
+        <cell index="3">10%</cell>
+        <cell index="4">12%</cell>
+        <cell index="5">30%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">方案</cell>
+        <cell index="2">0.8%</cell>
+        <cell index="3">10%</cell>
+        <cell index="4">10%</cell>
+        <cell index="5">35%</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">精加工</cell>
+        <cell index="2">0.4%</cell>
+        <cell index="3">10%</cell>
+        <cell index="4">6%</cell>
+        <cell index="5">35%</cell>
+      </row>
+    </table>
+    <table id="t032" rows="6" columns="3" section="加工事故与评分">
+      <row index="1" header="true">
+        <cell index="1">评分档</cell>
+        <cell index="2">门槛</cell>
+        <cell index="3">成品价值倍率</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">S</cell>
+        <cell index="2">100</cell>
+        <cell index="3">1.04×</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">A</cell>
+        <cell index="2">85</cell>
+        <cell index="3">1.00×</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">B</cell>
+        <cell index="2">70</cell>
+        <cell index="3">0.97×</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">C</cell>
+        <cell index="2">55</cell>
+        <cell index="3">0.94×</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">D</cell>
+        <cell index="2">0</cell>
+        <cell index="3">0.90×</cell>
+      </row>
+    </table>
+    <table id="t033" rows="5" columns="2" section="加工事故与评分">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">流程加成上限</cell>
+        <cell index="2">30%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">原石加工基础时间</cell>
+        <cell index="2">90 秒</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">精修基础时间</cell>
+        <cell index="2">4 分钟</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">镶嵌基础时间</cell>
+        <cell index="2">2 分钟</cell>
+      </row>
+    </table>
+    <paragraph id="p0038" style="Heading 2" headingLevel="2">员工行为经验</paragraph>
+    <table id="t034" rows="12" columns="3" section="员工行为经验">
+      <row index="1" header="true">
+        <cell index="1">岗位/场景</cell>
+        <cell index="2">行为</cell>
+        <cell index="3">经验</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">解料</cell>
+        <cell index="3">10</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">开窗</cell>
+        <cell index="2">打磨</cell>
+        <cell index="3">5</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">雕刻</cell>
+        <cell index="2">修形</cell>
+        <cell index="3">10</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">雕刻</cell>
+        <cell index="2">切料</cell>
+        <cell index="3">5</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">精加工</cell>
+        <cell index="2">雕琢</cell>
+        <cell index="3">10</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">精加工</cell>
+        <cell index="2">镶嵌</cell>
+        <cell index="3">5</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">直播</cell>
+        <cell index="2">话术</cell>
+        <cell index="3">10</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">直播</cell>
+        <cell index="2">控场</cell>
+        <cell index="3">7</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">直播</cell>
+        <cell index="2">催单</cell>
+        <cell index="3">5</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">直播成交</cell>
+        <cell index="2">话术/控场/催单</cell>
+        <cell index="3">3 / 2 / 2</cell>
+      </row>
+      <row index="12" header="false">
+        <cell index="1">直播场次</cell>
+        <cell index="2">话术/控场/催单</cell>
+        <cell index="3">8 / 5 / 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0039" style="Normal">代码依据：shared/domain/workshop/workshop-craft-scoring.js；server/systems/employee-system.js；server/services/workshop-service.js</paragraph>
+    <table id="t035" rows="1" columns="2" section="员工行为经验">
+      <row index="1" header="true">
+        <cell index="1">06</cell>
+        <cell index="2">直播间 AI 买家
+价格敏感度、主播能力与场次节奏共同决定成交</cell>
+      </row>
+    </table>
+    <paragraph id="p0040" style="Heading 2" headingLevel="2">场次基础</paragraph>
+    <table id="t036" rows="13" columns="3" section="场次基础">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">最少上架</cell>
+        <cell index="2">3 件</cell>
+        <cell index="3">开播门槛</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">最多上架</cell>
+        <cell index="2">12 件</cell>
+        <cell index="3">单场容量</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">基础时长</cell>
+        <cell index="2">12 分钟</cell>
+        <cell index="3">正常结束</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">最长时长</cell>
+        <cell index="2">15 分钟</cell>
+        <cell index="3">含加时硬上限</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">成交加时</cell>
+        <cell index="2">60 秒</cell>
+        <cell index="3">每次成交触发</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">AI 到访间隔</cell>
+        <cell index="2">18 + 随机 0–14 秒</cell>
+        <cell index="3">最低 10 秒</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">最高允许价格比</cell>
+        <cell index="2">1.80×</cell>
+        <cell index="3">售价/估值</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">成交概率硬下限</cell>
+        <cell index="2">1%</cell>
+        <cell index="3">所有修正后</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">成交概率硬上限</cell>
+        <cell index="2">88%</cell>
+        <cell index="3">所有修正后</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">评分加成</cell>
+        <cell index="2">每点 +1%，最多 +6%</cell>
+        <cell index="3">品质/展示评分</cell>
+      </row>
+      <row index="12" header="false">
+        <cell index="1">声望满值参考</cell>
+        <cell index="2">1,500</cell>
+        <cell index="3">用于归一化</cell>
+      </row>
+      <row index="13" header="false">
+        <cell index="1">声望成交加成上限</cell>
+        <cell index="2">8%</cell>
+        <cell index="3">满参考值封顶</cell>
+      </row>
+    </table>
+    <paragraph id="p0041" style="Heading 2" headingLevel="2">售价与估值比的基础成交率</paragraph>
+    <table id="t037" rows="9" columns="3" section="售价与估值比的基础成交率">
+      <row index="1" header="true">
+        <cell index="1">价格比</cell>
+        <cell index="2">基础成交率</cell>
+        <cell index="3">定位</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">≤ 0.85×</cell>
+        <cell index="2">64%</cell>
+        <cell index="3">明显低价</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">0.85–0.95×</cell>
+        <cell index="2">50%</cell>
+        <cell index="3">优惠价</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">0.95–1.05×</cell>
+        <cell index="2">36%</cell>
+        <cell index="3">接近估值</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">1.05–1.15×</cell>
+        <cell index="2">24%</cell>
+        <cell index="3">轻溢价</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">1.15–1.30×</cell>
+        <cell index="2">13%</cell>
+        <cell index="3">中溢价</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">1.30–1.50×</cell>
+        <cell index="2">4.5%</cell>
+        <cell index="3">高溢价</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">1.50–1.65×</cell>
+        <cell index="2">1.5%</cell>
+        <cell index="3">极高溢价</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">1.65–1.80×</cell>
+        <cell index="2">0.6%</cell>
+        <cell index="3">接近上限</cell>
+      </row>
+    </table>
+    <paragraph id="p0042" style="Heading 2" headingLevel="2">主播 10 级能力上限</paragraph>
+    <table id="t038" rows="4" columns="5" section="主播 10 级能力上限">
+      <row index="1" header="true">
+        <cell index="1">岗位</cell>
+        <cell index="2">主能力</cell>
+        <cell index="3">10级数值</cell>
+        <cell index="4">辅助能力</cell>
+        <cell index="5">10级数值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">话术</cell>
+        <cell index="2">溢价增益</cell>
+        <cell index="3">10%</cell>
+        <cell index="4">高价软化</cell>
+        <cell index="5">6%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">控场</cell>
+        <cell index="2">流量增益</cell>
+        <cell index="3">22%</cell>
+        <cell index="4">点赞增益</cell>
+        <cell index="5">35%</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">催单</cell>
+        <cell index="2">转化增益</cell>
+        <cell index="3">12%</cell>
+        <cell index="4">—</cell>
+        <cell index="5">—</cell>
+      </row>
+    </table>
+    <paragraph id="p0043" style="Heading 2" headingLevel="2">直播风格倍率</paragraph>
+    <table id="t039" rows="4" columns="6" section="直播风格倍率">
+      <row index="1" header="true">
+        <cell index="1">风格</cell>
+        <cell index="2">溢价</cell>
+        <cell index="3">高价软化</cell>
+        <cell index="4">转化</cell>
+        <cell index="5">流量</cell>
+        <cell index="6">点赞</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">稳健</cell>
+        <cell index="2">0.70×</cell>
+        <cell index="3">0.45×</cell>
+        <cell index="4">1.28×</cell>
+        <cell index="5">1.18×</cell>
+        <cell index="6">1.05×</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">均衡</cell>
+        <cell index="2">1.00×</cell>
+        <cell index="3">1.00×</cell>
+        <cell index="4">1.00×</cell>
+        <cell index="5">1.00×</cell>
+        <cell index="6">1.00×</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">强推</cell>
+        <cell index="2">1.40×</cell>
+        <cell index="3">1.55×</cell>
+        <cell index="4">0.82×</cell>
+        <cell index="5">0.88×</cell>
+        <cell index="6">1.12×</cell>
+      </row>
+    </table>
+    <table id="t040" rows="4" columns="2" section="直播风格倍率">
+      <row index="1" header="true">
+        <cell index="1">附加规则</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">流量增益最终封顶</cell>
+        <cell index="2">25%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">价格比高于 1.0 时的主播软化附加</cell>
+        <cell index="2">最多 +8%；按 (价格比-1) × 高价软化 × 2 计算</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">最终成交率</cell>
+        <cell index="2">基础带 + 评分/声望/高价软化后，再乘溢价与转化，最后限制在 1%–88%</cell>
+      </row>
+    </table>
+    <paragraph id="p0044" style="Normal">同步提醒：直播 AI 买家必须整体迁移“价格带 + 主播修正 + 风格倍率 + 硬上下限”。只迁移价格带会导致主播养成失效，只迁移主播加成又会造成高价商品过强。</paragraph>
+    <paragraph id="p0045" style="Normal">代码依据：shared/domain/livestream/livestream-rules.js；shared/domain/livestream/livestream-host-bonuses.js；server/services/livestream-service.js</paragraph>
+    <table id="t041" rows="1" columns="2" section="直播风格倍率">
+      <row index="1" header="true">
+        <cell index="1">07</cell>
+        <cell index="2">市场、黑市与收藏
+控制玩家间交易容量、系统托底与长期收藏收益</cell>
+      </row>
+    </table>
+    <paragraph id="p0046" style="Heading 2" headingLevel="2">公开市场</paragraph>
+    <table id="t042" rows="8" columns="3" section="公开市场">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">交易税</cell>
+        <cell index="2">2%</cell>
+        <cell index="3">成交后扣除</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">最低挂牌价</cell>
+        <cell index="2">100 元</cell>
+        <cell index="3">防止无意义极低价</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">单玩家挂牌上限</cell>
+        <cell index="2">10 件</cell>
+        <cell index="3">库存控制</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">全服挂牌上限</cell>
+        <cell index="2">80 件</cell>
+        <cell index="3">页面与流动性控制</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">单玩家求购上限</cell>
+        <cell index="2">3 条</cell>
+        <cell index="3">需求侧约束</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">全服求购上限</cell>
+        <cell index="2">30 条</cell>
+        <cell index="3">需求侧约束</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">单求购报价上限</cell>
+        <cell index="2">8 条</cell>
+        <cell index="3">防止刷屏</cell>
+      </row>
+    </table>
+    <paragraph id="p0047" style="Heading 2" headingLevel="2">系统做市与回收</paragraph>
+    <table id="t043" rows="6" columns="3" section="系统做市与回收">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">滞销判定</cell>
+        <cell index="2">10 分钟</cell>
+        <cell index="3">达到后进入做市判断</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">系统收购价</cell>
+        <cell index="2">估值的 65%</cell>
+        <cell index="3">快速变现折价</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">单轮最大收购</cell>
+        <cell index="2">2 件</cell>
+        <cell index="3">做市节流</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">同一在线玩家最大收购</cell>
+        <cell index="2">2 件</cell>
+        <cell index="3">防刷</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">背包直接回收价</cell>
+        <cell index="2">估值的 20%</cell>
+        <cell index="3">即时兜底</cell>
+      </row>
+    </table>
+    <paragraph id="p0048" style="Normal">代码依据：shared/domain/economy/market-rules.js；server/services/market-liquidity-service.js；shared/domain/economy/inventory-recycle.js</paragraph>
+    <paragraph id="p0049" style="Heading 2" headingLevel="2">收藏柜</paragraph>
+    <table id="t044" rows="2" columns="2" section="收藏柜">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">收藏上限</cell>
+        <cell index="2">20 件</cell>
+      </row>
+    </table>
+    <table id="t045" rows="7" columns="4" section="收藏柜">
+      <row index="1" header="true">
+        <cell index="1">单件估值</cell>
+        <cell index="2">档位</cell>
+        <cell index="3">声望奖励</cell>
+        <cell index="4">经验奖励</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">&lt; 2,500</cell>
+        <cell index="2">普通</cell>
+        <cell index="3">0</cell>
+        <cell index="4">0</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">≥ 2,500</cell>
+        <cell index="2">可看</cell>
+        <cell index="3">2</cell>
+        <cell index="4">4</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">≥ 8,000</cell>
+        <cell index="2">上柜</cell>
+        <cell index="3">6</cell>
+        <cell index="4">8</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">≥ 25,000</cell>
+        <cell index="2">精品</cell>
+        <cell index="3">14</cell>
+        <cell index="4">12</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">≥ 60,000</cell>
+        <cell index="2">重器</cell>
+        <cell index="3">28</cell>
+        <cell index="4">16</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">≥ 150,000</cell>
+        <cell index="2">镇店</cell>
+        <cell index="3">50</cell>
+        <cell index="4">24</cell>
+      </row>
+    </table>
+    <paragraph id="p0050" style="Normal">代码依据：server/services/collection-service.js</paragraph>
+    <table id="t046" rows="1" columns="2" section="收藏柜">
+      <row index="1" header="true">
+        <cell index="1">08</cell>
+        <cell index="2">订单与顾客
+控制需求生成、刷新成本、支付能力和满意度波动</cell>
+      </row>
+    </table>
+    <paragraph id="p0051" style="Heading 2" headingLevel="2">订单基础</paragraph>
+    <table id="t047" rows="8" columns="3" section="订单基础">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">说明</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">订单栏位</cell>
+        <cell index="2">4</cell>
+        <cell index="3">同时可处理</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">每日刷新时间</cell>
+        <cell index="2">05:00</cell>
+        <cell index="3">服务器当地时间</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">单次刷新上限</cell>
+        <cell index="2">10 次</cell>
+        <cell index="3">成本递增</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">批量刷新上限</cell>
+        <cell index="2">3 次</cell>
+        <cell index="3">成本递增</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">满意度初始基准</cell>
+        <cell index="2">70</cell>
+        <cell index="3">0–100</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">满意度回归中心</cell>
+        <cell index="2">72</cell>
+        <cell index="3">长期均衡</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">每次结算回归比例</cell>
+        <cell index="2">2%</cell>
+        <cell index="3">向 72 回归</cell>
+      </row>
+    </table>
+    <paragraph id="p0052" style="Heading 2" headingLevel="2">刷新成本</paragraph>
+    <table id="t048" rows="3" columns="2" section="刷新成本">
+      <row index="1" header="true">
+        <cell index="1">类型</cell>
+        <cell index="2">次数与成本</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">单次刷新</cell>
+        <cell index="2">500 / 750 / 1,100 / 1,600 / 2,400 / 3,600 / 5,400 / 8,100 / 12,000 / 18,000 元</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">批量刷新</cell>
+        <cell index="2">1,500 / 3,000 / 6,000 元</cell>
+      </row>
+    </table>
+    <paragraph id="p0053" style="Heading 2" headingLevel="2">满意度事件</paragraph>
+    <table id="t049" rows="6" columns="3" section="满意度事件">
+      <row index="1" header="true">
+        <cell index="1">结果</cell>
+        <cell index="2">基础变化</cell>
+        <cell index="3">高低满意度修正</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">极佳</cell>
+        <cell index="2">+3</cell>
+        <cell index="3">满意度 ≥90 时正向变化减半且最少 +1；≤40 时正向变化 ×1.5</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">良好</cell>
+        <cell index="2">+2</cell>
+        <cell index="3">同上</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">延迟交付</cell>
+        <cell index="2">-1</cell>
+        <cell index="3">负向不减免</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">一般</cell>
+        <cell index="2">0</cell>
+        <cell index="3">无变化</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">糟糕</cell>
+        <cell index="2">-6</cell>
+        <cell index="3">负向不减免</cell>
+      </row>
+    </table>
+    <paragraph id="p0054" style="Heading 2" headingLevel="2">顾客财富层</paragraph>
+    <table id="t050" rows="4" columns="6" section="顾客财富层">
+      <row index="1" header="true">
+        <cell index="1">层级</cell>
+        <cell index="2">生成权重</cell>
+        <cell index="3">预算区间</cell>
+        <cell index="4">价值中位</cell>
+        <cell index="5">支付倍率</cell>
+        <cell index="6">支付硬范围</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">拮据</cell>
+        <cell index="2">30%</cell>
+        <cell index="3">300–2,500</cell>
+        <cell index="4">1,400</cell>
+        <cell index="5">1.02–1.18×</cell>
+        <cell index="6">400–5,000</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">小康</cell>
+        <cell index="2">45%</cell>
+        <cell index="3">2,000–12,000</cell>
+        <cell index="4">5,600</cell>
+        <cell index="5">1.08–1.28×</cell>
+        <cell index="6">1,800–22,000</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">富裕</cell>
+        <cell index="2">25%</cell>
+        <cell index="3">8,000–45,000</cell>
+        <cell index="4">17,000</cell>
+        <cell index="5">1.12–1.38×</cell>
+        <cell index="6">7,000–68,000</cell>
+      </row>
+    </table>
+    <paragraph id="p0055" style="Heading 2" headingLevel="2">商品种类系数</paragraph>
+    <table id="t051" rows="5" columns="4" section="商品种类系数">
+      <row index="1" header="true">
+        <cell index="1">类型</cell>
+        <cell index="2">系数</cell>
+        <cell index="3">类型</cell>
+        <cell index="4">系数</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">珠串</cell>
+        <cell index="2">0.55×</cell>
+        <cell index="3">蛋面</cell>
+        <cell index="4">0.65×</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">水滴吊坠</cell>
+        <cell index="2">0.82×</cell>
+        <cell index="3">福豆</cell>
+        <cell index="4">0.88×</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">平安扣</cell>
+        <cell index="2">0.95×</cell>
+        <cell index="3">佛公</cell>
+        <cell index="4">1.05×</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">牌子</cell>
+        <cell index="2">1.12×</cell>
+        <cell index="3">手镯</cell>
+        <cell index="4">1.35×</cell>
+      </row>
+    </table>
+    <paragraph id="p0056" style="Heading 2" headingLevel="2">顾客画像分布</paragraph>
+    <table id="t052" rows="5" columns="2" section="顾客画像分布">
+      <row index="1" header="true">
+        <cell index="1">维度</cell>
+        <cell index="2">选项与权重</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">性格</cell>
+        <cell index="2">宽和 35%（脾气 0.45）；大方 40%（0.75）；计较 25%（1.15）</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">动机</cell>
+        <cell index="2">喜欢 40%；面子 25%；装懂 22%；炫耀 13%</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">体型</cell>
+        <cell index="2">S 30%；M 45%；L 25%</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">年龄</cell>
+        <cell index="2">18–25 岁 22%；26–40 岁 35%；41–60 岁 28%；61–99 岁 15%</cell>
+      </row>
+    </table>
+    <paragraph id="p0057" style="Normal">代码依据：shared/domain/economy/order-refresh.js；server/services/orders-service.js</paragraph>
+    <table id="t053" rows="1" columns="2" section="顾客画像分布">
+      <row index="1" header="true">
+        <cell index="1">09</cell>
+        <cell index="2">材料与镶嵌
+定义材料成本、批量折扣、工费与成品增值上限</cell>
+      </row>
+    </table>
+    <paragraph id="p0058" style="Heading 2" headingLevel="2">材料单价</paragraph>
+    <table id="t054" rows="8" columns="3" section="材料单价">
+      <row index="1" header="true">
+        <cell index="1">材料</cell>
+        <cell index="2">单价</cell>
+        <cell index="3">计价单位</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">足金</cell>
+        <cell index="2">560 元</cell>
+        <cell index="3">克</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">925 银</cell>
+        <cell index="2">12 元</cell>
+        <cell index="3">克</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">18K 金</cell>
+        <cell index="2">380 元</cell>
+        <cell index="3">克</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">铂金</cell>
+        <cell index="2">420 元</cell>
+        <cell index="3">克</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">钻石</cell>
+        <cell index="2">120 元</cell>
+        <cell index="3">颗</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">红宝石</cell>
+        <cell index="2">40 元</cell>
+        <cell index="3">颗</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">蓝宝石</cell>
+        <cell index="2">40 元</cell>
+        <cell index="3">颗</cell>
+      </row>
+    </table>
+    <paragraph id="p0059" style="Heading 2" headingLevel="2">批量折扣</paragraph>
+    <table id="t055" rows="3" columns="3" section="批量折扣">
+      <row index="1" header="true">
+        <cell index="1">材料类型</cell>
+        <cell index="2">数量节点</cell>
+        <cell index="3">折扣</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">贵金属</cell>
+        <cell index="2">50 / 100 / 500 / 1,000 克</cell>
+        <cell index="3">1% / 4% / 7.5% / 10%</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">宝石</cell>
+        <cell index="2">10 / 50 颗</cell>
+        <cell index="3">8% / 15%</cell>
+      </row>
+    </table>
+    <paragraph id="p0060" style="Normal">节点之间采用线性插值，未到首个节点时不享受折扣。</paragraph>
+    <paragraph id="p0061" style="Heading 2" headingLevel="2">镶嵌方式</paragraph>
+    <table id="t056" rows="7" columns="5" section="镶嵌方式">
+      <row index="1" header="true">
+        <cell index="1">方式</cell>
+        <cell index="2">基础金重</cell>
+        <cell index="3">工费</cell>
+        <cell index="4">基础增值</cell>
+        <cell index="5">允许材质</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">爪镶</cell>
+        <cell index="2">1.5 g</cell>
+        <cell index="3">200 元</cell>
+        <cell index="4">3%</cell>
+        <cell index="5">18K 金 / 铂金</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">包镶</cell>
+        <cell index="2">2.5 g</cell>
+        <cell index="3">300 元</cell>
+        <cell index="4">5%</cell>
+        <cell index="5">全部金属</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">微镶</cell>
+        <cell index="2">3.0 g</cell>
+        <cell index="3">800 元</cell>
+        <cell index="4">12%</cell>
+        <cell index="5">18K 金 / 铂金</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">轨道镶</cell>
+        <cell index="2">2.0 g</cell>
+        <cell index="3">500 元</cell>
+        <cell index="4">8%</cell>
+        <cell index="5">18K 金 / 铂金</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">无边镶</cell>
+        <cell index="2">3.5 g</cell>
+        <cell index="3">1,200 元</cell>
+        <cell index="4">16%</cell>
+        <cell index="5">18K 金 / 铂金</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">绳结</cell>
+        <cell index="2">0 g</cell>
+        <cell index="3">20 元</cell>
+        <cell index="4">2%</cell>
+        <cell index="5">无金属</cell>
+      </row>
+    </table>
+    <paragraph id="p0062" style="Heading 2" headingLevel="2">镶嵌增值与附加工艺</paragraph>
+    <table id="t057" rows="4" columns="7" section="镶嵌增值与附加工艺">
+      <row index="1" header="true">
+        <cell index="1">项目</cell>
+        <cell index="2">足金</cell>
+        <cell index="3">925银</cell>
+        <cell index="4">18K金</cell>
+        <cell index="5">铂金</cell>
+        <cell index="6">钻石</cell>
+        <cell index="7">红/蓝宝石</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">材质增值</cell>
+        <cell index="2">22%</cell>
+        <cell index="3">3%</cell>
+        <cell index="4">20%</cell>
+        <cell index="5">25%</cell>
+        <cell index="6">—</cell>
+        <cell index="7">—</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">每克/每颗封顶贡献</cell>
+        <cell index="2">700</cell>
+        <cell index="3">30</cell>
+        <cell index="4">500</cell>
+        <cell index="5">600</cell>
+        <cell index="6">260</cell>
+        <cell index="7">140</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">宝石每颗增值</cell>
+        <cell index="2">—</cell>
+        <cell index="3">—</cell>
+        <cell index="4">—</cell>
+        <cell index="5">—</cell>
+        <cell index="6">6%</cell>
+        <cell index="7">4%</cell>
+      </row>
+    </table>
+    <table id="t058" rows="6" columns="4" section="镶嵌增值与附加工艺">
+      <row index="1" header="true">
+        <cell index="1">附加项</cell>
+        <cell index="2">工费</cell>
+        <cell index="3">价值加成</cell>
+        <cell index="4">其他</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">亮面抛光</cell>
+        <cell index="2">50 元</cell>
+        <cell index="3">5%</cell>
+        <cell index="4">—</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">柔光抛光</cell>
+        <cell index="2">30 元</cell>
+        <cell index="3">2%</cell>
+        <cell index="4">—</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">哑光</cell>
+        <cell index="2">0 元</cell>
+        <cell index="3">0%</cell>
+        <cell index="4">—</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">开放式底托</cell>
+        <cell index="2">0 元</cell>
+        <cell index="3">0%</cell>
+        <cell index="4">—</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">封底</cell>
+        <cell index="2">100 元</cell>
+        <cell index="3">3%</cell>
+        <cell index="4">信任 -20%</cell>
+      </row>
+    </table>
+    <table id="t059" rows="6" columns="2" section="镶嵌增值与附加工艺">
+      <row index="1" header="true">
+        <cell index="1">公式参数</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">宝石数量范围</cell>
+        <cell index="2">0–12 颗</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">金属用量</cell>
+        <cell index="2">基础金重 ×（1 + 宝石数 × 5%）</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">加工工费</cell>
+        <cell index="2">镶嵌基础工费 + 宝石数 × 80 + 抛光工费 + 底托工费</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">增值封顶</cell>
+        <cell index="2">1,200 + 金属量 × 每克贡献 + 宝石数 × 每颗贡献 + 工费 × 60%</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">最终增值</cell>
+        <cell index="2">名义增值与增值封顶取较小值</cell>
+      </row>
+    </table>
+    <paragraph id="p0063" style="Normal">代码依据：shared/domain/economy/material-pricing.js；server/systems/inlay-system.js</paragraph>
+    <table id="t060" rows="1" columns="2" section="镶嵌增值与附加工艺">
+      <row index="1" header="true">
+        <cell index="1">10</cell>
+        <cell index="2">恢复机制与声望维护
+在不抹平失败成本的前提下，防止玩家彻底失去经营能力</cell>
+      </row>
+    </table>
+    <paragraph id="p0064" style="Heading 2" headingLevel="2">经营恢复</paragraph>
+    <table id="t061" rows="6" columns="3" section="经营恢复">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">结算含义</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">低现金触发线</cell>
+        <cell index="2">2,000 元</cell>
+        <cell index="3">低于此值进入援助判断</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">恢复目标现金</cell>
+        <cell index="2">12,000 元</cell>
+        <cell index="3">补足到该目标附近</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">触发冷却</cell>
+        <cell index="2">30 分钟</cell>
+        <cell index="3">防止连续领取</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">债务倍率</cell>
+        <cell index="2">1.05×</cell>
+        <cell index="3">援助金额形成略高于本金的债务</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">偿还比例</cell>
+        <cell index="2">收入的 10%</cell>
+        <cell index="3">后续收入自动偿还</cell>
+      </row>
+    </table>
+    <paragraph id="p0065" style="Heading 2" headingLevel="2">声望在线衰减</paragraph>
+    <table id="t062" rows="5" columns="3" section="声望在线衰减">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+        <cell index="3">换算</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">衰减周期</cell>
+        <cell index="2">10 分钟</cell>
+        <cell index="3">在线计时</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">每周期衰减</cell>
+        <cell index="2">0.5</cell>
+        <cell index="3">声望点</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">每小时衰减</cell>
+        <cell index="2">3</cell>
+        <cell index="3">声望点</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">衰减下限</cell>
+        <cell index="2">10</cell>
+        <cell index="3">不再继续降低</cell>
+      </row>
+    </table>
+    <paragraph id="p0066" style="Heading 2" headingLevel="2">顾客评分</paragraph>
+    <table id="t063" rows="5" columns="2" section="顾客评分">
+      <row index="1" header="true">
+        <cell index="1">参数</cell>
+        <cell index="2">当前值</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">公开显示最低样本</cell>
+        <cell index="2">5 次</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">订单评价权重</cell>
+        <cell index="2">70%</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">黑市评价权重</cell>
+        <cell index="2">30%</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">无样本基准</cell>
+        <cell index="2">70 分</cell>
+      </row>
+    </table>
+    <paragraph id="p0067" style="Normal">代码依据：server/services/recovery-service.js；server/services/blackmarket/recovery.js；shared/domain/economy/metric-history.js</paragraph>
+    <table id="t064" rows="1" columns="2" section="顾客评分">
+      <row index="1" header="true">
+        <cell index="1">11</cell>
+        <cell index="2">成就完整表
+目标值、AP、现金、经验与材料奖励；无穷档增长规则单列</cell>
+      </row>
+    </table>
+    <paragraph id="p0068" style="Normal">材料缩写：银=925银（克）；18K=18K金（克）；足金=足金（克）；铂=铂金（克）；钻/红/蓝=对应宝石（颗）。空白表示无该项奖励。</paragraph>
+    <paragraph id="p0069" style="Heading 2" headingLevel="2">成就轨道索引</paragraph>
+    <table id="t065" rows="19" columns="3" section="成就轨道索引">
+      <row index="1" header="true">
+        <cell index="1">轨道</cell>
+        <cell index="2">固定档数</cell>
+        <cell index="3">后续增长</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">开窗之路</cell>
+        <cell index="2">7</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">公盘之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">切石之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">工坊之路</cell>
+        <cell index="2">7</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">成品之路</cell>
+        <cell index="2">7</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">带货之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">接单之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">街口之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">黑市之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">藏宝之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 +25</cell>
+      </row>
+      <row index="12" header="false">
+        <cell index="1">门面之路</cell>
+        <cell index="2">6</cell>
+        <cell index="3">无穷档目标 ×1.8</cell>
+      </row>
+      <row index="13" header="false">
+        <cell index="1">积蓄之路</cell>
+        <cell index="2">7</cell>
+        <cell index="3">无穷档目标 ×2</cell>
+      </row>
+      <row index="14" header="false">
+        <cell index="1">声望之路</cell>
+        <cell index="2">7</cell>
+        <cell index="3">无穷档目标 ×1.6</cell>
+      </row>
+      <row index="15" header="false">
+        <cell index="1">经营之路</cell>
+        <cell index="2">8</cell>
+        <cell index="3">无穷档目标 ×1.5</cell>
+      </row>
+      <row index="16" header="false">
+        <cell index="1">招兵之路</cell>
+        <cell index="2">3</cell>
+        <cell index="3">非无穷档</cell>
+      </row>
+      <row index="17" header="false">
+        <cell index="1">帝王之绿</cell>
+        <cell index="2">1</cell>
+        <cell index="3">非无穷档</cell>
+      </row>
+      <row index="18" header="false">
+        <cell index="1">传奇场口</cell>
+        <cell index="2">1</cell>
+        <cell index="3">非无穷档</cell>
+      </row>
+      <row index="19" header="false">
+        <cell index="1">废料十刀</cell>
+        <cell index="2">1</cell>
+        <cell index="3">非无穷档</cell>
+      </row>
+    </table>
+    <paragraph id="p0070" style="Heading 2" headingLevel="2">01 开窗之路</paragraph>
+    <paragraph id="p0071" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t066" rows="8" columns="7" section="01 开窗之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初试开窗</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">眼力初成</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">16</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">场口常客</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">22</cell>
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">看料老手</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5">2,400</cell>
+        <cell index="6">28</cell>
+        <cell index="7" />
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">窗前百眼</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6">32</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">识石入骨</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 8</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">开窗宗师</cell>
+        <cell index="3">500</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0072" style="Heading 2" headingLevel="2">02 公盘之路</paragraph>
+    <paragraph id="p0073" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t067" rows="7" columns="7" section="02 公盘之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初次竞得</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">16</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">五次落槌</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">20</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十五次中标</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">28</cell>
+        <cell index="7">银 10</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">四十次中标</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">35</cell>
+        <cell index="7">18K 4</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百次中标</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">蓝 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">竞拍宗师</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 3</cell>
+      </row>
+    </table>
+    <paragraph id="p0074" style="Heading 2" headingLevel="2">03 切石之路</paragraph>
+    <paragraph id="p0075" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t068" rows="7" columns="7" section="03 切石之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">第一刀</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">小试五刀</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">16</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十五刀</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">24</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">四十刀</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">30</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百刀</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">切石宗师</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+    </table>
+    <paragraph id="p0076" style="Heading 2" headingLevel="2">04 工坊之路</paragraph>
+    <paragraph id="p0077" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t069" rows="8" columns="7" section="04 工坊之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初次完工</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">十件成品</cell>
+        <cell index="3">10</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">16</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">三十件成品</cell>
+        <cell index="3">30</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">24</cell>
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">八十件成品</cell>
+        <cell index="3">80</cell>
+        <cell index="4">25</cell>
+        <cell index="5">2,400</cell>
+        <cell index="6">32</cell>
+        <cell index="7" />
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">二百件成品</cell>
+        <cell index="3">200</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6">38</cell>
+        <cell index="7">18K 4</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">五百件成品</cell>
+        <cell index="3">500</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">蓝 8</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">千件宗师</cell>
+        <cell index="3">1,000</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">足金 3；钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0078" style="Heading 2" headingLevel="2">05 成品之路</paragraph>
+    <paragraph id="p0079" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t070" rows="8" columns="7" section="05 成品之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首件成品</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">五件精品</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">18</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十五件精品</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">26</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">四十件精品</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">32</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百件精品</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">二百五十件</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">五百件宗师</cell>
+        <cell index="3">500</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0080" style="Heading 2" headingLevel="2">06 带货之路</paragraph>
+    <paragraph id="p0081" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t071" rows="7" columns="7" section="06 带货之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首单成交</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">15</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">十单成交</cell>
+        <cell index="3">10</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">20</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">三十单成交</cell>
+        <cell index="3">30</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">28</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">八十单成交</cell>
+        <cell index="3">80</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">36</cell>
+        <cell index="7">18K 4</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">二百单成交</cell>
+        <cell index="3">200</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">蓝 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">五百单宗师</cell>
+        <cell index="3">500</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 3</cell>
+      </row>
+    </table>
+    <paragraph id="p0082" style="Heading 2" headingLevel="2">07 接单之路</paragraph>
+    <paragraph id="p0083" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t072" rows="7" columns="7" section="07 接单之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首单交付</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">15</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">五单交付</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">20</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十五单交付</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">28</cell>
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">四十单交付</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">34</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百单交付</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">二百五十单</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+    </table>
+    <paragraph id="p0084" style="Heading 2" headingLevel="2">08 街口之路</paragraph>
+    <paragraph id="p0085" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t073" rows="7" columns="7" section="08 街口之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首笔交易</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">十笔交易</cell>
+        <cell index="3">10</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">18</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">三十笔交易</cell>
+        <cell index="3">30</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">26</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">八十笔交易</cell>
+        <cell index="3">80</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">32</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">二百笔交易</cell>
+        <cell index="3">200</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">蓝 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">五百笔宗师</cell>
+        <cell index="3">500</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+    </table>
+    <paragraph id="p0086" style="Heading 2" headingLevel="2">09 黑市之路</paragraph>
+    <paragraph id="p0087" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t074" rows="7" columns="7" section="09 黑市之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初探黑市</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">五次黑市</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">18</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十五次黑市</cell>
+        <cell index="3">15</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">26</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">四十次黑市</cell>
+        <cell index="3">40</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6">32</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百次黑市</cell>
+        <cell index="3">100</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 4；蓝 4</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">黑市宗师</cell>
+        <cell index="3">250</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+    </table>
+    <paragraph id="p0088" style="Heading 2" headingLevel="2">10 藏宝之路</paragraph>
+    <paragraph id="p0089" style="Normal">后续规则：无穷档目标 +25。</paragraph>
+    <table id="t075" rows="7" columns="7" section="10 藏宝之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首件收藏</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">五件收藏</cell>
+        <cell index="3">5</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">25</cell>
+        <cell index="7">红 4</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">十二件收藏</cell>
+        <cell index="3">12</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">30</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">二十五件收藏</cell>
+        <cell index="3">25</cell>
+        <cell index="4">25</cell>
+        <cell index="5">2,400</cell>
+        <cell index="6">40</cell>
+        <cell index="7">18K 5</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">五十件收藏</cell>
+        <cell index="3">50</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2；钻 4</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">百件收藏</cell>
+        <cell index="3">100</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">足金 3</cell>
+      </row>
+    </table>
+    <paragraph id="p0090" style="Heading 2" headingLevel="2">11 门面之路</paragraph>
+    <paragraph id="p0091" style="Normal">后续规则：无穷档目标 ×1.8。</paragraph>
+    <table id="t076" rows="7" columns="7" section="11 门面之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">门面初成</cell>
+        <cell index="3">50</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">15</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">小有名气</cell>
+        <cell index="3">150</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">28</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">街口名店</cell>
+        <cell index="3">300</cell>
+        <cell index="4">20</cell>
+        <cell index="5" />
+        <cell index="6">35</cell>
+        <cell index="7">18K 4</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">一方名号</cell>
+        <cell index="3">500</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 6；蓝 6</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">金字招牌</cell>
+        <cell index="3">750</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 3</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">名满街巷</cell>
+        <cell index="3">1,000</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 6</cell>
+      </row>
+    </table>
+    <paragraph id="p0092" style="Heading 2" headingLevel="2">12 积蓄之路</paragraph>
+    <paragraph id="p0093" style="Normal">后续规则：无穷档目标 ×2。</paragraph>
+    <table id="t077" rows="8" columns="7" section="12 积蓄之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">五万积蓄</cell>
+        <cell index="3">50,000</cell>
+        <cell index="4">10</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">十万积蓄</cell>
+        <cell index="3">100,000</cell>
+        <cell index="4">15</cell>
+        <cell index="5" />
+        <cell index="6">35</cell>
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">二十五万</cell>
+        <cell index="3">250,000</cell>
+        <cell index="4">20</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">18K 5</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">五十万</cell>
+        <cell index="3">500,000</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">百万身家</cell>
+        <cell index="3">1,000,000</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">足金 3</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">三百万</cell>
+        <cell index="3">3,000,000</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 4</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">千万身家</cell>
+        <cell index="3">10,000,000</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 8</cell>
+      </row>
+    </table>
+    <paragraph id="p0094" style="Heading 2" headingLevel="2">13 声望之路</paragraph>
+    <paragraph id="p0095" style="Normal">后续规则：无穷档目标 ×1.6。</paragraph>
+    <table id="t078" rows="8" columns="7" section="13 声望之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">初有声望</cell>
+        <cell index="3">20</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">12</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">小有名气</cell>
+        <cell index="3">50</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">18</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">声名渐起</cell>
+        <cell index="3">100</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6">30</cell>
+        <cell index="7" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">街口名望</cell>
+        <cell index="3">200</cell>
+        <cell index="4">25</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">一方名望</cell>
+        <cell index="3">400</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">蓝 8</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">名动四方</cell>
+        <cell index="3">800</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 3</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">声望泰斗</cell>
+        <cell index="3">1,500</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0096" style="Heading 2" headingLevel="2">14 经营之路</paragraph>
+    <paragraph id="p0097" style="Normal">后续规则：无穷档目标 ×1.5。</paragraph>
+    <table id="t079" rows="9" columns="7" section="14 经营之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">起势</cell>
+        <cell index="3">250</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6" />
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">熟行</cell>
+        <cell index="3">800</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6" />
+        <cell index="7">银 8</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">名店</cell>
+        <cell index="3">1,800</cell>
+        <cell index="4">20</cell>
+        <cell index="5">1,800</cell>
+        <cell index="6" />
+        <cell index="7">18K 3</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">4</cell>
+        <cell index="2">宗师</cell>
+        <cell index="3">3,600</cell>
+        <cell index="4">25</cell>
+        <cell index="5">3,000</cell>
+        <cell index="6" />
+        <cell index="7">足金 3</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">5</cell>
+        <cell index="2">掌柜</cell>
+        <cell index="3">7,000</cell>
+        <cell index="4">30</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">6</cell>
+        <cell index="2">名坊</cell>
+        <cell index="3">12,000</cell>
+        <cell index="4">40</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">红 6；蓝 6</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">7</cell>
+        <cell index="2">堂口</cell>
+        <cell index="3">20,000</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">钻 4</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">8</cell>
+        <cell index="2">泰斗</cell>
+        <cell index="3">35,000</cell>
+        <cell index="4">60</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">足金 3；钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0098" style="Heading 2" headingLevel="2">15 招兵之路</paragraph>
+    <paragraph id="p0099" style="Normal">后续规则：非无穷档。</paragraph>
+    <table id="t080" rows="4" columns="7" section="15 招兵之路">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">首位员工</cell>
+        <cell index="3">1</cell>
+        <cell index="4">10</cell>
+        <cell index="5">800</cell>
+        <cell index="6">10</cell>
+        <cell index="7" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">2</cell>
+        <cell index="2">两位员工</cell>
+        <cell index="3">2</cell>
+        <cell index="4">15</cell>
+        <cell index="5">1,200</cell>
+        <cell index="6">16</cell>
+        <cell index="7" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">3</cell>
+        <cell index="2">四人班底</cell>
+        <cell index="3">4</cell>
+        <cell index="4">20</cell>
+        <cell index="5" />
+        <cell index="6">24</cell>
+        <cell index="7">18K 2</cell>
+      </row>
+    </table>
+    <paragraph id="p0100" style="Heading 2" headingLevel="2">16 帝王之绿</paragraph>
+    <paragraph id="p0101" style="Normal">后续规则：非无穷档。</paragraph>
+    <table id="t081" rows="2" columns="7" section="16 帝王之绿">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">帝王绿现世</cell>
+        <cell index="3">1</cell>
+        <cell index="4">40</cell>
+        <cell index="5">3,000</cell>
+        <cell index="6">50</cell>
+        <cell index="7">铂 3；钻 6</cell>
+      </row>
+    </table>
+    <paragraph id="p0102" style="Heading 2" headingLevel="2">17 传奇场口</paragraph>
+    <paragraph id="p0103" style="Normal">后续规则：非无穷档。</paragraph>
+    <table id="t082" rows="2" columns="7" section="17 传奇场口">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">传奇中标</cell>
+        <cell index="3">1</cell>
+        <cell index="4">50</cell>
+        <cell index="5" />
+        <cell index="6" />
+        <cell index="7">铂 2；钻 4</cell>
+      </row>
+    </table>
+    <paragraph id="p0104" style="Heading 2" headingLevel="2">18 废料十刀</paragraph>
+    <paragraph id="p0105" style="Normal">后续规则：非无穷档。</paragraph>
+    <table id="t083" rows="2" columns="7" section="18 废料十刀">
+      <row index="1" header="true">
+        <cell index="1">档</cell>
+        <cell index="2">名称</cell>
+        <cell index="3">目标</cell>
+        <cell index="4">AP</cell>
+        <cell index="5">现金</cell>
+        <cell index="6">经验</cell>
+        <cell index="7">材料</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">1</cell>
+        <cell index="2">十刀废料</cell>
+        <cell index="3">10</cell>
+        <cell index="4">15</cell>
+        <cell index="5">800</cell>
+        <cell index="6">20</cell>
+        <cell index="7" />
+      </row>
+    </table>
+    <paragraph id="p0106" style="Normal">代码依据：shared/domain/progression/player-progression.js；server/services/achievement-rewards.js</paragraph>
+    <table id="t084" rows="1" columns="2" section="18 废料十刀">
+      <row index="1" header="true">
+        <cell index="1">12</cell>
+        <cell index="2">同步实施与验收清单
+用于另一款游戏落地时防止漏项、单位错位和前后端不一致</cell>
+      </row>
+    </table>
+    <paragraph id="p0107" style="Heading 2" headingLevel="2">参数映射清单</paragraph>
+    <table id="t085" rows="11" columns="3" section="参数映射清单">
+      <row index="1" header="true">
+        <cell index="1">模块</cell>
+        <cell index="2">必须映射</cell>
+        <cell index="3">验收场景</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">初始与成长</cell>
+        <cell index="2">现金、经验、AP、等级门槛、功能解锁</cell>
+        <cell index="3">新档创建后逐项核对</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">原石</cell>
+        <cell index="2">品质权重、价格公式、价值倍率、特殊概率</cell>
+        <cell index="3">固定随机种子抽样 1,000 次</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">公盘</cell>
+        <cell index="2">档位费率、底价、AI 出价、保证金</cell>
+        <cell index="3">逐档完成一次竞拍</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">工坊</cell>
+        <cell index="2">工资、招聘、设备、管理费、事故与评分</cell>
+        <cell index="3">1级/10级各跑一次全流程</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">直播</cell>
+        <cell index="2">价格带、主播、风格、概率上下限</cell>
+        <cell index="3">0.85×、1.05×、1.50×、1.80× 四点验算</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">市场</cell>
+        <cell index="2">税费、容量、做市、回收</cell>
+        <cell index="3">满容量与滞销场景</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">订单</cell>
+        <cell index="2">刷新、满意度、顾客预算、商品系数</cell>
+        <cell index="3">三种财富层各抽样</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">材料</cell>
+        <cell index="2">单价、折扣、镶嵌、增值封顶</cell>
+        <cell index="3">边界数量 10/50/100/500/1000</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">恢复</cell>
+        <cell index="2">触发线、目标、冷却、债务与偿还</cell>
+        <cell index="3">连续触发与收入偿还</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">成就</cell>
+        <cell index="2">目标、奖励、材料单位、无穷档增长</cell>
+        <cell index="3">每轨道首档与末档</cell>
+      </row>
+    </table>
+    <paragraph id="p0108" style="Heading 2" headingLevel="2">高风险校验点</paragraph>
+    <paragraph id="p0109" style="List Bullet">百分比表示：确认目标项目使用 3% 还是 0.03，避免放大 100 倍。</paragraph>
+    <paragraph id="p0110" style="List Bullet">时间单位：直播、AI 到访、公盘、恢复分别含秒、分钟与小时，统一换算后再写入。</paragraph>
+    <paragraph id="p0111" style="List Bullet">金额取整：原项目显示为整数金额，目标项目如保留小数，需要统一四舍五入规则。</paragraph>
+    <paragraph id="p0112" style="List Bullet">客户端与服务端：解锁提示、按钮文案、实际扣费和结算公式必须使用同一来源。</paragraph>
+    <paragraph id="p0113" style="List Bullet">无穷成就：确认是基于上一档累乘/累加，而不是每次基于初始档重算。</paragraph>
+    <paragraph id="p0114" style="List Bullet">直播概率：所有加法修正完成后再乘能力倍率，最后执行 1%–88% 截断。</paragraph>
+    <paragraph id="p0115" style="List Bullet">公盘资金：出价全额冻结，进场费不返还；两者不能误并为一种费用。</paragraph>
+    <paragraph id="p0116" style="List Bullet">恢复债务：援助和偿还必须写入持久化，避免重登清零。</paragraph>
+    <paragraph id="p0117" style="Heading 2" headingLevel="2">建议验收结果记录</paragraph>
+    <table id="t086" rows="8" columns="4" section="建议验收结果记录">
+      <row index="1" header="true">
+        <cell index="1">检查项</cell>
+        <cell index="2">结果</cell>
+        <cell index="3">差异说明</cell>
+        <cell index="4">负责人</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">初始状态</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="3" header="false">
+        <cell index="1">功能解锁</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="4" header="false">
+        <cell index="1">公盘与工坊</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="5" header="false">
+        <cell index="1">直播 AI 买家</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="6" header="false">
+        <cell index="1">市场与订单</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="7" header="false">
+        <cell index="1">成就与奖励</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+      <row index="8" header="false">
+        <cell index="1">恢复与声望</cell>
+        <cell index="2">□通过 □不通过</cell>
+        <cell index="3" />
+        <cell index="4" />
+      </row>
+    </table>
+    <paragraph id="p0118" style="Heading 2" headingLevel="2">主要代码来源</paragraph>
+    <table id="t087" rows="11" columns="2" section="主要代码来源">
+      <row index="1" header="true">
+        <cell index="1">模块</cell>
+        <cell index="2">代码位置</cell>
+      </row>
+      <row index="2" header="false">
+        <cell index="1">成长与成就</cell>
+        <cell index="2">shared/domain/progression/player-progression.js；server/services/achievement-rewards.js</cell>
+      </row>
+      <row index="3" header="false">
+        <cell index="1">资产与初始状态</cell>
+        <cell index="2">server/services/assets-service.js；server/world-store.js</cell>
+      </row>
+      <row index="4" header="false">
+        <cell index="1">原石与开窗</cell>
+        <cell index="2">server/services/rough-pool-service.js；shared/domain/jade/*</cell>
+      </row>
+      <row index="5" header="false">
+        <cell index="1">公盘</cell>
+        <cell index="2">shared/domain/auction/jade-auction.js；server/services/auction-service.js</cell>
+      </row>
+      <row index="6" header="false">
+        <cell index="1">工坊与员工</cell>
+        <cell index="2">shared/domain/economy/worker-economy.js；server/services/workshop-service.js；server/systems/employee-system.js</cell>
+      </row>
+      <row index="7" header="false">
+        <cell index="1">直播</cell>
+        <cell index="2">shared/domain/livestream/*；server/services/livestream-service.js</cell>
+      </row>
+      <row index="8" header="false">
+        <cell index="1">市场与回收</cell>
+        <cell index="2">shared/domain/economy/market-rules.js；server/services/market-liquidity-service.js；shared/domain/economy/inventory-recycle.js</cell>
+      </row>
+      <row index="9" header="false">
+        <cell index="1">订单</cell>
+        <cell index="2">shared/domain/economy/order-refresh.js；server/services/orders-service.js</cell>
+      </row>
+      <row index="10" header="false">
+        <cell index="1">材料与镶嵌</cell>
+        <cell index="2">shared/domain/economy/material-pricing.js；server/systems/inlay-system.js</cell>
+      </row>
+      <row index="11" header="false">
+        <cell index="1">恢复与评价</cell>
+        <cell index="2">server/services/recovery-service.js；server/services/blackmarket/*；shared/domain/economy/metric-history.js</cell>
+      </row>
+    </table>
+    <paragraph id="p0119" style="Normal">维护建议：每次调整后更新“基线日期”和版本标识；若仅改一个模块，也应重新跑该模块的边界验收，并检查所有界面文案是否同步。</paragraph>
+  </content>
+</gameBalanceDocument>

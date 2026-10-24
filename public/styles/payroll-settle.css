@@ -1,0 +1,71 @@
+/* Login salary receipt. Layout only; all amounts come from the saved receipt. */
+.game-modal.payroll-settle-modal {
+  width: min(580px, 100%);
+  max-height: calc(100dvh - 36px);
+  border-top: 3px solid var(--gold);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.payroll-settle-modal .game-modal-head { padding: 20px 24px 0; align-items: flex-start; }
+.payroll-settle-modal .game-modal-title h3 { font-size: 21px; line-height: 1.35; }
+.payroll-settle-modal .game-modal-title p { margin-top: 7px; font-size: 12px; line-height: 1.6; }
+.payroll-settle-modal .game-modal-body { display: block; padding: 0 24px; flex: 1 1 auto; }
+.payroll-settle-summary {
+  display: flex; justify-content: space-between; align-items: center; gap: 18px;
+  margin-top: 18px; padding: 14px 18px; border-radius: 10px;
+  background: color-mix(in srgb, var(--jade) 9%, var(--panel));
+}
+.payroll-settle-label { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.payroll-settle-state { display: block; margin-top: 6px; color: var(--jade); font-size: 12px; line-height: 1.5; }
+.payroll-settle-amount {
+  color: var(--jade); font-family: var(--font-num); font-size: 36px; font-weight: 700;
+  line-height: 1.12; letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere; text-align: right; min-width: 0;
+}
+.payroll-settle-summary.is-pending { background: color-mix(in srgb, var(--gold) 11%, var(--panel)); }
+.payroll-settle-summary.is-pending .payroll-settle-amount,
+.payroll-settle-summary.is-pending .payroll-settle-state { color: var(--gold-dark); }
+.payroll-settle-modal .game-modal-body .payroll-settle-owed {
+  margin-top: 12px; padding: 10px 12px; border-radius: 7px;
+  background: color-mix(in srgb, var(--gold) 11%, var(--panel)); color: var(--gold-dark);
+  font-size: 12px; line-height: 1.65;
+}
+.payroll-settle-section { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 18px 0 6px; }
+.payroll-settle-section h4 { margin: 0; font-size: 14px; line-height: 1.6; }
+.payroll-settle-section > span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.payroll-settle-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; line-height: 1.5; }
+.payroll-settle-table th { padding: 6px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 400; text-align: left; }
+.payroll-settle-table th:first-child { width: 30%; }
+.payroll-settle-table th:nth-child(2) { width: 38%; }
+.payroll-settle-table th:last-child { width: 32%; text-align: right; }
+.payroll-settle-table td { padding: 9px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.payroll-settle-table td:nth-child(2) { color: var(--muted); font-size: 12px; }
+.payroll-settle-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.payroll-settle-table tfoot td { padding-top: 11px; padding-bottom: 11px; border-bottom: 0; font-weight: 600; }
+.payroll-settle-table tfoot td:last-child { font-size: 15px; }
+.payroll-settle-table tfoot .payroll-settle-carry td { padding: 8px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 400; }
+.payroll-settle-table .payroll-settle-empty { color: var(--muted); text-align: left; font-weight: 400; }
+.payroll-settle-modal .game-modal-body .payroll-settle-next { margin: 0; padding: 11px 0 15px; font-size: 12px; line-height: 1.6; }
+.payroll-settle-next span { color: var(--jade); }
+.payroll-settle-modal .game-modal-actions { padding: 12px 24px; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.payroll-settle-rules { flex: 1; min-width: 0; margin-right: auto; padding-top: 7px; max-height: min(220px, 40dvh); overflow-y: auto; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.payroll-settle-rules summary { width: fit-content; cursor: pointer; }
+.payroll-settle-rules > div { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); line-height: 1.75; }
+.payroll-settle-rules p { margin: 0 0 5px; }
+.payroll-settle-modal .game-modal-actions > button { min-height: 36px; padding: 8px 19px; border-radius: 7px; font-size: 13px; line-height: 1.45; }
+[data-theme="night"] .payroll-settle-summary.is-pending .payroll-settle-amount,
+[data-theme="night"] .payroll-settle-summary.is-pending .payroll-settle-state,
+[data-theme="night"] .payroll-settle-modal .game-modal-body .payroll-settle-owed { color: var(--gold); }
+@media (max-width: 460px) {
+  .payroll-settle-modal .game-modal-head { padding: 17px 16px 0; }
+  .payroll-settle-modal .game-modal-title h3 { font-size: 19px; }
+  .payroll-settle-modal .game-modal-body { padding: 0 16px; }
+  .payroll-settle-summary { padding: 14px 12px; gap: 12px; }
+  .payroll-settle-amount { font-size: 30px; }
+  .payroll-settle-modal .game-modal-actions { padding: 12px 16px; gap: 8px; }
+  .payroll-settle-modal[data-tone="warn"] .payroll-settle-rules { flex-basis: 100%; order: 2; padding-top: 0; }
+}
+@media (pointer: coarse) {
+  .payroll-settle-modal .game-modal-actions > button { min-height: 44px; }
+  .payroll-settle-rules summary { min-height: 44px; padding: 7px 0; }
+}

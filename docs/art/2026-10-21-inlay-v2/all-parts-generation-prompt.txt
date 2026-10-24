@@ -1,0 +1,47 @@
+Generation mode: built-in image_gen
+Deliverable: inlay-all-parts-overview-v1.png
+24 individual components displayed in a six-column by four-row overview.
+Style references: inlay-art-direction-v2.png and inlay-gems-atlas-v1.png.
+This is an ivory-background review image, not an exported transparent production atlas. Application code and runtime references were not changed.
+
+Final prompt:
+Use case: compositing / stylized-concept.
+Asset type: ONE comprehensive independent-parts display sheet for a Chinese jade crafting game's jewelry inlay artwork, landscape 2048x1536 preferred.
+Primary request: The user wants ALL the proposed materials/components shown together, EACH AS A SEPARATE UNASSEMBLED OBJECT. Create a clear coherent complete modular asset overview, not finished jewelry, not an application screenshot.
+Input image roles:
+Image 1 = approved soft hand-painted GAME ART style reference and jewelry geometry reference. Keep its low-saturation muted sage jade, pale antique gold, grey-silver, fine softly painted contours, gentle gouache texture. Existing finished products in that image are references to be disassembled, not objects to repeat.
+Image 2 = exact independent gemstone-design reference: round diamond/ruby/sapphire and square diamond/ruby/sapphire, dusty off-white, wine-red and slate-blue. Use the gem designs only. Discard ALL black/glowy background from this reference.
+Presentation: clean warm ivory paper #f8f6ee background, no dark backdrop, no glow. A small dark green title at top exactly "镶嵌素材总览 · 独立部件", small subtitle exactly "玉件 / 空底座 / 扣头 / 石座 / 配石". Below, a precise spacious SIX COLUMNS by FOUR ROWS grid of 24 distinct independent assets. Uniform cell spacing, thin subtle sage rules between rows, NO app UI or decorative frames. Every asset centered alone within its own cell, full object visible, ample clean whitespace around it, caption in small clear dark green Chinese below the object. Labels never touch the asset. Consistent painting scale and soft upper-left light. Background uniformly light and calm; no spotlit backgrounds, no prop shadows, only very restrained edge depth. Bottom small footer exactly "部件独立展示 · 宝石与底座分离".
+ALL 24 CELLS in left-to-right row-major order, exactly:
+ROW 1 — jade centers and main oval mounts:
+1. "蛋面玉件": single bare pale mint-green oval jade cabochon, NO metal, NO prongs, no bail.
+2. "佛公玉件": single bare mint-green stylized seated laughing Buddha jade carving, friendly simple brush-line face, rounded belly, same silhouette as reference, NO frame, NO gems, NO bail.
+3. "金色爪镶戒托": empty matte muted antique-gold ring mount, ring band visible below/back, hollow oval center, four tiny main-jade prongs. Both shoulder accent sockets MUST be EMPTY dark subtle circular recesses with no embedded gems.
+4. "银色爪镶戒托": same empty ring mount geometry in muted grey-silver, hollow oval center, four small prongs, empty shoulder accent sockets.
+5. "金色蛋面包边": EMPTY standalone thin oval gold bezel/rim, NO jade, NO attached bail/connector, background visible through hollow center.
+6. "银色蛋面包边": identical EMPTY standalone oval grey-silver bezel/rim, NO jade, NO bail/connector.
+ROW 2 — Buddha frames and separate attachment hardware:
+7. "金色佛公空托": EMPTY outline frame following exactly the Buddha jade silhouette, muted gold, a thin outer track with small EMPTY circular micro-pavé seat recesses, NO embedded gems, NO jade, NO bail, center fully open.
+8. "银色佛公空托": identical EMPTY Buddha outline frame in grey-silver with EMPTY bead/diamond seat recesses, NO gems, NO jade, NO bail, center fully open.
+9. "金色扣头": one separate small matte gold tapered pendant bail with an open slot, no connector ring attached, no gem, no pendant.
+10. "银色扣头": matching grey-silver pendant bail, open slot, no attached gem/connector/pendant.
+11. "金色连接环": one separate small plain oval gold jump ring, no bail or pendant attached.
+12. "银色连接环": matching separate grey-silver oval jump ring.
+ROW 3 — isolated accent sockets and cord:
+13. "金色圆石座": single small empty circular gold accent-gem setting socket with four fine tiny prongs and hollow interior, no gemstone.
+14. "银色圆石座": same single small empty round accent-gem socket in grey-silver, no gemstone.
+15. "金色方石座": single small empty square gold accent-gem socket with tiny corner fasteners, no gemstone.
+16. "银色方石座": matching single empty square grey-silver accent socket, no gemstone.
+17. "编绳结": one independent simple dark-sage Chinese cord knot with short tidy tails, illustrated weave, no jade or metal or gem.
+18. "挂绳段": one independent simple dark-sage V-shaped loop of cord that can attach above a pendant, clean readable woven strokes, no jade, metal or gems.
+ROW 4 — SIX gemstones only, separate from all mounts:
+19. "圆形钻石": one round muted pale ivory-grey diamond matching image 2.
+20. "圆形红宝石": one round dusty wine-red ruby matching image 2.
+21. "圆形蓝宝石": one round muted slate-blue sapphire matching image 2.
+22. "方形钻石": one square muted ivory-grey diamond with lightly chamfered corners, matching image 2.
+23. "方形红宝石": one square dusty wine-red ruby matching image 2.
+24. "方形蓝宝石": one square muted slate-blue sapphire matching image 2.
+Critical modularity: Every frame and socket is EMPTY. Do not bake any gemstones or jade into mounts or hardware. No bail merged into pendant frames. No finished assembled ring or pendant anywhere. Only the bare jade cells contain jade, and only the six bottom-row cells contain accent gems. In all open frames and sockets, the same plain ivory background must be visible through the central opening.
+Visual style: calm Chinese crafting-game 2D painted inventory sprites. Matte softly painted metal with restrained beige/grey shading, simplified readable stone facets, no realistic jewelry optics. Fine gentle brush grain, calm low saturation. Jade stays pale mint and medium sage with simple broad soft mottling and painted highlights. Keep a slightly simplified, accessible game art look. No photorealism, no 3D render/PBR, no shiny chrome, no sparkling diamonds, no fiery ruby, no electric blue, no fantasy shards, no magic glow.
+Composition constraints: Exactly 24 cells, each item separately isolated and fully visible with clean negative space. No duplicated assembled products, no overlapping, no cropped objects, no decorative props, no piles, no UI controls, no additional headings inside grid. Accurate simple Chinese captions. This is a comprehensive preview of the current proposed modular set, not code integration.
+

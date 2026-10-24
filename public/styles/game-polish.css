@@ -1,0 +1,420 @@
+/* Readability and feedback polish; page backgrounds stay intentionally plain. */
+
+/* Main-playfield readability: leave the HUD and navigation unchanged. */
+.main-stage {
+  text-rendering: optimizeLegibility;
+}
+
+[data-theme="night"] .main-stage :is(
+  .item-meta,
+  .card-meta,
+  .view-title-desc,
+  .location-description,
+  .purchase-outcome span,
+  .business-economy-strip span,
+  .business-turnover-head > div > span,
+  .business-turnover-summary,
+  .inventory-empty-hint,
+  .order-section-label,
+  .livestream-hall-count,
+  .wsp-count,
+  .wsp-worker-meta,
+  .mat-sub,
+  .jm-card .sub
+) {
+  color: #a6c9b9;
+}
+
+.main-stage :is(
+  .item-meta,
+  .card-meta,
+  .location-description,
+  .purchase-outcome span,
+  .inventory-empty-hint,
+  .order-section-label,
+  .livestream-hall-count,
+  .wsp-count,
+  .wsp-worker-meta,
+  .mat-sub,
+  .jm-card .sub
+) {
+  font-size: max(12px, .78rem);
+  line-height: 1.52;
+}
+
+/* Compact management summaries must stay readable without enlarging the shell. */
+.main-stage :is(
+  .business-focus-kicker,
+  .goal-label,
+  .business-economy-strip span,
+  .business-economy-strip strong small,
+  .business-turnover-head > div > span,
+  .business-turnover-summary,
+  .business-turnover-summary b,
+  .business-turnover-mark,
+  .business-turnover-badge,
+  .business-turnover-count small,
+  .business-turnover-detail,
+  .business-turnover-meta,
+  .business-turnover-link,
+  .order-settlement-primary span,
+  .order-settlement-details dt,
+  .ranking-context-copy span,
+  .ranking-context-copy small,
+  .ranking-context-stat span,
+  .ranking-mine-hint,
+  .collection-overview-copy span,
+  .collection-overview-copy small,
+  .collection-overview-stat span,
+  .workforce-summary-copy span,
+  .workforce-summary-copy small,
+  .workforce-summary-stat span,
+  .owned-worker-cost span,
+  .jm-fgroup > label,
+  .jm-result-status,
+  .inventory-slot-badge,
+  .order-persona .pill,
+  .wst-current-badge,
+  .wsp-device-type-field,
+  .overview-glance-head span,
+  .overview-glance-action
+) {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.main-stage .reward-chip {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.main-stage small {
+  line-height: 1.45;
+}
+
+.main-stage :is(.price, .value, [class*="amount"], [class*="price"]) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The podium should read immediately, while lower ranks remain visually quiet. */
+.view[data-view="rankings"] .ranking-head {
+  /* Match .ranking-list (12px) + .ranking-row (14px) horizontal insets. */
+  padding-inline: 26px;
+}
+
+.ranking-row.is-podium {
+  --podium-accent: var(--gold);
+  --podium-ink: var(--gold-dark);
+  --podium-soft: color-mix(in srgb, var(--podium-accent) 14%, transparent);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 60px;
+  border-color: color-mix(in srgb, var(--podium-accent) 54%, var(--line));
+  background:
+    radial-gradient(circle at 8% 50%, color-mix(in srgb, var(--podium-accent) 17%, transparent), transparent 28%),
+    linear-gradient(100deg, var(--podium-soft), transparent 70%),
+    var(--panel);
+  box-shadow:
+    inset 4px 0 0 color-mix(in srgb, var(--podium-accent) 82%, transparent),
+    0 8px 22px color-mix(in srgb, var(--podium-accent) 12%, transparent);
+}
+
+.ranking-row.is-podium::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -45% auto -45% -24%;
+  width: 18%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--podium-accent) 22%, white), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  animation: ranking-podium-glint 780ms ease-out 1 both;
+}
+
+.ranking-row.is-podium > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ranking-row.is-podium .ranking-place {
+  display: inline-grid;
+  place-items: center;
+  justify-self: start;
+  min-width: 42px;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--podium-accent) 65%, var(--line));
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  color: color-mix(in srgb, var(--podium-accent) 82%, white);
+  background: color-mix(in srgb, var(--podium-accent) 16%, var(--panel));
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--podium-accent) 10%, transparent);
+  font-size: 19px;
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--podium-accent) 34%, transparent);
+}
+
+.ranking-row.is-podium .ranking-player strong {
+  font-size: 15px;
+}
+
+.ranking-row.is-podium .ranking-score {
+  color: color-mix(in srgb, var(--podium-accent) 76%, white);
+  font-size: 14px;
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--podium-accent) 22%, transparent);
+}
+
+.ranking-row.is-rank-1 {
+  --podium-accent: #e8c45f;
+  --podium-ink: #80600d;
+  min-height: 66px;
+  border-color: color-mix(in srgb, var(--podium-accent) 72%, var(--line));
+  box-shadow:
+    inset 5px 0 0 color-mix(in srgb, var(--podium-accent) 92%, transparent),
+    0 10px 26px color-mix(in srgb, var(--podium-accent) 18%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--podium-accent) 9%, transparent);
+}
+
+.ranking-row.is-rank-1 .ranking-place {
+  min-width: 46px;
+  min-height: 34px;
+  color: #fff4c5;
+  font-size: 21px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--podium-accent) 30%, var(--panel)), color-mix(in srgb, var(--podium-accent) 13%, var(--panel)));
+}
+
+.ranking-row.is-rank-1 .ranking-player strong {
+  color: color-mix(in srgb, var(--podium-accent) 52%, var(--ink));
+  font-size: 16px;
+}
+
+.ranking-row.is-rank-2 {
+  --podium-accent: #a9c8c2;
+  --podium-ink: #496c65;
+}
+
+.ranking-row.is-rank-3 {
+  --podium-accent: #c88860;
+  --podium-ink: #875033;
+}
+
+[data-theme="day"] .ranking-row.is-podium .ranking-place,
+[data-theme="day"] .ranking-row.is-podium .ranking-score {
+  color: var(--podium-ink);
+  text-shadow: none;
+}
+
+[data-theme="day"] .ranking-row.is-rank-1 .ranking-player strong {
+  color: color-mix(in srgb, var(--podium-ink) 76%, var(--ink));
+}
+
+/* Empty states read as an in-world notice, with an explicit next step when available. */
+.game-empty-state {
+  position: relative;
+  overflow: hidden;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--jade-light) 25%, var(--line));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--jade) 8%, transparent), transparent 52%),
+    radial-gradient(circle at 50% -12%, color-mix(in srgb, var(--gold) 11%, transparent), transparent 46%),
+    color-mix(in srgb, var(--game-surface) 94%, transparent);
+}
+
+.game-empty-state::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid color-mix(in srgb, var(--gold) 12%, transparent);
+  border-radius: calc(var(--r-lg) - 5px);
+  pointer-events: none;
+}
+
+.game-empty-state > * {
+  position: relative;
+  z-index: 1;
+}
+
+.game-empty-state-mark {
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--gold) 6%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+.game-empty-state p,
+.game-empty-state .inventory-empty-hint {
+  color: color-mix(in srgb, var(--muted) 92%, var(--ink));
+  font-size: 13px;
+}
+
+.game-empty-state-actions,
+.game-empty-state > button {
+  margin-top: 3px;
+}
+
+.workshop-step-empty {
+  grid-column: 1 / -1;
+  min-height: 260px;
+}
+
+.ws-picker-list.picker-material > .game-empty-state.ws-picker-empty {
+  width: min(100%, 34rem);
+  min-height: 210px;
+  margin: 28px auto 12px;
+  padding: 24px 20px;
+}
+
+.modal-empty-state {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  min-height: 160px;
+  border: 1px dashed var(--game-line);
+  border-radius: var(--r-md);
+  padding: 22px 18px;
+  color: var(--muted);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--jade) 7%, transparent), transparent 58%),
+    color-mix(in srgb, var(--game-surface) 92%, transparent);
+  text-align: center;
+}
+
+.modal-empty-state strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.modal-empty-state p {
+  max-width: 36em;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.modal-empty-state > button {
+  margin-top: 4px;
+}
+
+:is(
+  .workshop-recipe-grid,
+  .livestream-room-grid,
+  .card-grid,
+  .item-list
+) > .empty:only-child:not(.game-empty-state) {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  border: 1px dashed var(--game-line);
+  border-radius: var(--r-lg);
+  padding: 26px;
+  color: color-mix(in srgb, var(--muted) 92%, var(--ink));
+  background: color-mix(in srgb, var(--game-surface) 90%, transparent);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Continuous shimmer competes with reading; keep motion for actual state changes. */
+.exp-bar i::after,
+.side-prog-bar i::after {
+  animation: none;
+  opacity: .22;
+  transform: translateX(150%);
+}
+
+/* Successful outcomes receive a single jade glint, never a looping effect. */
+.toast-item.is-success::after {
+  content: "";
+  position: absolute;
+  inset: -40% auto -40% -32%;
+  width: 24%;
+  background: linear-gradient(90deg, transparent, rgba(210, 255, 232, .34), transparent);
+  transform: skewX(-16deg);
+  pointer-events: none;
+  animation: jade-reward-glint 720ms ease-out 1 both;
+}
+
+.game-modal:is([data-tone="great"], [data-tone="success"]) {
+  animation: jade-reward-arrive 300ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.game-modal:is([data-tone="craft"], [data-tone="trade"]) {
+  animation: jade-action-arrive 260ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.game-modal[data-tone="craft"] {
+  border-top: 5px solid var(--blue);
+}
+
+.game-modal[data-tone="trade"] {
+  border-top: 5px solid var(--gold);
+}
+
+.floating-text.craft {
+  color: #ecf7ff;
+  border-color: color-mix(in srgb, var(--blue) 62%, transparent);
+  background: color-mix(in srgb, var(--blue) 78%, #17322a);
+}
+
+.floating-text.trade {
+  color: #fff6d8;
+  border-color: color-mix(in srgb, var(--gold) 65%, transparent);
+  background: color-mix(in srgb, var(--gold-dark) 82%, #24362f);
+}
+
+@keyframes jade-reward-glint {
+  from { left: -32%; }
+  to { left: 116%; }
+}
+
+@keyframes ranking-podium-glint {
+  from { left: -24%; opacity: 0; }
+  20% { opacity: 1; }
+  to { left: 114%; opacity: 0; }
+}
+
+@keyframes jade-reward-arrive {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes jade-action-arrive {
+  from { opacity: 0; transform: translateY(7px) scale(.99); }
+  to { opacity: 1; transform: none; }
+}
+
+@media screen and (max-width: 767px) {
+  .game-empty-state p,
+  .game-empty-state .inventory-empty-hint {
+    font-size: 12.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-item.is-success::after,
+  .ranking-row.is-podium::after,
+  .game-modal:is([data-tone="great"], [data-tone="success"], [data-tone="craft"], [data-tone="trade"]) {
+    animation: none !important;
+  }
+}
+/* NPC goods use distinct, lightweight visuals rather than jade canvases. */
+.bm-npc-product { box-sizing: border-box; width: 100%; min-height: 140px; height: 100%; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(145deg, #17352f, #10241f); color: #d5c694; }
+.bm-resource-art { display: grid; place-items: center; width: 100%; height: 100%; min-height: 140px; padding: 12px; box-sizing: border-box; color: var(--jade); background: var(--field-bg); }
+.bm-resource-art .workshop-resource-outline { display: block; width: min(160px, 100%); height: 100px; }
+.jm-buy-visual .bm-resource-art { min-height: 0; padding: 4px; }
+.jm-buy-visual .bm-resource-art .workshop-resource-outline { height: auto; max-height: 100%; }
+.ml-info-visual .bm-resource-art, .ml-slot-visual .bm-resource-art { min-height: 0; padding: 6px; }
+.ml-info-visual .bm-resource-art .workshop-resource-outline, .ml-slot-visual .bm-resource-art .workshop-resource-outline { width: 100%; height: 100%; max-height: 100%; }
+.bm-npc-product.is-supply { --bm-supply-bg: #e2e8dc; background: var(--bm-supply-bg); }
+[data-theme="night"] .bm-npc-product.is-supply { --bm-supply-bg: #293d32; }
+.bm-npc-product.is-supply .material-swatch { width: 112px; height: 112px; flex-shrink: 0; }
+.bm-npc-product small { font-size: 12px; opacity: .8; }
+.jm-buy-visual .bm-npc-product { min-height: 0; gap: 3px; padding: 8px; }
+.jm-buy-visual .bm-npc-product small { display: none; }
+.jm-visual > .component-jewelry-product { width: 100%; height: 100%; min-width: 0; min-height: 0; }
+.bm-npc-price-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted, #a6b3ad); }
+.bm-npc-label { padding: 2px 6px; border: 1px solid #8d7950; border-radius: 4px; color: #d7c28a; }
+.bm-npc-label.is-deal { border-color: #397c64; color: #81d4aa; }
+.bm-npc-saving { margin: 7px 0; font-size: 13px; font-weight: 700; color: var(--jade-dark); }
+[data-theme="night"] .bm-npc-saving { color: var(--jade-light); }
+.bm-npc-note { margin: 7px 0; font-size: 12px; line-height: 1.6; color: var(--text-muted, #a6b3ad); overflow-wrap: anywhere; }

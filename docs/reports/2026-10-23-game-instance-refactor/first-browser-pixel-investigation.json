@@ -1,0 +1,12 @@
+{
+  "maxChannelDelta": 5,
+  "changedPixels": 3,
+  "pixelsAbove3": 1,
+  "bounds": {
+    "minX": 155,
+    "maxX": 155,
+    "minY": 495,
+    "maxY": 495
+  },
+  "totalPixels": 1296000
+}

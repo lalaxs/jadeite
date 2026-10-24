@@ -1,0 +1,24 @@
+Generation mode: built-in image_gen
+Revision: Muted hand-painted 2D game art, guided by actual game screenshot and workshop art.
+Deliverable: Visual proposal only. No application code or runtime references changed.
+
+Final prompt:
+Use case: style-transfer.
+Asset type: One revised landscape 1536x1024 jewelry game-art proposal sheet.
+Input images and roles:
+Image 1 is the EDIT TARGET: the previous six-panel jewelry art sheet. Retain its useful arrangement (three finished items on top, corresponding three empty mounts below), its jewelry types and comparison concept, but COMPLETELY REPLACE its glossy realistic rendering.
+Image 2 is the PRIMARY STYLE REFERENCE: the actual game's jewelry-preview screenshot. Match its restrained, softly illustrated 2D game aesthetic, simple shape language, quiet pale mint display background, subdued mint-jade palette, thin desaturated dark-sage edges and low contrast muted metal.
+Image 3 is the SUPPORTING PAINTING REFERENCE: the game's existing jade workshop illustration. Borrow its warm gentle hand-painted brush finish, subdued natural colors and cozy Chinese craft-game feeling. Do not reproduce its setting, furniture or lighting as a scene.
+User correction: the previous sheet was much too realistic. The new image MUST read instantly as hand-painted 2D GAME ITEM SPRITES that belong in this game, not jewelry product photography, not 3D/PBR, not luxury advertising. A substantial and obvious style change is required.
+Art direction: elegant simplified Chinese casual crafting game inventory art, softly painted opaque gouache with extremely fine dry-brush/paper texture, clean readable silhouettes at small UI sizes, two or three broad soft color zones per object, delicate softly colored contour lines, minimal rounded volume, diffused shadow. Soft matte jade in mint green #73aa8c / #99c2a6, quiet dark jade #537f66 for carved lines; desaturated antique pale gold #b5a074 with warm grey-brown #8c8068 shadow, pale yellow #d3c5a3 soft accent; silver #a8b5b0 with muted grey #7c9086. Tiny small off-white beads for accent stones, simple muted color dabs, no diamond sparkle.
+Important style rules: highlights are small pale painted smudges, not long white gloss streaks. No realistic reflections, specular chrome, gem sparkle, cinematic light, photographic jade translucency, photoreal inclusion detail, heavy gradients, cast-shadow realism, saturated yellow gold or crisp glossy bevels. All components look hand painted and friendly, keeping a grown-up calm crafting-game tone rather than chibi toys.
+Composition: warm off-white #f8f6ee sheet with a small dark green Chinese title "翡翠镶嵌 · 游戏画风版", a smaller subtitle "柔和手绘 / 低饱和配色", three evenly spaced pale mint square tiles on the upper row and three aligned pale mint tiles below, generous whitespace, simple fine sage dividers. Captions readable and subdued; no elaborate gilded borders. No browser UI, no people, no workshop scene.
+Top left, caption "蛋面戒指": simple smooth pale jade green upright oval, gently painted cloudy variation in only broad soft patches; delicate matte pale antique-gold ring shank behind and below the jade, exactly four small rounded gold prongs and tiny muted pale accent stones on the shoulders. Simplified front view, readable silhouette, jade dominant. Match the restrained game proportions in Image 2.
+Top middle, caption "蛋面吊坠": simple matching oval jade, slim matte gold bezel and tiny practical bail/connector above it. Calm soft 2D illustration, no necklace chain. Jade dominant.
+Top right, caption "佛公吊坠": rounded softly mint-green jade Buddha silhouette, friendly smiling facial features and belly indicated by a few simple muted jade curved brush lines, NO intricate realistic carving; restrained thin desaturated silver rim and a row of tiny warm-grey/off-white painted bead dots following silhouette, simple small bail.
+Bottom left, caption "戒托 · 爪镶": matching EMPTY ring mount, background visible through the empty oval center, matte softly painted gold ring shank behind and below, four tiny rounded prongs and tiny shoulder dots. A separate usable game-art component, same simplified geometry as top left.
+Bottom middle, caption "扣头与包镶底座": matching EMPTY oval thin matte gold bezel and simple bail with small hole, pale mint background visible through empty center. No opaque plate.
+Bottom right, caption "佛公随形微镶底座": matching EMPTY silver rim following the simplified Buddha outline, with tiny muted white-grey bead dots and simple bail. Pale mint background visible through empty center, no Buddha body.
+Footer in small muted green, exact text "玉件为主体 · 配件轻量化 · 适配现有游戏界面".
+Constraints: keep all six items fully in frame, same camera direction and scale relationships. Clear obvious finished-versus-empty pairing. Every object must be consistent with the actual game's muted illustrated language. Preserve the design-sheet purpose; no app code changes. This revision must visually abandon the realism of Image 1.
+

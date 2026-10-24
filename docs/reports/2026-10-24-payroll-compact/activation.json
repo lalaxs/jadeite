@@ -1,0 +1,18 @@
+{
+  "port": 3000,
+  "pid": 37792,
+  "previousPid": 28860,
+  "backup": "data/world.json.before-payroll-compact-20261024-113335.bak",
+  "players": 106,
+  "workers": 424,
+  "cashPreserved": true,
+  "rosterPreserved": true,
+  "payrollPreserved": true,
+  "rulesUnchanged": true,
+  "ready": true,
+  "persistence": "ready",
+  "persistenceFailures": 0,
+  "startedAt": 1792812849096,
+  "savedAt": 1792812854596,
+  "verifiedAt": 1792812875426
+}

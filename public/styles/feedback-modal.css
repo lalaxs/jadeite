@@ -1,0 +1,530 @@
+/* Unified transient feedback and modal hierarchy. Loaded last on purpose. */
+:root {
+  --z-float-feedback: 160;
+  --z-feature-modal: 300;
+  --z-game-modal: 320;
+  --z-shop-modal: 330;
+  --z-result-modal: 340;
+  --z-toast-feedback: 360;
+  --modal-backdrop: rgba(4, 13, 10, .62);
+  --modal-shadow: 0 26px 72px rgba(0, 0, 0, .42);
+}
+
+/* Numeric feedback stays short, close to the HUD, and below blocking surfaces. */
+.floating-text-layer {
+  z-index: var(--z-float-feedback);
+}
+
+.floating-text {
+  min-height: 26px;
+  max-width: min(240px, calc(100vw - 32px));
+  border-color: rgba(255, 255, 255, .24);
+  padding: 4px 10px;
+  background: rgba(12, 28, 22, .94);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+  font-size: 13px;
+  letter-spacing: .01em;
+  animation: floatTextRise 1100ms cubic-bezier(.2, .72, .22, 1) forwards;
+}
+
+.floating-text.is-anchored {
+  border-color: color-mix(in srgb, var(--jade-light) 45%, transparent);
+}
+
+.floating-text.income,
+.floating-text.success,
+.floating-text.great {
+  color: #ecfff5;
+  background: rgba(29, 116, 81, .96);
+}
+
+.floating-text.expense,
+.floating-text.warn {
+  color: #fff4d4;
+  background: rgba(154, 103, 35, .96);
+}
+
+.floating-text.danger,
+.floating-text.bad {
+  color: #ffe7e7;
+  border-color: rgba(255, 128, 128, .52);
+  background: rgba(126, 48, 48, .96);
+}
+
+@keyframes floatTextRise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 6px)) scale(.94);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 3px)) scale(1.03);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 20px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 30px)) scale(.98);
+  }
+}
+
+/* Transient feedback stays out of the playfield and blocking modal content. */
+.toast-stack {
+  position: fixed;
+  z-index: var(--z-toast-feedback);
+  top: 84px;
+  left: auto;
+  right: 18px;
+  display: grid;
+  gap: 9px;
+  width: min(380px, calc(100vw - 36px));
+  transform: none;
+  pointer-events: none;
+}
+
+body:has(#modalRoot:not([hidden]), .modal-overlay:not(.is-hidden):not([hidden]), .ws-picker-overlay:not([hidden])) .toast-stack {
+  top: auto;
+  right: auto;
+  bottom: 18px;
+  left: 18px;
+}
+
+.toast-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto 28px;
+  align-items: start;
+  gap: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(126, 201, 164, .28);
+  border-radius: var(--r-md);
+  padding: 11px 9px 11px 11px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+  animation: toastEnter 200ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.toast-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--blue);
+}
+
+.toast-item.is-success::before { background: var(--jade); }
+.toast-item.is-warn::before { background: var(--gold); }
+.toast-item.is-danger::before { background: var(--rose); }
+
+.toast-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #eaf7f1;
+  background: color-mix(in srgb, var(--blue) 68%, transparent);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.toast-item.is-success .toast-icon { background: color-mix(in srgb, var(--jade) 74%, transparent); }
+.toast-item.is-warn .toast-icon { color: #2d2108; background: var(--gold); }
+.toast-item.is-danger .toast-icon { background: color-mix(in srgb, var(--rose) 82%, #5d2929); }
+
+.toast-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.toast-copy strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.toast-copy > span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.toast-count {
+  align-self: center;
+  border-radius: var(--r-pill);
+  padding: 2px 7px;
+  color: var(--jade-light);
+  background: var(--jade-soft);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.toast-count[hidden] { display: none; }
+
+.toast-close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toast-close:hover,
+.toast-close:focus-visible {
+  color: var(--ink);
+  background: var(--overlay);
+}
+
+.toast-item.is-leaving {
+  animation: toastLeave 180ms ease forwards;
+}
+
+@keyframes toastEnter {
+  from { opacity: 0; transform: translateX(18px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes toastLeave {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateX(12px) scale(.98); }
+}
+
+/* One modal language: shared backdrop, stable chrome, and named size steps. */
+.jm-modal-root,
+.modal-overlay,
+.ws-picker-overlay {
+  align-items: center;
+  justify-content: center;
+}
+
+.jm-modal-root {
+  z-index: var(--z-feature-modal);
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(3px);
+}
+
+.modal-root {
+  place-items: center;
+  z-index: var(--z-game-modal);
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(3px);
+}
+
+/* A purchase can open from a plan; its result must cover both dialogs. */
+.modal-overlay {
+  z-index: var(--z-shop-modal);
+}
+
+#modalRoot {
+  z-index: var(--z-result-modal);
+}
+
+.game-modal,
+.jm-modal {
+  border: 1px solid color-mix(in srgb, var(--jade-light) 24%, var(--line));
+  border-radius: var(--r-lg);
+  box-shadow: var(--modal-shadow);
+}
+
+/* Keep standard night-mode modals on one surface; their bodies should not read as green panels. */
+[data-theme="night"] .game-modal,
+[data-theme="night"] .jm-modal {
+  background: var(--panel);
+}
+
+.game-modal {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.game-modal--compact { width: min(440px, 100%); }
+.game-modal--standard { width: min(640px, 100%); }
+.game-modal--wide { width: min(960px, 100%); }
+
+.game-modal-head,
+.game-modal-actions,
+.jm-modal-head,
+.jm-modal-foot {
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+}
+
+.game-modal-body,
+.jm-modal-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.game-modal-actions {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.jm-modal.jm-modal-wide {
+  width: min(1180px, calc(100vw - 48px));
+  height: min(860px, calc(100dvh - 48px));
+}
+
+[data-theme="night"] .finish-plan-stock {
+  color: var(--night-text);
+  background: var(--night-surface-2);
+}
+
+/* 公盘结算沿用会场等级材质；中标仅播放一次短促流光。 */
+.game-modal.auction-settle-modal {
+  position: relative;
+  isolation: isolate;
+  border-color: color-mix(in srgb, var(--hall-accent) 52%, var(--line));
+  background:
+    radial-gradient(circle at 88% 0%, var(--hall-accent-soft), transparent 34%),
+    var(--panel);
+  box-shadow: var(--modal-shadow), 0 0 26px color-mix(in srgb, var(--hall-shadow) 48%, transparent);
+}.game-modal.auction-settle-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hall-accent), var(--hall-metal) 68%, transparent);
+  pointer-events: none;
+}.game-modal.auction-settle-modal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: linear-gradient(112deg, transparent 34%, color-mix(in srgb, var(--hall-metal) 22%, transparent) 45%, rgba(255, 255, 255, 0.18) 50%, transparent 62%);
+  opacity: 0;
+  transform: translateX(-72%);
+  pointer-events: none;
+}.game-modal.auction-settle-modal.is-win::after {
+  animation: auction-settle-win-shine 0.88s 0.12s ease-out both;
+}.game-modal.auction-settle-modal .game-modal-head {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--hall-accent) 10%, transparent), transparent 72%),
+    color-mix(in srgb, var(--panel) 96%, transparent);
+}
+.game-modal.auction-settle-modal .modal-close {
+  position: static;
+}
+.game-modal.auction-settle-modal .game-modal-title h3::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 9px;
+  border: 1px solid var(--hall-metal);
+  border-radius: 50%;
+  background: var(--hall-accent);
+  box-shadow: 0 0 9px var(--hall-accent-soft);
+  vertical-align: 0.08em;
+}.game-modal.auction-settle-modal .game-modal-stat,
+.game-modal.auction-settle-modal .game-modal-line {
+  border-color: color-mix(in srgb, var(--hall-accent) 25%, var(--line));
+  background: color-mix(in srgb, var(--hall-accent) 6%, var(--panel));
+}.game-modal.auction-settle-modal.is-win .game-modal-stat strong {
+  color: color-mix(in srgb, var(--hall-metal) 76%, var(--ink));
+}.game-modal.auction-settle-modal--legendary {
+  border-color: color-mix(in srgb, var(--hall-metal) 72%, var(--hall-accent));
+  box-shadow: var(--modal-shadow), 0 0 34px color-mix(in srgb, var(--hall-shadow) 62%, transparent), inset 0 0 0 2px rgba(224, 196, 122, 0.08);
+}
+@keyframes auction-settle-win-shine {
+  0% { opacity: 0; transform: translateX(-72%); }
+  38% { opacity: 0.68; }
+  100% { opacity: 0; transform: translateX(72%); }
+}
+
+/* Shared inventory pickers: orders and livestream use the same search/filter rhythm. */
+.item-picker-tools {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, auto) minmax(130px, auto) auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.item-picker-tools input,
+.item-picker-tools select {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm, 8px);
+  padding: 0 10px;
+  color: var(--ink);
+  background: var(--panel);
+  font: inherit;
+  font-size: 12px;
+}
+.item-picker-result {
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.order-pick-modal {
+  width: min(720px, calc(100vw - 28px));
+  max-height: min(680px, calc(100vh - 48px));
+}
+.order-pick-list { max-height: 420px; }
+.order-pick-option-reason {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.side-remind-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.side-remind-card.tone-action[data-remind-id="workshop-result"]::before { background: var(--gold); }
+.lot-window-clues {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 10px;
+  border: 1px solid color-mix(in srgb, var(--jade) 28%, var(--line));
+  border-radius: var(--r-sm, 8px);
+  padding: 11px 10px;
+  background: color-mix(in srgb, var(--jade-soft) 38%, var(--panel));
+}
+.lot-window-assessment {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.lot-window-tone {
+  border-radius: 3px;
+  padding: 2px 5px;
+  background: color-mix(in srgb, var(--jade-soft) 66%, var(--panel));
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.lot-window-assessment p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+.lot-window-clue-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+.lot-window-clue-grid > div {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+.lot-window-clue-grid dt {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.lot-window-clue-grid dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.lot-window-clues.tone-warn {
+  border-color: color-mix(in srgb, var(--gold) 52%, var(--line));
+  background: color-mix(in srgb, var(--amber-soft) 62%, var(--panel));
+}
+.lot-window-clues.tone-warn .lot-window-tone {
+  background: var(--amber-soft);
+  color: var(--gold);
+}
+.lot-window-clues.tone-good .lot-window-tone {
+  color: var(--jade);
+}
+[data-theme="day"] .lot-window-clues.tone-warn .lot-window-tone {
+  color: var(--gold-dark);
+}
+[data-theme="day"] .lot-window-clues.tone-good .lot-window-tone {
+  color: var(--jade-dark);
+}
+.livestream-filter-empty {
+  min-height: 180px;
+  grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 767px) {
+  .toast-stack {
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    transform: none;
+  }
+
+  body:has(#modalRoot:not([hidden]), .modal-overlay:not(.is-hidden):not([hidden]), .ws-picker-overlay:not([hidden])) .toast-stack {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .item-picker-tools { grid-template-columns: 1fr 1fr; }
+  .item-picker-tools input,
+  .item-picker-result { grid-column: 1 / -1; }
+
+  .toast-item {
+    grid-template-columns: 26px minmax(0, 1fr) auto 26px;
+    gap: 7px;
+    padding: 9px 7px 9px 9px;
+  }
+
+  .toast-icon,
+  .toast-close {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+    min-height: 26px;
+  }
+
+  .jm-modal.jm-modal-wide {
+    width: calc(100vw - 24px);
+    height: calc(100dvh - 24px);
+  }
+
+  .owned-dismiss-inline-actions > button {
+    min-height: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-text,
+  .toast-item,
+  .toast-item.is-leaving,
+  .game-modal,
+  .jm-modal,
+  .game-modal.auction-settle-modal::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

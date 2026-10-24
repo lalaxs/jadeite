@@ -1,0 +1,5 @@
+{
+  "path": ".tmp/blackmarket-inventory-detail-qa.mjs",
+  "sha256": "f4a36ce55ab8b7e941102ede9883b64872cb7edd489732a623d0e2b0c104be38",
+  "role": "static modal layout and purchase confirmation; real mutations covered by Socket E2E"
+}

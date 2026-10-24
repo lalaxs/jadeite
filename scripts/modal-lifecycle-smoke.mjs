@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
+import { readClientShellSource } from "./load-client-shell.mjs";
 import { readFileSync } from "node:fs";
 import { activateModalLifecycle } from "../public/modal-lifecycle.js";
 import { patchPlannerBody } from "../public/planner-dom.js";
 
-const mainSource = readFileSync("public/main.js", "utf8");
-assert.match(mainSource, /import\s+\{\s*activateModalLifecycle\s*\}\s+from\s+"\.\/modal-lifecycle\.js"/);
+const mainEntry = readFileSync("public/main.js", "utf8");
+const mainSource = readClientShellSource();
+assert.match(mainSource, /import\s+\{\s*activateModalLifecycle\s*\}\s+from\s+"[^"]*modal-lifecycle\.js"/);
 assert.match(
-  mainSource.match(/function openGameModal\([^)]*\)\s*\{[\s\S]*?\n\}/)?.[0] || "",
+  mainSource.match(/(?:export\s+)?function openGameModal\([^)]*\)\s*\{[\s\S]*?\n\}/)?.[0] || "",
   /activateModalLifecycle/
 );
 assert.doesNotMatch(
@@ -114,7 +116,13 @@ function modalFixture() {
   });
 
   assert.equal(fixture.shell.inert, true, "background shell should become inert");
-  assert.equal(fixture.document.activeElement, fixture.close, "first modal control should receive focus");
+  assert.equal(fixture.document.activeElement, fixture.dialog, "opening focuses the dialog without highlighting its close action");
+  assert.equal(fixture.dialog.getAttribute("tabindex"), "-1", "the dialog can receive programmatic focus without becoming an extra Tab stop");
+  fixture.document.dispatch("keydown", { key: "Tab", shiftKey: false });
+  assert.equal(fixture.document.activeElement, fixture.close, "Tab from the dialog reaches its first control");
+  fixture.dialog.focus();
+  fixture.document.dispatch("keydown", { key: "Tab", shiftKey: true });
+  assert.equal(fixture.document.activeElement, fixture.confirm, "Shift+Tab from the dialog reaches its last control");
 
   fixture.confirm.focus();
   fixture.document.dispatch("keydown", { key: "Tab", shiftKey: false });
@@ -135,6 +143,29 @@ function modalFixture() {
   assert.equal(fixture.document.activeElement, fixture.opener, "focus should return to the opener");
   fixture.document.dispatch("keydown", { key: "Escape" });
   assert.equal(closeCount, 2, "deactivated modal must remove its keyboard listener");
+}
+
+{
+  const fixture = modalFixture();
+  fixture.dialog.querySelector = (selector) => selector === "[data-modal-initial-focus]" ? fixture.confirm : null;
+  const deactivate = activateModalLifecycle(fixture);
+  assert.equal(fixture.document.activeElement, fixture.confirm, "an explicitly requested initial input or step keeps focus");
+  deactivate();
+  fixture.confirm.disabled = true;
+  const deactivateDisabled = activateModalLifecycle(fixture);
+  assert.equal(fixture.document.activeElement, fixture.dialog, "an unavailable initial target falls back to the dialog surface");
+  deactivateDisabled();
+}
+
+{
+  const fixture = modalFixture();
+  fixture.dialog.querySelectorAll = () => [];
+  const deactivate = activateModalLifecycle(fixture);
+  const event = { key: "Tab", shiftKey: false };
+  fixture.document.dispatch("keydown", event);
+  assert.equal(event.defaultPrevented, true, "Tab cannot leave a dialog that has no controls");
+  assert.equal(fixture.document.activeElement, fixture.dialog);
+  deactivate();
 }
 
 {
@@ -234,7 +265,7 @@ function modalFixture() {
   assert.equal(fixture.shell.inert, true, "closing an underlying modal must keep the shell inert");
   assert.equal(
     fixture.document.activeElement,
-    successClose,
+    successDialog,
     "closing an underlying modal must not steal focus from the topmost success modal"
   );
 

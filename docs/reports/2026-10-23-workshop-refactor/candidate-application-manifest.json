@@ -1,0 +1,83 @@
+{
+  "createdAt": "2026-10-23T09:12:07.104Z",
+  "baseline": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-refactor-baselines\\workshop-2026-10-23-final-03",
+  "candidate": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-refactor-baselines\\workshop-2026-10-23-candidate-03",
+  "applied": [
+    {
+      "path": "public/shell/action-router.js",
+      "sha256": "44795671e9d4956efce86d62d483cf7b3f9f85a643230075cd22cb244cc22cb8"
+    },
+    {
+      "path": "public/features/workshop/actions.js",
+      "sha256": "ca9a78def2d4b0a2b4b628441b8818df978629992eb78e469c5f1aac6b64c2ee"
+    },
+    {
+      "path": "public/features/workshop/catalog.js",
+      "sha256": "57de0bfc777ff0646ebf448aba54e9f22b3f8aa97f50ef8687687241c76c11a3"
+    },
+    {
+      "path": "public/features/workshop/create-workshop-feature.js",
+      "sha256": "8f04333ba3896c59a5bb6ae341b17473c73162aa5f4a6b3e1dd9b4b1e0e55b49"
+    },
+    {
+      "path": "public/features/workshop/finish-controller.js",
+      "sha256": "07c188960a5e7096a606adadb6f62e0e58ead2d3f9128815100cc1e7229a2536"
+    },
+    {
+      "path": "public/features/workshop/inlay-preview-controller.js",
+      "sha256": "d33fe91619adbb973a73c3dfe51707129b87cfa5284e9e6cc7772466cc0badd0"
+    },
+    {
+      "path": "public/features/workshop/item-preview.js",
+      "sha256": "ccefc03400588c56d0a9a285771a70e771c882886ba8e93a819f92ac603e05cc"
+    },
+    {
+      "path": "public/features/workshop/picker-controller.js",
+      "sha256": "2587c2b1d927b7f8ce8a821287a642ac4a9057d98c6fe8adf0a7f7525d577ca7"
+    },
+    {
+      "path": "public/features/workshop/planner-controller.js",
+      "sha256": "5ee4009803947aaf8b208fcaa1d9641f7623f5a8c4a0796df7e2ae700e1dda6a"
+    },
+    {
+      "path": "public/features/workshop/scope.js",
+      "sha256": "8946309ce5d68a16743a520b7317988d4c4793ce1ce565f1489aaee5b7ca4ea4"
+    },
+    {
+      "path": "public/features/workshop/selectors.js",
+      "sha256": "fd45d38a7ec8fc07a0c7326d2c360d370fadb13217546c608670b256754601f8"
+    },
+    {
+      "path": "public/features/workshop/state.js",
+      "sha256": "ccbe5625f68a9c01144b56142bea9526ff8953b004431b527ef49951525e0c49"
+    },
+    {
+      "path": "public/features/workshop/view.js",
+      "sha256": "1fe0fb1bf0c2e0db8bbd54947351c1a30ee05d819f58f05fa67af4b5358c94fb"
+    },
+    {
+      "path": "public/features/workshop/worker-view.js",
+      "sha256": "a8f22f6532455b14f8aec0399c451cfbf50ee9a6703e624383c478f54264931b"
+    },
+    {
+      "path": "public/features/workshop/workshop-module.js",
+      "sha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778"
+    },
+    {
+      "path": "package.json",
+      "sha256": "1b39e17905f6c5384a7a8c050b6dee5de126d0dfb0234c0a9cdf0fcc5ea67202"
+    }
+  ],
+  "validationOnlyTestAdjustments": [
+    {
+      "path": "scripts/bangle-finish-smoke.mjs",
+      "reason": "Inventory detail stats moved to shared item-detail-model in the parallel delivery task; retain summary assertion and verify delegation.",
+      "sha256": "79c313c9871993e360e29f63d6adb8fe1ccab69fe48ad7150b180be47860b372"
+    },
+    {
+      "path": "scripts/mining-ui-smoke.mjs",
+      "reason": "Read inventory helper and its extracted shared detail model together; preserve every miner detail assertion.",
+      "sha256": "305fefde4d649c7b643cbc864f8c75f5aa3bd4569034bbe0c7261e854f662c40"
+    }
+  ]
+}

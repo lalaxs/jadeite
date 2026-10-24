@@ -1,0 +1,52 @@
+{
+  "ready": true,
+  "processId": 34416,
+  "backupPath": "data/world.json.before-npc-random-refresh-20261022-172509.bak",
+  "shelves": [
+    {
+      "role": "stone",
+      "count": 6,
+      "scheduleVersion": 1,
+      "tradableGoodsPreserved": true,
+      "quotesMatchExistingCompatibilityRules": true,
+      "quotasPreserved": true,
+      "randomScheduleInRange": true
+    },
+    {
+      "role": "offcut",
+      "count": 6,
+      "scheduleVersion": 1,
+      "tradableGoodsPreserved": true,
+      "quotesMatchExistingCompatibilityRules": true,
+      "quotasPreserved": true,
+      "randomScheduleInRange": true
+    },
+    {
+      "role": "finished",
+      "count": 6,
+      "scheduleVersion": 1,
+      "tradableGoodsPreserved": true,
+      "quotesMatchExistingCompatibilityRules": true,
+      "quotasPreserved": true,
+      "randomScheduleInRange": true
+    },
+    {
+      "role": "traveler",
+      "count": 2,
+      "scheduleVersion": 1,
+      "tradableGoodsPreserved": true,
+      "quotesMatchExistingCompatibilityRules": true,
+      "quotasPreserved": true,
+      "randomScheduleInRange": true
+    }
+  ],
+  "playerStallsPreserved": true,
+  "existingCompatibilityAppliedOnRestart": {
+    "retiredNpcRoles": [
+      "supplies",
+      "equipment"
+    ],
+    "unsupportedNpcGoodsRemoved": 2,
+    "offcutRowsRepaired": 2
+  }
+}

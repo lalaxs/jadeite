@@ -1,0 +1,452 @@
+[
+  {
+    "test": "test:starter-economy",
+    "exitCode": 0,
+    "output": "{\n  \"ok\": true,\n  \"qualityDraws\": {\n    \"glutinous\": 7000,\n    \"bean\": 3000\n  },\n  \"loops\": [\n    {\n      \"quality\": \"glutinous\",\n      \"initialCash\": 12000,\n      \"giftReference\": 4290,\n      \"productValue\": 2337,\n      \"sale\": 2617,\n      \"cashAfterSale\": 14617,\n      \"repurchase\": 2453,\n      \"finalCash\": 12964,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    },\n    {\n      \"quality\": \"bean\",\n      \"initialCash\": 12000,\n      \"giftReference\": 2383,\n      \"productValue\": 1631,\n      \"sale\": 1827,\n      \"cashAfterSale\": 13827,\n      \"repurchase\": 2453,\n      \"finalCash\": 12174,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    }\n  ]\n}\n"
+  },
+  {
+    "test": "test:feature-availability",
+    "exitCode": 0,
+    "output": "feature-availability-smoke: hidden entrances/reminders, 20 rejected commands, debug closure and paused rentals ok\n"
+  },
+  {
+    "test": "test:gameplay-rules",
+    "exitCode": 0,
+    "output": "gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok\n"
+  },
+  {
+    "test": "test:contracts",
+    "exitCode": 0,
+    "output": "refactor-contracts-smoke: 71 socket events + 14 views frozen\n"
+  },
+  {
+    "test": "test:shared-domain",
+    "exitCode": 0,
+    "output": "shared-domain-smoke: ok\n"
+  },
+  {
+    "test": "test:planning-authority",
+    "exitCode": 0,
+    "output": "planning-authority-smoke: ok\n"
+  },
+  {
+    "test": "test:atomic-mutation",
+    "exitCode": 0,
+    "output": "atomic-mutation-smoke: rollback + post-commit effects ok\n"
+  },
+  {
+    "test": "test:mutation-socket",
+    "exitCode": 0,
+    "output": "mutation-socket-smoke: ok\n"
+  },
+  {
+    "test": "test:player-session",
+    "exitCode": 0,
+    "output": "player-session-service-smoke: ok\n"
+  },
+  {
+    "test": "test:craft-scoring",
+    "exitCode": 0,
+    "output": "workshop-craft-scoring-smoke: ok\n"
+  },
+  {
+    "test": "test:bangle-finish",
+    "exitCode": 0,
+    "output": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\nbangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart\n"
+  },
+  {
+    "test": "test:auction-service",
+    "exitCode": 0,
+    "output": "auction-service-smoke: ok\nauction-halls-unlock-smoke: Lv.1-5 thresholds, immediate entry, independent bids/windows/settlement, escrow isolation, report queue, legacy migration, persistence and live-render cache ok\nauction-clock-smoke: synchronized halls, legacy repair, escrow retention, delayed rollover/restart, shared HUD/reminder rounding and hall switches ok\nauction-halls-socket-e2e: instant Lv.2 unlock, two paid halls/bids, level denial, SQLite restart and guarantee isolation ok\n"
+  },
+  {
+    "test": "test:auction-settle-modal",
+    "exitCode": 0,
+    "output": "auction-settle-modal-smoke: ok\n"
+  },
+  {
+    "test": "test:market-service",
+    "exitCode": 0,
+    "output": "market-service-smoke: ok\nmarket-equipment-smoke: listing all devices, occupancy, withdrawal, payment, rollback, ownership snapshots and empty workshop normalization ok\nmarket-equipment-socket-e2e: list, SQLite restart, withdraw, replay protection, two-buyer race, tax, sell-out and empty-workshop restarts ok\n"
+  },
+  {
+    "test": "test:market-liquidity",
+    "exitCode": 0,
+    "output": "market-liquidity-service-smoke: ok\n"
+  },
+  {
+    "test": "test:market-card",
+    "exitCode": 0,
+    "output": "market-card-info-smoke: jade and equipment cards, purchase costs and broken-device disclosure ok\n"
+  },
+  {
+    "test": "test:market-want",
+    "exitCode": 0,
+    "output": "Market want board checks passed\n"
+  },
+  {
+    "test": "test:materials-service",
+    "exitCode": 0,
+    "output": "materials-service-smoke: ok\n"
+  },
+  {
+    "test": "test:orders-service",
+    "exitCode": 0,
+    "output": "orders-service-smoke: ok\n"
+  },
+  {
+    "test": "test:rough-pool-service",
+    "exitCode": 0,
+    "output": "rough-pool-service-smoke: ok\n"
+  },
+  {
+    "test": "test:assets-service",
+    "exitCode": 0,
+    "output": "assets-service-smoke: ok\n"
+  },
+  {
+    "test": "test:inventory-service",
+    "exitCode": 0,
+    "output": "inventory-service-smoke: ok\n"
+  },
+  {
+    "test": "test:inventory-recycle",
+    "exitCode": 0,
+    "output": "inventory-recycle-smoke: ok\n"
+  },
+  {
+    "test": "test:inventory-unseen",
+    "exitCode": 0,
+    "output": "inventory-unseen-smoke: ok\n"
+  },
+  {
+    "test": "test:economy-service",
+    "exitCode": 0,
+    "output": "economy-service-smoke: ok\n"
+  },
+  {
+    "test": "test:recovery-service",
+    "exitCode": 0,
+    "output": "recovery-service-smoke: ok\n"
+  },
+  {
+    "test": "test:report-service",
+    "exitCode": 0,
+    "output": "report-service-smoke: ok\n"
+  },
+  {
+    "test": "test:offline-service",
+    "exitCode": 0,
+    "output": "offline-service-smoke: ok\n"
+  },
+  {
+    "test": "test:snapshot-service",
+    "exitCode": 0,
+    "output": "snapshot-service-smoke: ok\n"
+  },
+  {
+    "test": "test:player-service",
+    "exitCode": 0,
+    "output": "player-service-smoke: ok\n"
+  },
+  {
+    "test": "test:mining",
+    "exitCode": 0,
+    "output": "mining service smoke: ok\nmining-basic-mode-smoke: starter miner, balanced rent, flexible crew and basic settlement ok\nmining-allocation-smoke: competition, priority, replacement and roster-exit feedback ok\nmining-fairness-smoke: 20-round no-starvation, mine rotation and cash conservation ok\nmining-persistence-smoke: pending escrow and active shifts survive restart with idempotent settlement\nmining-downtime-recovery-smoke: expired applications refunded, active shift settled, fresh round reopened\nmining-job-recovery-smoke: invalid jobs refund once, remain recorded, and survive restart\nmining-runtime-soak-smoke: 50 players, 60 rounds, 1800 shifts and 6 restart cycles ok\nmining roster participation smoke ok\nmining-ui-smoke: simplified 30-mine loop, four tabs, responsive UI and isolated miners ok\nmining-balance-smoke: five rent bands, five-shift leases, capped crew bonus and <=5x expected-net spread ok\nmining-health-smoke: read-only audit detects roster, escrow, lease and overdue-job faults\nmining-competition-health-smoke: four tuning warnings and thresholds ok\nmining-economy-insights-smoke: valuation, costs, spread and tuning alerts ok\nmining-world-economy-smoke: round persistence, sample gates, full rent and belt alerts ok\n"
+  },
+  {
+    "test": "test:chat-service",
+    "exitCode": 0,
+    "output": "chat-service-smoke: ok\n"
+  },
+  {
+    "test": "test:collection-service",
+    "exitCode": 0,
+    "output": "collection-service-smoke: ok\n"
+  },
+  {
+    "test": "test:blackmarket-service",
+    "exitCode": 0,
+    "output": "blackmarket-service-smoke: ok\nblackmarket-resources-smoke: NPC supply, resale, payroll, locking, capacity, repricing, rollback, withdrawal and save/restore ok\n"
+  },
+  {
+    "test": "test:blackmarket-npc",
+    "exitCode": 0,
+    "output": "blackmarket-npc-smoke: ok (240 purchases, pricing, inventory, batch limits, save/restore, rollback)\nblackmarket-npc-schedule-smoke: random ranges, delayed refills, age protection, stale retirement, quotas, migration, save/restart, downtime and checkout race ok\nblackmarket-npc-finish-smoke: seven motifs, finished/blank rendering, exact crop, existing-stock and purchased-item compatibility ok\nblackmarket-npc-variety-smoke: reachable shapes/sizes, weighted styles, actual gem seats/quotes, scores, coverage, deduplication, immutable purchases and save/restore ok\nblackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n"
+  },
+  {
+    "test": "test:bm-plan-pool",
+    "exitCode": 0,
+    "output": "bm-plan-pool-smoke: ok\n"
+  },
+  {
+    "test": "test:socket-handlers",
+    "exitCode": 0,
+    "output": "socket-handlers-smoke: ok 75 events\n"
+  },
+  {
+    "test": "test:runtime-ticks",
+    "exitCode": 0,
+    "output": "runtime-ticks-smoke: ok\n"
+  },
+  {
+    "test": "test:server-context",
+    "exitCode": 0,
+    "output": "server-context-smoke: ok\n"
+  },
+  {
+    "test": "test:test-hooks",
+    "exitCode": 0,
+    "output": "test-hooks-smoke: ok 174 keys\n"
+  },
+  {
+    "test": "test:workshop-service",
+    "exitCode": 0,
+    "output": "workshop-service-smoke: ok\nworkshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok\nworkshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok\nworkshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok\n"
+  },
+  {
+    "test": "test:livestream-service",
+    "exitCode": 0,
+    "output": "livestream-service-smoke: room authority + legacy retirement ok\n"
+  },
+  {
+    "test": "test:world-store",
+    "exitCode": 0,
+    "output": "world-store-smoke: memory store + server wiring ok\n"
+  },
+  {
+    "test": "test:world-persist",
+    "exitCode": 0,
+    "output": "world-persist-smoke: ok\n"
+  },
+  {
+    "test": "test:sqlite-persist",
+    "exitCode": 0,
+    "output": "sqlite-world-persist-smoke: transactions + migration + fallback ok\n"
+  },
+  {
+    "test": "test:crash-recovery",
+    "exitCode": 0,
+    "output": "persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok\n"
+  },
+  {
+    "test": "test:runtime-soak",
+    "exitCode": 0,
+    "output": "runtime-soak-smoke: 30 simulated days + repeated SQLite restarts ok\n",
+    "previousAttempt": {
+      "exitCode": 124,
+      "reason": "batch runner 120s deadline"
+    },
+    "verification": "standalone node scripts/runtime-soak-smoke.mjs completed successfully"
+  },
+  {
+    "test": "test:styles-split",
+    "exitCode": 0,
+    "output": "styles-split-smoke: 18 parts, resolved 737984 bytes ok\n"
+  },
+  {
+    "test": "test:action-router",
+    "exitCode": 0,
+    "output": "action-router-smoke: ok\n"
+  },
+  {
+    "test": "test:loop",
+    "exitCode": 0,
+    "output": "Jade idle loop rules checks passed\n"
+  },
+  {
+    "test": "test:auction",
+    "exitCode": 0,
+    "output": "Jade 10-minute auction checks passed\n"
+  },
+  {
+    "test": "test:server-idle",
+    "exitCode": 0,
+    "output": "Server idle behavior checks passed\n"
+  },
+  {
+    "test": "test:tasks",
+    "exitCode": 0,
+    "output": "task-smoke: ok\n"
+  },
+  {
+    "test": "test:equipment",
+    "exitCode": 0,
+    "output": "equipment-system-smoke: ok\n"
+  },
+  {
+    "test": "test:workshop-planner-ui",
+    "exitCode": 0,
+    "output": "workshop-planner-ui-smoke: independent planning step ok\nopening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed\n"
+  },
+  {
+    "test": "test:employee",
+    "exitCode": 0,
+    "output": "employee-system-smoke: ok\nemployee-payroll-smoke: login dates, snapshots, same-day dedupe, dismissal, migration and UI ok\nemployee-payroll-policy-smoke: business-day grace,20%,offline exclusion,cross-day service entries,stop/resume and rollback ok\nemployee-payroll-socket-e2e: login-only bills, modal ack, dismissal,20%, migration, dedupe and SQLite restarts ok\n"
+  },
+  {
+    "test": "test:worker-detail-view",
+    "exitCode": 0,
+    "output": "worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok\n"
+  },
+  {
+    "test": "test:recruit-detail-controller",
+    "exitCode": 0,
+    "output": "recruit-detail-controller-smoke: real lifecycle keeps modal identity on failures\n"
+  },
+  {
+    "test": "test:hire-market-roster",
+    "exitCode": 0,
+    "output": "hire-market-roster-smoke: employee roster tab shell ok\n"
+  },
+  {
+    "test": "test:player-progression",
+    "exitCode": 0,
+    "output": "player-progression-smoke: exp / achievements / hall unlock ok\n"
+  },
+  {
+    "test": "test:inlay",
+    "exitCode": 0,
+    "output": "inlay-system-smoke: ok\ninlay-artwork-smoke: RGBA assets, crop bounds, all settings, exact stone counts, source preservation and bitmap capture embedding ok\n"
+  },
+  {
+    "test": "test:finish-plan-model",
+    "exitCode": 0,
+    "output": "finish-plan-model-smoke: progressive material selection ok\nfinished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok\njade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok\n"
+  },
+  {
+    "test": "test:finish-plan-controller",
+    "exitCode": 0,
+    "output": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok\n"
+  },
+  {
+    "test": "test:inlay-preview-tester",
+    "exitCode": 0,
+    "output": "inlay-preview-tester-smoke: model ok\n"
+  },
+  {
+    "test": "test:rules",
+    "exitCode": 0,
+    "output": "Jade expert rules checks passed\n"
+  },
+  {
+    "test": "test:renderer",
+    "exitCode": 0,
+    "output": "jade renderer smoke test passed\n"
+  },
+  {
+    "test": "test:opening",
+    "exitCode": 0,
+    "output": "jade opening engine smoke test passed\n"
+  },
+  {
+    "test": "test:volume",
+    "exitCode": 0,
+    "output": "jade volume smoke test passed\n"
+  },
+  {
+    "test": "test:canvas",
+    "exitCode": 0,
+    "output": "Canvas-only jade rendering checks passed\n"
+  },
+  {
+    "test": "test:flow",
+    "exitCode": 0,
+    "output": "Simplified rough-to-bracelet flow checks passed\n"
+  },
+  {
+    "test": "test:ui",
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "test": "test:ui-stability",
+    "exitCode": 0,
+    "output": "ui-stability-smoke: stable overview guards ok\n"
+  },
+  {
+    "test": "test:modal-lifecycle",
+    "exitCode": 0,
+    "output": "modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok\n"
+  },
+  {
+    "test": "test:shop-material-modal",
+    "exitCode": 0,
+    "output": "shop-material-modal-smoke: body-mounted material buy modal ok\n"
+  },
+  {
+    "test": "test:night-theme",
+    "exitCode": 0,
+    "output": "night-theme-smoke: effective low-luminance surfaces ok\n"
+  },
+  {
+    "test": "test:responsive",
+    "exitCode": 0,
+    "output": "responsive-layout-smoke: desktop guards ok\n"
+  },
+  {
+    "test": "test:experience-regressions",
+    "exitCode": 0,
+    "output": "experience-regressions-smoke: rollover, lot sort/bid chrome, wages, collection theme and cutouts ok\n"
+  },
+  {
+    "test": "test:money-compact",
+    "exitCode": 0,
+    "output": "money-compact-smoke: HUD compact cash formatting ok\n"
+  },
+  {
+    "test": "test:inventory",
+    "exitCode": 0,
+    "output": "inventory-module-smoke: normalization, filters, sorting and inventory view ok\n"
+  },
+  {
+    "test": "test:bill",
+    "exitCode": 0,
+    "output": "bill-module-smoke: ok\n"
+  },
+  {
+    "test": "test:lazy-preview",
+    "exitCode": 0,
+    "output": "lazy-preview-smoke: bitmap cache + virtual grid ok\nblackmarket-render-smoke: retained shelf, cash, prices, sold stock and navigation ok\n"
+  },
+  {
+    "test": "test:livestream-room",
+    "exitCode": 0,
+    "output": "Livestream room checks passed\n"
+  },
+  {
+    "test": "test:livestream-buy-flow",
+    "exitCode": 0,
+    "output": "livestream-buy-flow-smoke: seller→buyer purchase ok\n"
+  },
+  {
+    "test": "test:livestream-ui",
+    "exitCode": 0,
+    "output": "livestream-ui-smoke: wizard, shelf, owner dash and hall sort ok\n"
+  },
+  {
+    "test": "test:livestream-settle",
+    "exitCode": 0,
+    "output": "livestream-settle-modal-smoke: ok\n"
+  },
+  {
+    "test": "test:chatdock-compact",
+    "exitCode": 0,
+    "output": "chatdock-compact-smoke: ok\n"
+  },
+  {
+    "test": "test:debug-spawn",
+    "exitCode": 0,
+    "output": "debug-spawn-smoke: ok\n"
+  },
+  {
+    "test": "test:debug-tools",
+    "exitCode": 0,
+    "output": "debug-tools-smoke: exp +100 and idempotent mining unlock ok\n"
+  },
+  {
+    "test": "test:player-exploration",
+    "exitCode": 0,
+    "output": "player-exploration-regressions: free processing, idle duration, 2,000 order rewards, reputation and mining gate restored; cost, motif and payout fixes passed\n"
+  }
+]

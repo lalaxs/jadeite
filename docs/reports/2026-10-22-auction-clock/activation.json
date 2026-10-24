@@ -1,0 +1,36 @@
+{
+  "verifiedAt": "2026-10-22T10:39:08.850Z",
+  "ready": true,
+  "playersRestored": 104,
+  "halls": [
+    {
+      "hall": "regular",
+      "startsAt": 1792665418612,
+      "endsAt": 1792666018612
+    },
+    {
+      "hall": "novice",
+      "startsAt": 1792665418612,
+      "endsAt": 1792666018612
+    },
+    {
+      "hall": "premium",
+      "startsAt": 1792665418612,
+      "endsAt": 1792666018612
+    },
+    {
+      "hall": "special",
+      "startsAt": 1792665418612,
+      "endsAt": 1792666018612
+    },
+    {
+      "hall": "legendary",
+      "startsAt": 1792665418612,
+      "endsAt": 1792666018612
+    }
+  ],
+  "roundIdsPreserved": true,
+  "entriesBidsLotsPreserved": true,
+  "escrowsPreserved": true,
+  "backup": "data/world.json.before-auction-clock-20261022.bak"
+}

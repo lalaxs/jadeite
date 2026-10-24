@@ -1,0 +1,10 @@
+{
+  "browserTestSnapshot": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\.refactor-test-results\\game-instance\\game-instance-candidate-2026-10-23-02",
+  "finalSnapshot": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\.refactor-test-results\\game-instance\\game-instance-candidate-2026-10-23-03",
+  "productionFiles": 397,
+  "changedPaths": [
+    "scripts/game-instance-boundary-smoke.mjs"
+  ],
+  "productionIdentical": true,
+  "testSourcesIdentical": true
+}

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {
+  AUCTION_HALLS,
   auctionEntryFee,
+  auctionWindowFee,
   auctionPhase,
   bidIncrementOptions,
   enterAuctionRound,
@@ -33,6 +35,12 @@ assert.equal(auctionPhase(round, 1_500), "settlement");
 assert.equal(auctionPhase({ ...round, settledAt: 1_500 }, 1_600), "settlement");
 assert.equal(auctionEntryFee({ entryFee: 800 }), 800);
 assert.equal(auctionEntryFee({ deposit: 5_000 }), 5_000);
+assert.deepEqual(AUCTION_HALLS.map((hall) => hall.entryFee), [200, 1_200, 1_800, 2_800, 4_000]);
+assert.deepEqual(AUCTION_HALLS.map((hall) => hall.deposit), [200, 1_200, 1_800, 2_800, 4_000]);
+assert.deepEqual(AUCTION_HALLS.map((hall) => hall.windowRate), [0.03, 0.04, 0.05, 0.06, 0.07]);
+assert.deepEqual(AUCTION_HALLS.map((hall) => hall.windowMin), [100, 150, 250, 400, 600]);
+assert.equal(auctionWindowFee(1_000, "novice"), 100, "novice window fee should honor its floor");
+assert.equal(auctionWindowFee(10_000, "novice"), 300);
 
 assert.deepEqual(bidIncrementOptions(999), [50, 100, 200]);
 assert.deepEqual(bidIncrementOptions(1_000), [100, 500, 1000]);
@@ -133,9 +141,16 @@ const ai = aiBidsForRough(round.roughs[0], [], 3);
 assert.equal(ai.length, 3);
 assert.ok(ai.every((bid) => bid.ai === true));
 assert.ok(ai.every((bid) => bid.amount > 0));
+assert.ok(ai.every((bid) => bid.amount <= round.roughs[0].price * 1.36));
 assert.equal(Object.hasOwn(ai[0], "proxyMax"), false);
 const repeatedAi = aiBidsForRough(round.roughs[0], ai, 4);
 assert.equal(repeatedAi[0].playerId, `ai-${round.roughs[0].id}-3`);
+
+const poorAi = aiBidsForRough({ id: "poor", price: 10_000, trueValue: 7_500 }, [], 3);
+assert.ok(poorAi.every((bid) => bid.amount < 10_000), "AI should not prop up a loss-making rough above reserve");
+const premiumAi = aiBidsForRough({ id: "premium", price: 10_000, trueValue: 36_000 }, [], 3);
+assert.ok(premiumAi.some((bid) => bid.amount >= 10_000));
+assert.ok(premiumAi.every((bid) => bid.amount <= 13_600));
 
 const sensitiveRound = {
   ...entered.round,
@@ -274,4 +289,4 @@ for (const result of historyEntry.results) {
   }
 }
 
-console.log("Jade 10-minute sealed auction checks passed");
+console.log("Jade 10-minute auction checks passed");

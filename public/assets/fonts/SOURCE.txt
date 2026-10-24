@@ -1,0 +1,8 @@
+阿里妈妈方圆体 VF / Alimama FangYuanTi VF
+
+File: AlimamaFangYuanTiVF-Thin.woff2
+Source: https://lzcdn.dianpusoft.cn/fonts/AlimamaFangYuanTiVF/AlimamaFangYuanTiVF-Thin.woff2
+This is the font asset referenced by the project's original public/styles.css.
+Official font page: https://www.iconfont.cn/fonts/detail?cnid=pOvFIr086ADR
+
+Bundled locally so the game does not depend on a third-party font host at runtime.

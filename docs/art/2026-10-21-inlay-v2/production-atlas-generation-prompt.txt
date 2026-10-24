@@ -1,0 +1,36 @@
+Generation mode: built-in image_gen
+Production output: public/assets/inlay/accessories-handpainted-v1.png (1254x1254 RGBA)
+The original generated PNG was copied without pixel edits. Runtime SVG symbols crop the independent components using public/inlay-artwork.js.
+Gem output: public/assets/inlay/gems-handpainted-v1.png, copied from inlay-gems-atlas-v1.png without pixel edits.
+Source reference: inlay-all-parts-overview-v1.png
+
+Final production-atlas prompt:
+Use case: precise-object-edit / stylized-concept.
+Asset type: ONE transparent production sprite atlas for implementing the approved game jewelry art in actual code.
+Input image: reference for the EXACT APPROVED hand-painted pale gold / muted silver / dark sage cord STYLE, and the parts to extract/repaint. Do not reproduce its ivory paper, grid, labels, stones, jade or presentation framing.
+Primary request: Convert the reference's metal and cord accessory artwork into clean separate production-ready 2D sprites, arranged as a 4 COLUMN x 4 ROW atlas on TRUE TRANSPARENT ALPHA. 2048x2048 square requested. Each of 16 equal 512x512 cells contains EXACTLY ONE centered component, occupying approximately the middle 300px width/height, with wide transparent margins. Absolutely no text, labels, cell borders or background patterns. All art isolated with alpha zero outside the crisp anti-aliased silhouette. No glow, no ground shadow, no scattered specks.
+The runtime keeps the player's original jade separately. DO NOT INCLUDE ANY JADE OR GEMSTONE IN THIS ATLAS.
+Exactly 16 cells, left to right by row:
+ROW 1:
+1. Gold RING BAND / SHANK ONLY: a wide horizontal softly almond/oval-shaped ring band, front facing with tiny 3/4 thickness, satin pale antique gold, hollow middle. Width about 330px, height about 150px. Use the band from the reference ring, but REMOVE the entire tall upright oval main-stone basket/head, remove all main-stone prongs and remove shoulder accent sockets. Just the smooth curved horizontal shank, open in the middle, thicker at bottom rim, with the far back arc slightly darker. This will sit behind a separate jade center. No empty tall vertical oval seat sticking up.
+2. Same RING BAND ONLY in muted silver.
+3. Gold tapered pendant BAIL ONLY: upright tapering oval/teardrop bail, broad curved top, narrow bottom, small clean dark open central slot showing actual transparency, softly hand-painted matte pale gold. No jump ring, no gems or pendant.
+4. Matching silver BAIL ONLY, open central slot, no attachments.
+ROW 2:
+5. One tiny GOLD MAIN-STONE PRONG / CLAW, enlarged for sprite detail: single rounded tapered short pill/leaf-like metal claw, its long axis vertical, rounded cap at top and short foot below, clean simple chunky little fastener, width about 90px height about 240px; no base, no stone.
+6. Matching single SILVER PRONG, same geometry.
+7. One GOLD ROUND ACCENT STONE SOCKET, open empty circular aperture, FOUR small delicate prongs at the diagonal corners. No gem, no shadowed opaque floor. The socket rim is thin and main opening occupies ~75% of its diameter. Full circular view head-on.
+8. Same ROUND SOCKET in SILVER.
+ROW 3:
+9. One GOLD SQUARE ACCENT SOCKET, empty square open aperture showing transparency, slim softly bevelled border, four tiny corner fasteners, no gem. Opening ~75% of outer size.
+10. Same SQUARE SOCKET in SILVER.
+11. One GOLD JUMP RING: upright small plain oval connector link, empty center transparent, softly rounded thin metal, no bail or pendant.
+12. Same JUMP RING in SILVER.
+ROW 4:
+13. Dark sage GREEN CORD KNOT: simplified Chinese knot as in reference, tight central knot, ONE small short top loop, two tidy short bottom tails, isolated clean silhouette, understated illustrated woven texture.
+14. Dark sage GREEN V-SHAPED HANGING CORD: two slim woven strands curve out to upper left and upper right and meet in a small tidy wrapped knot at bottom, fully separate from jewelry, isolated silhouette.
+15. GOLD MATERIAL TEXTURE PATCH: a plain opaque full 300x300 SQUARE swatch of softly brushed desaturated pale antique gold, fine hand-painted grain, subtle tonal variation with even light, NO frame, NO embossed shapes, NO bevel, NO holes. This square will fill arbitrary contour-shaped metal rims via a rendering mask.
+16. SILVER MATERIAL TEXTURE PATCH: matching plain opaque square of softly brushed muted warm silver grey, subtle gentle fine painted grain, no frame or bevel.
+Style: same soft 2D Chinese crafting GAME illustration as reference. Restrained matte paint, simple light/shadow zones, soft colored edges, fine gouache grain, grown-up cozy tone. No photorealism, no glossy 3D/PBR render, no chrome, no bright saturated yellow, no sparkling reflections.
+Critical production constraints: all holes and all area outside each component are TRULY TRANSPARENT. No fake checkerboard, no cream/white/black background, no cast shadow or glow halos. Components do not touch or overlap and stay well inside their grid cells. No gemstone, no jade, no text anywhere. Preserve the approved painted shapes and colors.
+

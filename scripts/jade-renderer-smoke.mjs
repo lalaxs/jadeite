@@ -55,8 +55,7 @@ for (const [kind, label] of Object.entries({
   buddhaPendant: "佛公挂件",
   guanyinPendant: "观音挂件",
   fuBeanPendant: "福豆挂件",
-  gourdPendant: "葫芦挂件",
-  beads: "珠串"
+  gourdPendant: "葫芦挂件"
 })) {
   assert.equal(productKindLabel(kind), label, `${kind} should have a product label`);
   assert.ok(PRODUCT_CATEGORIES[kind], `${kind} should be defined as a jade product category`);
@@ -68,8 +67,7 @@ for (const [type, label] of Object.entries({
   buddhaPendant: "佛公挂件",
   guanyinPendant: "观音挂件",
   fuBeanPendant: "福豆挂件",
-  gourdPendant: "葫芦挂件",
-  beads: "珠串套件"
+  gourdPendant: "葫芦挂件"
 })) {
   assert.equal(EXTRACTION_KITS[type].label, label, `${type} should be available as an extraction kit`);
   const markup = jadeCanvasMarkup("kit", { id: `kit-${type}`, name: label, type, templateSize: EXTRACTION_KITS[type] }, "kit-template");

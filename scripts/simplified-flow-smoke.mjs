@@ -1,7 +1,12 @@
+import { readTradingServiceSource } from "./load-trading-service-source.mjs";
+import { readWorkshopServiceSource } from "./load-workshop-service-source.mjs";
+import { readWorkshopSource } from "./load-workshop-source.mjs";
 import assert from "node:assert/strict";
+import { readClientShellSource } from "./load-client-shell.mjs";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { inlaySummary } from "../public/product-meta.js";
 import { __testHooks } from "../server.js";
+import { loadResolvedStyles } from "./load-styles.mjs";
 import {
   finishOptions,
   initWorkshopModule
@@ -51,31 +56,72 @@ if (sampleInlaySummary !== "戒指 · 爪镶 · 18K金 · 配石钻石×2 · 亮
 }
 
 const server = readFileSync("server.js", "utf8");
+const wireSource = readFileSync("server/boot/wire-server.js", "utf8");
+const boot = `${server}\n${wireSource}`;
+const workshopService = readWorkshopServiceSource();
+const workshopPlanning = readFileSync("server/services/workshop-planning.js", "utf8");
+const ordersService = readFileSync("server/services/orders-service.js", "utf8");
+const roughPoolService = readFileSync("server/services/rough-pool-service.js", "utf8");
+const economyService = readFileSync("server/services/economy-service.js", "utf8");
+const snapshotPublic = readFileSync("server/services/snapshot-public.js", "utf8");
+const snapshotService = readFileSync("server/services/snapshot-service.js", "utf8");
+const playerService = readFileSync("server/services/player-service.js", "utf8");
+const reportService = readFileSync("server/services/report-service.js", "utf8");
+const offlineService = readFileSync("server/services/offline-service.js", "utf8");
+const inventoryService = readFileSync("server/services/inventory-service.js", "utf8");
+const auctionService = readTradingServiceSource("auction-service.js");
+const worldStore = readFileSync("server/world-store.js", "utf8");
+const livestreamService = readFileSync("server/services/livestream-service.js", "utf8");
+const jadeLoop = [
+  readFileSync("public/jade-loop.js", "utf8"),
+  existsSync("shared/domain/economy/jade-loop.js")
+    ? readFileSync("shared/domain/economy/jade-loop.js", "utf8")
+    : ""
+].join("\n");
+const socketHandlers = readFileSync("server/shell/socket-handlers.js", "utf8");
+const runtimeTicks = readFileSync("server/shell/runtime-ticks.js", "utf8");
+const serverContext = readFileSync("server/shell/server-context.js", "utf8");
 const mainEntry = readFileSync("public/main.js", "utf8");
+const shellSource = readClientShellSource();
 const clientModulePaths = [
-  "public/auction-module.js",
-  "public/workshop-module.js",
-  "public/chat-module.js",
-  "public/ranking-module.js",
-  "public/orders-module.js",
-  "public/livestream-module.js",
-  "public/market-module.js",
-  "public/extra-module.js"
+  "public/features/auction/auction-module.js",
+  "public/features/workshop/workshop-module.js",
+  "public/features/chat/chat-module.js",
+  "public/features/ranking/ranking-module.js",
+  "public/features/orders/orders-module.js",
+  "public/features/livestream/livestream-module.js",
+  "public/features/market/market-module.js",
+  "public/features/shop/shop-module.js",
+  "public/features/hire/hire-module.js",
+  "public/features/reports/reports-module.js",
+  "public/features/collection/collection-module.js",
+  "public/features/extra/extra-module.js"
 ];
 const main = [
-  mainEntry,
-  ...clientModulePaths.map((file) => readFileSync(file, "utf8"))
+  shellSource,
+  ...clientModulePaths.map((file) => file === "public/features/workshop/workshop-module.js" ? readWorkshopSource() : readFileSync(file, "utf8"))
 ].join("\n");
-const workshopModule = readFileSync("public/workshop-module.js", "utf8");
-const extraModule = readFileSync("public/extra-module.js", "utf8");
-const ordersModule = readFileSync("public/orders-module.js", "utf8");
-const marketModule = readFileSync("public/market-module.js", "utf8");
+const workshopModule = readWorkshopSource();
+const inventoryModule = readFileSync("public/features/inventory/inventory-module.js", "utf8");
+const collectionModule = readFileSync("public/features/collection/collection-module.js", "utf8");
+const ordersModule = readFileSync("public/features/orders/orders-module.js", "utf8");
+const marketModule = readFileSync("public/features/market/market-module.js", "utf8");
 const index = readFileSync("public/index.html", "utf8");
 const renderer = readFileSync("public/jade-renderer.js", "utf8");
-const openingEngine = readFileSync("public/jade-opening-engine.js", "utf8");
-const styles = readFileSync("public/styles.css", "utf8");
+const openingEngine = [
+  readFileSync("public/jade-opening-engine.js", "utf8"),
+  existsSync("shared/domain/jade/jade-opening-engine.js")
+    ? readFileSync("shared/domain/jade/jade-opening-engine.js", "utf8")
+    : ""
+].join("\n");
+const styles = loadResolvedStyles();
+for (const token of ["workshopStageDrawer", "stageDrawerOpen", "阶段库存"]) {
+  if (workshopModule.includes(token)) {
+    throw new Error(`workshop source should not retain the removed stage inventory drawer token: ${token}`);
+  }
+}
 for (const [source, label] of [
-  [extraModule, "collection"],
+  [collectionModule, "collection"],
   [ordersModule, "orders"],
   [marketModule, "market"]
 ]) {
@@ -86,7 +132,12 @@ for (const [source, label] of [
 if (!existsSync("public/jade-categories.js")) {
   throw new Error("jade category definitions should live in public/jade-categories.js and be shared by client/server");
 }
-const categories = readFileSync("public/jade-categories.js", "utf8");
+const categories = [
+  readFileSync("public/jade-categories.js", "utf8"),
+  existsSync("shared/domain/jade/jade-categories.js")
+    ? readFileSync("shared/domain/jade/jade-categories.js", "utf8")
+    : ""
+].join("\n");
 
 if (!/let activeView\s*=\s*"overview"/.test(main)) {
   throw new Error("the prototype should open the overview by default");
@@ -152,15 +203,45 @@ function extractSocketHandlerBody(source, eventName) {
   return extractBlockFrom(source, start, `socket handler: ${eventName}`);
 }
 
+function extractRegisterActionBody(source, actionName) {
+  const marker = new RegExp(`register(?:Action)?\\("${actionName}"\\s*,`);
+  const match = marker.exec(source);
+  if (!match) throw new Error(`missing register action: ${actionName}`);
+  let index = match.index + match[0].length;
+  while (index < source.length && /\s/.test(source[index])) index += 1;
+  if (source[index] === "(") {
+    let depth = 0;
+    for (; index < source.length; index += 1) {
+      if (source[index] === "(") depth += 1;
+      if (source[index] === ")") {
+        depth -= 1;
+        if (depth === 0) {
+          index += 1;
+          break;
+        }
+      }
+    }
+  }
+  while (index < source.length && /\s/.test(source[index])) index += 1;
+  if (source.slice(index, index + 2) === "=>") index += 2;
+  while (index < source.length && /\s/.test(source[index])) index += 1;
+  if (source[index] === "{") {
+    return extractBlockFrom(source, index, `register action: ${actionName}`);
+  }
+  const end = source.indexOf(");", index);
+  if (end < 0) throw new Error(`unterminated register action: ${actionName}`);
+  return source.slice(index, end);
+}
+
 const serverExpectations = [
   [/productMatchesOrder/, "server should use shared product/order matching rules"],
   [/makeExpertClues/, "server should attach expert appraisal clues to rough stones"],
   [/expertClues/, "rough stones should expose expert clue chips"],
   [/normalizeWindowPayload/, "server should normalize positional public window requests"],
   [/requestWindow/, "server should support public paid auction windows"],
-  [/acceptedKinds/, "orders should define accepted product kinds"],
-  [/preferredKinds/, "orders should define preferred product kinds"],
-  [/tasteTags/, "orders should carry customer taste tags"],
+  [/persona/, "orders should define NPC persona"],
+  [/requirements/, "orders should define concrete requirement clauses"],
+  [/evaluateOrderFit/, "orders should evaluate fit tiers for delivery"],
   [/startPolish/, "server should support full-stone polishing after purchase"],
   [/extractFromRough/, "server should extract bracelets directly from a polished rough"],
   [/polishingJobs/, "player state should track polishing jobs instead of cutting jobs"],
@@ -168,22 +249,33 @@ const serverExpectations = [
 ];
 
 for (const [pattern, message] of serverExpectations) {
-  if (!pattern.test(server)) throw new Error(message);
+  if (
+    !pattern.test(server)
+    && !pattern.test(boot)
+    && !pattern.test(socketHandlers)
+    && !pattern.test(ordersService)
+    && !pattern.test(workshopService)
+    && !pattern.test(roughPoolService)
+  ) {
+    throw new Error(message);
+  }
 }
 
-const publicStoneStart = server.indexOf("function publicStone");
-const publicListingStart = server.indexOf("function publicListing");
-const publicStoneBody = server.slice(publicStoneStart, publicListingStart);
-if (!/function publicWindowReveal\b/.test(server)) {
+const publicStoneStart = snapshotPublic.indexOf("export function publicStone");
+const publicListingStart = snapshotPublic.indexOf("export function publicListing");
+const publicStoneBody = snapshotPublic.slice(publicStoneStart, publicListingStart);
+if (!/function publicWindowReveal\b/.test(snapshotPublic)) {
   throw new Error("server should whitelist public window reveal fields");
+}
+if (!/function publicSourceMaterial\b/.test(snapshotPublic)) {
+  throw new Error("server should sanitize product source material before public snapshots");
+}
+if (!/function materialStageFor\b/.test(inventoryService)) {
+  throw new Error("server should classify material stages through one helper");
 }
 
 if (/windows:\s*item\.windows\s*\|\|\s*\[\]/.test(publicStoneBody)) {
   throw new Error("publicStone masked visual should not expose raw item windows");
-}
-
-if (!/function publicSourceMaterial\b/.test(server)) {
-  throw new Error("server should sanitize product source material before public snapshots");
 }
 
 if (!/safeItem\.sourceMaterial\s*=\s*publicSourceMaterial\(safeItem\.sourceMaterial\)/.test(publicStoneBody)) {
@@ -233,12 +325,12 @@ if (!/OPENING_KIT_LIB/.test(main) || !/data-opening-kit-choice/.test(main) || !/
 }
 
 for (const eventName of ["startPolish", "extractFromRough", "livestreamSell"]) {
-  if (!/normalizeMutationPayload/.test(extractSocketHandlerBody(server, eventName))) {
+  if (!/normalizeMutationPayload/.test(extractSocketHandlerBody(socketHandlers, eventName))) {
     throw new Error(`${eventName} should normalize null or scalar payloads before reading fields`);
   }
 }
 
-if (!/findSafeOpeningPosition/.test(main) || !/computeOpeningOverlaps/.test(main) || /offset \* 4/.test(main) || /offset \* 3/.test(main)) {
+if (!/findSafeOpeningPosition/.test(shellSource) || !/computeOpeningOverlaps/.test(shellSource) || /offset \* 4/.test(shellSource) || /offset \* 3/.test(shellSource)) {
   throw new Error("new extraction templates should be dropped through safe reference-geometry placement, not tiny overlapping offsets");
 }
 
@@ -253,8 +345,7 @@ const expectedKitTypes = [
   "buddhaPendant",
   "guanyinPendant",
   "fuBeanPendant",
-  "gourdPendant",
-  "beads"
+  "gourdPendant"
 ];
 const extractionKitDefinitions = extractBlockFrom(categories, categories.indexOf("EXTRACTION_KITS"), "EXTRACTION_KITS");
 
@@ -276,8 +367,7 @@ const placementRadii = {
   buddhaPendant: 9,
   guanyinPendant: 9,
   fuBeanPendant: 8,
-  gourdPendant: 8,
-  beads: 8
+  gourdPendant: 8
 };
 
 const templateSizes = {};
@@ -315,19 +405,19 @@ for (let i = 0; i < defaultTypes.length; i += 1) {
   }
 }
 
-for (const label of ["手镯套件", "蛋面套件", "平安扣挂件", "如意挂件", "叶子挂件", "水滴挂件", "无字牌套件", "佛公挂件", "观音挂件", "福豆挂件", "葫芦挂件", "珠串套件"]) {
+for (const label of ["手镯套件", "蛋面套件", "平安扣挂件", "如意挂件", "叶子挂件", "水滴挂件", "无字牌套件", "佛公挂件", "观音挂件", "福豆挂件", "葫芦挂件"]) {
   if (!categories.includes(label)) throw new Error(`game should define ${label}`);
 }
 
-for (const type of ["plaque", "dropPendant", "buddhaPendant", "guanyinPendant", "fuBeanPendant", "gourdPendant", "beads"]) {
+for (const type of ["plaque", "dropPendant", "buddhaPendant", "guanyinPendant", "fuBeanPendant", "gourdPendant"]) {
   const templatePattern = new RegExp(`\\b${type}\\s*:`);
-  if (!templatePattern.test(categories) || !/OPENING_KIT_LIB/.test(main) || !/EXTRACTION_KITS/.test(server)) {
+  if (!templatePattern.test(categories) || !/OPENING_KIT_LIB/.test(main) || (!/EXTRACTION_KITS/.test(server) && !/EXTRACTION_KITS/.test(workshopPlanning))) {
     throw new Error(`${type} should be available through shared extraction kit definitions`);
   }
 }
 
-if (!/\bbeads\b/.test(categories) || !/EXTRACTION_KITS/.test(server) || !/\bbeads\b/.test(renderer)) {
-  throw new Error("bead strand kit should be supported by client, server, and renderer");
+if (/\bbeads\b|珠串|珠链|印章/.test(categories) || /kind === "beads"/.test(renderer)) {
+  throw new Error("removed product categories must not remain in extraction or rendering");
 }
 
 const scratchlessWorkshopBody = extractFunctionBody(main, "renderWorkshop");
@@ -336,7 +426,8 @@ for (const token of ["scratch-board", "data-scratch-board", "SCRATCH_READY_PERCE
     throw new Error(`workshop should temporarily skip scratch-off gating: ${token}`);
   }
 }
-if (!/let activeWorkshopDeviceId/.test(main) || !/let selectedWorkshopItemId/.test(main)) {
+if (!/(?:let activeWorkshopDeviceId|activeWorkshopDeviceId:\s*null)/.test(main)
+  || !/(?:let selectedWorkshopItemId|selectedWorkshopItemId:\s*null)/.test(main)) {
   throw new Error("workshop should track active device and selected material");
 }
 if (!/id="workshopRoot"/.test(index)) {
@@ -388,6 +479,12 @@ const openingKitsBody = extractFunctionBody(main, "openingKitsForRender");
 if (!/saved/.test(openingKitsBody) || !/extracted/.test(openingEngine) || !/fill="\$?\{?fill/.test(openingEngine)) {
   throw new Error("saved extraction placements should render as black consumed masks on the rough");
 }
+if (!/function productsReferencingRough/.test(main) || !/me\.jobs/.test(extractFunctionBody(main, "productsReferencingRough"))) {
+  throw new Error("leftover cutout recovery must include products currently inside workshop jobs");
+}
+if (!/fromProducts/.test(openingKitsBody)) {
+  throw new Error("openingKitsForRender should merge product/job placements with saved extractionKits");
+}
 
 if (!/aspect-ratio:\s*1/.test(styles) || !/\.jade-opening-svg/.test(styles)) {
   throw new Error("kit placement CSS should let the SVG opening board preserve the reference coordinate aspect ratio");
@@ -423,11 +520,14 @@ if (/<text[^>]*>[\s\S]*template\.short/.test(main) || /<text[^>]*>[\s\S]*kit\.sa
   throw new Error("rough kit overlays should not draw visible text labels inside templates");
 }
 
-if (!/normalizeExtractionKits/.test(server) || !/expandKitPlacements/.test(server) || !/kitProductMeta/.test(server)) {
+if (!/normalizeExtractionKits/.test(workshopService) || !/expandKitPlacements/.test(workshopService) || !/kitProductMeta/.test(workshopService)) {
   throw new Error("server should normalize extraction kits and expand them into product outputs");
 }
 
-if (!/sourceMaterial\s*:/.test(server) || !/visual\s*:\s*rough\.visual/.test(server)) {
+if (
+  !(/sourceMaterial\s*:/.test(server) || /sourceMaterial\s*:/.test(boot) || /sourceMaterial\s*:/.test(workshopService))
+  || !(/visual\s*:\s*(?:structuredClone\(\s*)?rough\.visual/.test(server) || /visual\s*:\s*(?:structuredClone\(\s*)?rough\.visual/.test(boot) || /visual\s*:\s*(?:structuredClone\(\s*)?rough\.visual/.test(workshopService))
+) {
   throw new Error("products extracted from polished rough should carry source material data for cutout rendering");
 }
 const sourceVisual = {
@@ -465,18 +565,19 @@ const [carvedItem] = __testHooks.extractProductsFromJob({
   options: { kits: [exactKit] }
 });
 assert.ok(carvedItem, "real extraction path should produce a carved item");
-assert.strictEqual(carvedItem.sourceMaterial?.visual, sourceVisual, "carved item should preserve source visual data");
+assert.deepEqual(carvedItem.sourceMaterial?.visual, sourceVisual, "carved item should preserve source visual data");
+assert.notStrictEqual(carvedItem.sourceMaterial?.visual, sourceVisual, "the captured visual is independent from later source changes");
 assert.equal(carvedItem.sourceMaterial?.placement?.x, exactKit.x, "carved item should preserve exact kit x");
 assert.equal(carvedItem.sourceMaterial?.placement?.y, exactKit.y, "carved item should preserve exact kit y");
 assert.equal(carvedItem.sourceMaterial?.placement?.rot, exactKit.rot, "carved item should preserve exact kit rotation");
 assert.equal(carvedItem.sourceMaterial?.placement?.scale, exactKit.scale, "carved item should preserve exact kit scale");
 assert.equal(carvedItem.sourceMaterial?.placement?.openingTpl, exactKit.openingTpl, "placement should preserve opening template id");
 
-if (!/templateSize\s*=\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(server)) {
+if (!/templateSize\s*=\s*\{\s*w:\s*template\.w,\s*h:\s*template\.h\s*\}/.test(workshopPlanning)) {
   throw new Error("server should preserve extraction template size on finished products for matching material sampling");
 }
 
-if (!/a\.kitId && a\.kitId === b\.kitId/.test(server)) {
+if (!/a\.kitId && a\.kitId === b\.kitId/.test(workshopPlanning)) {
   throw new Error("server overlap detection should allow pieces within the same kit");
 }
 
@@ -542,8 +643,11 @@ if (!/function sourceSampleDimensions\b/.test(renderer) || /sourceSeed\s*=[^;]*h
   throw new Error("source-material products should sample from the placed rough area instead of reseeding by product kind");
 }
 
-if (!/function placementFootprint\b/.test(server) || /a\.radius \+ b\.radius/.test(server) || !/function templateWidthOnBoard\b/.test(server)) {
-  throw new Error("server overlap detection should use UI-aligned template footprints instead of one circular radius per kit");
+if (!/function extractionKitsOverlap\b/.test(workshopPlanning) || !/computeOverlaps/.test(workshopPlanning) || !/openingKitFromExtractionKit/.test(workshopPlanning)) {
+  throw new Error("server overlap detection should reuse planner shape sampling via computeOverlaps");
+}
+if (!/function placementFootprint\b/.test(workshopPlanning) || /a\.radius \+ b\.radius/.test(workshopPlanning) || !/function templateWidthOnBoard\b/.test(workshopPlanning)) {
+  throw new Error("server should keep template footprint helpers for legacy placement metadata");
 }
 
 const renderWorkshopBody = extractFunctionBody(main, "renderWorkshop");
@@ -570,19 +674,12 @@ const pickWorkshopItemBody = extractFunctionBody(workshopModule, "workshopPickIt
 if (!/activeWorkshopPicker\s*=\s*null/.test(pickWorkshopItemBody) || !/renderPicker\(\)/.test(pickWorkshopItemBody)) {
   throw new Error("material picker should unmount after selecting an item so it cannot cover the start button");
 }
-if (!/data-action="collectBracelet"/.test(workshopModule) || !/action === "collectBracelet"/.test(mainEntry)) {
-  throw new Error("finished workshop inventory should expose a working collection action");
-}
-const workshopRecipePageBody = extractFunctionBody(workshopModule, "workshopRecipePage");
-if (!/workshopStageDrawer\(\)/.test(workshopRecipePageBody)) {
-  throw new Error("the workshop page should expose its collapsed stage inventory and collection action");
-}
-if (!/stageDrawerOpen/.test(workshopModule) || !/addEventListener\("toggle"/.test(workshopModule)) {
-  throw new Error("the workshop stage drawer should preserve its open state across server renders");
+if (!/data-action="collectBracelet"/.test(inventoryModule) || !/register\("collectBracelet"/.test(inventoryModule)) {
+  throw new Error("finished standalone inventory should expose the global collection action");
 }
 
 const idleServerExpectations = [
-  [/from "\.\/public\/jade-loop\.js"/, "server should import shared idle loop rules"],
+  [/jade-loop\.js"/, "server should import shared idle loop rules"],
   [/ledger\s*:\s*\[\]/, "player state should include a ledger"],
   [/offlineSummary/, "player state should include offline summary data"],
   [/function recordLedger/, "server should record income and expenses through one helper"],
@@ -595,7 +692,7 @@ const idleServerExpectations = [
 ];
 
 for (const [pattern, message] of idleServerExpectations) {
-  if (!pattern.test(server)) throw new Error(message);
+  if (!pattern.test(server) && !pattern.test(boot) && !pattern.test(economyService) && !pattern.test(playerService) && !pattern.test(offlineService)) throw new Error(message);
 }
 
 const idleFrontendExpectations = [
@@ -613,8 +710,8 @@ const locationUiExpectations = [
   [/id="mainNav"/, "index.html should expose the primary feature navigation"],
   [/id="homeStatusPane"/, "index.html should expose the overview status pane"],
   [/id="homeTaskPane"/, "index.html should expose the overview task pane"],
-  [/id="homeCommissionPane"/, "index.html should expose the overview commission pane"],
   [/id="homeBillPane"/, "index.html should expose the overview bill pane"],
+  [/id="homeCreditPane"/, "index.html should expose the overview credit pane"],
   [/id="homeMessageLog"/, "index.html should expose a homepage play log message area"],
   [/id="messageChannelTabs"/, "index.html should expose message channel tabs"],
   [/data-view="rankings"/, "index.html should expose a full leaderboard view"],
@@ -644,7 +741,7 @@ const locationUiExpectations = [
   [/label:\s*"商铺"/, "location metadata should include the shop"],
   [/label:\s*"订单"/, "location metadata should include orders"],
   [/label:\s*"藏品"/, "location metadata should include the collection"],
-  [/label:\s*"招募"/, "location metadata should include hiring"],
+  [/label:\s*"员工"/, "location metadata should include hiring"],
   [/label:\s*"直播间"/, "location metadata should include livestream"],
   [/label:\s*"工坊"/, "location metadata should include the workshop"],
   [/locationImage/, "location metadata should retain its image keys"],
@@ -657,7 +754,7 @@ for (const [pattern, message] of locationUiExpectations) {
   if (!pattern.test(index) && !pattern.test(main)) throw new Error(message);
 }
 
-const clickHandlerBody = extractBlockFrom(main, main.indexOf('document.body.addEventListener("click"'), "document click handler");
+const clickHandlerBody = extractBlockFrom(shellSource, shellSource.indexOf('document.body.addEventListener("click"'), "document click handler");
 const openLocationByViewBody = extractFunctionBody(main, "openLocationByView");
 if (!/view\s*===\s*"overview"/.test(openLocationByViewBody) || !/setView\("overview"\)/.test(openLocationByViewBody)) {
   throw new Error("openLocationByView should allow overview to open directly");
@@ -672,7 +769,7 @@ if (!/location\?\.purchaseId/.test(openLocationByViewBody) || !/setView\("shop"\
   throw new Error("openLocationByView should route locked purchasable locations to the shop");
 }
 
-const openLocationActionBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "openLocation")'), "openLocation client handler");
+const openLocationActionBody = extractRegisterActionBody(shellSource, "openLocation");
 if (!/openLocationByView\(/.test(openLocationActionBody)) {
   throw new Error("openLocation actions should navigate through openLocationByView");
 }
@@ -680,7 +777,7 @@ if (/setView\(/.test(openLocationActionBody)) {
   throw new Error("openLocation actions should not call setView directly");
 }
 
-const lockedLocationActionBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "lockedLocation")'), "lockedLocation client handler");
+const lockedLocationActionBody = extractRegisterActionBody(shellSource, "lockedLocation");
 if (!/openLocationByView\(/.test(lockedLocationActionBody)) {
   throw new Error("lockedLocation actions should navigate through openLocationByView");
 }
@@ -694,13 +791,13 @@ if (!/openLocationByView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody))
 if (/setView\(viewLink\.dataset\.viewLink\)/.test(clickHandlerBody)) {
   throw new Error("data-view-link navigation should not bypass location gating with direct setView");
 }
-if (!/action === "openRankBoard"/.test(clickHandlerBody) || !/rankingOpenBoard\(target\)/.test(clickHandlerBody)) {
+if (!/register\("openRankBoard"/.test(main) || !/rankingOpenBoard\(target\)/.test(main)) {
   throw new Error("clicking a homepage ranking brief should open the matching full leaderboard");
 }
-if (!/action === "selectRankBoard"/.test(clickHandlerBody) || !/rankingSelectBoard\(target\)/.test(clickHandlerBody)) {
+if (!/register\("selectRankBoard"/.test(main) || !/rankingSelectBoard\(target\)/.test(main)) {
   throw new Error("full leaderboard category tabs should rerender the selected ranking");
 }
-if (!/action === "selectMessageChannel"/.test(clickHandlerBody) || !/chatSelectChannel\(target\.dataset\.messageChannel\)/.test(clickHandlerBody)) {
+if (!/register\("selectMessageChannel"/.test(main) || !/chatSelectChannel\(target\.dataset\.messageChannel\)/.test(main)) {
   throw new Error("homepage message channel tabs should rerender the play log");
 }
 
@@ -772,14 +869,16 @@ if (/rank-row|news-row|playersList|newsList/.test(renderOverviewBody)) {
 if (!/ensureOverviewStatusShell\(\)/.test(renderOverviewBody) || !/patchCurrentGoal\(/.test(renderOverviewBody) || !/ranksSlot\.innerHTML/.test(renderOverviewBody) || !/rowsSlot\.innerHTML/.test(renderOverviewBody)) {
   throw new Error("renderOverview should patch ranking and operating status in the stable status shell");
 }
-if (!/renderHomeMessages\(\)/.test(renderOverviewBody)) {
-  throw new Error("renderOverview should refresh the persistent play log");
+const renderPipelineSource = readFileSync("public/shell/render-pipeline.js", "utf8");
+if (/renderHomeMessages\(\)/.test(renderOverviewBody) || !/renderHomeMessages\(\)/.test(renderPipelineSource)) {
+  throw new Error("the persistent play log should refresh from the global shell pipeline");
 }
 const renderHomeMessagesBody = extractFunctionBody(main, "renderHomeMessages");
-if (!/visibleRows\.slice\(0,\s*40\)/.test(renderHomeMessagesBody)) {
-  throw new Error("homepage message log should render a dense MMO-style list of up to 40 rows");
+if (!/visibleRows\.slice\(0,\s*rowLimit\)/.test(renderHomeMessagesBody)
+  || !/rowLimit\s*=\s*activeMessageChannel\s*===\s*"all"\s*\?\s*visibleRows\.length\s*:\s*40/.test(renderHomeMessagesBody)) {
+  throw new Error("homepage message log should show the complete all-channel feed and cap individual channels at 40 rows");
 }
-if (!/visibleRows\.slice\(0,\s*40\)\.reverse\(\)/.test(renderHomeMessagesBody)) {
+if (!/visibleRows\.slice\(0,\s*rowLimit\)\.reverse\(\)/.test(renderHomeMessagesBody)) {
   throw new Error("homepage message log should render newest messages at the bottom like MMO chat");
 }
 if (!/scrollHomeMessagesToLatest\(\)/.test(renderHomeMessagesBody)) {
@@ -793,31 +892,36 @@ if (!/scrollTop\s*=\s*elsRef\.homeMessageLog\.scrollHeight/.test(scrollHomeMessa
   throw new Error("scrollHomeMessagesToLatest should position the message log at the latest message");
 }
 const homeMessageRowsBody = extractFunctionBody(main, "homeMessageRows");
-for (const token of ["trade", "rumor", "reminder", "订单", "挂单", "掌柜"]) {
+for (const token of ["attention", "worldChat", "trade", "record", "reminder", "订单", "挂单", "掌柜"]) {
   if (!homeMessageRowsBody.includes(token)) {
-    throw new Error(`homeMessageRows should generate richer MMO-style content including ${token}`);
+    throw new Error(`homeMessageRows should generate useful channel content including ${token}`);
   }
 }
 const messageSortAtFromClockBody = extractFunctionBody(main, "messageSortAtFromClock");
 if (!/setHours/.test(messageSortAtFromClockBody) || !/24 \* 60 \* 60 \* 1000/.test(messageSortAtFromClockBody)) {
   throw new Error("messageSortAtFromClock should convert HH:mm clock text into a same-day timestamp with rollover handling");
 }
-if (!/messageSortAtFromClock\(item\.at,\s*now\s*-\s*index\s*\*\s*60000\)/.test(homeMessageRowsBody)) {
-  throw new Error("news messages should sort by their displayed HH:mm timestamp instead of synthetic index timing");
+const aggregateNewsItemsBody = extractFunctionBody(main, "aggregateNewsItems");
+if (!/messageSortAtFromClock\(item\?\.at,\s*fallbackNow\s*-\s*index\s*\*\s*60000\)/.test(aggregateNewsItemsBody)
+  || !/groups\.get\(key\)/.test(aggregateNewsItemsBody)) {
+  throw new Error("news messages should use their displayed time and aggregate repeated notices");
 }
 if (!/<section class="view" data-view="reports">[\s\S]*<h3>经营账房<\/h3>/.test(index)) {
   throw new Error("reports view heading should use the location naming: 经营账房");
 }
 
 const renderMarketBody = extractFunctionBody(main, "renderMarket");
-if (!/const others\s*=\s*getState\(\)\.listings\.filter/.test(renderMarketBody) || !/const mine\s*=\s*getState\(\)\.listings\.filter/.test(renderMarketBody)) {
-  throw new Error("renderMarket should partition player listings into market and owned rows");
+if (!/const mine\s*=\s*(getState\(\)\.listings|all)\.filter/.test(renderMarketBody)) {
+  throw new Error("renderMarket should compute the player's own listings for the 我的挂单 section");
+}
+if (/const others\s*=\s*getState\(\)\.listings\.filter/.test(renderMarketBody)) {
+  throw new Error("renderMarket should no longer exclude own listings from the marketplace grid (they now render inline with a 我的挂单 marker)");
 }
 if (/assetListings|assetRows|buyAssetListing/.test(renderMarketBody)) {
   throw new Error("renderMarket should only render player-to-player listings, not shop assets");
 }
-if (!/renderMarketSection\(others,\s*mine\)/.test(renderMarketBody)) {
-  throw new Error("renderMarket should delegate the selected player-market section");
+if (!/renderMarketSection\(all,\s*mine\)/.test(renderMarketBody)) {
+  throw new Error("renderMarket should delegate the player-market section with all listings (own included) and owned listings");
 }
 const renderMarketGridBody = extractFunctionBody(main, "renderMarketGrid");
 if (!/玩家交易行还没有挂单/.test(renderMarketGridBody)) {
@@ -832,44 +936,44 @@ if (!/buyAssetListing/.test(renderShopBody) || !/shopListings/.test(renderShopBo
   throw new Error("renderShop should render asset purchases into the shop listings container");
 }
 
-const normalizePlayerBody = extractFunctionBody(server, "normalizePlayer");
-if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*Number\(player\.cash\)\s*:\s*30000/.test(normalizePlayerBody)) {
+const normalizePlayerBody = extractFunctionBody(playerService, "normalizePlayer");
+if (!/player\.cash\s*=\s*Number\.isFinite\(Number\(player\.cash\)\)\s*\?\s*Number\(player\.cash\)\s*:\s*INITIAL_PLAYER_CASH/.test(normalizePlayerBody)) {
   throw new Error("normalizePlayer should coerce cash to a numeric default");
 }
 if (!/player\.rep\s*=\s*Number\.isFinite\(Number\(player\.rep\)\)\s*\?\s*Number\(player\.rep\)\s*:\s*0/.test(normalizePlayerBody)) {
   throw new Error("normalizePlayer should coerce rep to a numeric default");
 }
 
-if (!/function inventoryForReport\b/.test(server)) {
+if (!/function inventoryForReport\b/.test(reportService)) {
   throw new Error("server should build report inventory through one helper");
 }
-if (!/function refreshPlayerReport\b/.test(server)) {
+if (!/function refreshPlayerReport\b/.test(reportService)) {
   throw new Error("server should refresh report summaries through one helper");
 }
 
-const recordLedgerBody = extractFunctionBody(server, "recordLedger");
+const recordLedgerBody = extractFunctionBody(economyService, "recordLedger");
 if (!/refreshPlayerReport\(player\)/.test(recordLedgerBody)) {
   throw new Error("recordLedger should refresh reports after ledger changes");
 }
 
-const privatePlayerSnapshotBody = extractFunctionBody(server, "privatePlayerSnapshot");
-if (!/refreshPlayerReport\(player\)/.test(privatePlayerSnapshotBody)) {
-  throw new Error("privatePlayerSnapshot should guarantee a current report");
+const privatePlayerSnapshotBody = extractFunctionBody(snapshotService, "buildPrivatePlayerSnapshot");
+if (!/playerReportSnapshot\(player/.test(privatePlayerSnapshotBody)) {
+  throw new Error("privatePlayerSnapshot should compute a current report without mutating player state");
 }
 
-const processPolishingJobsBody = extractFunctionBody(server, "processPolishingJobs");
+const processPolishingJobsBody = extractFunctionBody(runtimeTicks, "processPolishingJobs");
 if (!/(isPlayerOnline\(player\)|state\.sockets)/.test(processPolishingJobsBody) || !/continue/.test(processPolishingJobsBody)) {
   throw new Error("processPolishingJobs should skip disconnected players before consuming jobs");
 }
-if (!/function playerSocketCount\b/.test(server)) {
+if (!/function playerSocketCount\b/.test(serverContext)) {
   throw new Error("server should count active sockets per player");
 }
-const isPlayerOnlineBody = extractFunctionBody(server, "isPlayerOnline");
+const isPlayerOnlineBody = extractFunctionBody(serverContext, "isPlayerOnline");
 if (!/playerSocketCount\(player\.id\)\s*>\s*0/.test(isPlayerOnlineBody)) {
   throw new Error("isPlayerOnline should use active socket counts");
 }
 
-const settleOfflinePlayerBody = extractFunctionBody(server, "settleOfflinePlayer");
+const settleOfflinePlayerBody = extractFunctionBody(offlineService, "settleOfflinePlayer");
 if (!/const\s+offlineSince\s*=\s*player\.lastSeenAt\s*\|\|\s*now/.test(settleOfflinePlayerBody)) {
   throw new Error("settleOfflinePlayer should read lastSeenAt before overwriting it");
 }
@@ -880,33 +984,37 @@ if (!/refreshPlayerReport\(player,\s*now\)/.test(settleOfflinePlayerBody)) {
   throw new Error("settleOfflinePlayer should refresh reports after offline settlement");
 }
 
-const connectionBody = extractBlockFrom(server, server.indexOf('io.on("connection"'), "connection handler");
+const connectionBody = extractBlockFrom(socketHandlers, socketHandlers.indexOf('io.on("connection"'), "connection handler");
 if (!/const\s+wasOnline\s*=\s*isPlayerOnline\(player\)/.test(connectionBody)) {
   throw new Error("connection should capture prior online state before registering the socket");
 }
-if (!/const\s+wasOnline[\s\S]*if\s*\(!wasOnline\)\s*settleOfflinePlayer\(player\)[\s\S]*state\.sockets\.set\(socket\.id,\s*playerId\)/.test(connectionBody)) {
+if (!/const\s+wasOnline[\s\S]*if\s*\(!wasOnline\)\s*settleOfflinePlayer\(player\)[\s\S]*world\.bindSocket\(socket\.id,\s*playerId\)/.test(connectionBody)) {
   throw new Error("connection should settle offline progress on 0-to-1 socket transitions before registering the new socket");
 }
 
 const disconnectBody = extractSocketHandlerBody(connectionBody, "disconnect");
-if (!/const\s+playerId\s*=\s*state\.sockets\.get\(socket\.id\)/.test(disconnectBody)) {
+if (!/const\s+playerId\s*=\s*world\.playerIdForSocket\(socket\.id\)/.test(disconnectBody)) {
   throw new Error("disconnect should capture player id before deleting socket state");
 }
-if (!/state\.sockets\.delete\(socket\.id\)[\s\S]*playerSocketCount\(playerId\)\s*===\s*0[\s\S]*lastSeenAt\s*=\s*Date\.now\(\)/.test(disconnectBody)) {
+if (!/world\.unbindSocket\(socket\.id\)[\s\S]*playerSocketCount\(playerId\)\s*===\s*0[\s\S]*lastSeenAt\s*=\s*at/.test(disconnectBody)) {
   throw new Error("disconnect should update lastSeenAt only on 1-to-0 socket transitions");
 }
 
-const realtimeTickBody = extractBlockFrom(server, server.search(/setInterval\(\(\) => \{\s*processPolishingJobs\(\);\s*refreshRoughPool\(\);/), "realtime tick");
-if (!/for\s*\(const player of state\.players\.values\(\)\)\s*\{[\s\S]*if\s*\(!isPlayerOnline\(player\)\)\s*continue;[\s\S]*player\.orders\s*=/.test(realtimeTickBody)) {
+const realtimeTickBody = extractBlockFrom(
+  runtimeTicks,
+  runtimeTicks.search(/(?:setInterval\(\(\) =>|every\(25000,\s*\(\) => runTick\("tick:world-refresh",\s*\(\) =>)\s*\{\s*const now = Date\.now\(\);\s*processPolishingJobs\(now, \{ broadcast: false \}\);\s*refreshRoughPool\(\);/),
+  "realtime tick"
+);
+if (!/for\s*\(const player of playersMatching\(state\.players, isPlayerOnline\)\)\s*\{[\s\S]*if\s*\(!isPlayerOnline\(player\)\)\s*continue;[\s\S]*player\.orders\s*=/.test(realtimeTickBody)) {
   throw new Error("realtime order and reputation tick should skip offline players before mutating them");
 }
 
 const auctionServerExpectations = [
-  [/from "\.\/public\/jade-auction\.js"/, "server should import shared auction rules"],
-  [/auction\s*:\s*null/, "state should include current auction"],
+  [/jade-auction\.js["']/, "server should import shared auction rules"],
+  [/auction\s*:/, "state should include current auction"],
   [/function ensureAuctionRound/, "server should create auction rounds"],
   [/function settleAuctionIfDue/, "server should settle due auction rounds"],
-  [/submitAuctionBid/, "server should expose submitAuctionBid"],
+  [/submitAuctionBid(?:ForPlayer)?/, "server should expose submitAuctionBid"],
   [/enterAuctionForPlayer/, "server should expose paid auction entry"],
   [/publicAuctionSnapshot/, "server snapshots should use public auction snapshots"],
   [/aiBidsForRough/, "server settlement should fill missing bidders with AI"],
@@ -915,7 +1023,15 @@ const auctionServerExpectations = [
 ];
 
 for (const [pattern, message] of auctionServerExpectations) {
-  if (!pattern.test(server)) throw new Error(message);
+  if (
+    !pattern.test(server)
+    && !pattern.test(boot)
+    && !pattern.test(auctionService)
+    && !pattern.test(worldStore)
+    && !pattern.test(snapshotService)
+  ) {
+    throw new Error(message);
+  }
 }
 
 if (/data-action="buyRough"/.test(main)) {
@@ -937,7 +1053,10 @@ const auctionUiExpectations = [
   [/data-bid-increment/, "auction cards should include dynamic increment controls"],
   [/submitAuctionBid/, "auction controls should emit submitAuctionBid"],
   [/快捷加价/, "auction UI should label quick bid increments"],
-  [/封存暗标/, "auction UI should communicate sealed bidding"],
+  [/明拍中[\s\S]*暗拍中/, "auction UI should communicate open and sealed phases"],
+  [/我的出价/, "auction lot cards should label the player's own bid"],
+  [/sortAuctionLots/, "auction lots should use a deterministic smart sort"],
+  [/is-mine-bid/, "auction cards should mark lots the player already bid on"],
   [/历史拍卖成功/, "auction UI should expose completed auction history"]
 ];
 
@@ -966,12 +1085,29 @@ if (/renderOfflineSummary\s*\(/.test(renderNextActionsBody)) {
   throw new Error("renderNextActions should not embed the offline summary card");
 }
 
-const submitAuctionBidBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "submitAuctionBid")'), "submitAuctionBid client handler");
-if (!/data-bid-amount/.test(submitAuctionBidBody) || /data-proxy-max/.test(submitAuctionBidBody)) {
+const submitAuctionBidBody = extractRegisterActionBody(main, "submitAuctionBid");
+if (!/openAuctionBidConfirm|openGameModal/.test(submitAuctionBidBody) || /proxyMax/.test(submitAuctionBidBody)) {
+  throw new Error("submitAuctionBid should open a confirm modal before emitting");
+}
+const openAuctionBidConfirmBody = extractFunctionBody(main, "openAuctionBidConfirm");
+if (!/data-bid-amount/.test(openAuctionBidConfirmBody) || /data-proxy-max/.test(openAuctionBidConfirmBody)) {
   throw new Error("submitAuctionBid should read direct bid amount and not read proxy max inputs");
 }
-if (!/socket\.emit\("submitAuctionBid",\s*\{[\s\S]*roughId:\s*payload[\s\S]*amount:\s*[^,\n}]+/.test(submitAuctionBidBody) || /proxyMax/.test(submitAuctionBidBody)) {
-  throw new Error("submitAuctionBid should emit roughId and direct amount only");
+if (/proxyMax/.test(openAuctionBidConfirmBody)) {
+  throw new Error("submitAuctionBid should open a confirm modal before emitting");
+}
+const confirmAuctionBidActionBody = extractRegisterActionBody(main, "confirmAuctionBid");
+const confirmAuctionBidBody = /confirmAuctionBid\s*\(/.test(confirmAuctionBidActionBody)
+  ? extractFunctionBody(main, "confirmAuctionBid")
+  : confirmAuctionBidActionBody;
+if (
+  !/socket(?:Ref)?\.emit\("submitAuctionBid",\s*\{[\s\S]*roughId:[\s\S]*amount:/.test(confirmAuctionBidBody)
+  && !/emitAuctionBid\(/.test(confirmAuctionBidBody)
+) {
+  throw new Error("confirmAuctionBid should emit roughId and direct amount only");
+}
+if (!/function emitAuctionBid\(/.test(main) || !/roughId[\s\S]*hallId[\s\S]*amount/.test(extractFunctionBody(main, "emitAuctionBid"))) {
+  throw new Error("emitAuctionBid should emit roughId and direct amount only");
 }
 
 const renderAuctionBidControlsBody = extractFunctionBody(main, "renderAuctionBidControls");
@@ -985,11 +1121,14 @@ if (!/inputmode="numeric"/.test(renderAuctionBidControlsBody) || !/data-bid-incr
   throw new Error("auction bid amount should support manual numeric input and quick increment buttons");
 }
 
-for (const token of ["submitAuctionBid", "快捷加价", "提交暗标", "myBids"]) {
+for (const token of ["submitAuctionBid", "快捷加价", "提交出价", "myBids"]) {
   if (!main.includes(token)) throw new Error(`main.js should expose sealed auction UI token: ${token}`);
 }
 
-if (!/function requestAuctionWindowForPlayer/.test(server) || !/requestAuctionWindowForPlayer\(player,\s*payload\)/.test(server)) {
+if (
+  !(/(?:export\s+)?function requestAuctionWindowForPlayer/.test(auctionService) || /(?:export\s+)?function requestAuctionWindowForPlayer/.test(boot))
+  || !(/requestAuctionWindowForPlayer\(player,\s*payload/.test(auctionService) || /requestAuctionWindowForPlayer\(player,\s*payload/.test(boot))
+) {
   throw new Error("server should phase-gate public window requests through a focused helper");
 }
 
@@ -1003,7 +1142,7 @@ if (!/auctionHistoryList/.test(renderAuctionHistoryBody) || !/历史拍卖成功
 }
 
 const renderAuctionBody = extractFunctionBody(main, "renderAuction");
-const renderAuctionSource = main.slice(main.indexOf("function renderAuction()"), main.indexOf("function renderWorkshop"));
+const renderAuctionSource = extractFunctionBody(main, "renderAuction");
 const renderAuctionLotCardBody = extractFunctionBody(main, "renderAuctionLotCard");
 if (/resultForRough\(rough\.id\)|开标：/.test(renderAuctionLotCardBody)) {
   throw new Error("auction lot cards should not show completed auction result text in the active bidding list");
@@ -1015,21 +1154,36 @@ const renderAuctionHallsBody = extractFunctionBody(main, "renderAuctionHalls");
 if (!/data-action="enterAuctionHall"/.test(renderAuctionHallsBody) || !/auction-hall-card/.test(renderAuctionHallsBody) || !/auction-hall-art/.test(renderAuctionHallsBody)) {
   throw new Error("auction hall list should render image-led entrance cards that directly enter halls");
 }
+if (/候场预告/.test(renderAuctionHallsBody)) {
+  throw new Error("auction hall cards should not render redundant waiting-preview copy");
+}
 if (!/selectedHall/.test(renderAuctionHallsBody) || !/elsRef\.auctionHalls\.innerHTML\s*=\s*""/.test(renderAuctionHallsBody)) {
   throw new Error("auction hall list should be hidden while a selected public auction page is open");
 }
-if (!/action === "enterAuctionHall"/.test(clickHandlerBody) || !/enterAuctionHall\(payload\)/.test(clickHandlerBody)) {
+if (!/register\("enterAuctionHall"/.test(main) || !/enterAuctionHall\(payload\)/.test(main)) {
   throw new Error("clicking an auction hall entrance should enter with one click");
 }
-if (!/action === "openAuctionHistory"/.test(clickHandlerBody) || !/setView\("auctionHistory"\)/.test(clickHandlerBody)) {
+if (!/register\("openAuctionHistory"/.test(main) || !/setView\("auctionHistory"\)/.test(main)) {
   throw new Error("auction history should open as a separate page from the auction hall page");
 }
-if (!/function backAuctionHalls\b/.test(main) || !/action === "backAuctionHalls"/.test(clickHandlerBody) || !/backAuctionHalls\(\)/.test(clickHandlerBody)) {
+if (!/function backAuctionHalls\b/.test(main) || !/register\("backAuctionHalls"/.test(main) || !/backAuctionHalls\(\)/.test(main)) {
   throw new Error("selected auction hall pages should provide a back action to the hall list");
 }
 const enterAuctionHallBody = extractFunctionBody(main, "enterAuctionHall");
 if (!/socketRef\.emit\("enterAuction",\s*\{\s*hallId\s*\}/.test(enterAuctionHallBody)) {
   throw new Error("enterAuctionHall should pay entry through enterAuction immediately");
+}
+if (!/AUCTION_ENTRY_LOCK_MS|不足 10 秒/.test(main) || !/当前剩余时间不足，确认要进入该公盘吗/.test(main)) {
+  throw new Error("auction entry should warn under 1 minute and lock new entries under 10 seconds");
+}
+if (!/confirmEnterAuctionHall/.test(main)) {
+  throw new Error("auction entry warn confirm should register a clientAction handler");
+}
+if (!/data-auction-enter-remain/.test(main) || !/该轮公盘已结束/.test(main)) {
+  throw new Error("auction entry warn modal should live-update remain and toast when an unentered round rolls over");
+}
+if (!/clearPendingEnterAuctionHall/.test(mainEntry)) {
+  throw new Error("closing the game modal should clear pending auction entry confirmation");
 }
 if (!/!auction\?\.entered/.test(renderAuctionSource)) {
   throw new Error("renderAuction should branch before rendering current lots until the player enters");
@@ -1085,7 +1239,7 @@ if (/background\s*:|background-image\s*:/.test(auctionHallCardHoverStyle) || /tr
   throw new Error("auction hall card hover should not swap background layers because that causes image flicker");
 }
 
-if (!/canRequestWindow\s*=\s*currentAuctionPhase\(auction\)\s*===\s*"live"/.test(main) || !/const canWin\s*=\s*canOpenWindow\(rough\.id\)/.test(main) || !/data-action="startWindow"[\s\S]*canWin\s*\?\s*""\s*:\s*"disabled"/.test(main)) {
+if (!/canRequestWindow\s*=\s*currentAuctionPhase\(auction(?:,\s*now)?\)\s*===\s*"live"/.test(main) || !/const canWin\s*=\s*canOpenWindow\(rough\.id\)/.test(main) || !/data-action="startWindow"[\s\S]*canWin\s*\?\s*""\s*:\s*"disabled"/.test(main)) {
   throw new Error("main.js should disable public window requests outside live auction rounds");
 }
 
@@ -1093,7 +1247,7 @@ if (/function windowTargetFor|function setWindowTarget|auctionWindowTargets|确�
   throw new Error("auction window selection should not store a pending marker for a second confirmation step");
 }
 
-const requestWindowBody = extractBlockFrom(clickHandlerBody, clickHandlerBody.indexOf('if (action === "requestWindow")'), "requestWindow client handler");
+const requestWindowBody = extractRegisterActionBody(main, "requestWindow");
 if (!/startWindowSelection\(payload\)/.test(requestWindowBody) || !/请选择开窗位置/.test(requestWindowBody)) {
   throw new Error("requestWindow should first put the lot into point-selection mode when no point has been chosen");
 }
@@ -1128,23 +1282,31 @@ const productionExpectations = [
   [/startProductionJob/, "server should expose startProductionJob"],
   [/completeProductionJob/, "server should complete staged production jobs"],
   [/productionDuration/, "server should use shared production durations"],
-  [/粗加工台/, "UI should show the opening device stage"],
-  [/套件雕刻台/, "UI should show the carving device stage"],
-  [/精加工抛光台/, "UI should show the finishing device stage"],
+  [/开料/, "UI should show the opening device stage"],
+  [/规划/, "UI should show the carving device stage"],
+  [/精加工/, "UI should show the finishing device stage"],
   [/加工中/, "workshop should label active device jobs separately from inventory"]
 ];
 
 for (const [pattern, message] of productionExpectations) {
-  if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
+  if (
+    !pattern.test(server)
+    && !pattern.test(boot)
+    && !pattern.test(workshopService)
+    && !pattern.test(playerService)
+    && !pattern.test(main)
+  ) {
+    throw new Error(message);
+  }
 }
 
 const liveReportExpectations = [
   [/livestreamJobs\s*:\s*\[\]/, "player state should track livestream jobs"],
   [/scheduleLivestream/, "server should expose scheduleLivestream"],
-  [/processLivestreamJobs/, "server should process due livestream jobs"],
-  [/livestreamOutcome/, "server should use shared livestream outcomes"],
+  [/processLivestreamJobs|processLivestreamRooms/, "server should process due livestream jobs"],
+  [/livestreamOutcome|publicLivestreamRoom|purchaseLivestreamRoomItem/, "server should use shared livestream outcomes"],
   [/reportSummary/, "server and client should use report summaries"],
-  [/直播卖货/, "navigation should include livestream page"],
+  [/直播间/, "navigation should include livestream page"],
   [/经营账房/, "navigation should include report page"],
   [/autoConservative/, "UI should expose conservative auto livestream mode"],
   [/autoBalanced/, "UI should expose balanced auto livestream mode"],
@@ -1152,7 +1314,19 @@ const liveReportExpectations = [
 ];
 
 for (const [pattern, message] of liveReportExpectations) {
-  if (!pattern.test(server) && !pattern.test(main)) throw new Error(message);
+  if (
+    !pattern.test(server)
+    && !pattern.test(boot)
+    && !pattern.test(livestreamService)
+    && !pattern.test(reportService)
+    && !pattern.test(playerService)
+    && !pattern.test(runtimeTicks)
+    && !pattern.test(jadeLoop)
+    && !pattern.test(main)
+    && !pattern.test(index)
+  ) {
+    throw new Error(message);
+  }
 }
 
 const renderLivestreamBody = extractFunctionBody(main, "renderLivestream");

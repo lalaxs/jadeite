@@ -1,0 +1,182 @@
+[
+  {
+    "label": "landscape 844x390",
+    "rects": [
+      {
+        "clientHeight": 337,
+        "height": 338,
+        "scrollHeight": 337,
+        "selector": ".delivery-dialog",
+        "width": 780,
+        "x": 32,
+        "y": 26
+      },
+      {
+        "clientHeight": 204,
+        "height": 203.6666717529297,
+        "scrollHeight": 204,
+        "selector": ".delivery-body",
+        "width": 778.6666870117188,
+        "x": 32.66666793823242,
+        "y": 84.66667175292969
+      },
+      {
+        "clientHeight": 130,
+        "height": 130,
+        "scrollHeight": 130,
+        "selector": ".delivery-item-visual",
+        "width": 500,
+        "x": 172,
+        "y": 106.66667175292967
+      },
+      {
+        "clientHeight": 130,
+        "height": 130,
+        "scrollHeight": 130,
+        "selector": ".delivery-scratch-source svg",
+        "width": 500,
+        "x": 172,
+        "y": 106.66667175292967
+      },
+      {
+        "clientHeight": 130,
+        "height": 130,
+        "scrollHeight": 130,
+        "selector": "[data-scratch-canvas]",
+        "width": 500,
+        "x": 172,
+        "y": 106.66667175292967
+      },
+      {
+        "clientHeight": 75,
+        "height": 75,
+        "scrollHeight": 75,
+        "selector": ".delivery-footer",
+        "width": 778.6666870117188,
+        "x": 32.66666793823242,
+        "y": 288.3333435058594
+      }
+    ],
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled"
+  },
+  {
+    "label": "narrow 320x568",
+    "rects": [
+      {
+        "clientHeight": 477,
+        "height": 478,
+        "scrollHeight": 477,
+        "selector": ".delivery-dialog",
+        "width": 296,
+        "x": 12,
+        "y": 45
+      },
+      {
+        "clientHeight": 344,
+        "height": 343.66668701171875,
+        "scrollHeight": 344,
+        "selector": ".delivery-body",
+        "width": 294.66668701171875,
+        "x": 12.666666984558104,
+        "y": 108.66667175292967
+      },
+      {
+        "clientHeight": 270,
+        "height": 270,
+        "scrollHeight": 270,
+        "selector": ".delivery-item-visual",
+        "width": 270.66668701171875,
+        "x": 24.666667938232425,
+        "y": 130.6666717529297
+      },
+      {
+        "clientHeight": 270,
+        "height": 270,
+        "scrollHeight": 270,
+        "selector": ".delivery-scratch-source svg",
+        "width": 270.66668701171875,
+        "x": 24.666667938232425,
+        "y": 130.6666717529297
+      },
+      {
+        "clientHeight": 270,
+        "height": 270,
+        "scrollHeight": 270,
+        "selector": "[data-scratch-canvas]",
+        "width": 270.66668701171875,
+        "x": 24.666667938232425,
+        "y": 130.6666717529297
+      },
+      {
+        "clientHeight": 70,
+        "height": 70,
+        "scrollHeight": 70,
+        "selector": ".delivery-footer",
+        "width": 294.66668701171875,
+        "x": 12.666666984558104,
+        "y": 452.3333435058594
+      }
+    ],
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled"
+  },
+  {
+    "label": "desktop 1280x720",
+    "rects": [
+      {
+        "clientHeight": 497,
+        "height": 498,
+        "scrollHeight": 497,
+        "selector": ".delivery-dialog",
+        "width": 780,
+        "x": 250,
+        "y": 111
+      },
+      {
+        "clientHeight": 364,
+        "height": 363.6666870117187,
+        "scrollHeight": 364,
+        "selector": ".delivery-body",
+        "width": 778.6666870117188,
+        "x": 250.6666717529297,
+        "y": 169.6666717529297
+      },
+      {
+        "clientHeight": 290,
+        "height": 290,
+        "scrollHeight": 290,
+        "selector": ".delivery-item-visual",
+        "width": 500,
+        "x": 390,
+        "y": 191.6666717529297
+      },
+      {
+        "clientHeight": 290,
+        "height": 290,
+        "scrollHeight": 290,
+        "selector": ".delivery-scratch-source svg",
+        "width": 500,
+        "x": 390,
+        "y": 191.6666717529297
+      },
+      {
+        "clientHeight": 290,
+        "height": 290,
+        "scrollHeight": 290,
+        "selector": "[data-scratch-canvas]",
+        "width": 500,
+        "x": 390,
+        "y": 191.6666717529297
+      },
+      {
+        "clientHeight": 75,
+        "height": 75,
+        "scrollHeight": 75,
+        "selector": ".delivery-footer",
+        "width": 778.6666870117188,
+        "x": 250.6666717529297,
+        "y": 533.3333740234375
+      }
+    ],
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled"
+  }
+]

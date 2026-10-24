@@ -1,0 +1,15 @@
+
+Running 8 tests using 1 worker
+
+(node:23832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 scripts\browser\workshop.spec.mjs:223:5 › 1280x720 day: frozen/current workshop equivalence (19.2s)
+  ok 2 scripts\browser\workshop.spec.mjs:223:5 › 1280x720 night: frozen/current workshop equivalence (17.7s)
+  ok 3 scripts\browser\workshop.spec.mjs:223:5 › 1440x900 day: frozen/current workshop equivalence (18.7s)
+  ok 4 scripts\browser\workshop.spec.mjs:223:5 › 1440x900 night: frozen/current workshop equivalence (18.9s)
+  ok 5 scripts\browser\workshop.spec.mjs:223:5 › 390x844 day: frozen/current workshop equivalence (15.9s)
+  ok 6 scripts\browser\workshop.spec.mjs:223:5 › 390x844 night: frozen/current workshop equivalence (15.0s)
+  ok 7 scripts\browser\workshop.spec.mjs:223:5 › 430x932 day: frozen/current workshop equivalence (15.5s)
+  ok 8 scripts\browser\workshop.spec.mjs:223:5 › 430x932 night: frozen/current workshop equivalence (15.1s)
+
+  8 passed (2.3m)

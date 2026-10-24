@@ -1,0 +1,414 @@
+scripts/starter-economy-smoke.mjs [0]
+{
+  "ok": true,
+  "qualityDraws": {
+    "glutinous": 7000,
+    "bean": 3000
+  },
+  "loops": [
+    {
+      "quality": "glutinous",
+      "initialCash": 12000,
+      "giftReference": 4290,
+      "productValue": 2049,
+      "sale": 2295,
+      "cashAfterSale": 14295,
+      "repurchase": 2453,
+      "finalCash": 12642,
+      "introRewards": 1000,
+      "minutesIncludingForcedFailures": 20
+    },
+    {
+      "quality": "bean",
+      "initialCash": 12000,
+      "giftReference": 2383,
+      "productValue": 2046,
+      "sale": 2292,
+      "cashAfterSale": 14292,
+      "repurchase": 2453,
+      "finalCash": 12639,
+      "introRewards": 1000,
+      "minutesIncludingForcedFailures": 20
+    }
+  ]
+}
+
+scripts/feature-availability-smoke.mjs [0]
+feature-availability-smoke: hidden entrances/reminders, 20 rejected commands, debug closure and paused rentals ok
+
+scripts/gameplay-rules-smoke.mjs [0]
+gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok
+
+scripts/refactor-contracts-smoke.mjs [0]
+refactor-contracts-smoke: 71 socket events + 14 views frozen
+
+scripts/shared-domain-smoke.mjs [0]
+shared-domain-smoke: ok
+
+scripts/planning-authority-smoke.mjs [0]
+planning-authority-smoke: ok
+
+scripts/atomic-mutation-smoke.mjs [0]
+atomic-mutation-smoke: rollback + post-commit effects ok
+
+scripts/mutation-socket-smoke.mjs [0]
+mutation-socket-smoke: ok
+
+scripts/player-session-service-smoke.mjs [0]
+player-session-service-smoke: ok
+
+scripts/workshop-craft-scoring-smoke.mjs [0]
+workshop-craft-scoring-smoke: ok
+
+scripts/bangle-finish-smoke.mjs [0]
+bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok
+
+scripts/bangle-finish-socket-e2e.mjs [0]
+bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart
+
+scripts/auction-service-smoke.mjs [0]
+auction-service-smoke: ok
+
+scripts/auction-halls-unlock-smoke.mjs [0]
+auction-halls-unlock-smoke: Lv.1-5 thresholds, immediate entry, independent bids/windows/settlement, escrow isolation, report queue, legacy migration, persistence and live-render cache ok
+
+scripts/auction-clock-smoke.mjs [0]
+auction-clock-smoke: synchronized halls, legacy repair, escrow retention, delayed rollover/restart, shared HUD/reminder rounding and hall switches ok
+
+scripts/auction-halls-socket-e2e.mjs [0]
+auction-halls-socket-e2e: instant Lv.2 unlock, two paid halls/bids, level denial, SQLite restart and guarantee isolation ok
+
+scripts/auction-settle-modal-smoke.mjs [0]
+auction-settle-modal-smoke: ok
+
+scripts/market-service-smoke.mjs [0]
+market-service-smoke: ok
+
+scripts/market-equipment-smoke.mjs [0]
+market-equipment-smoke: listing all devices, occupancy, withdrawal, payment, rollback, ownership snapshots and empty workshop normalization ok
+
+scripts/market-equipment-socket-e2e.mjs [0]
+market-equipment-socket-e2e: list, SQLite restart, withdraw, replay protection, two-buyer race, tax, sell-out and empty-workshop restarts ok
+
+scripts/market-liquidity-service-smoke.mjs [0]
+market-liquidity-service-smoke: low-population stocks, finished products, reserved quota and daily reset ok
+
+scripts/market-card-info-smoke.mjs [0]
+market-card-info-smoke: jade and equipment cards, purchase costs and broken-device disclosure ok
+
+scripts/market-want-smoke.mjs [0]
+Market want board checks passed
+
+scripts/materials-service-smoke.mjs [0]
+materials-service-smoke: ok
+
+scripts/orders-service-smoke.mjs [0]
+orders-service-smoke: ok
+
+scripts/rough-pool-service-smoke.mjs [0]
+rough-pool-service-smoke: ok
+
+scripts/assets-service-smoke.mjs [0]
+assets-service-smoke: ok
+
+scripts/inventory-service-smoke.mjs [0]
+inventory-service-smoke: ok
+
+scripts/inventory-recycle-smoke.mjs [0]
+inventory-recycle-smoke: ok
+
+scripts/inventory-unseen-smoke.mjs [0]
+inventory-unseen-smoke: ok
+
+scripts/economy-service-smoke.mjs [0]
+economy-service-smoke: ok
+
+scripts/recovery-service-smoke.mjs [0]
+recovery-service-smoke: ok
+
+scripts/report-service-smoke.mjs [0]
+report-service-smoke: ok
+
+scripts/offline-service-smoke.mjs [0]
+offline-service-smoke: ok
+
+scripts/snapshot-service-smoke.mjs [0]
+snapshot-service-smoke: ok
+
+scripts/player-service-smoke.mjs [0]
+player-service-smoke: ok
+
+scripts/mining-service-smoke.mjs [0]
+mining service smoke: ok
+
+scripts/mining-basic-mode-smoke.mjs [0]
+mining-basic-mode-smoke: starter miner, balanced rent, flexible crew and basic settlement ok
+
+scripts/mining-allocation-smoke.mjs [0]
+mining-allocation-smoke: competition, priority, replacement and roster-exit feedback ok
+
+scripts/mining-fairness-smoke.mjs [0]
+mining-fairness-smoke: 20-round no-starvation, mine rotation and cash conservation ok
+
+scripts/mining-persistence-smoke.mjs [0]
+mining-persistence-smoke: pending escrow and active shifts survive restart with idempotent settlement
+
+scripts/mining-downtime-recovery-smoke.mjs [0]
+mining-downtime-recovery-smoke: expired applications refunded, active shift settled, fresh round reopened
+
+scripts/mining-job-recovery-smoke.mjs [0]
+mining-job-recovery-smoke: invalid jobs refund once, remain recorded, and survive restart
+
+scripts/mining-runtime-soak-smoke.mjs [0]
+mining-runtime-soak-smoke: 50 players, 60 rounds, 1800 shifts and 6 restart cycles ok
+
+scripts/mining-roster-participation-smoke.mjs [0]
+mining roster participation smoke ok
+
+scripts/mining-ui-smoke.mjs [0]
+mining-ui-smoke: simplified 30-mine loop, four tabs, responsive UI and isolated miners ok
+
+scripts/mining-balance-smoke.mjs [0]
+mining-balance-smoke: five rent bands, five-shift leases, capped crew bonus and <=5x expected-net spread ok
+
+scripts/mining-health-smoke.mjs [0]
+mining-health-smoke: read-only audit detects roster, escrow, lease and overdue-job faults
+
+scripts/mining-competition-health-smoke.mjs [0]
+mining-competition-health-smoke: four tuning warnings and thresholds ok
+
+scripts/mining-economy-insights-smoke.mjs [0]
+mining-economy-insights-smoke: valuation, costs, spread and tuning alerts ok
+
+scripts/mining-world-economy-smoke.mjs [0]
+mining-world-economy-smoke: round persistence, sample gates, full rent and belt alerts ok
+
+scripts/chat-service-smoke.mjs [0]
+chat-service-smoke: ok
+
+scripts/collection-service-smoke.mjs [0]
+collection-service-smoke: ok
+
+scripts/blackmarket-service-smoke.mjs [0]
+blackmarket-service-smoke: ok
+
+scripts/blackmarket-resources-smoke.mjs [0]
+blackmarket-resources-smoke: NPC supply, resale, payroll, locking, capacity, repricing, rollback, withdrawal and save/restore ok
+
+scripts/blackmarket-npc-smoke.mjs [0]
+blackmarket-npc-smoke: ok (240 purchases, pricing, inventory, batch limits, save/restore, rollback)
+
+scripts/blackmarket-npc-schedule-smoke.mjs [0]
+blackmarket-npc-schedule-smoke: random ranges, delayed refills, age protection, stale retirement, quotas, migration, save/restart, downtime and checkout race ok
+
+scripts/blackmarket-npc-finish-smoke.mjs [0]
+blackmarket-npc-finish-smoke: seven motifs, finished/blank rendering, exact crop, existing-stock and purchased-item compatibility ok
+
+scripts/blackmarket-npc-variety-smoke.mjs [0]
+blackmarket-npc-variety-smoke: reachable shapes/sizes, weighted styles, actual gem seats/quotes, scores, coverage, deduplication, immutable purchases and save/restore ok
+
+scripts/blackmarket-offcut-smoke.mjs [0]
+blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok
+
+scripts/bm-plan-pool-smoke.mjs [0]
+bm-plan-pool-smoke: ok
+
+scripts/socket-handlers-smoke.mjs [0]
+socket-handlers-smoke: ok 75 events
+
+scripts/runtime-ticks-smoke.mjs [0]
+runtime-ticks-smoke: ok
+
+scripts/server-context-smoke.mjs [0]
+server-context-smoke: ok
+
+scripts/test-hooks-smoke.mjs [0]
+test-hooks-smoke: ok 174 keys
+
+scripts/workshop-service-smoke.mjs [0]
+workshop-service-smoke: ok
+
+scripts/workshop-delivery-smoke.mjs [0]
+workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok
+
+scripts/workshop-scratch-smoke.mjs [0]
+workshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok
+
+scripts/workshop-delivery-socket-e2e.mjs [0]
+workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok
+
+scripts/livestream-service-smoke.mjs [0]
+livestream-service-smoke: room authority + legacy retirement ok
+
+scripts/world-store-smoke.mjs [0]
+world-store-smoke: memory store + server wiring ok
+
+scripts/world-persist-smoke.mjs [0]
+world-persist-smoke: ok
+
+scripts/sqlite-world-persist-smoke.mjs [0]
+sqlite-world-persist-smoke: transactions + migration + fallback ok
+
+scripts/persistence-crash-recovery-smoke.mjs [0]
+persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok
+
+scripts/runtime-soak-smoke.mjs [0]
+runtime-soak-smoke: 30 simulated days + repeated SQLite restarts ok
+
+scripts/styles-split-smoke.mjs [0]
+styles-split-smoke: 18 parts, resolved 738495 bytes ok
+
+scripts/action-router-smoke.mjs [0]
+action-router-smoke: ok
+
+scripts/jade-loop-smoke.mjs [0]
+Jade idle loop rules checks passed
+
+scripts/jade-auction-smoke.mjs [0]
+Jade 10-minute auction checks passed
+
+scripts/server-idle-smoke.mjs [0]
+Server idle behavior checks passed
+
+scripts/task-smoke.mjs [0]
+task-smoke: ok
+
+scripts/equipment-system-smoke.mjs [0]
+equipment-system-smoke: ok
+
+scripts/workshop-planner-ui-smoke.mjs [0]
+workshop-planner-ui-smoke: independent planning step ok
+
+scripts/opening-planner-drag-smoke.mjs [0]
+opening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed
+
+scripts/employee-system-smoke.mjs [0]
+employee-system-smoke: ok
+
+scripts/employee-payroll-smoke.mjs [0]
+employee-payroll-smoke: login dates, snapshots, same-day dedupe, dismissal, migration and UI ok
+
+scripts/employee-payroll-policy-smoke.mjs [0]
+employee-payroll-policy-smoke: business-day grace,20%,offline exclusion,cross-day service entries,stop/resume and rollback ok
+
+scripts/employee-payroll-socket-e2e.mjs [0]
+employee-payroll-socket-e2e: login-only bills, modal ack, dismissal,20%, migration, dedupe and SQLite restarts ok
+
+scripts/worker-detail-view-smoke.mjs [0]
+worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok
+
+scripts/recruit-detail-controller-smoke.mjs [0]
+recruit-detail-controller-smoke: real lifecycle keeps modal identity on failures
+
+scripts/hire-market-roster-smoke.mjs [0]
+hire-market-roster-smoke: employee roster tab shell ok
+
+scripts/player-progression-smoke.mjs [0]
+player-progression-smoke: exp / achievements / hall unlock ok
+
+scripts/inlay-system-smoke.mjs [0]
+inlay-system-smoke: ok
+
+scripts/inlay-artwork-smoke.mjs [0]
+inlay-artwork-smoke: RGBA assets, crop bounds, all settings, exact stone counts, source preservation and bitmap capture embedding ok
+
+scripts/finish-plan-model-smoke.mjs [0]
+finish-plan-model-smoke: progressive material selection ok
+
+scripts/finished-product-design-smoke.mjs [0]
+finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok
+
+scripts/jade-piece-smoke.mjs [0]
+jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok
+
+scripts/finish-plan-controller-smoke.mjs [0]
+finish-plan-controller-smoke: stable lifecycle and acknowledgements ok
+
+scripts/inlay-preview-tester-smoke.mjs [0]
+inlay-preview-tester-smoke: model ok
+
+scripts/jade-rules-smoke.mjs [0]
+Jade expert rules checks passed
+
+scripts/jade-renderer-smoke.mjs [0]
+jade renderer smoke test passed
+
+scripts/jade-opening-engine-smoke.mjs [0]
+jade opening engine smoke test passed
+
+scripts/jade-volume-smoke.mjs [0]
+jade volume smoke test passed
+
+scripts/canvas-only-smoke.mjs [0]
+Canvas-only jade rendering checks passed
+
+scripts/simplified-flow-smoke.mjs [0]
+Simplified rough-to-bracelet flow checks passed
+
+scripts/ui-overlay-smoke.mjs [0]
+
+scripts/ui-stability-smoke.mjs [0]
+ui-stability-smoke: stable overview guards ok
+
+scripts/modal-lifecycle-smoke.mjs [0]
+modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok
+
+scripts/shop-material-modal-smoke.mjs [0]
+shop-material-modal-smoke: body-mounted material buy modal ok
+
+scripts/night-theme-smoke.mjs [0]
+night-theme-smoke: effective low-luminance surfaces ok
+
+scripts/responsive-layout-smoke.mjs [0]
+responsive-layout-smoke: desktop guards ok
+
+scripts/experience-regressions-smoke.mjs [0]
+experience-regressions-smoke: rollover, lot sort/bid chrome, wages, collection theme and cutouts ok
+
+scripts/money-compact-smoke.mjs [0]
+money-compact-smoke: HUD compact cash formatting ok
+
+scripts/inventory-module-smoke.mjs [0]
+inventory-module-smoke: normalization, filters, sorting and inventory view ok
+
+scripts/bill-module-smoke.mjs [0]
+bill-module-smoke: ok
+
+scripts/lazy-preview-smoke.mjs [0]
+lazy-preview-smoke: bitmap cache + virtual grid ok
+
+scripts/blackmarket-render-smoke.mjs [0]
+blackmarket-render-smoke: retained shelf, cash, prices, sold stock and navigation ok
+
+scripts/livestream-room-smoke.mjs [0]
+Livestream room checks passed
+
+scripts/livestream-buy-flow-smoke.mjs [0]
+livestream-buy-flow-smoke: seller→buyer purchase ok
+
+scripts/livestream-ui-smoke.mjs [0]
+livestream-ui-smoke: wizard, shelf, owner dash and hall sort ok
+
+scripts/livestream-settle-modal-smoke.mjs [0]
+livestream-settle-modal-smoke: ok
+
+scripts/chatdock-compact-smoke.mjs [0]
+chatdock-compact-smoke: ok
+
+scripts/debug-spawn-smoke.mjs [0]
+debug-spawn-smoke: ok
+
+scripts/debug-tools-smoke.mjs [0]
+debug-tools-smoke: exp +100 and idempotent mining unlock ok
+
+scripts/player-exploration-regressions.mjs [0]
+player-exploration-regressions: free processing, idle duration, 2,000 order rewards, reputation and mining gate restored; cost, motif and payout fixes passed
+
+scripts/durable-mutation-coordinator-smoke.mjs [0]
+durable-mutation-coordinator-smoke: commit barrier + rollback ok
+
+scripts/state-patch-smoke.mjs [0]
+state-patch-smoke: capability negotiation + top-level deltas ok
+
+scripts/socket-event-schema-smoke.mjs [0]
+socket-event-schema-smoke: mutation envelopes + semantic fields ok

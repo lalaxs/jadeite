@@ -1,0 +1,71 @@
+{
+  "layoutReports": [
+    {
+      "name": "desktop-hidden",
+      "width": 840,
+      "height": 589.1875,
+      "top": 155.40625,
+      "bottom": 744.59375,
+      "columns": 2,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": false
+    },
+    {
+      "name": "desktop-opened",
+      "width": 840,
+      "height": 551.1875,
+      "top": 174.40625,
+      "bottom": 725.59375,
+      "columns": 2,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": false
+    },
+    {
+      "name": "desktop-night",
+      "width": 840,
+      "height": 553.1875,
+      "top": 173.40625,
+      "bottom": 726.59375,
+      "columns": 2,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": false
+    },
+    {
+      "name": "mobile-opened",
+      "width": 354,
+      "height": 808,
+      "top": 18,
+      "bottom": 826,
+      "columns": 1,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": true
+    },
+    {
+      "name": "narrow-finished",
+      "width": 284,
+      "height": 604,
+      "top": 18,
+      "bottom": 622,
+      "columns": 1,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": true
+    },
+    {
+      "name": "short-origin",
+      "width": 840,
+      "height": 464,
+      "top": 18,
+      "bottom": 482,
+      "columns": 2,
+      "horizontalOverflow": false,
+      "footerVisible": true,
+      "bodyScrollable": true
+    }
+  ],
+  "errors": []
+}

@@ -148,6 +148,10 @@ export function activateModalLifecycle({
   };
   activeModals.push(entry);
   lockShell(shell);
+  // An automatically opened dialog should announce itself without selecting
+  // the first action (usually the close icon). Explicit input/step focus wins.
+  if (dialog.getAttribute?.("tabindex") == null) dialog.setAttribute?.("tabindex", "-1");
+  dialog.setAttribute?.("data-modal-focus-surface", "");
 
   function requestClose(event) {
     if (!active || topmostModal(documentRef) !== entry) return;
@@ -172,10 +176,10 @@ export function activateModalLifecycle({
     const first = controls[0];
     const last = controls[controls.length - 1];
     const focused = documentRef.activeElement;
-    if (event.shiftKey && (focused === first || !dialog.contains(focused))) {
+    if (event.shiftKey && (focused === dialog || focused === first || !dialog.contains(focused))) {
       event.preventDefault();
       focusWithoutScroll(last);
-    } else if (!event.shiftKey && (focused === last || !dialog.contains(focused))) {
+    } else if (!event.shiftKey && (focused === dialog || focused === last || !dialog.contains(focused))) {
       event.preventDefault();
       focusWithoutScroll(first);
     }
@@ -187,11 +191,8 @@ export function activateModalLifecycle({
 
   documentRef?.addEventListener?.("keydown", handleKeydown);
   root.addEventListener?.("click", handleBackdropClick);
-  const initialControl =
-    dialog.querySelector?.("[data-modal-initial-focus]") ||
-    focusableControls(dialog)[0] ||
-    dialog;
-  focusWithoutScroll(initialControl);
+  const initialControl = dialog.querySelector?.("[data-modal-initial-focus]");
+  focusWithoutScroll(isUsableFocusTarget(initialControl) ? initialControl : dialog);
 
   return function deactivateModalLifecycle() {
     if (!active) return;

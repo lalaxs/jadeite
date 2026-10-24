@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>翡翠街多人经营原型</title>
     <link rel="icon" href="data:," />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&amp;display=swap" rel="stylesheet" />
+    <link rel="preload" href="/assets/fonts/AlimamaFangYuanTiVF-Thin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -23,8 +21,47 @@
           aria-expanded="false"
         >资源</button>
         <div class="top-hud" id="topHud" aria-label="资源信息"></div>
-        <div class="topbar-right">
-          <button class="theme-toggle" id="themeToggle" type="button" title="切换昼夜模式" aria-label="切换昼夜模式"></button>
+        <div
+          id="hudRatingPopover"
+          class="hud-rating-pop is-hidden"
+          hidden
+          role="dialog"
+          aria-label="客户评级详情"
+        ></div>
+        <div class="topbar-tools">
+          <details class="debug-panel debug-panel--topbar" id="debugPanel">
+            <summary class="debug-toggle" aria-label="展开开发工具">开发工具</summary>
+            <div class="debug-grid">
+              <div class="debug-row">
+                <label class="debug-label" for="debugCashInput">加现金</label>
+                <input id="debugCashInput" class="debug-input" type="number" value="10000" min="0" step="1000" />
+                <button class="secondary" data-debug="cash" type="button">确认</button>
+              </div>
+              <div class="debug-row">
+                <label class="debug-label" for="debugRepInput">加声望</label>
+                <input id="debugRepInput" class="debug-input" type="number" value="10" min="0" step="1" />
+                <button class="secondary" data-debug="rep" type="button">确认</button>
+              </div>
+              <div class="debug-row debug-row--sat">
+                <label class="debug-label" for="debugSatInput">客户评级</label>
+                <input id="debugSatInput" class="debug-input" type="number" value="72" min="0" max="100" step="1" />
+                <button class="secondary" data-debug="satisfaction" type="button">确认</button>
+                <button class="secondary" data-debug="clearRating" type="button">重置</button>
+              </div>
+              <div class="debug-row">
+                <button class="secondary" data-debug="spawnFinished" type="button">刷50成品</button>
+                <button class="secondary" data-action="debugAddAp" type="button" title="每次固定 +10 成就积分">成就+10</button>
+              </div>
+              <div class="debug-row">
+                <button class="secondary" data-debug="exp" type="button" title="每次固定增加 100 经营经验">经验+100</button>
+                <button class="secondary" data-debug="unlockMining" type="button" title="开放矿山并取得当前玩家采矿资格" hidden>解锁矿山</button>
+              </div>
+            </div>
+          </details>
+          <div class="topbar-right">
+            <button class="secondary account-entry" id="accountButton" type="button" aria-haspopup="dialog" aria-controls="accountModal">账号</button>
+            <button class="theme-toggle" id="themeToggle" type="button" title="切换昼夜模式" aria-label="切换昼夜模式"></button>
+          </div>
         </div>
       </header>
 
@@ -33,25 +70,29 @@
         <nav class="main-nav" id="mainNav" aria-label="功能导航"></nav>
         <nav class="mobile-utility-tabs" aria-label="移动端事项与消息">
           <button id="sidePanelToggle" class="mobile-panel-toggle" type="button"
-            aria-controls="sidePanel" aria-expanded="false">事项</button>
+            aria-controls="sidePanel" aria-expanded="false">
+            <span>事项</span><span id="sidePanelUnread" class="mobile-panel-unread" hidden></span>
+          </button>
           <button id="chatDockToggle" class="mobile-panel-toggle" type="button"
-            aria-controls="chatDock" aria-expanded="false">消息</button>
+            aria-controls="chatDock" aria-expanded="false" aria-label="消息">
+            <span>消息</span><span id="chatDockUnread" class="mobile-panel-unread" hidden></span>
+          </button>
         </nav>
       </aside>
 
       <section class="main-stage" id="mainStage">
-        <!-- 主页：状态 / 任务 / 委托 / 账单 四标签 -->
+        <!-- 主页：状态 / 任务 / 账单 / 客户评级 -->
         <section class="view" data-view="overview">
-          <div class="home-tabs" id="homeTabs">
-            <button class="on" data-home-tab="status" type="button">状态</button>
-            <button data-home-tab="task" type="button">任务</button>
-            <button data-home-tab="commission" type="button">委托</button>
-            <button data-home-tab="bill" type="button">账单</button>
+          <div class="home-tabs" id="homeTabs" role="tablist" aria-label="主页分区">
+            <button class="on" id="homeTabStatus" data-home-tab="status" type="button" role="tab" aria-controls="homeStatusPane" aria-selected="true">状态</button>
+            <button id="homeTabTask" data-home-tab="task" type="button" role="tab" aria-controls="homeTaskPane" aria-selected="false" tabindex="-1">任务</button>
+            <button id="homeTabBill" data-home-tab="bill" type="button" role="tab" aria-controls="homeBillPane" aria-selected="false" tabindex="-1">账单</button>
+            <button id="homeTabCredit" data-home-tab="credit" type="button" role="tab" aria-controls="homeCreditPane" aria-selected="false" tabindex="-1">客户评级</button>
           </div>
-          <div class="home-pane" data-home-pane="status" id="homeStatusPane"></div>
-          <div class="home-pane" data-home-pane="task" id="homeTaskPane" hidden></div>
-          <div class="home-pane" data-home-pane="commission" id="homeCommissionPane" hidden></div>
-          <div class="home-pane" data-home-pane="bill" id="homeBillPane" hidden></div>
+          <div class="home-pane" data-home-pane="status" id="homeStatusPane" role="tabpanel" aria-labelledby="homeTabStatus"></div>
+          <div class="home-pane" data-home-pane="task" id="homeTaskPane" role="tabpanel" aria-labelledby="homeTabTask" hidden></div>
+          <div class="home-pane" data-home-pane="bill" id="homeBillPane" role="tabpanel" aria-labelledby="homeTabBill" hidden></div>
+          <div class="home-pane" data-home-pane="credit" id="homeCreditPane" role="tabpanel" aria-labelledby="homeTabCredit" hidden></div>
         </section>
 
         <section class="view" data-view="rankings">
@@ -63,37 +104,26 @@
             <div id="rankingTabs" class="ranking-tabs"></div>
           </div>
           <section class="panel ranking-board">
-            <div id="rankingList" class="ranking-list"></div>
-          </section>
-          <section class="panel debug-panel" id="debugPanel">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">开发调试</p>
-                <h3>调试工具</h3>
-              </div>
+            <div id="rankingHead" class="ranking-head">
+              <span class="ranking-place">排名</span>
+              <span class="ranking-player">名称</span>
+              <span class="ranking-score">数值</span>
             </div>
-            <div class="debug-grid">
-              <div class="debug-row">
-                <label class="debug-label" for="debugCashInput">加现金</label>
-                <input id="debugCashInput" class="debug-input" type="number" value="10000" min="0" step="1000" />
-                <button class="secondary" data-debug="cash" type="button">确认加现金</button>
-              </div>
-              <div class="debug-row">
-                <label class="debug-label" for="debugRepInput">加声望</label>
-                <input id="debugRepInput" class="debug-input" type="number" value="10" min="0" step="1" />
-                <button class="secondary" data-debug="rep" type="button">确认加声望</button>
-              </div>
+            <div class="ranking-board-scroll">
+              <div id="rankingList" class="ranking-list"></div>
             </div>
+            <div id="rankingMineBar" class="ranking-mine-bar" hidden></div>
           </section>
         </section>
 
         <section class="view" data-view="auction">
-          <div class="section-head">
+          <div class="section-head" hidden>
             <div>
-              <p class="eyebrow">暗标竞拍</p>
+              <p class="eyebrow">明暗竞拍</p>
               <h3 id="auctionHeadTitle">公盘会场</h3>
             </div>
-            <span class="view-title-desc" id="auctionHeadDesc">10 分钟暗拍</span>
+            <span class="view-title-desc" id="auctionHeadDesc" hidden></span>
+            <button id="auctionBackBtn" class="secondary auction-back-button" data-action="backAuctionHalls" type="button" hidden>返回会场</button>
           </div>
           <div id="auctionBrief" class="brief-strip"></div>
           <div id="auctionHalls" class="auction-halls"></div>
@@ -112,6 +142,16 @@
           <div id="auctionHistoryList" class="auction-history-list"></div>
         </section>
 
+        <section class="view" data-view="mining">
+          <div class="section-head mining-page-head">
+            <div>
+              <p class="eyebrow">矿权租赁 · 独立矿工</p>
+              <h3>玉矿联合会</h3>
+            </div>
+          </div>
+          <div id="miningRoot" class="mining-root"></div>
+        </section>
+
         <section class="view" data-view="workshop">
           <div class="section-head">
             <div>
@@ -123,9 +163,8 @@
         </section>
 
         <section class="view" data-view="inventory">
-          <div class="section-head">
+          <div class="section-head inventory-head">
             <div>
-              <p class="eyebrow">背包管理</p>
               <h3>库存</h3>
               <p>查看所有可用物品</p>
             </div>
@@ -134,64 +173,86 @@
         </section>
 
         <section class="view" data-view="orders">
-          <div class="section-head">
-            <div>
+          <div class="section-head orders-toolbar">
+            <div class="orders-title-block">
               <p class="eyebrow">NPC 定制</p>
               <h3>客户订单</h3>
             </div>
-            <button id="refreshOrdersBtn" title="花 300 刷新客户">刷新客户</button>
+            <span id="orderBrief" class="brief-strip"></span>
+            <span id="orderRefreshCountdown" class="order-refresh-countdown" aria-live="polite">距刷新 —</span>
+            <button id="refreshOrdersBtn" type="button" title="花费现金整池替换订单">全部刷新</button>
           </div>
-          <div id="orderBrief" class="brief-strip"></div>
           <div id="ordersList" class="card-grid"></div>
         </section>
 
         <section class="view" data-view="market">
-          <div class="jm-hero">
-            <div class="jm-hero-info">
-              <h3>翡翠集市</h3>
-              <p>八方掌柜寄售于此 · 成交收 3% 市场税（买家付）</p>
-            </div>
-            <div class="jm-hero-side">
-              <div class="jm-hero-stats" id="marketHeroStats"></div>
-              <div class="jm-hero-actions">
-                <button class="jm-hero-btn" data-action="marketSection" data-market-section="mine" type="button">我的挂单 <span class="jm-hero-cnt" id="marketMineCnt">0</span></button>
-              </div>
+          <div class="jm-topbar">
+            <div class="jm-stalls" id="marketStalls"></div>
+            <div class="jm-topbar-actions">
+              <button class="jm-hero-btn" data-action="openMarketWantPost" type="button">发求购</button>
+              <button class="jm-hero-btn" data-action="marketSection" data-market-section="mine" type="button">我的挂单 <span class="jm-hero-cnt" id="marketMineCnt">0</span></button>
+              <button class="jm-hero-btn primary" data-action="openMarketListModal" type="button">＋ 挂牌出售</button>
             </div>
           </div>
-          <div class="jm-stalls" id="marketStalls"></div>
           <div class="jm-shop" id="marketShop">
-            <aside class="jm-filters">
-              <h4>筛选</h4>
-              <div class="jm-fgroup">
-                <label>种水稀有度</label>
-                <div id="marketQFilters"></div>
+            <aside class="jm-filters jm-filters-bar" aria-label="交易行筛选">
+              <div class="jm-fgroup jm-fgroup-quality">
+                <label>种水</label>
+                <div id="marketQFilters" role="group" aria-label="按种水筛选"></div>
               </div>
-              <div class="jm-fgroup">
-                <label>价格区间（¥）</label>
+              <div class="jm-fgroup jm-fgroup-price">
+                <label>价格区间</label>
                 <div class="jm-price-row">
-                  <input id="marketPriceMin" type="number" inputmode="numeric" placeholder="最低" />
-                  <input id="marketPriceMax" type="number" inputmode="numeric" placeholder="最高" />
+                  <input id="marketPriceMin" type="number" inputmode="numeric" placeholder="最低" aria-label="最低价格" />
+                  <input id="marketPriceMax" type="number" inputmode="numeric" placeholder="最高" aria-label="最高价格" />
+                  <button class="jm-price-apply" id="marketPriceApply" type="button">搜索</button>
                 </div>
               </div>
-              <div class="jm-fgroup">
+              <div class="jm-fgroup jm-fgroup-toggle">
                 <div class="jm-toggle-row">
                   <span>仅看买得起的</span>
-                  <div class="jm-switch" id="marketAfford" role="switch" tabindex="0" aria-checked="false"></div>
+                  <button class="jm-switch" id="marketAfford" type="button" role="switch" aria-label="仅看买得起的挂单" aria-checked="false"></button>
                 </div>
               </div>
-              <button class="jm-freset" id="marketReset" type="button">重置筛选</button>
+              <button class="jm-freset" id="marketReset" type="button">重置</button>
             </aside>
             <div class="jm-main">
               <div class="jm-toolbar" id="marketToolbar">
-                <div class="jm-search"><input id="marketSearch" placeholder="搜名字 / 卖家 / 种水…" /></div>
-                <select class="jm-sort" id="marketSort">
+                <div class="jm-search"><input id="marketSearch" type="search" placeholder="搜名字 / 卖家 / 种水…" aria-label="搜索交易行" /></div>
+                <span class="jm-result-status" id="marketResultStatus" aria-live="polite"></span>
+                <select class="jm-sort" id="marketSort" aria-label="交易行排序">
                   <option value="latest">最新上架</option>
+                  <option value="deal">最划算优先</option>
                   <option value="priceAsc">价格从低到高</option>
                   <option value="priceDesc">价格从高到低</option>
-                  <option value="deal">最划算优先</option>
                 </select>
               </div>
               <div class="jm-grid" id="marketGrid"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" data-view="blackmarket">
+          <div class="jm-topbar bm-topbar">
+            <div class="jm-stalls" id="bmStalls" role="group" aria-label="黑市摊位类型"></div>
+            <div class="jm-topbar-actions">
+              <button class="jm-hero-btn primary" data-action="openBmRatingModal" type="button" id="bmRatingBtn">待评价 <span class="jm-hero-cnt" id="bmRatingCnt">0</span></button>
+              <button class="jm-hero-btn primary" data-action="bmSection" data-bm-section="mine" type="button">我的摊位 <span class="jm-hero-cnt" id="bmMineCnt">0</span></button>
+              <button class="jm-hero-btn primary" data-action="openBmOpenModal" type="button">＋ 开设摊位</button>
+            </div>
+          </div>
+          <div class="jm-shop" id="bmShop">
+            <div class="jm-main">
+              <div class="jm-toolbar">
+                <div class="jm-search"><input id="bmSearch" type="search" placeholder="搜摊名 / 商品 / 掌柜…" aria-label="搜索黑市摊位与商品" /></div>
+                <span class="jm-result-status" id="bmResultStatus" aria-live="polite"></span>
+                <select class="jm-sort" id="bmSort" aria-label="黑市摊位排序">
+                  <option value="latest">最近活跃</option>
+                  <option value="rating">客户评级高</option>
+                  <option value="type">按类型</option>
+                </select>
+              </div>
+              <div class="jm-grid" id="bmGrid"></div>
             </div>
           </div>
         </section>
@@ -203,31 +264,25 @@
               <h3>商铺</h3>
             </div>
           </div>
-          <div class="shop-tabs">
-            <button class="shop-tab active" data-tab="building">建筑与许可</button>
-            <button class="shop-tab" data-tab="equipment">加工设备</button>
-            <button class="shop-tab" data-tab="material">镶嵌材料</button>
+          <div class="shop-tabs" role="tablist" aria-label="商铺分类">
+            <button class="shop-tab active" id="shopTabBuilding" data-tab="building" data-action="shopSelectTab" data-payload="building" type="button" role="tab" aria-controls="shopPanelBuilding" aria-selected="true">建筑与许可</button>
+            <button class="shop-tab" id="shopTabEquipment" data-tab="equipment" data-action="shopSelectTab" data-payload="equipment" type="button" role="tab" aria-controls="shopPanelEquipment" aria-selected="false" tabindex="-1">加工设备</button>
+            <button class="shop-tab" id="shopTabMaterial" data-tab="material" data-action="shopSelectTab" data-payload="material" type="button" role="tab" aria-controls="shopPanelMaterial" aria-selected="false" tabindex="-1">镶嵌材料</button>
           </div>
-          <div id="shopBrief" class="brief-strip"></div>
-          <section class="panel shop-panel tab-panel" data-tab-panel="building">
-            <div class="panel-head"><h3>可购建筑与许可</h3><span>工坊 / 经营许可</span></div>
+          <section class="panel shop-panel tab-panel" id="shopPanelBuilding" data-tab-panel="building" role="tabpanel" aria-labelledby="shopTabBuilding">
             <div id="shopListings" class="item-list"></div>
           </section>
-          <section class="panel shop-panel tab-panel is-hidden" data-tab-panel="equipment">
-            <div class="panel-head"><h3>加工设备</h3><span>固定 1 阶 · 单机容量 1</span></div>
+          <section class="panel shop-panel tab-panel is-hidden" id="shopPanelEquipment" data-tab-panel="equipment" role="tabpanel" aria-labelledby="shopTabEquipment" hidden>
             <div id="equipmentShop" class="equipment-shop-list"></div>
           </section>
-          <section class="panel material-panel tab-panel is-hidden" data-tab-panel="material">
-            <div class="panel-head"><h3>镶嵌材料</h3><span>商铺供货 · 现实金价</span></div>
+          <section class="panel material-panel tab-panel is-hidden" id="shopPanelMaterial" data-tab-panel="material" role="tabpanel" aria-labelledby="shopTabMaterial" hidden>
             <div id="materialInventory" class="material-body"></div>
           </section>
         </section>
 
-        <div id="shopModal" class="modal-overlay is-hidden"></div>
-
         <section class="view" data-view="livestream">
           <div class="section-head">
-            <div><p class="eyebrow">公开营业 · AI 与玩家共逛</p><h3>直播间</h3></div>
+            <div><p class="eyebrow">逛摊 · 开播</p><h3>直播间</h3></div>
           </div>
           <div id="livestreamPanel" class="livestream-root"></div>
         </section>
@@ -242,7 +297,7 @@
         <section class="view" data-view="collection">
           <div class="section-head">
             <div>
-              <p class="eyebrow">收藏与门面</p>
+              <p class="eyebrow">收藏与门面 · 上限 20 件 · 入库冻结</p>
               <h3>藏宝阁</h3>
             </div>
           </div>
@@ -255,23 +310,23 @@
               <p class="eyebrow">工坊人力</p>
               <h3>员工</h3>
             </div>
-            <span id="hireMarketBrief" class="view-title-desc"></span>
           </div>
-          <div class="shop-tabs hire-market-tabs" role="tablist" aria-label="员工与招募">
-            <button class="shop-tab active" type="button" role="tab" aria-selected="true" data-action="hireMarketTab" data-payload="roster">我的员工</button>
-            <button class="shop-tab" type="button" role="tab" aria-selected="false" data-action="hireMarketTab" data-payload="recruit">招募</button>
-          </div>
-          <section class="panel roster-panel tab-panel" data-tab-panel="roster" id="ownedWorkerPanel">
-            <div class="panel-head">
-              <h3>我的员工</h3>
-              <span id="ownedWorkerCount"></span>
+          <div class="shop-tabs hire-market-tabs">
+            <div class="hire-market-tabs-main" role="tablist" aria-label="员工与招募">
+              <button class="shop-tab active" id="hireTabRoster" type="button" role="tab" aria-controls="ownedWorkerPanel" aria-selected="true" data-action="hireMarketTab" data-payload="roster">我的员工</button>
+              <button class="shop-tab" id="hireTabRecruit" type="button" role="tab" aria-controls="recruitWorkerPanel" aria-selected="false" tabindex="-1" data-action="hireMarketTab" data-payload="recruit">招募</button>
             </div>
+            <div class="hire-market-tools">
+              <span id="hireMarketBrief" class="hire-market-brief"></span>
+              <button class="hire-payroll-info-button" type="button" data-action="openEmployeePayrollInfo" aria-haspopup="dialog" aria-label="员工工资说明" title="员工工资说明">？</button>
+            </div>
+          </div>
+          <section class="panel roster-panel tab-panel" data-tab-panel="roster" id="ownedWorkerPanel" role="tabpanel" aria-labelledby="hireTabRoster">
             <div id="ownedWorkerList" class="owned-worker-list"></div>
           </section>
-          <section class="panel hire-panel tab-panel is-hidden" data-tab-panel="recruit">
+          <section class="panel hire-panel tab-panel is-hidden" data-tab-panel="recruit" id="recruitWorkerPanel" role="tabpanel" aria-labelledby="hireTabRecruit" hidden>
             <div class="panel-head">
-              <h3>师傅招募</h3>
-              <button id="refreshRecruitBtn" data-action="refreshRecruitCandidates" type="button">刷新候选人 ¥500</button>
+              <button id="refreshRecruitBtn" data-action="refreshRecruitCandidates" type="button">刷新候选人 ¥350</button>
             </div>
             <div id="recruitCandidateList" class="recruit-candidate-list"></div>
           </section>
@@ -283,48 +338,54 @@
         <div class="panel">
           <div class="panel-head">
             <div class="t">进行事项</div>
-            <div class="hint">常驻 · 多界面</div>
           </div>
-          <div class="panel-tabs" id="panelTabs">
-            <button data-ptab="workshop" class="on" type="button">工坊</button>
-            <button data-ptab="order" type="button">订单</button>
-            <button data-ptab="remind" type="button">提醒</button>
-            <button data-ptab="achv" type="button">成就</button>
+          <div class="panel-tabs" id="panelTabs" role="group" aria-label="事项筛选">
+            <button data-ptab="workshop" class="on" type="button" aria-pressed="true">工坊</button>
+            <button data-ptab="order" type="button" aria-pressed="false">订单</button>
+            <button data-ptab="remind" type="button" aria-pressed="false">提醒</button>
+            <button data-ptab="achv" type="button" aria-pressed="false">成就</button>
           </div>
           <div class="panel-body" id="sidePanelBody"></div>
         </div>
       </aside>
       <!-- 底部聊天坞（原主页消息面板，提升为全局常驻，但不占左导航列） -->
-      <footer class="chatdock" id="chatDock" data-chatdock="expanded" aria-label="游玩消息">
-        <button
-          id="chatDockCompactBtn"
-          class="chatdock-compact-btn"
-          type="button"
-          aria-expanded="true"
-          aria-controls="homeMessageLog"
-          title="收起频道"
-        >收起</button>
-        <div class="chatdock-tabs" id="messageChannelTabs"></div>
-        <div class="chatdock-log" id="homeMessageLog"></div>
-        <div class="chatdock-input">
-          <input id="chatInput" type="text" maxlength="120" placeholder="输入世界聊天消息…（即将开放）" />
+      <footer class="chatdock" id="chatDock" data-chatdock="compact" aria-label="游玩消息">
+        <div class="chatdock-chrome">
+          <div class="chatdock-tabs" id="messageChannelTabs" role="tablist" aria-label="消息频道"></div>
+          <button
+            id="chatDockCompactBtn"
+            class="chatdock-compact-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="homeMessageLog"
+            title="展开频道"
+          >展开</button>
+        </div>
+        <div class="chatdock-log" id="homeMessageLog" role="log" aria-live="polite" aria-relevant="additions text"></div>
+        <button id="chatNewMessages" class="chatdock-new-messages" type="button" data-action="scrollChatLatest" hidden>有新消息</button>
+        <div class="chatdock-input" id="chatComposer" hidden aria-hidden="true">
+          <input id="chatInput" type="text" maxlength="120" placeholder="输入世界聊天消息…" autocomplete="off" aria-label="世界聊天消息" />
           <button id="chatSend" type="button">发送</button>
         </div>
       </footer>
     </main>
     <div class="jm-modal-root" id="marketListModal" hidden>
-      <div class="jm-modal jm-modal-wide">
-        <div class="jm-modal-head"><h3>挂牌出售</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
+      <div class="jm-modal jm-modal-wide" role="dialog" aria-modal="true" aria-labelledby="marketListTitle">
+        <div class="jm-modal-head"><h3 id="marketListTitle">挂牌出售</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
         <div class="jm-modal-body ml-body">
           <div class="ml-left">
             <div class="ml-toolbar">
-              <input id="mlSearch" type="search" placeholder="搜索名称 / 种水 / 类型" aria-label="搜索库存">
+              <label class="ml-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+                <input id="mlSearch" type="search" placeholder="搜索名称 / 种水 / 类型" aria-label="搜索库存">
+              </label>
               <select id="mlCategory" aria-label="分类">
                 <option value="all">全部分类</option>
                 <option value="rough">原石</option>
                 <option value="material">明料</option>
                 <option value="slice">片料</option>
                 <option value="bracelet">成品</option>
+                <option value="equipment">设备</option>
               </select>
               <select id="mlSort" aria-label="排序">
                 <option value="valueDesc">估值从高到低</option>
@@ -334,7 +395,7 @@
                 <option value="type">类型</option>
               </select>
             </div>
-            <div class="ml-grid" id="mlGrid"></div>
+            <div class="ml-grid" id="mlGrid" role="listbox" aria-label="可挂牌库存"></div>
           </div>
           <div class="ml-right" id="mlDetail">
             <div class="ml-detail-empty">从左侧选择一个物品进行挂牌</div>
@@ -346,9 +407,483 @@
       </div>
     </div>
 
+    <div class="jm-modal-root" id="marketBuyModal" hidden>
+      <div class="jm-modal jm-modal-buy" role="dialog" aria-modal="true" aria-labelledby="marketBuyTitle">
+        <div class="jm-modal-head"><h3 id="marketBuyTitle">确认买入</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body" id="marketBuyBody"></div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeMarketModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmMarketBuy" type="button">确认支付</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="marketWantPostModal" hidden>
+      <div class="jm-modal jm-modal-want" role="dialog" aria-modal="true" aria-labelledby="marketWantPostTitle">
+        <div class="jm-modal-head"><h3 id="marketWantPostTitle">发布求购</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <div class="jm-field">
+            <label for="mwTitle">标题</label>
+            <input id="mwTitle" type="text" maxlength="40" placeholder="例如：求购正冰手镯" autocomplete="off">
+          </div>
+          <div class="jm-field-grid">
+            <div class="jm-field">
+              <label for="mwType">品类</label>
+              <select id="mwType">
+                <option value="bracelet">成品</option>
+                <option value="rough">原石</option>
+                <option value="material">明料</option>
+                <option value="slice">片料</option>
+              </select>
+            </div>
+            <div class="jm-field">
+              <label for="mwScore">最低种水</label>
+              <select id="mwScore">
+                <option value="1">豆种起</option>
+                <option value="2">糯种起</option>
+                <option value="3" selected>糯冰起</option>
+                <option value="4">正冰起</option>
+                <option value="5">高冰起</option>
+                <option value="6">玻璃种起</option>
+              </select>
+            </div>
+          </div>
+          <div class="jm-field" id="mwKindsWrap">
+            <label>成品题材（可多选）</label>
+            <div class="jm-kind-list" id="mwKinds"></div>
+          </div>
+          <div class="jm-field" id="mwQualityWrap" hidden>
+            <label for="mwQuality">指定种水（可选）</label>
+            <select id="mwQuality">
+              <option value="">不限</option>
+              <option value="bean">豆种</option>
+              <option value="glutinous">糯种</option>
+              <option value="stickyIce">糯冰</option>
+              <option value="ice">正冰</option>
+              <option value="highIce">高冰</option>
+              <option value="glass">玻璃种</option>
+              <option value="violet">紫罗兰</option>
+              <option value="red">红翡</option>
+              <option value="ink">墨翠</option>
+            </select>
+          </div>
+          <div class="jm-field-grid">
+            <div class="jm-field">
+              <label for="mwBudget">预算上限（¥）</label>
+              <input id="mwBudget" type="number" inputmode="numeric" min="100" value="10000">
+            </div>
+            <div class="jm-field">
+              <label for="mwNote">备注（仅展示）</label>
+              <input id="mwNote" type="text" maxlength="80" placeholder="圈口、无裂等说明" autocomplete="off">
+            </div>
+          </div>
+          <div class="jm-field">
+            <label>成交规则</label>
+            <div class="jm-duration-row" id="mwRules">
+              <button type="button" class="jm-duration-chip on" data-mw-rule="lowest">价低者得</button>
+              <button type="button" class="jm-duration-chip" data-mw-rule="manual">手选成交</button>
+            </div>
+          </div>
+          <div class="jm-field">
+            <label>征集时长</label>
+            <div class="jm-duration-row" id="mwDurations">
+              <button type="button" class="jm-duration-chip on" data-mw-duration="10m">10 分钟</button>
+              <button type="button" class="jm-duration-chip" data-mw-duration="30m">半小时</button>
+              <button type="button" class="jm-duration-chip" data-mw-duration="1h">1 小时</button>
+              <button type="button" class="jm-duration-chip" data-mw-duration="6h">6 小时</button>
+              <button type="button" class="jm-duration-chip" data-mw-duration="24h">24 小时</button>
+              <button type="button" class="jm-duration-chip" data-mw-duration="long">长期收</button>
+            </div>
+          </div>
+          <div class="jm-suggest" id="mwEscrowHint">成交规则：价低者得 · 发布时冻结预算+2%税 · 成交后结余退回</div>
+          <div class="jm-form-error" id="mwFormError" hidden></div>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeMarketModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmMarketWantPost" type="button">发布求购</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="marketWantApplyModal" hidden>
+      <div class="jm-modal jm-modal-wide" role="dialog" aria-modal="true" aria-labelledby="marketWantApplyTitle">
+        <div class="jm-modal-head"><h3 id="marketWantApplyTitle">应征求购</h3><button class="jm-modal-x" data-action="closeMarketModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <div class="jm-suggest" id="mwaSummary"></div>
+          <div class="ml-grid" id="mwaGrid" role="listbox" aria-label="可应征库存"></div>
+          <div class="jm-field">
+            <label for="mwaPrice">你的报价（≤ 预算，买家另付 2% 税）</label>
+            <input id="mwaPrice" type="number" inputmode="numeric" min="100" value="100">
+          </div>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeMarketModal" type="button">取消</button>
+          <button class="jm-btn-gold" id="mwaConfirm" data-action="confirmMarketApplyWant" type="button" disabled>确认应征</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmOpenModal" hidden>
+      <div class="jm-modal">
+        <div class="jm-modal-head"><h3>开设黑市摊位</h3><button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <p class="bm-filter-hint">每人同时只能有一个摊；类型选定后须收摊才能更换。</p>
+          <div class="bm-open-types">
+            <button type="button" class="bm-open-type active" data-action="bmPickOpenType" data-bm-open-type="goods">卖物品</button>
+            <button type="button" class="bm-open-type" data-action="bmPickOpenType" data-bm-open-type="blindbox">盲盒</button>
+            <button type="button" class="bm-open-type" data-action="bmPickOpenType" data-bm-open-type="service">技术支持</button>
+          </div>
+          <p class="bm-filter-hint" id="bmOpenTypeHint" hidden>盲盒需可售库存 ≥10 件；不足无法开摊。</p>
+          <label class="bm-field">摊位名称<input id="bmOpenTitle" type="text" maxlength="24" placeholder="例如：老王夜料"></label>
+          <label class="bm-field">简介<input id="bmOpenBlurb" type="text" maxlength="80" placeholder="一句话介绍"></label>
+          <label class="bm-anon-check"><input id="bmOpenAnonymous" type="checkbox"><span>匿名开摊（对外显示马甲，客户评级仍展示）</span></label>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmBmOpenStall" type="button">确认开摊</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmListModal" hidden>
+      <div class="jm-modal jm-modal-wide">
+        <div class="jm-modal-head"><h3>上架到货架</h3><button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body ml-body">
+          <div class="ml-left">
+            <div class="ml-grid" id="bmMlGrid"></div>
+          </div>
+          <div class="ml-right" id="bmMlDetail">
+            <div class="ml-detail-empty">可多选物品，确认后一键上架</div>
+          </div>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+          <button class="jm-btn-gold" id="bmConfirmListBtn" data-action="confirmBmList" type="button">确认上架</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 盲盒补货已并入 bmBlindManageModal；保留空壳 id 兼容旧关闭逻辑 -->
+    <div class="jm-modal-root" id="bmBlindStockModal" hidden></div>
+
+    <div class="jm-modal-root" id="bmBlindManageModal" hidden>
+      <div class="jm-modal jm-modal-wide bm-blind-manage-modal">
+        <div class="jm-modal-head">
+          <div class="bm-profile-head-copy">
+            <h3>盲盒池管理</h3>
+            <p class="bm-svc-hint" id="bmBlindManageHint">池内 0/50 · 满 10 可卖 · 当前定价 ¥1</p>
+          </div>
+          <div class="bm-blind-manage-head-acts">
+            <span class="bm-blind-manage-status-chip" id="bmBlindManageStatusChip" hidden></span>
+            <button class="jm-btn-ghost" data-action="bmBlindManageBuyerPreview" type="button">预览买家所见</button>
+            <button class="jm-modal-x" data-action="closeBmBlindManage" type="button" aria-label="关闭">×</button>
+          </div>
+        </div>
+        <div class="bm-blind-manage-status" id="bmBlindManageStatus" hidden></div>
+        <div class="bm-blind-manage-tabs" role="tablist" aria-label="盲盒管理">
+          <button class="bm-blind-manage-tab on" id="bmBlindManageTabPool" data-action="bmBlindManageTab" data-bm-blind-tab="pool" type="button" role="tab" aria-controls="bmBlindManagePoolPane bmBlindManageDetail" aria-selected="true">池内货品</button>
+          <button class="bm-blind-manage-tab" id="bmBlindManageTabStock" data-action="bmBlindManageTab" data-bm-blind-tab="stock" type="button" role="tab" aria-controls="bmBlindManageStockPane bmBlindStockDetail" aria-selected="false" tabindex="-1">库存上架</button>
+        </div>
+        <div class="jm-modal-body ml-body bm-blind-manage-body">
+          <div class="bm-blind-manage-split">
+            <div class="bm-blind-manage-left">
+              <div class="bm-blind-manage-pane-left" id="bmBlindManagePoolPane" data-bm-blind-pane="pool" role="tabpanel" aria-labelledby="bmBlindManageTabPool">
+                <div class="ml-grid" id="bmBlindManageGrid"></div>
+              </div>
+              <div class="bm-blind-manage-pane-left" id="bmBlindManageStockPane" data-bm-blind-pane="stock" role="tabpanel" aria-labelledby="bmBlindManageTabStock" hidden>
+                <div class="ml-grid" id="bmBlindStockGrid"></div>
+              </div>
+            </div>
+            <div class="bm-blind-manage-right">
+              <div class="bm-blind-manage-detail" id="bmBlindManageDetail" role="tabpanel" aria-labelledby="bmBlindManageTabPool">
+                <div class="ml-detail-empty">点选左侧池内物品查看详情</div>
+              </div>
+              <div class="bm-blind-manage-detail" id="bmBlindStockDetail" role="tabpanel" aria-labelledby="bmBlindManageTabStock" hidden>
+                <div class="ml-detail-empty">点选左侧物料放入盲盒池（至少凑满 10 件才可开卖，最多 50 件）</div>
+              </div>
+              <div class="bm-blind-manage-settings" id="bmBlindManageSettings">
+                <label class="bm-blind-manage-desc">
+                  <span>描述</span>
+                  <textarea id="bmBlindManageDesc" rows="2" maxlength="200" placeholder="说说盒子里的风格，勿剧透具体货"></textarea>
+                </label>
+                <div class="bm-blind-stock-price" id="bmBlindStockPriceBox">
+                  <label for="bmBlindStockPrice">统一定价</label>
+                  <div class="bm-blind-stock-price-edit">
+                    <span class="bm-blind-stock-price-currency">¥</span>
+                    <input id="bmBlindStockPrice" type="number" inputmode="numeric" min="1" step="1" value="1" aria-label="盲盒统一定价">
+                  </div>
+                  <button class="jm-btn-ghost" id="bmBlindStockPriceBtn" data-action="confirmBmBlindManageMeta" type="button">保存设定</button>
+                  <button class="jm-btn-ghost bm-blind-suggest-price-btn" id="bmBlindStockPriceHint" data-action="applyBmBlindSuggestedPrice" type="button">建议定价 —</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="jm-modal-foot">
+          <div class="bm-blind-foot-stats" id="bmBlindManageFootStats">池内 0/50</div>
+          <div class="bm-profile-foot-acts">
+            <button class="jm-btn-ghost" data-action="closeBmBlindManage" type="button">关闭</button>
+            <button class="jm-btn-gold" id="bmConfirmBlindStockBtn" data-action="confirmBmBlindStock" type="button" hidden>放入盲盒</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmBlindDrawModal" hidden>
+      <div class="jm-modal jm-modal-wide bm-blind-draw-modal">
+        <div class="jm-modal-head">
+          <div class="bm-profile-head-copy">
+            <h3>拆盲盒</h3>
+            <p class="bm-svc-hint" id="bmBlindDrawHint">抽出 3 件候选，默认带走第 1 件；加选另计。</p>
+          </div>
+          <div class="bm-blind-draw-head-acts">
+            <button class="jm-btn-ghost" id="bmBlindDrawSkipBtn" data-action="bmBlindDrawSkip" type="button">跳过动画</button>
+            <button class="jm-modal-x" data-action="bmBlindDrawClose" type="button" aria-label="关闭">×</button>
+          </div>
+        </div>
+        <div class="jm-modal-body bm-blind-draw-body" id="bmBlindDrawBody">
+          <div class="bm-blind-draw-stage is-shaking" id="bmBlindDrawStage">
+            <div class="bm-blind-chest" aria-hidden="true">
+              <span class="bm-blind-chest-seal">封</span>
+              <span class="bm-blind-chest-label">黑市盲盒</span>
+            </div>
+            <div class="bm-blind-draw-cards" id="bmBlindDrawCards"></div>
+          </div>
+          <div class="bm-blind-draw-summary" id="bmBlindDrawSummary"></div>
+        </div>
+        <div class="jm-modal-foot">
+          <div class="bm-blind-foot-stats" id="bmBlindDrawFootStats">已选 1 件</div>
+          <div class="bm-profile-foot-acts">
+            <button class="jm-btn-gold" id="bmBlindDrawConfirmBtn" data-action="bmBlindDrawConfirm" type="button">确认带走</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 盲盒描述/定价已并入管理弹窗设定条 -->
+    <div class="jm-modal-root" id="bmBlindMetaModal" hidden></div>
+
+    <div class="jm-modal-root" id="bmServiceOfferModal" hidden>
+      <div class="jm-modal">
+        <div class="jm-modal-head"><h3>添加技术服务</h3><button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <label class="bm-field">服务模板
+            <select id="bmSvcTemplate"></select>
+          </label>
+          <p class="bm-svc-hint" id="bmSvcTemplateHint"></p>
+          <label class="bm-field">标题<input id="bmSvcTitle" type="text" maxlength="32" placeholder="例如：代开料 / 设计镶嵌"></label>
+          <label class="bm-field">说明<textarea id="bmSvcDesc" rows="3" maxlength="200"></textarea></label>
+          <label class="bm-field">报价<input id="bmSvcPrice" type="number" min="1" step="1" value="100"></label>
+          <label class="bm-field">预计耗时（分钟）<input id="bmSvcEta" type="number" min="5" step="5" value="30"></label>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmBmServiceOffer" type="button">添加</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmServiceProfileModal" hidden>
+      <div class="jm-modal jm-modal-wide bm-profile-modal">
+        <div class="jm-modal-head">
+          <div class="bm-profile-head-copy">
+            <h3>编辑服务橱窗</h3>
+            <p class="bm-svc-hint">只能选用真实拥有的标签、员工、设备与库存案例，不能手填等级或单数。</p>
+          </div>
+          <button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="jm-modal-body bm-profile-modal-body">
+          <div class="bm-profile-layout">
+            <div class="bm-profile-editor">
+              <div class="home-tabs bm-profile-tabs" role="tablist" aria-label="橱窗分区" id="bmProfileTabs">
+                <button type="button" class="on" id="bmProfileTabTags" role="tab" aria-controls="bmProfilePaneTags" aria-selected="true" data-action="bmProfileTab" data-bm-profile-tab="tags">主打标签 <b data-bm-tab-count="tags">0/3</b></button>
+                <button type="button" id="bmProfileTabScopes" role="tab" aria-controls="bmProfilePaneScopes" aria-selected="false" tabindex="-1" data-action="bmProfileTab" data-bm-profile-tab="scopes">接单范围 <b data-bm-tab-count="scopes">0</b></button>
+                <button type="button" id="bmProfileTabWorkers" role="tab" aria-controls="bmProfilePaneWorkers" aria-selected="false" tabindex="-1" data-action="bmProfileTab" data-bm-profile-tab="workers">台柱子 <b data-bm-tab-count="workers">0/3</b></button>
+                <button type="button" id="bmProfileTabDevices" role="tab" aria-controls="bmProfilePaneDevices" aria-selected="false" tabindex="-1" data-action="bmProfileTab" data-bm-profile-tab="devices">招牌设备 <b data-bm-tab-count="devices">0/4</b></button>
+                <button type="button" id="bmProfileTabShowcase" role="tab" aria-controls="bmProfilePaneShowcase" aria-selected="false" tabindex="-1" data-action="bmProfileTab" data-bm-profile-tab="showcase">案例展示 <b data-bm-tab-count="showcase">0/3</b></button>
+              </div>
+              <section class="bm-profile-pane on" id="bmProfilePaneTags" data-bm-profile-pane="tags" role="tabpanel" aria-labelledby="bmProfileTabTags">
+                <div class="bm-profile-pane-head">
+                  <h4>主打标签</h4>
+                  <span>最多 3 个，需技能达标后解锁</span>
+                </div>
+                <div class="bm-profile-grid" id="bmProfileTagGrid"></div>
+              </section>
+              <section class="bm-profile-pane" id="bmProfilePaneScopes" data-bm-profile-pane="scopes" role="tabpanel" aria-labelledby="bmProfileTabScopes" hidden>
+                <div class="bm-profile-pane-head">
+                  <h4>接单范围</h4>
+                  <span>买家会看到你愿意承接的工序</span>
+                </div>
+                <div class="bm-profile-grid" id="bmProfileScopeGrid"></div>
+              </section>
+              <section class="bm-profile-pane" id="bmProfilePaneWorkers" data-bm-profile-pane="workers" role="tabpanel" aria-labelledby="bmProfileTabWorkers" hidden>
+                <div class="bm-profile-pane-head">
+                  <h4>台柱子员工</h4>
+                  <span>最多 3 名，突出你的核心师傅</span>
+                </div>
+                <div class="bm-profile-grid" id="bmProfileWorkerGrid"></div>
+              </section>
+              <section class="bm-profile-pane" id="bmProfilePaneDevices" data-bm-profile-pane="devices" role="tabpanel" aria-labelledby="bmProfileTabDevices" hidden>
+                <div class="bm-profile-pane-head">
+                  <h4>招牌设备</h4>
+                  <span>最多 4 台，展示你的加工底子</span>
+                </div>
+                <div class="bm-profile-grid" id="bmProfileDeviceGrid"></div>
+              </section>
+              <section class="bm-profile-pane" id="bmProfilePaneShowcase" data-bm-profile-pane="showcase" role="tabpanel" aria-labelledby="bmProfileTabShowcase" hidden>
+                <div class="bm-profile-pane-head">
+                  <h4>案例展示</h4>
+                  <span>最多 3 件完工库存作为橱窗样本</span>
+                </div>
+                <div class="bm-profile-grid bm-profile-grid-showcase" id="bmProfileShowcaseGrid"></div>
+              </section>
+            </div>
+            <aside class="bm-profile-preview-col">
+              <div class="bm-profile-preview-head">
+                <h4>买家将看到</h4>
+                <span>所选即所见</span>
+              </div>
+              <div class="bm-profile-preview-card" id="bmProfilePreview"></div>
+              <div class="bm-profile-visibility" aria-label="公开项">
+                <label class="bm-profile-toggle"><input id="bmProfileShowWorkers" type="checkbox" checked><span>展示台柱子</span></label>
+                <label class="bm-profile-toggle"><input id="bmProfileShowEquipment" type="checkbox" checked><span>展示招牌设备</span></label>
+                <label class="bm-profile-toggle"><input id="bmProfileShowShowcase" type="checkbox" checked><span>展示案例</span></label>
+              </div>
+            </aside>
+          </div>
+        </div>
+        <div class="jm-modal-foot bm-profile-foot">
+          <div class="bm-profile-foot-stats" id="bmProfileFootStats">已选 —</div>
+          <div class="bm-profile-foot-acts">
+            <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+            <button class="jm-btn-gold" data-action="confirmBmServiceProfile" type="button">保存橱窗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmServiceInfoModal" hidden>
+      <div class="jm-modal jm-modal-wide bm-service-info-modal">
+        <div class="jm-modal-head">
+          <div class="bm-profile-head-copy">
+            <h3 id="bmServiceInfoTitle">客户评级资料</h3>
+            <p class="bm-svc-hint" id="bmServiceInfoSub">摊主能力与橱窗信息</p>
+          </div>
+          <button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="jm-modal-body bm-service-info-body" id="bmServiceInfoBody"></div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmRatingModal" hidden>
+      <div class="jm-modal">
+        <div class="jm-modal-head">
+          <div>
+            <div class="bm-rate-modal-title-row">
+              <h3>待评价</h3>
+              <span class="bm-rate-modal-count" hidden>0 笔</span>
+            </div>
+            <p class="bm-rate-modal-sub">成交后请为对方打客户评级 · 点右侧进入打分</p>
+          </div>
+          <button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="jm-modal-body" id="bmRatingBody"></div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmWithdrawConfirmModal" hidden>
+      <div class="jm-modal">
+        <div class="jm-modal-head"><h3>撤下最后一件</h3><button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body">
+          <p class="bm-filter-hint">这是摊位上的<strong>最后一件</strong>物品。确认撤下后，货品将退回库存，摊位会<strong>自动收摊</strong>。</p>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmBmWithdraw" type="button">确认撤下并收摊</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmBuyModal" hidden>
+      <div class="jm-modal jm-modal-buy">
+        <div class="jm-modal-head"><h3>黑市买入</h3><button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button></div>
+        <div class="jm-modal-body" id="bmBuyBody"></div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+          <button class="jm-btn-gold" data-action="confirmBmBuy" type="button">确认支付</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root" id="bmOrderServiceModal" hidden>
+      <div class="jm-modal jm-modal-wide bm-order-modal">
+        <div class="jm-modal-head">
+          <div class="bm-order-head-copy">
+            <h3 id="bmOrderServiceTitle">下单托管</h3>
+            <p class="bm-svc-hint" id="bmOrderServiceSub">选择库存物料并冻结加工费，完成后确认收货。</p>
+          </div>
+          <button class="jm-modal-x" data-action="closeBmModal" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="jm-modal-body bm-order-modal-body" id="bmOrderServiceBody"></div>
+        <div class="jm-modal-foot bm-order-foot">
+          <div class="bm-order-foot-stats" id="bmOrderFootStats">请先选择一件物料</div>
+          <div class="bm-order-foot-acts">
+            <button class="jm-btn-ghost" data-action="closeBmModal" type="button">取消</button>
+            <button class="jm-btn-gold" data-action="confirmBmOrderService" type="button">确认下单</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jm-modal-root account-modal-root" id="accountModal" hidden>
+      <section class="jm-modal account-modal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+        <div class="jm-modal-head">
+          <div>
+            <h3 id="accountModalTitle">角色账号</h3>
+            <p class="bm-svc-hint">绑定后可在其他设备登录当前角色。</p>
+          </div>
+        </div>
+        <div class="jm-modal-body">
+          <p class="account-status" id="accountStatus" role="status" aria-live="polite" hidden></p>
+          <div id="accountGuestView">
+            <div class="account-tabs" role="tablist" aria-label="账号操作">
+              <button type="button" role="tab" aria-selected="true" aria-controls="accountBindPanel" data-account-tab="bind">绑定当前角色</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="accountLoginPanel" data-account-tab="login" tabindex="-1">登录已有角色</button>
+            </div>
+            <section class="account-panel" id="accountBindPanel" role="tabpanel" data-account-panel="bind">
+              <form class="account-form" id="accountBindForm">
+                <p class="account-form-note">为当前角色设置登录名和密码。绑定成功后，现有进度不会改变。</p>
+                <label>登录名<input name="username" type="text" minlength="4" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username" required /></label>
+                <label>密码<input name="password" type="password" minlength="10" maxlength="128" autocomplete="new-password" required /></label>
+                <button class="jm-btn-gold" type="submit">绑定当前角色</button>
+              </form>
+            </section>
+            <section class="account-panel" id="accountLoginPanel" role="tabpanel" data-account-panel="login" hidden>
+              <form class="account-form" id="accountLoginForm">
+                <p class="account-form-note">登录会切换到该账号保存的角色。若当前角色尚未绑定账号，切换后将无法通过账号找回。</p>
+                <label>登录名<input name="username" type="text" minlength="4" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username" required /></label>
+                <label>密码<input name="password" type="password" minlength="10" maxlength="128" autocomplete="current-password" required /></label>
+                <button class="jm-btn-gold" type="submit">登录角色</button>
+              </form>
+            </section>
+          </div>
+          <section class="account-session-view" id="accountSessionView" hidden>
+            <span>当前账号</span>
+            <strong id="accountSessionName"></strong>
+            <p>退出后会回到新的本地角色；账号中的角色进度仍保留，可再次登录。</p>
+            <button class="jm-btn-ghost" id="accountLogoutButton" type="button">退出当前账号</button>
+          </section>
+        </div>
+        <div class="jm-modal-foot">
+          <button class="jm-btn-ghost" type="button" data-account-close>返回游戏</button>
+        </div>
+      </section>
+    </div>
+
     <div id="floatingTextLayer" class="floating-text-layer" aria-hidden="true"></div>
     <div id="modalRoot" class="modal-root" hidden></div>
-    <div id="toast" class="toast"></div>
+    <div id="shopModal" class="modal-overlay is-hidden"></div>
+    <div id="toast" class="toast-stack" aria-live="polite" aria-atomic="false"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="/main.js"></script>
   </body>

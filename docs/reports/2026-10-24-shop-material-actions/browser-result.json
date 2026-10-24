@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "day",
+      "cards": 7,
+      "bottomPurchaseButtons": true,
+      "purchaseDialog": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "day",
+      "cards": 7,
+      "bottomPurchaseButtons": true,
+      "purchaseDialog": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "night",
+      "cards": 7,
+      "bottomPurchaseButtons": true,
+      "purchaseDialog": true
+    }
+  ],
+  "errors": []
+}

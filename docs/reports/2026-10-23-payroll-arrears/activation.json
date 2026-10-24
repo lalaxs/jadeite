@@ -1,0 +1,23 @@
+{
+  "port": 3000,
+  "previousProcessId": 17692,
+  "processId": 35356,
+  "backup": "data/world.json.before-payroll-arrears-20261023-124557.bak",
+  "players": 104,
+  "workers": 416,
+  "policyVersion": 1,
+  "gracePlayers": 101,
+  "graceDurationHours": 24,
+  "incomeRepaymentRate": 0.2,
+  "combinedDeductionCap": 0.3,
+  "playerIdsPreserved": true,
+  "cashPreserved": true,
+  "existingDebtPreserved": true,
+  "payrollCursorsPreserved": true,
+  "wageTableVerified": true,
+  "ready": true,
+  "persistence": "ready",
+  "consecutivePersistenceFailures": 0,
+  "startedAt": 1792730806440,
+  "savedAt": 1792730818812
+}

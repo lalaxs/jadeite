@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "equipment search, empty state and purchase confirmation",
+    "employee details and recruit candidate joins roster",
+    "desktop: no overflow; shop, roster, recruitment, workshop device/selected employee/picker cards; material and worker selection",
+    "mobile: no overflow; shop, roster, recruitment, workshop device/selected employee/picker cards; material and worker selection",
+    "running workshop locks material and employee changes"
+  ],
+  "errors": []
+}

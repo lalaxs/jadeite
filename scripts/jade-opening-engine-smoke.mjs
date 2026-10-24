@@ -1,5 +1,9 @@
+import { readWorkshopServiceSource } from "./load-workshop-service-source.mjs";
 import assert from "node:assert/strict";
+import { readClientShellSource } from "./load-client-shell.mjs";
 import { readFileSync } from "node:fs";
+import { loadResolvedStyles } from "./load-styles.mjs";
+import { productCanvas } from "../public/features/opening/opening-render.js";
 import {
   EXTRACTION_KITS,
   PRODUCT_CATEGORIES,
@@ -19,6 +23,8 @@ import {
   evaluateOpeningKit,
   jadeValueFactor,
   mapOpeningKitToProductKind,
+  openingGradeForQuality,
+  openingPaletteForColor,
   renderJadeOpeningProductSvg,
   renderJadeOpeningSvg
 } from "../public/jade-opening-engine.js";
@@ -66,11 +72,33 @@ assert.ok(PRODUCT_CATEGORIES.dropPendant, "drop pendant should be a business pro
 assert.ok(EXTRACTION_KITS.dropPendant, "drop pendant should be a server-supported extraction kit");
 
 const stone = buildOpeningStone({ seed: 24681357, roughId: "test-rough" });
+const rawSlice = { id: "opened-slice", type: "slice", materialStage: "opened", stage: "material", revealed: true,
+  qualityKey: "bean", quality: "豆种", color: "灰绿", visual: { seed: 21568 }, windows: [] };
+const sliceArt = productCanvas(rawSlice);
+assert.match(sliceArt, /class="jade-opening-svg"/, "shared preview must retain the opened material rather than draw a generic product");
+assert.doesNotMatch(sliceArt, /data-jade-kind="product"/);
+assert.match(sliceArt, /id="[^"]*-roughExterior"[^>]*style="opacity:0"/, "opened slices expose the jade surface");
 assert.equal(stone.jadeMap.RES, 40, "jadeMap should use the reference 40x40 grid");
 assert.equal(stone.jadeMap.grid.length, 1600, "jadeMap should contain 1600 cells");
 assert.ok(stone.jadeMap.grid.some((cell) => cell.waste), "deterministic test stone should include waste cells");
 assert.ok(stone.material.includes("filter=\"url(#wasteBlur)\""), "waste visualization should be drawn from jadeMap cells");
 assert.equal(stone.seeds.grainBaseFrequency, stone.grade.freq, "grain frequency should come from the picked water grade");
+
+assert.equal(openingGradeForQuality("stickyIce")?.name, "糯冰");
+assert.equal(openingGradeForQuality("冰种")?.name, "正冰");
+assert.equal(openingPaletteForColor("帝王绿")?.name, "帝王绿");
+assert.equal(openingPaletteForColor("青白")?.name, "白冰");
+assert.equal(openingPaletteForColor("飘花绿")?.name, "翠绿");
+const forcedLowStone = buildOpeningStone({ seed: "quality-bound", roughId: "low", qualityKey: "bean", color: "晴水" });
+const forcedHighStone = buildOpeningStone({ seed: "quality-bound", roughId: "high", qualityKey: "glass", color: "晴水" });
+assert.equal(forcedLowStone.grade.name, "豆种", "revealed bean quality should bind the opening grade");
+assert.equal(forcedHighStone.grade.name, "玻璃种", "revealed glass quality should bind the opening grade");
+assert.equal(forcedHighStone.palList[0].pal.name, "晴水", "revealed color should bind the dominant opening palette");
+assert.ok(
+  evaluateOpeningKit({ uid: "quality-probe", tpl: "bangle", x: 300, y: 300, rot: 0, scale: 0.96 }, forcedHighStone).price
+    > evaluateOpeningKit({ uid: "quality-probe", tpl: "bangle", x: 300, y: 300, rot: 0, scale: 0.96 }, forcedLowStone).price,
+  "higher revealed water grade should produce the higher cutout valuation for the same layout"
+);
 
 const manualMap = buildJadeMap(stone.palList, stone.grade, true, stone.cracks, stone.seeds);
 assert.deepEqual(
@@ -207,10 +235,14 @@ assert.deepEqual(
   "a valid kit type mapping should retain the exact placement"
 );
 
-const mainSource = readFileSync(new URL("../public/main.js", import.meta.url), "utf8");
-const stylesSource = readFileSync(new URL("../public/styles.css", import.meta.url), "utf8");
+const mainEntry = readFileSync(new URL("../public/main.js", import.meta.url), "utf8");
+const mainSource = readClientShellSource();
+const stylesSource = loadResolvedStyles();
 const serverSource = readFileSync(new URL("../server.js", import.meta.url), "utf8");
-assert.match(mainSource, /from "\.\/jade-opening-engine\.js"/, "workshop UI should import the opening engine");
+const wireSource = readFileSync(new URL("../server/boot/wire-server.js", import.meta.url), "utf8");
+const workshopServiceSource = readWorkshopServiceSource();
+const bootSource = `${serverSource}\n${wireSource}\n${workshopServiceSource}`;
+assert.match(mainSource, /from "[^"]*jade-opening-engine\.js"/, "workshop UI should import the opening engine");
 assert.match(mainSource, /function openingStoneFor\b/, "workshop UI should derive deterministic opening stones from rough items");
 assert.match(mainSource, /renderJadeOpeningSvg/, "workshop boards should render the reference SVG opening view");
 assert.match(mainSource, /OPENING_KIT_LIB/, "workshop kit palette should come from the reference KIT_LIB");
@@ -223,7 +255,9 @@ assert.match(mainSource, /function productCutoutPlaceholder\b/);
 assert.match(mainSource, /sourceMaterial[\s\S]*productCutoutPlaceholder/);
 assert.match(stylesSource, /\.workshop-product-preview[\s\S]*overflow:\s*hidden/);
 assert.match(stylesSource, /\.jade-opening-product-svg[\s\S]*max-width:\s*100%/);
-const placeholderSource = mainSource.match(/function productCutoutPlaceholder[\s\S]*?\n}\n\nfunction productCanvas/)?.[0] || "";
+const placeholderSource = mainSource.match(/(?:export\s+)?function productCutoutPlaceholder[\s\S]*?\n}\n\n(?:export\s+)?function productCanvas/)?.[0]
+  || mainSource.match(/(?:export\s+)?function productCutoutPlaceholder[\s\S]*?\n}\n\n(?:export\s+)?function componentJadeCutoutMarkup/)?.[0]
+  || "";
 assert.match(placeholderSource, /aria-label="\$\{label\}裁切数据缺失"/);
 assert.match(placeholderSource, /aria-hidden="true"/);
 assert.match(placeholderSource, /focusable="false"/);
@@ -236,9 +270,9 @@ const bigProductPreviewRule = stylesSource.match(/\.ws-big-material\s*>\s*\.work
 assert.match(bigProductPreviewRule, /aspect-ratio:\s*1\s*\/\s*1/);
 assert.match(bigProductPreviewRule, /max-width:\s*220px/);
 assert.match(mainSource, /resolveExactOpeningProductPlacement/);
-assert.match(serverSource, /from "\.\/public\/jade-opening-engine\.js"/, "server should share the opening valuation engine");
-assert.match(serverSource, /openingTpl/, "server should preserve the source KIT_LIB template id on extraction kits");
-assert.match(serverSource, /evaluateOpeningKit/, "server should price refined products from jadeMap kit evaluation");
-assert.match(serverSource, /computeOpeningGrade/, "server should store opening S+~F grade output on products");
+assert.match(bootSource, /jade-opening-engine\.js"/, "server should share the opening valuation engine");
+assert.match(bootSource, /openingTpl/, "server should preserve the source KIT_LIB template id on extraction kits");
+assert.match(bootSource, /evaluateOpeningKit/, "server should price refined products from jadeMap kit evaluation");
+assert.match(bootSource, /computeOpeningGrade/, "server should store opening S+~F grade output on products");
 
 console.log("jade opening engine smoke test passed");

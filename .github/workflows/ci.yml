@@ -1,0 +1,40 @@
+name: release-gates
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17.11-alpine3.24
+        env:
+          POSTGRES_DB: jade_ci
+          POSTGRES_USER: jade_ci
+          POSTGRES_PASSWORD: jade_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jade_ci -d jade_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.20.0
+          cache: npm
+      - run: npm ci
+      - run: npm run test:quality
+      - run: npm run predeploy:check
+      - run: npm run predeploy:postgres
+        env:
+          TEST_DATABASE_URL: postgresql://jade_ci:jade_ci_password@127.0.0.1:5432/jade_ci

@@ -1,0 +1,1562 @@
+/* Gameplay hierarchy: intent, outcome, and jade-merchant atmosphere. */
+:root {
+  --game-surface: color-mix(in srgb, var(--panel) 94%, #183a2d);
+  --game-surface-soft: color-mix(in srgb, var(--panel) 84%, var(--jade-soft));
+  --game-line: color-mix(in srgb, var(--jade-light) 24%, var(--line));
+  --game-gold-line: color-mix(in srgb, var(--gold) 42%, var(--line));
+  --game-shadow: 0 14px 36px rgba(0, 0, 0, .2);
+}
+
+[data-theme="day"] {
+  --game-surface: color-mix(in srgb, var(--panel) 94%, #edf4ed);
+  --game-surface-soft: color-mix(in srgb, var(--panel) 88%, var(--jade-soft));
+  --game-shadow: 0 12px 30px rgba(53, 65, 56, .1);
+}
+
+/* Keep these day-mode card surfaces on the standard white panel. */
+[data-theme="day"] .side-workshop-delivery,
+[data-theme="day"] .business-turnover-card.is-bottleneck,
+[data-theme="day"] .asset-listing {
+  background: var(--panel);
+}
+
+@media screen and (min-width: 981px) {
+  .shell {
+    grid-template-columns: 224px minmax(0, 1fr) 390px;
+  }
+}
+
+/* The overview separates the next business decision from long-term progression. */
+.overview-command-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(250px, .75fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.overview-command-grid > div {
+  min-width: 0;
+}
+
+.overview-command-grid .goal-card {
+  height: 100%;
+  margin: 0;
+  border-color: var(--game-gold-line);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--gold) 10%, transparent), transparent 58%),
+    var(--game-surface);
+  box-shadow: var(--lift);
+}
+
+.overview-command-grid .goal-head {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.overview-command-grid .goal-desc {
+  margin-top: 6px;
+}
+
+.business-focus-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: space-between;
+  gap: 12px;
+  min-height: 148px;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  background:
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--jade) 18%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--jade) 9%, transparent), transparent 60%),
+    var(--game-surface);
+  box-shadow: var(--game-shadow);
+}
+
+.business-focus-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--jade-light), var(--jade-dark));
+}
+
+.business-focus-card.is-risk::before,
+.business-focus-card.is-warn::before {
+  background: linear-gradient(180deg, #e7c56f, var(--gold-dark));
+}
+
+.business-focus-copy {
+  min-width: 0;
+}
+
+.business-focus-kicker {
+  display: inline-flex;
+  margin-bottom: 7px;
+  color: var(--jade-light);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.business-focus-card.is-risk .business-focus-kicker,
+.business-focus-card.is-warn .business-focus-kicker {
+  color: var(--gold);
+}
+
+.business-focus-card h2,
+.business-focus-card p {
+  margin: 0;
+}
+
+.business-focus-card h2 {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.25;
+}
+
+.business-focus-card p {
+  max-width: 52em;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.business-focus-action {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--jade-light) 44%, var(--line));
+  border-radius: var(--r-md);
+  padding: 0 18px;
+  color: #f5fff9;
+  background: linear-gradient(180deg, var(--jade), var(--jade-dark));
+  box-shadow: 0 9px 22px rgba(38, 117, 82, .25);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.business-focus-action:hover,
+.business-focus-action:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.business-economy-strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: visible;
+  margin-bottom: 12px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-md);
+  background: var(--game-surface);
+}
+
+.business-economy-strip > div,
+.business-economy-strip > details > summary {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 14px;
+}
+
+.business-economy-strip > :not(:first-child) {
+  border-left: 1px solid var(--hair);
+}
+
+.business-economy-strip span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.business-economy-strip strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+
+.business-economy-strip strong small {
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 10px;
+}
+
+.business-economy-strip .is-income strong,
+.business-economy-strip .is-positive strong { color: var(--jade-light); }
+.business-economy-strip .is-expense strong,
+.business-economy-strip .is-negative strong { color: var(--rose); }
+.business-economy-strip .is-cash strong { color: var(--gold); }
+.business-economy-strip .is-attention strong { color: var(--gold); }
+
+.business-attention {
+  min-width: 0;
+}
+
+.business-attention > summary {
+  position: relative;
+  padding-right: 34px !important;
+  cursor: pointer;
+  list-style: none;
+  transition: background .16s ease;
+}
+
+.business-attention > summary::-webkit-details-marker { display: none; }
+
+.business-attention > summary:hover,
+.business-attention > summary:focus-visible,
+.business-attention[open] > summary {
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+.business-attention > summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.business-attention > summary span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.business-attention > summary span i {
+  border-radius: var(--r-pill);
+  padding: 1px 6px;
+  color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.business-attention > summary::after {
+  content: "›";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  color: var(--gold);
+  font-size: 16px;
+  transform: rotate(90deg);
+  transition: transform .16s ease;
+}
+
+.business-attention[open] > summary::after {
+  transform: rotate(-90deg);
+}
+
+.business-attention-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  border: 1px solid var(--game-gold-line);
+  border-radius: var(--r-md);
+  padding: 10px;
+  background: color-mix(in srgb, var(--game-surface) 97%, #08140f);
+  box-shadow: var(--game-shadow);
+}
+
+.business-attention-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.business-attention-head b {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.business-attention-head span {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.business-attention-list {
+  display: grid;
+  gap: 6px;
+}
+
+.business-attention-list button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sm);
+  padding: 9px 10px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.business-attention-list button:hover,
+.business-attention-list button:focus-visible {
+  border-color: color-mix(in srgb, var(--jade) 52%, var(--line));
+  background: color-mix(in srgb, var(--jade) 8%, var(--panel));
+}
+
+.business-attention-list button > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.business-attention-list button b {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-attention-list button small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-attention-list button i {
+  color: var(--jade-light);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.business-turnover {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-md);
+  padding: 12px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--jade) 6%, transparent), transparent),
+    var(--game-surface);
+}
+
+.business-turnover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.business-turnover-head > div {
+  display: grid;
+  gap: 2px;
+  flex: none;
+}
+
+.business-turnover-head > div > strong { color: var(--ink); font-size: 13px; }
+.business-turnover-head > div > span { color: var(--muted); font-size: 11px; }
+
+.business-turnover-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: right;
+}
+
+.business-turnover-summary b {
+  flex: none;
+  border-radius: var(--r-pill);
+  padding: 3px 8px;
+  color: var(--jade-light);
+  background: var(--jade-soft);
+  font-size: 10.5px;
+}
+
+.business-turnover-summary.is-bottleneck b {
+  color: #2c210a;
+  background: var(--gold);
+}
+
+.business-turnover-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.business-turnover-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
+  min-height: 78px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 62%, transparent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.business-turnover-card:not(:last-child)::after {
+  content: "›";
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  z-index: 2;
+  color: var(--muted);
+  font-size: 17px;
+  transform: translate(50%, -50%);
+  pointer-events: none;
+}
+
+.business-turnover-card:hover,
+.business-turnover-card:focus-visible {
+  border-color: color-mix(in srgb, var(--jade) 55%, var(--line));
+  background: color-mix(in srgb, var(--jade) 8%, var(--panel));
+  box-shadow: 0 9px 22px rgba(8, 28, 23, .14);
+  transform: translateY(-1px);
+}
+
+.business-turnover-card:focus-visible {
+  outline: 2px solid var(--jade);
+  outline-offset: 2px;
+}
+
+.business-turnover-card-head {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+}
+
+.business-turnover-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--muted);
+  background: var(--overlay);
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.business-turnover-label {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.business-turnover-count {
+  justify-self: end;
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.business-turnover-count small {
+  margin-left: 3px;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.business-turnover-link {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.business-turnover-card.is-ready {
+  border-color: color-mix(in srgb, var(--jade) 28%, var(--line));
+}
+
+.business-turnover-card.is-ready .business-turnover-mark,
+.business-turnover-card.is-progress .business-turnover-mark {
+  color: #effbf5;
+  background: color-mix(in srgb, var(--jade) 78%, var(--overlay));
+}
+
+.business-turnover-card.is-progress {
+  border-color: color-mix(in srgb, var(--blue) 42%, var(--line));
+}
+
+.business-turnover-card.is-progress .business-turnover-link { color: var(--blue); }
+
+.business-turnover-card.is-bottleneck {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--line));
+  background: color-mix(in srgb, var(--gold) 10%, var(--game-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 15%, transparent);
+}
+
+.business-turnover-card.is-bottleneck .business-turnover-mark {
+  color: #2c210a;
+  background: var(--gold);
+}
+
+.business-turnover-card.is-idle { opacity: .46; }
+
+.business-turnover-empty {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  background: color-mix(in srgb, var(--panel) 76%, transparent);
+}
+
+.business-turnover-empty .business-turnover-mark { width: 30px; height: 30px; }
+.business-turnover-empty strong { color: var(--ink); font-size: 12px; }
+.business-turnover-empty p { margin: 2px 0 0; color: var(--muted); font-size: 11px; }
+.business-turnover-empty-action {
+  min-height: 34px;
+  border: 1px solid color-mix(in srgb, var(--jade) 42%, var(--line));
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  color: var(--jade-light);
+  background: var(--jade-soft);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.overview-glance {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+  padding: 11px 2px;
+}
+
+.overview-glance-head {
+  display: grid;
+  flex: none;
+  gap: 2px;
+}
+
+.overview-glance-head b {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.overview-glance-head span {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.overview-glance .rank-pills {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+}
+
+.overview-glance .rank-pill {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.overview-glance .rank-pill .rank-num,
+.overview-glance .rank-pill b {
+  font-size: 14px;
+}
+
+.overview-glance-actions {
+  flex: none;
+}
+
+.overview-glance-action {
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0 11px;
+  color: var(--jade-light);
+  background: transparent;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* A result preview appears before money-changing decisions. */
+.purchase-outcome,
+.modal-balance-preview,
+.jm-balance-after,
+.auction-bid-outcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  color: var(--muted);
+  background: var(--field-bg);
+  font-size: 12px;
+}
+
+.purchase-outcome strong,
+.modal-balance-preview b,
+.jm-balance-after span:last-child,
+.auction-bid-outcome strong {
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-size: 13px;
+}
+
+.purchase-outcome.is-safe,
+.modal-balance-preview.is-safe,
+.jm-balance-after.is-safe,
+.auction-bid-outcome.is-safe {
+  border-color: color-mix(in srgb, var(--jade) 28%, var(--line));
+}
+
+.purchase-outcome.is-safe strong,
+.modal-balance-preview.is-safe b,
+.jm-balance-after.is-safe span:last-child,
+.auction-bid-outcome.is-safe strong { color: var(--jade-light); }
+
+.purchase-outcome.is-short,
+.modal-balance-preview.is-short,
+.jm-balance-after.is-short,
+.auction-bid-outcome.is-short {
+  border-color: color-mix(in srgb, var(--rose) 50%, var(--line));
+  background: color-mix(in srgb, var(--rose) 9%, var(--field-bg));
+}
+
+.purchase-outcome.is-short strong,
+.modal-balance-preview.is-short b,
+.jm-balance-after.is-short span:last-child,
+.auction-bid-outcome.is-short strong { color: var(--rose); }
+
+.auction-bid-outcome {
+  margin-top: 2px;
+}
+
+.auction-hall-fee .after {
+  width: 100%;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, .18);
+}
+
+.auction-hall-fee:not(.short) .after b { color: #baf4d4; }
+.auction-hall-fee.short .after b { color: #ff9a9a; }
+.lot-window-btn { white-space: nowrap; }
+
+.workshop-outcome-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--jade) 28%, var(--line));
+  border-radius: var(--r-sm);
+  background: var(--field-bg);
+}
+
+.workshop-outcome-preview > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-top: 1px solid var(--hair);
+  border-left: 1px solid var(--hair);
+}
+
+.workshop-outcome-preview > div:nth-child(-n + 2) { border-top: 0; }
+.workshop-outcome-preview > div:nth-child(odd) { border-left: 0; }
+.workshop-outcome-preview > div:last-child { grid-column: 1 / -1; border-left: 0; }
+.workshop-outcome-preview span { color: var(--muted); font-size: 10px; }
+.workshop-outcome-preview strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+
+.workshop-outcome-preview.is-safe > div:last-child strong { color: var(--jade-light); }
+.workshop-outcome-preview.is-short {
+  border-color: color-mix(in srgb, var(--rose) 48%, var(--line));
+}
+.workshop-outcome-preview.is-short > div:last-child strong { color: var(--rose); }
+
+.recruit-pay-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.recruit-pay-summary .is-balance {
+  border-color: color-mix(in srgb, var(--jade) 34%, var(--line));
+  background: color-mix(in srgb, var(--jade) 8%, var(--surface-2, var(--panel)));
+}
+
+.recruit-pay-summary .is-balance strong { color: var(--jade-light); }
+.recruit-pay-summary .is-short {
+  border-color: color-mix(in srgb, var(--rose) 48%, var(--line));
+  background: color-mix(in srgb, var(--rose) 9%, var(--surface-2, var(--panel)));
+}
+.recruit-pay-summary .is-short strong { color: var(--rose); }
+.recruit-empty-state { grid-column: 1 / -1; }
+.livestream-stock-empty { min-height: 280px; }
+
+/* Business ledger: explain the period before exposing the detailed numbers. */
+.report-card {
+  border-color: var(--game-line);
+  background: var(--game-surface);
+  box-shadow: var(--game-shadow);
+}
+
+.report-health {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  margin: 0 14px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-md);
+  padding: 16px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--jade) 10%, transparent), transparent 65%),
+    var(--field-bg);
+}
+
+.report-health.is-negative {
+  border-color: color-mix(in srgb, var(--rose) 45%, var(--line));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--rose) 10%, transparent), transparent 65%),
+    var(--field-bg);
+}
+
+.report-health-copy { display: grid; gap: 5px; min-width: 0; }
+.report-health-copy > span {
+  color: var(--jade-light);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.report-health.is-negative .report-health-copy > span { color: var(--rose); }
+.report-health-copy h4,
+.report-health-copy p { margin: 0; }
+.report-health-copy h4 { color: var(--ink); font-family: var(--font-serif); font-size: 18px; }
+.report-health-copy p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+.report-health-net {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  min-width: 130px;
+}
+.report-health-net span,
+.report-health-net small { color: var(--muted); font-size: 10px; }
+.report-health-net strong {
+  color: var(--jade-light);
+  font-family: var(--font-num);
+  font-size: 24px;
+}
+.report-health.is-negative .report-health-net strong { color: var(--rose); }
+
+.report-metrics div {
+  border-color: var(--game-line);
+  background: var(--field-bg);
+}
+.report-metrics .is-income strong,
+.report-metrics .is-net strong { color: var(--jade-light); }
+.report-metrics .is-expense strong,
+.report-metrics .is-negative strong { color: var(--rose); }
+.report-metrics .is-inventory strong { color: var(--gold); }
+
+.report-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 14px 14px;
+}
+.report-actions button { min-height: 42px; }
+
+.report-advice { display: grid; gap: 8px; margin: 0 14px; }
+.report-advice-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.report-advice-head h4 { margin: 0; color: var(--ink); font-family: var(--font-serif); }
+.report-advice-head span { color: var(--muted); font-size: 11px; }
+.report-card .report-advice .fit-list { display: grid; gap: 0; margin: 0; padding: 0; overflow: hidden; }
+.report-advice .fit-list > div {
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--hair);
+}
+.report-advice .fit-list > div:first-child { border-top: 0; }
+.report-advice .fit-list b {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #143326;
+  background: var(--jade-light);
+  font-family: var(--font-num);
+  font-size: 10px;
+}
+.report-advice .fit-list span { line-height: 1.55; }
+
+/* Rankings: make the player's position and next target visible at a glance. */
+.ranking-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(120px, .8fr));
+  gap: 8px;
+  margin: 10px 12px 8px;
+}
+
+.ranking-context-copy,
+.ranking-context-stat {
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  min-height: 66px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-sm);
+  padding: 9px 11px;
+  background: var(--field-bg);
+}
+
+.ranking-context-copy {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--gold) 9%, transparent), transparent 60%),
+    var(--field-bg);
+}
+.ranking-context-copy span,
+.ranking-context-copy small,
+.ranking-context-stat span { color: var(--muted); font-size: 10px; }
+.ranking-context-copy span { grid-column: 1 / -1; }
+.ranking-context-copy strong {
+  grid-row: 2 / span 2;
+  color: var(--gold);
+  font-family: var(--font-num);
+  font-size: 24px;
+}
+.ranking-context-copy small { align-self: center; }
+.ranking-context-stat strong { color: var(--ink); font-family: var(--font-num); font-size: 16px; }
+
+.ranking-row.is-podium .ranking-place { color: var(--gold); font-weight: 900; }
+.ranking-row.is-rank-1 {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 12%, transparent), transparent 62%);
+}
+.ranking-row.is-rank-2,
+.ranking-row.is-rank-3 {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--jade) 7%, transparent), transparent 58%);
+}
+.ranking-empty-state { min-height: 260px; margin: 12px; width: auto; }
+
+.game-empty-state.is-compact {
+  min-height: 190px;
+  border-radius: var(--r-md);
+  padding: 20px 16px;
+}
+
+/* Collection: show the cabinet as a managed long-term asset, not only loose cards. */
+.collection-overview {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(220px, 1.35fr) repeat(2, minmax(150px, .8fr));
+  gap: 10px;
+  border: 1px solid var(--game-gold-line);
+  border-radius: var(--r-md);
+  padding: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--gold) 10%, transparent), transparent 52%),
+    var(--game-surface);
+}
+
+.collection-capacity,
+.collection-overview-stat {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  background: var(--field-bg);
+}
+
+.collection-overview-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 3px 12px;
+}
+
+.collection-overview-copy span,
+.collection-overview-copy small,
+.collection-overview-stat span { color: var(--muted); font-size: 10px; }
+.collection-overview-copy small { grid-column: 1 / -1; }
+.collection-overview-copy strong,
+.collection-overview-stat strong {
+  color: var(--ink);
+  font-family: var(--font-num);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.collection-overview-stat:last-child strong { color: var(--gold); }
+
+.collection-capacity-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--muted) 16%, transparent);
+}
+
+.collection-capacity-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--jade), var(--gold));
+}
+
+/* Workforce: availability and running cost lead the roster. */
+.roster-panel {
+  padding: 20px;
+}
+
+.workforce-payroll-note {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--r-sm);
+  background: var(--overlay);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.workforce-summary {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(240px, 1.35fr) repeat(2, minmax(140px, .8fr));
+  gap: 10px;
+}
+
+.workforce-payroll-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.workforce-payroll-note strong { color: var(--ink); }
+.workforce-payroll-note p { margin: 6px 0 0; }
+.workforce-payroll-note > button { margin: 8px 8px 0 0; min-height: 36px; }
+.workforce-payroll-note.is-short { border: 1px solid var(--gold); }
+.workforce-payroll-note.is-short .workforce-payroll-heading:last-of-type,
+.workforce-payroll-debt { color: var(--gold); }
+.workforce-payroll-history {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 10px 16px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-sm);
+  background: var(--field-bg);
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.workforce-payroll-history summary { cursor: pointer; color: var(--ink); line-height: 1.7; }
+.workforce-payroll-records { max-height: 280px; overflow-y: auto; }
+.workforce-payroll-records article { padding: 10px 0; border-top: 1px solid var(--game-line); }
+.workforce-payroll-records article > strong { color: var(--gold); }
+.workforce-payroll-records article > div { display: flex; justify-content: space-between; gap: 12px; margin-top: 4px; }
+.workforce-payroll-records p { margin: 6px 0 0; line-height: 1.7; }
+.recruit-payroll-rule { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 8px 0; }
+
+.workforce-summary-copy,
+.workforce-summary-stat {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 74px;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  background: var(--field-bg);
+}
+
+.workforce-summary-copy.is-ready { border-color: color-mix(in srgb, var(--jade) 52%, var(--game-line)); }
+.workforce-summary-copy.is-busy { border-color: color-mix(in srgb, var(--gold) 52%, var(--game-line)); }
+.workforce-summary-copy span,
+.workforce-summary-copy small,
+.workforce-summary-stat span { color: var(--muted); font-size: 10px; }
+.workforce-summary-copy strong,
+.workforce-summary-stat strong { color: var(--ink); font-family: var(--font-num); font-size: 16px; }
+.workforce-summary-copy.is-ready strong { color: var(--jade-light); }
+.workforce-summary-stat:last-child strong { color: var(--gold); }
+
+.owned-worker-cost {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--hair);
+  padding-top: 9px;
+}
+.owned-worker-cost span { color: var(--muted); font-size: 11px; }
+.owned-worker-cost strong { color: var(--gold); font-family: var(--font-num); font-size: 13px; }
+
+.auction-history-empty { min-height: 300px; }
+
+/* Search/filter feedback stays compact but always tells the player what remains. */
+.jm-result-status {
+  flex: 0 0 auto;
+  border: 1px solid var(--game-line);
+  border-radius: var(--r-pill);
+  padding: 5px 9px;
+  color: var(--muted);
+  background: var(--field-bg);
+  font-family: var(--font-num);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.jm-result-status.is-filtered {
+  color: var(--jade-light);
+  border-color: color-mix(in srgb, var(--jade) 50%, var(--game-line));
+}
+
+.inventory-toolbar {
+  grid-template-columns: minmax(0, 1fr) auto minmax(130px, .45fr) auto;
+}
+
+.inventory-result-status {
+  justify-self: start;
+}
+
+.jm-qchip {
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.jm-switch {
+  flex: 0 0 42px;
+  padding: 0;
+}
+
+/* Keep the dense market filters readable inside the three-column desktop shell. */
+.jm-filters-bar {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
+.jm-filters-bar .jm-fgroup-quality {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.jm-filters-bar .jm-fgroup-quality #marketQFilters {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.jm-filters-bar .jm-fgroup-price {
+  flex: 1 1 220px;
+}
+
+.jm-filters-bar .jm-fgroup-toggle {
+  margin-left: auto;
+}
+
+.ws-picker-content.is-filter-empty {
+  display: none;
+}
+
+.wsp-search-empty {
+  min-height: 260px;
+  margin: 0 22px 22px;
+}
+
+.wsp-search-empty[hidden] {
+  display: none;
+}
+
+.ws-big-card[role="button"]:focus-visible {
+  outline: 2px solid var(--jade-light);
+  outline-offset: 3px;
+}
+
+.ws-big-worker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.ws-big-worker-actions .wsp-recommend {
+  margin-top: 0;
+}
+
+.ws-big-card.empty .ws-big-worker-actions {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  justify-content: center;
+  margin-top: 0;
+}
+
+.ws-big-worker.empty {
+  position: relative;
+}
+
+.workshop-step-panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.eq-shop-result-head {
+  min-height: 38px;
+  justify-content: space-between;
+}
+
+.eq-shop-result-head > button {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.equipment-shop-empty {
+  min-height: 260px;
+}
+
+/* Shared empty states always explain why and offer one useful next move. */
+.game-empty-state {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 230px;
+  border: 1px dashed var(--game-line);
+  border-radius: var(--r-lg);
+  padding: 28px 20px;
+  color: var(--muted);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--jade) 10%, transparent), transparent 46%),
+    color-mix(in srgb, var(--game-surface) 88%, transparent);
+  text-align: center;
+}
+
+.game-empty-state-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--game-gold-line);
+  border-radius: 50%;
+  color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 9%, var(--panel));
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.game-empty-state strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 16px;
+}
+
+.game-empty-state p,
+.game-empty-state .inventory-empty-hint {
+  max-width: 38em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.game-empty-state > button,
+.game-empty-state-actions > button {
+  min-height: 42px;
+  border-radius: var(--r-sm);
+  padding: 0 16px;
+}
+
+.game-empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.order-empty-state { grid-column: 1 / -1; }
+
+/* Card hierarchy: identity first, outcome second, one emphasized action. */
+.asset-listing,
+.equipment-listing,
+.owned-worker-card,
+.recruit-candidate-card,
+.inventory-slot,
+.order-card,
+.jm-card {
+  border-color: var(--game-line);
+  background-color: var(--game-surface);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, .12);
+}
+
+.asset-listing,
+.equipment-listing {
+  align-content: start;
+}
+
+.asset-listing .card-actions,
+.equipment-listing .card-actions {
+  margin-top: auto;
+}
+
+.owned-worker-card > button,
+.recruit-candidate-card > button {
+  color: var(--jade-light);
+  border: 1px solid var(--game-line);
+  background: transparent;
+  box-shadow: none;
+}
+
+.owned-worker-card > button:hover,
+.recruit-candidate-card > button:hover {
+  color: var(--ink);
+  background: var(--jade-soft);
+}
+
+.jm-card .jm-nm,
+.inventory-slot-name strong,
+.owned-worker-card h3,
+.recruit-candidate-card h3 {
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.jm-card .jm-price {
+  color: var(--gold);
+  font-size: 21px;
+}
+
+.jm-card .jm-buy {
+  min-height: 42px;
+}
+
+.jm-card.is-mine .jm-buy {
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: transparent;
+  box-shadow: none;
+}
+
+.jm-topbar-actions .jm-hero-btn:not(.primary) {
+  box-shadow: none;
+}
+
+.jm-topbar-actions .jm-hero-btn.primary {
+  min-height: 42px;
+  font-weight: 900;
+}
+
+.status-title {
+  margin-top: 22px;
+  padding-left: 11px;
+  border-left: 3px solid var(--gold);
+}
+
+@media screen and (max-width: 980px) {
+  .overview-command-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .business-economy-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .business-turnover-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .business-turnover-card:nth-child(2)::after { content: none; }
+}
+
+@media screen and (max-width: 767px) {
+  .workshop-step-tabs {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .workshop-step-tab {
+    padding: 12px 8px;
+    min-height: 88px;
+  }
+
+  .workshop-step-tab .wst-label {
+    font-size: clamp(16px, 4.5vw, 20px);
+  }
+
+  .business-focus-card {
+    min-height: 0;
+    padding: 16px;
+  }
+
+  .business-focus-action {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .business-economy-strip > div,
+  .business-economy-strip > details > summary {
+    padding: 10px;
+  }
+
+  .overview-glance {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .overview-glance .rank-pills {
+    flex-wrap: wrap;
+  }
+
+  .overview-glance-actions,
+  .overview-glance-action {
+    width: 100%;
+  }
+
+  .business-turnover-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .business-turnover-summary {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .business-turnover-card {
+    min-height: 76px;
+    padding: 9px;
+  }
+
+  .business-turnover-card-head {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .business-turnover-count {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 22px;
+  }
+
+  .business-turnover-link {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .business-turnover-empty {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .business-turnover-empty-action {
+    grid-column: 1 / -1;
+    min-height: 44px;
+  }
+
+  .jm-topbar {
+    align-items: stretch;
+  }
+
+  .jm-topbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .jm-topbar-actions .jm-hero-btn.primary {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-height: 48px;
+  }
+
+  .jm-topbar-actions .jm-hero-btn:not(.primary) {
+    min-height: 44px;
+  }
+
+  .recruit-pay-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-health {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-health-net {
+    justify-items: start;
+    border-top: 1px solid var(--hair);
+    padding-top: 10px;
+  }
+
+  .report-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-actions button {
+    min-height: 48px;
+  }
+
+  .ranking-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ranking-context-copy {
+    grid-column: 1 / -1;
+  }
+
+  .ranking-head .ranking-place {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .ranking-head .ranking-player {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .ranking-head .ranking-score {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: -3px;
+  }
+
+  .collection-overview,
+  .workforce-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .roster-panel {
+    padding: 12px;
+  }
+
+  .workforce-payroll-note {
+    padding: 10px 12px;
+  }
+
+  .collection-capacity,
+  .workforce-summary-copy {
+    grid-column: 1 / -1;
+  }
+
+  .jm-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .jm-result-status {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+
+  .inventory-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .inventory-toolbar #inventorySearch,
+  .inventory-toolbar .inventory-result-status {
+    grid-column: 1 / -1;
+  }
+
+  .inventory-result-status {
+    justify-self: stretch;
+  }
+
+  .wsp-search-empty {
+    min-height: 220px;
+    margin: 0 14px 14px;
+  }
+
+  .eq-shop-result-head {
+    align-items: stretch;
+  }
+
+  .eq-shop-result-head > button {
+    min-height: 42px;
+  }
+
+  .order-settlement {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .order-settlement-primary {
+    border-right: 1px solid var(--hair);
+    border-bottom: 0;
+  }
+
+  .order-card .card-actions > button,
+  .asset-listing .card-actions > button,
+  .equipment-listing .card-actions > button,
+  .game-empty-state > button,
+  .game-empty-state-actions > button {
+    min-height: 48px;
+  }
+
+  .game-empty-state {
+    min-height: 210px;
+    padding: 24px 16px;
+  }
+
+  .game-empty-state-actions {
+    display: grid;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .business-focus-action {
+    transition: none;
+  }
+}

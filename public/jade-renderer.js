@@ -3,11 +3,19 @@ import {
   kitProductKind as sharedKitProductKind,
   templateSizeForKind
 } from "./jade-categories.js";
+import { componentJewelrySvg } from "./inlay-product-renderer.js";
+import { jadePieceFor } from "../shared/domain/jade/jade-piece.js";
 
 const ROUGH_VIEWBOX = { width: 168, height: 140 };
 const SLICE_VIEWBOX = { width: 144, height: 96 };
 
 export function jadeCanvasMarkup(kind, item, className = "") {
+  if (kind === "product" && jadePieceFor(item) && !item?.components?.length) {
+    return componentJewelrySvg(item, className, { viewMode: item.polished ? "jade" : "original" });
+  }
+  if (kind === "product" && Array.isArray(item?.components) && item.components.length) {
+    return componentJewelrySvg(item, className);
+  }
   const label = escapeAttr(item?.name || "翡翠");
   const payload = encodeURIComponent(JSON.stringify(item || {}));
   const classes = ["jade-canvas", className].filter(Boolean).join(" ");
@@ -155,13 +163,28 @@ export function flatCrackSegments(seed, width, height, angle = 96) {
 export function paintJadeCanvases(root = document) {
   root.querySelectorAll("canvas[data-jade-kind][data-jade-payload]").forEach((canvas) => {
     try {
+      const signature = canvas.dataset.jadeSignature || "";
+      const sizeKey = `${canvas.clientWidth || 0}x${canvas.clientHeight || 0}`;
+      if (
+        signature
+        && canvas.dataset.jadePaintedSignature === signature
+        && canvas.dataset.jadePaintedSize === sizeKey
+        && canvas.width > 0
+        && canvas.height > 0
+      ) {
+        return;
+      }
       const item = JSON.parse(decodeURIComponent(canvas.dataset.jadePayload || "%7B%7D"));
       if (canvas.dataset.jadeKind === "rough") renderRoughCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "slice") renderSliceCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "product") renderProductCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "kit") renderKitTemplateCanvas(canvas, item);
       if (canvas.dataset.jadeKind === "kitMask") renderKitMaskCanvas(canvas, item);
+      canvas.dataset.jadePaintedSignature = signature;
+      canvas.dataset.jadePaintedSize = sizeKey;
     } catch (error) {
+      delete canvas.dataset.jadePaintedSignature;
+      delete canvas.dataset.jadePaintedSize;
       paintFallback(canvas);
       console.warn("Jade renderer fallback", error);
     }
@@ -699,13 +722,6 @@ function drawProductCarvingLines(ctx, kind, width, height) {
     ctx.quadraticCurveTo(cx, height * 0.52, width * 0.64, height * 0.44);
     ctx.stroke();
   }
-  if (kind === "beads") {
-    ctx.beginPath();
-    ctx.arc(width * 0.32, cy, width * 0.035, 0, Math.PI * 2);
-    ctx.moveTo(width * 0.72, cy);
-    ctx.arc(width * 0.68, cy, width * 0.035, 0, Math.PI * 2);
-    ctx.stroke();
-  }
   ctx.restore();
 }
 
@@ -958,19 +974,6 @@ function productPiecePath(ctx, kind, width, height) {
     ctx.bezierCurveTo(width * 0.24, height * 0.92, width * 0.16, height * 0.56, width * 0.42, height * 0.44);
     ctx.bezierCurveTo(width * 0.28, height * 0.38, width * 0.28, height * 0.08, cx, height * 0.08);
     ctx.closePath();
-    return false;
-  }
-  if (kind === "beads") {
-    ctx.beginPath();
-    const count = 6;
-    const bead = Math.min(width, height) * 0.18;
-    for (let index = 0; index < count; index += 1) {
-      const t = count === 1 ? 0.5 : index / (count - 1);
-      const x = width * (0.18 + t * 0.64);
-      const y = cy + Math.sin((t - 0.5) * Math.PI) * height * 0.08;
-      ctx.moveTo(x + bead, y);
-      ctx.arc(x, y, bead, 0, Math.PI * 2);
-    }
     return false;
   }
   roundedRectPath(ctx, width * 0.24, height * 0.16, width * 0.52, height * 0.68, width * 0.16);

@@ -1,0 +1,22 @@
+{
+  "port": 3000,
+  "pid": 23900,
+  "previousPid": 35356,
+  "backup": "data/world.json.before-login-payroll-20261023-150424.bak",
+  "players": 106,
+  "workers": 424,
+  "legacyDebtPlayers": 101,
+  "legacyDebtCleared": 2537461,
+  "cashPreserved": true,
+  "rosterPreserved": true,
+  "paidHistoryPreserved": true,
+  "payrollVersion": 3,
+  "policyVersion": 2,
+  "pendingLoginDays": 2,
+  "ready": true,
+  "persistence": "ready",
+  "persistenceFailures": 0,
+  "startedAt": 1792739093434,
+  "savedAt": 1792739098706,
+  "verifiedAt": 1792739117474
+}

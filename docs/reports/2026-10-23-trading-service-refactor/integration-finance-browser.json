@@ -1,0 +1,28 @@
+{
+  "checks": [
+    "pointer drag is one undo operation",
+    "add/undo/redo through keyboard",
+    "switch A/B/A preserves layout",
+    "page reload restores layout",
+    "other window keeps an independent version and requires explicit loading",
+    "inventory detail shows recorded purchase cost",
+    "sales comparison updates a target without listing or consuming stock",
+    "held goods keep their batch open (planning-finance-browser-player:finance-qa-product:1792758603023:4)",
+    "unknown historical cost is not presented as zero-cost profit",
+    "cash ledger links to business results and batch books"
+  ],
+  "errors": [],
+  "screenshots": [
+    "01-planner-desktop.png",
+    "02-planner-mobile.png",
+    "03-cost-detail-desktop.png",
+    "04-cost-detail-mobile.png",
+    "05-sales-compare-mobile.png",
+    "06-sales-compare-desktop.png",
+    "07-batch-desktop.png",
+    "08-batch-mobile.png",
+    "09-finance-mobile.png",
+    "10-finance-desktop.png"
+  ],
+  "temporaryWorld": "C:\\Users\\ZhuanZ\\AppData\\Local\\Temp\\jade-planning-finance-Btj0wq"
+}

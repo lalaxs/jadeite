@@ -1,0 +1,184 @@
+/* One icon control for every dialog family. Keep feature-specific placement
+   separate from appearance so existing close actions and focus traps stay intact. */
+[role="dialog"][data-modal-focus-surface]:focus { outline: none; }
+
+:root,
+[data-theme="night"] {
+  --modal-close-size: 36px;
+  --modal-close-fg: #a1b9ac;
+  --modal-close-hover-fg: #86bda0;
+  --modal-close-hover-bg: #1b352a;
+  --modal-close-active-bg: #254737;
+  --modal-close-focus: #719b83;
+  --modal-close-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3 3L13 13M13 3L3 13' stroke='black' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="day"] {
+  --modal-close-fg: #65796e;
+  --modal-close-hover-fg: #1a603f;
+  --modal-close-hover-bg: #eaf0e9;
+  --modal-close-active-bg: #dbe8dc;
+  --modal-close-focus: #6e947c;
+}
+
+button.modal-close,
+button.jm-modal-x,
+button.ws-picker-close {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  flex: 0 0 var(--modal-close-size);
+  width: var(--modal-close-size);
+  min-width: var(--modal-close-size);
+  max-width: var(--modal-close-size);
+  height: var(--modal-close-size);
+  min-height: var(--modal-close-size);
+  max-height: var(--modal-close-size);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: var(--modal-close-fg);
+  background: transparent;
+  box-shadow: none;
+  text-shadow: none;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+  outline: none;
+  opacity: 1;
+  transform: none;
+  filter: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+/* The existing × stays accessible through each button's aria-label. A shared
+   SVG mask gives every surface the same line weight, independent of its font. */
+button.modal-close::before,
+button.jm-modal-x::before,
+button.ws-picker-close::before {
+  content: "";
+  position: static;
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+  -webkit-mask: var(--modal-close-icon) center / contain no-repeat;
+  mask: var(--modal-close-icon) center / contain no-repeat;
+  mask-mode: alpha;
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+  animation: none;
+  pointer-events: none;
+}
+
+button.modal-close::after,
+button.jm-modal-x::after,
+button.ws-picker-close::after { content: none; }
+
+button.modal-close:not(:disabled):hover,
+button.jm-modal-x:not(:disabled):hover,
+button.ws-picker-close:not(:disabled):hover {
+  color: var(--modal-close-hover-fg);
+  background: var(--modal-close-hover-bg);
+}
+
+button.modal-close:not(:disabled):active,
+button.jm-modal-x:not(:disabled):active,
+button.ws-picker-close:not(:disabled):active {
+  color: var(--modal-close-hover-fg);
+  background: var(--modal-close-active-bg);
+  transform: none;
+}
+
+button.modal-close:focus-visible,
+button.jm-modal-x:focus-visible,
+button.ws-picker-close:focus-visible {
+  color: var(--modal-close-hover-fg);
+  background: var(--modal-close-hover-bg);
+  outline: 2px solid var(--modal-close-focus);
+  outline-offset: 2px;
+}
+
+button.modal-close:disabled,
+button.jm-modal-x:disabled,
+button.ws-picker-close:disabled {
+  color: var(--modal-close-fg);
+  background: transparent;
+  opacity: .4;
+  cursor: default;
+}
+
+button.modal-close[hidden],
+button.jm-modal-x[hidden],
+button.ws-picker-close[hidden] { display: none; }
+
+button.modal-close { top: 16px; right: 18px; }
+.game-modal-head > button.modal-close { position: static; }
+.game-modal-title { min-width: 0; }
+.game-modal-title h3,
+.game-modal-title p { overflow-wrap: anywhere; }
+.jm-modal-head > h3,
+.jm-modal-head > .bm-profile-head-copy { min-width: 0; }
+.jm-modal-head h3 { overflow-wrap: anywhere; }
+.bm-blind-manage-head-acts { flex-shrink: 0; align-self: flex-start; }
+.bm-blind-manage-head-acts > button { white-space: nowrap; }
+
+/* Older shop/order dialogs keep the control outside their header flow. Reserve
+   its hit area so long item names can wrap without running beneath the icon. */
+.modal > button.modal-close + .modal-head {
+  min-width: 0;
+  padding-right: calc(var(--modal-close-size) + 8px);
+}
+.modal > button.modal-close + .modal-head > div:last-child { min-width: 0; }
+.modal > button.modal-close + .modal-head h3,
+.modal > button.modal-close + .modal-head p { overflow-wrap: anywhere; }
+
+@media (max-width: 640px), (pointer: coarse) {
+  :root,
+  [data-theme="night"] { --modal-close-size: 44px; }
+}
+
+@media (max-width: 640px) {
+  /* This header also contains a status and buyer-preview action. Give those
+     their own wrapping space while the close control stays in its corner. */
+  .bm-blind-manage-modal .jm-modal-head {
+    position: relative;
+    display: block;
+    padding-right: calc(var(--modal-close-size) + 30px);
+  }
+  .bm-blind-manage-modal .bm-blind-manage-head-acts { flex-wrap: wrap; margin-top: 10px; }
+  .bm-blind-manage-modal .bm-blind-manage-head-acts > .jm-modal-x {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.modal-close,
+  button.jm-modal-x,
+  button.ws-picker-close { transition: none; }
+}
+
+@media (forced-colors: active) {
+  button.modal-close,
+  button.jm-modal-x,
+  button.ws-picker-close { color: ButtonText; }
+  button.modal-close::before,
+  button.jm-modal-x::before,
+  button.ws-picker-close::before { forced-color-adjust: none; }
+  button.modal-close:focus-visible,
+  button.jm-modal-x:focus-visible,
+  button.ws-picker-close:focus-visible { outline-color: Highlight; }
+}

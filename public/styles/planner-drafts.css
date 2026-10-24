@@ -1,0 +1,16 @@
+.planner-draft-toolbar { padding: 10px 18px; border-bottom: 1px solid var(--line, #345747); background: var(--panel, #10271e); }
+.planner-draft-main { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.planner-draft-history { display: flex; gap: 6px; }
+.planner-draft-status { flex: 1; min-width: 140px; font-size: 12px; color: var(--muted, #94b7aa); }
+.planner-draft-note { margin: 5px 0 0; font-size: 11px; line-height: 1.45; color: var(--muted, #94b7aa); }
+.planner-draft-toolbar .is-warning { color: var(--gold, #c7a957); }
+.planner-draft-versions { margin-top: 8px; font-size: 12px; }
+.planner-draft-versions summary { cursor: pointer; }
+.planner-draft-versions > div { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
+.is-draft-pending .ws-planner-body { pointer-events: none; opacity: .7; }
+@media (max-width: 767px) {
+  .planner-draft-toolbar { padding: 8px 12px; }
+  .planner-draft-main { gap: 6px; }
+  .planner-draft-toolbar button { min-height: 36px; }
+  .planner-draft-status { min-width: 0; flex-basis: calc(100% - 130px); }
+}

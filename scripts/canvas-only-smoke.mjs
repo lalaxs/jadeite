@@ -1,7 +1,11 @@
+import { readFileSync } from "node:fs";
 import fs from "node:fs";
+import { readClientShellSource } from "./load-client-shell.mjs";
+import { loadResolvedStyles } from "./load-styles.mjs";
 
-const mainSource = fs.readFileSync("public/main.js", "utf8");
-const styleSource = fs.readFileSync("public/styles.css", "utf8");
+const mainEntry = fs.readFileSync("public/main.js", "utf8");
+const mainSource = readClientShellSource();
+const styleSource = loadResolvedStyles();
 const serverSource = fs.readFileSync("server.js", "utf8");
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 

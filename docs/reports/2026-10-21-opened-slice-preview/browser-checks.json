@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "card": {
+      "rawMaterialSvg": true,
+      "shapeMatchesPlanner": true,
+      "exteriorHidden": true,
+      "productCanvas": false
+    },
+    "buyDetail": {
+      "rawMaterialSvg": true,
+      "shapeMatchesPlanner": true,
+      "exteriorHidden": true,
+      "productCanvas": false
+    },
+    "inventory": {
+      "rawMaterialSvg": true,
+      "shapeMatchesPlanner": true,
+      "exteriorHidden": true,
+      "productCanvas": false
+    },
+    "listing": {
+      "rawMaterialSvg": true,
+      "shapeMatchesPlanner": true
+    },
+    "sharedPreview": {
+      "rawMaterialSvg": true,
+      "shapeMatchesPlanner": true
+    }
+  },
+  "stage": "明料 · 已开窗",
+  "itemId": "a924c812-0abf-43bc-ad4c-8dd666dedca8",
+  "mobile": {
+    "width": 390,
+    "horizontalOverflow": false
+  },
+  "desktop": {
+    "width": 1100
+  },
+  "sourceReadOnly": true,
+  "browserErrors": []
+}

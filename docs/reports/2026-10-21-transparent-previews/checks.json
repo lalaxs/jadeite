@@ -1,0 +1,15 @@
+{
+  "changes": "Shared jade previews use transparent backgrounds",
+  "passed": [
+    "styles-split-smoke",
+    "night-theme-smoke",
+    "responsive-layout-smoke"
+  ],
+  "browser": {
+    "productBackground": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "inventoryScreenshot": "inventory.png",
+    "workshopScreenshot": "workshop.png",
+    "logs": []
+  }
+}

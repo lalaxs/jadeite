@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "baseline": true,
+  "measurements": [
+    {
+      "label": "before-desktop",
+      "controls": [
+        {
+          "x": 200,
+          "y": 171,
+          "width": 720,
+          "height": 38
+        },
+        {
+          "x": 200,
+          "y": 219,
+          "width": 720,
+          "height": 38
+        },
+        {
+          "x": 200,
+          "y": 267,
+          "width": 720,
+          "height": 38
+        }
+      ],
+      "product": {
+        "x": 1140,
+        "y": 256,
+        "width": 0,
+        "height": 0
+      },
+      "svg": {
+        "x": 1140,
+        "y": 256,
+        "width": 140,
+        "height": 140
+      },
+      "detailOverflow": false,
+      "modalOverflow": false,
+      "pageOverflow": false
+    }
+  ],
+  "errors": []
+}

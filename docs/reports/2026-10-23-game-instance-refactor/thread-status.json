@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-23T13:33:48.114Z",
+  "threads": [
+    {
+      "id": "01a168d2-5bd0-7c72-a867-3fb4ae1979d6",
+      "title": "添加在册人数说明按钮",
+      "status": "idle",
+      "updatedAt": 1792761444
+    },
+    {
+      "id": "01a167f3-0cb9-71e3-9661-20e64a55c203",
+      "title": "固定黑市详情栏并统一图标布局",
+      "status": "idle",
+      "updatedAt": 1792761545
+    },
+    {
+      "id": "01a16778-e22e-7861-a14f-afdbf8de1444",
+      "title": "分析架构并规划重构方案",
+      "status": "active",
+      "updatedAt": 1792762287
+    },
+    {
+      "id": "01a16853-5d33-7460-8db3-a75eb6494e59",
+      "title": "梳理非服务器与登录功能优化建议",
+      "status": "idle",
+      "updatedAt": 1792760088
+    },
+    {
+      "id": "01a16883-ac60-7063-b49a-66602ef7a6e3",
+      "title": "重新设计库存物品详情弹窗",
+      "status": "idle",
+      "updatedAt": 1792758442
+    },
+    {
+      "id": "01a167fc-bac3-7db2-abd1-88a774a55d68",
+      "title": "分析游戏经济数值平衡",
+      "status": "idle",
+      "updatedAt": 1792750416
+    }
+  ]
+}

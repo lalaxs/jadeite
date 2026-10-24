@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "timing": "test profile; real production and transaction handlers",
+  "milestones": [
+    {
+      "stage": "initial",
+      "cash": 12000,
+      "rough": 1
+    },
+    {
+      "stage": "commission-claimed-once",
+      "net": 180,
+      "cash": 12180
+    },
+    {
+      "stage": "finished",
+      "cash": 12180,
+      "productValue": 280
+    },
+    {
+      "stage": "sold",
+      "cash": 12503,
+      "revenue": 323
+    },
+    {
+      "stage": "replenished",
+      "price": 1618,
+      "cash": 10885
+    },
+    {
+      "stage": "bought-first-machine",
+      "price": 3200,
+      "cash": 7685,
+      "nextCommissionNet": 212
+    },
+    {
+      "stage": "owned-opening-completed",
+      "cash": 7685,
+      "operator": "owner-operator"
+    }
+  ],
+  "pageErrors": []
+}

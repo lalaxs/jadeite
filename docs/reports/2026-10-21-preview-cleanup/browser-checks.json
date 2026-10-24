@@ -1,0 +1,17 @@
+{
+  "environment": "http://localhost:3011; JADE_WORLD_PERSIST=0",
+  "checks": {
+    "workshopOnlyFinishedPreview": true,
+    "workshopOriginalPanelCount": 0,
+    "inventoryHistoryAndOriginCount": 0,
+    "hideAccessoriesWorks": true,
+    "mobileWidth": 390,
+    "mobileScrollWidth": 390,
+    "consoleWarningsAndErrors": 0
+  },
+  "screenshots": [
+    "workshop-desktop.png",
+    "workshop-mobile.png",
+    "inventory-mobile.png"
+  ]
+}

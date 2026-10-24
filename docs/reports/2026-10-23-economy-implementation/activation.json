@@ -1,0 +1,75 @@
+{
+  "status": "activated",
+  "before": {
+    "pid": 36672,
+    "playerCount": 106,
+    "deviceCount": 318,
+    "workerCount": 424,
+    "assetDigest": "bdca18abf0b9b91c24fa6c537afe0973a79e73e09563a2e41e82e2e5c21e917e",
+    "timing": "normal",
+    "persistence": "json"
+  },
+  "backup": {
+    "filePath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\backups\\economy-preflight-1792749890617.json",
+    "bytes": 3370430,
+    "sha256": "04f7851222ed25c48c57d10622b97e5227ba7164ce3b062b3ad96ce9c498aa6b"
+  },
+  "inspectedAt": "2026-10-23T10:04:50.677Z",
+  "cloneValidation": {
+    "ok": true,
+    "players": 106,
+    "existingAssetsPreserved": true,
+    "bootReconciliationVerified": true,
+    "newAccountVerified": true,
+    "checkedAt": "2026-10-23T10:07:58.765Z"
+  },
+  "finalBackup": {
+    "filePath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\backups\\economy-before-restart-1792750223187.json",
+    "bytes": 3370527,
+    "sha256": "1e57aaf280e351a61a874bcbf3ed1cb0b9dd5142df8c9e5b99aea04b27d7acbd"
+  },
+  "adminCheckpoint": "not-configured; graceful shutdown will flush",
+  "gracefulExitCode": 0,
+  "newPid": 27644,
+  "restartedAt": "2026-10-23T10:10:23.258Z",
+  "after": {
+    "pid": 27644,
+    "playerCount": 106,
+    "deviceCount": 318,
+    "workerCount": 424,
+    "assetDigest": "bdca18abf0b9b91c24fa6c537afe0973a79e73e09563a2e41e82e2e5c21e917e",
+    "timing": "normal",
+    "persistence": "json"
+  },
+  "newAccount": {
+    "cash": 12000,
+    "devices": 0,
+    "workers": 0,
+    "publicStations": 3,
+    "owner": true,
+    "commissionNets": [
+      160,
+      180,
+      200
+    ]
+  },
+  "assetsPreserved": true,
+  "verifiedAt": "2026-10-23T10:10:42.502Z",
+  "health": {
+    "ok": true,
+    "booting": false,
+    "serving": true,
+    "ready": true,
+    "shuttingDown": false,
+    "persistence": "ready",
+    "persistenceLatencyMs": 75,
+    "lastPersistenceSuccessAt": 1792750284122,
+    "consecutivePersistenceFailures": 0,
+    "lastError": null,
+    "startedAt": 1792750223633,
+    "now": 1792750310891
+  },
+  "maintenanceClosed": true,
+  "servedRulesMatch": true,
+  "backupHashesVerified": true
+}

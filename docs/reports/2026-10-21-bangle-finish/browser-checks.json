@@ -1,0 +1,25 @@
+{
+  "environment": "http://localhost:3014 (JADE_WORLD_PERSIST=0)",
+  "desktop": "1280×720",
+  "mobile": "390×844",
+  "passed": [
+    "only refinement and polish selectors",
+    "artisan/soft selection updates duration and estimate",
+    "real workshop start and completed delivery",
+    "claim into inventory and inspect craft summary",
+    "order displays soft-polish requirement and matching bangles",
+    "real market listing displays bangle/refinement/polish/grade",
+    "390px document scrollWidth equals viewport",
+    "confirm button visible on mobile",
+    "console has no warnings or errors"
+  ],
+  "screenshots": [
+    "desktop.png",
+    "mobile.png",
+    "delivery-mobile.png",
+    "inventory-mobile.png",
+    "orders-mobile.png",
+    "market-detail-mobile.png",
+    "market-mobile.png"
+  ]
+}

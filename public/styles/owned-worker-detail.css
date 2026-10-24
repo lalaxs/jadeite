@@ -1,0 +1,145 @@
+/* Compact roster details. Both themes share the same structure and dimensions. */
+.game-modal.owned-worker-detail-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, calc(100vw - 36px));
+  max-width: calc(100vw - 36px);
+  height: auto;
+  max-height: min(720px, calc(100dvh - 48px));
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, .24);
+}
+
+.owned-worker-detail-modal [data-owned-worker-detail-body] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: auto;
+}
+
+.owned-worker-detail-modal .owned-worker-sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+.owned-worker-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.owned-worker-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  min-width: 0;
+  height: 48px;
+  border-radius: 12px;
+  color: var(--jade);
+  background: var(--jade-soft);
+}
+.owned-worker-avatar svg { width: 66px; height: 44px; }
+.owned-worker-identity { min-width: 0; }
+.owned-worker-name { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.owned-worker-name h3 { margin: 0; color: var(--ink); font-size: 21px; line-height: 1.3; overflow-wrap: anywhere; }
+.owned-worker-name .wsp-tier-badge { padding: 2px 8px; font-size: 12px; line-height: 1.4; }
+.owned-worker-identity p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+.owned-worker-facts { display: grid; justify-items: end; gap: 6px; margin-left: auto; flex: none; }
+.owned-worker-state { border-radius: 999px; padding: 3px 8px; color: var(--jade); background: var(--jade-soft); font-size: 12px; line-height: 1.3; }
+.owned-worker-state.is-busy { color: var(--blue); background: color-mix(in srgb, var(--blue) 12%, transparent); }
+.owned-worker-state.is-stopped { color: var(--rose); background: color-mix(in srgb, var(--rose) 12%, transparent); }
+.owned-worker-wage { display: flex; align-items: baseline; gap: 4px; color: var(--muted); font-size: 12px; }
+.owned-worker-wage strong { color: var(--ink); font-family: var(--font-num); font-size: 16px; }
+
+.owned-worker-detail-modal .owned-worker-content {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 16px;
+  padding: 14px 20px 18px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.owned-worker-content h4 { display: flex; align-items: baseline; gap: 6px; margin: 0 0 8px; color: var(--ink); font-size: 13px; line-height: 1.4; }
+.owned-worker-content h4 > span { color: var(--muted); font-size: 11px; font-weight: 500; }
+.owned-worker-content .wsp-trait-rows { gap: 6px; }
+.owned-worker-content .wsp-trait-row {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 10px;
+  border-left-width: 2px;
+  border-radius: 7px;
+}
+.owned-worker-content .wsp-trait-name { flex: none; font-size: 13px; }
+.owned-worker-content .wsp-trait-desc { font-size: 12px; line-height: 1.45; }
+.owned-worker-content .wsp-skill-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.owned-worker-content .wsp-skill-card { min-width: 0; gap: 4px; padding: 7px 10px; border-radius: 8px; }
+.owned-worker-content .wsp-skill-card-head { gap: 6px; }
+.owned-worker-content .wsp-skill-card-head .wsp-skill-name { font-size: 14px; line-height: 1.3; }
+.owned-worker-content .wsp-skill-tag { margin-left: 5px; padding: 1px 5px; font-size: 10px; vertical-align: middle; }
+.owned-worker-content .wsp-skill-lv { flex: none; padding: 2px 6px; font-size: 11px; line-height: 1.3; }
+.owned-worker-content .wsp-skill-card-bar .wsp-bar { height: 4px; }
+.owned-worker-content .wsp-skill-card-foot { gap: 6px; font-size: 12px; line-height: 1.4; }
+.owned-worker-content .wsp-skill-attr { color: var(--jade); }
+.owned-worker-content .wsp-skill-exp { flex: none; font-size: 12px; }
+
+.owned-worker-footer {
+  flex: none;
+  padding: 12px 20px max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+.owned-worker-footer [data-owned-dismiss-footer] { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.owned-worker-footer button {
+  min-height: 36px;
+  padding: 7px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: none;
+}
+.owned-worker-footer .primary { min-width: 100px; color: #fff; background: var(--jade-dark); }
+.owned-worker-footer .danger-outline { color: var(--rose); border-color: color-mix(in srgb, var(--rose) 36%, transparent); background: transparent; }
+.owned-worker-footer button:disabled { opacity: .55; cursor: not-allowed; }
+.owned-worker-footer .is-confirming { display: block; }
+.owned-worker-footer .owned-dismiss-inline { gap: 10px; padding: 10px 12px; }
+.owned-worker-footer .owned-dismiss-inline-actions { grid-template-columns: 1fr 1fr; }
+.owned-worker-footer .owned-dismiss-inline-actions button { min-height: 36px; }
+
+@media (max-width: 640px) {
+  .owned-worker-content .wsp-skill-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .game-modal.owned-worker-detail-modal {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .owned-worker-heading { gap: 10px; padding: 14px; }
+  .owned-worker-avatar { flex-basis: 40px; height: 40px; }
+  .owned-worker-avatar svg { width: 56px; height: 38px; }
+  .owned-worker-name h3 { font-size: 19px; }
+  .owned-worker-name { gap: 5px; }
+  .owned-worker-name .wsp-tier-badge { padding-inline: 6px; }
+  .owned-worker-detail-modal .owned-worker-content { padding: 12px 14px 14px; gap: 14px; }
+  .owned-worker-content .wsp-skill-cards { grid-template-columns: 1fr; gap: 6px; }
+  .owned-worker-content .wsp-trait-row { gap: 8px; }
+  .owned-worker-footer { padding: 10px 14px max(10px, env(safe-area-inset-bottom)); }
+  .owned-worker-footer button,
+  .owned-worker-footer .owned-dismiss-inline-actions button { min-height: 44px; }
+}

@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "timing": "test profile; real production and transaction handlers",
+  "milestones": [
+    {
+      "stage": "initial",
+      "cash": 12000,
+      "rough": 1
+    },
+    {
+      "stage": "finished",
+      "cash": 12000,
+      "productValue": 2113
+    },
+    {
+      "stage": "sold",
+      "cash": 14367,
+      "revenue": 2367
+    },
+    {
+      "stage": "replenished",
+      "price": 1858,
+      "cash": 12509
+    }
+  ],
+  "pageErrors": []
+}

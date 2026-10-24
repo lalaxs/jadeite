@@ -1,0 +1,56 @@
+{
+  "baseURL": "http://127.0.0.1:3012/",
+  "checks": [
+    {
+      "setting": "claw",
+      "body": "/assets/inlay/buddha-rounded-minimal-v1.png",
+      "stones": 0,
+      "quoted": 0,
+      "missing": []
+    },
+    {
+      "setting": "bezel",
+      "body": "/assets/inlay/buddha-rounded-minimal-v1.png",
+      "stones": 0,
+      "quoted": 0,
+      "missing": []
+    },
+    {
+      "setting": "micro",
+      "body": "/assets/inlay/buddha-rounded-minimal-v1.png",
+      "stones": 60,
+      "quoted": 60,
+      "missing": []
+    },
+    {
+      "setting": "cord",
+      "body": "/assets/inlay/buddha-rounded-minimal-v1.png",
+      "stones": 0,
+      "quoted": 0,
+      "missing": []
+    },
+    {
+      "polishes": [
+        "bright",
+        "soft",
+        "matte"
+      ]
+    },
+    {
+      "mobile": {
+        "viewport": 390,
+        "document": 390
+      }
+    },
+    {
+      "inventoryBitmap": true,
+      "bitmapWidth": 256
+    },
+    {
+      "inventoryDetail": true
+    }
+  ],
+  "errors": [],
+  "failedResponses": [],
+  "guestSessionProbes": 1
+}

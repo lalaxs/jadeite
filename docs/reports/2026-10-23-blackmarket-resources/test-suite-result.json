@@ -1,0 +1,75 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "command": "node scripts/starter-economy-smoke.mjs",
+      "passed": true,
+      "output": "{\n  \"ok\": true,\n  \"qualityDraws\": {\n    \"glutinous\": 7000,\n    \"bean\": 3000\n  },\n  \"loops\": [\n    {\n      \"quality\": \"glutinous\",\n      \"initialCash\": 12000,\n      \"giftReference\": 4290,\n      \"productValue\": 2298,\n      \"sale\": 2574,\n      \"cashAfterSale\": 14574,\n      \"repurchase\": 2453,\n      \"finalCash\": 12921,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    },\n    {\n      \"quality\": \"bean\",\n      \"initialCash\": 12000,\n      \"giftReference\": 2383,\n      \"productValue\": 1957,\n      \"sale\": 2192,\n      \"cashAfterSale\": 14192,\n      \"repurchase\": 2453,\n      \"finalCash\": 12539,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "node scripts/feature-availability-smoke.mjs",
+      "passed": true,
+      "output": "feature-availability-smoke: hidden entrances/reminders, 20 rejected commands, debug closure and paused rentals ok\n"
+    },
+    {
+      "command": "node scripts/gameplay-rules-smoke.mjs",
+      "passed": true,
+      "output": "gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok\n"
+    },
+    {
+      "command": "node scripts/refactor-contracts-smoke.mjs",
+      "passed": true,
+      "output": "refactor-contracts-smoke: 71 socket events + 14 views frozen\n"
+    },
+    {
+      "command": "node scripts/shared-domain-smoke.mjs",
+      "passed": true,
+      "output": "shared-domain-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/planning-authority-smoke.mjs",
+      "passed": true,
+      "output": "planning-authority-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/atomic-mutation-smoke.mjs",
+      "passed": true,
+      "output": "atomic-mutation-smoke: rollback + post-commit effects ok\n"
+    },
+    {
+      "command": "node scripts/mutation-socket-smoke.mjs",
+      "passed": true,
+      "output": "mutation-socket-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/player-session-service-smoke.mjs",
+      "passed": true,
+      "output": "player-session-service-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/workshop-craft-scoring-smoke.mjs",
+      "passed": true,
+      "output": "workshop-craft-scoring-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/bangle-finish-smoke.mjs",
+      "passed": true,
+      "output": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\n"
+    },
+    {
+      "command": "node scripts/bangle-finish-socket-e2e.mjs",
+      "passed": true,
+      "output": "bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart\n"
+    },
+    {
+      "command": "node scripts/auction-service-smoke.mjs",
+      "passed": true,
+      "output": "auction-service-smoke: ok\n"
+    },
+    {
+      "command": "node scripts/auction-halls-unlock-smoke.mjs",
+      "passed": false,
+      "output": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\r\n+ actual - expected\r\n\r\n+ 97998600\r\n- 97998000\r\n       ^\r\n\r\n    at file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/scripts/auction-halls-unlock-smoke.mjs:58:8\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: true,\r\n  code: 'ERR_ASSERTION',\r\n  actual: 97998600,\r\n  expected: 97998000,\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+    }
+  ]
+}

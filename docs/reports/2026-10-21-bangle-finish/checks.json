@@ -1,0 +1,673 @@
+[
+  {
+    "command": "node scripts/feature-availability-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 53,
+    "output": "feature-availability-smoke: hidden entrances/reminders, 20 rejected commands, debug closure and paused rentals ok\n"
+  },
+  {
+    "command": "node scripts/gameplay-rules-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 720,
+    "output": "gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok\n"
+  },
+  {
+    "command": "node scripts/refactor-contracts-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 46,
+    "output": "refactor-contracts-smoke: 71 socket events + 14 views frozen\n"
+  },
+  {
+    "command": "node scripts/shared-domain-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 87,
+    "output": "shared-domain-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/planning-authority-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 415,
+    "output": "planning-authority-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/atomic-mutation-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 39,
+    "output": "atomic-mutation-smoke: rollback + post-commit effects ok\n"
+  },
+  {
+    "command": "node scripts/mutation-socket-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 38,
+    "output": "mutation-socket-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/player-session-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 41,
+    "output": "player-session-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/workshop-craft-scoring-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 43,
+    "output": "workshop-craft-scoring-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/bangle-finish-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 466,
+    "output": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\n"
+  },
+  {
+    "command": "node scripts/auction-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 410,
+    "output": "auction-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/auction-settle-modal-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 394,
+    "output": "auction-settle-modal-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/market-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 393,
+    "output": "market-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/market-liquidity-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 37,
+    "output": "market-liquidity-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/market-card-info-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 72,
+    "output": "market-card-info-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/market-want-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 410,
+    "output": "Market want board checks passed\n"
+  },
+  {
+    "command": "node scripts/materials-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 391,
+    "output": "materials-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/orders-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 393,
+    "output": "orders-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/rough-pool-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 376,
+    "output": "rough-pool-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/assets-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 378,
+    "output": "assets-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/inventory-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 381,
+    "output": "inventory-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/inventory-recycle-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 62,
+    "output": "inventory-recycle-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/inventory-unseen-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 413,
+    "output": "inventory-unseen-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/economy-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 405,
+    "output": "economy-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/recovery-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 44,
+    "output": "recovery-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/report-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 408,
+    "output": "report-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/offline-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 382,
+    "output": "offline-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/snapshot-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 393,
+    "output": "snapshot-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/player-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 375,
+    "output": "player-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/mining-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 451,
+    "output": "mining service smoke: ok\n"
+  },
+  {
+    "command": "node scripts/mining-basic-mode-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 416,
+    "output": "mining-basic-mode-smoke: starter miner, balanced rent, flexible crew and basic settlement ok\n"
+  },
+  {
+    "command": "node scripts/mining-allocation-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 479,
+    "output": "mining-allocation-smoke: competition, priority, replacement and roster-exit feedback ok\n"
+  },
+  {
+    "command": "node scripts/mining-fairness-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 708,
+    "output": "mining-fairness-smoke: 20-round no-starvation, mine rotation and cash conservation ok\n"
+  },
+  {
+    "command": "node scripts/mining-persistence-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 495,
+    "output": "mining-persistence-smoke: pending escrow and active shifts survive restart with idempotent settlement\n"
+  },
+  {
+    "command": "node scripts/mining-downtime-recovery-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 407,
+    "output": "mining-downtime-recovery-smoke: expired applications refunded, active shift settled, fresh round reopened\n"
+  },
+  {
+    "command": "node scripts/mining-job-recovery-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 440,
+    "output": "mining-job-recovery-smoke: invalid jobs refund once, remain recorded, and survive restart\n"
+  },
+  {
+    "command": "node scripts/mining-runtime-soak-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 3588,
+    "output": "mining-runtime-soak-smoke: 50 players, 60 rounds, 1800 shifts and 6 restart cycles ok\n"
+  },
+  {
+    "command": "node scripts/mining-roster-participation-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 420,
+    "output": "mining roster participation smoke ok\n"
+  },
+  {
+    "command": "node scripts/mining-ui-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 67,
+    "output": "mining-ui-smoke: simplified 30-mine loop, four tabs, responsive UI and isolated miners ok\n"
+  },
+  {
+    "command": "node scripts/mining-balance-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 46,
+    "output": "mining-balance-smoke: five rent bands, five-shift leases, capped crew bonus and <=5x expected-net spread ok\n"
+  },
+  {
+    "command": "node scripts/mining-health-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 400,
+    "output": "mining-health-smoke: read-only audit detects roster, escrow, lease and overdue-job faults\n"
+  },
+  {
+    "command": "node scripts/mining-competition-health-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 56,
+    "output": "mining-competition-health-smoke: four tuning warnings and thresholds ok\n"
+  },
+  {
+    "command": "node scripts/mining-economy-insights-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 61,
+    "output": "mining-economy-insights-smoke: valuation, costs, spread and tuning alerts ok\n"
+  },
+  {
+    "command": "node scripts/mining-world-economy-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 63,
+    "output": "mining-world-economy-smoke: round persistence, sample gates, full rent and belt alerts ok\n"
+  },
+  {
+    "command": "node scripts/chat-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 45,
+    "output": "chat-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/collection-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 45,
+    "output": "collection-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/blackmarket-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 470,
+    "output": "blackmarket-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/blackmarket-npc-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 5452,
+    "output": "blackmarket-npc-smoke: ok (240 purchases, pricing, inventory, batch limits, save/restore, rollback)\n"
+  },
+  {
+    "command": "node scripts/blackmarket-npc-finish-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 909,
+    "output": "blackmarket-npc-finish-smoke: seven motifs, finished/blank rendering, exact crop, existing-stock and purchased-item compatibility ok\n"
+  },
+  {
+    "command": "node scripts/blackmarket-offcut-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 16918,
+    "output": "blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 21 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n"
+  },
+  {
+    "command": "node scripts/bm-plan-pool-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 72,
+    "output": "bm-plan-pool-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/socket-handlers-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 41,
+    "output": "socket-handlers-smoke: ok 75 events\n"
+  },
+  {
+    "command": "node scripts/runtime-ticks-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 386,
+    "output": "runtime-ticks-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/server-context-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 411,
+    "output": "server-context-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/test-hooks-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 388,
+    "output": "test-hooks-smoke: ok 174 keys\n"
+  },
+  {
+    "command": "node scripts/workshop-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 408,
+    "output": "workshop-service-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/workshop-delivery-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 450,
+    "output": "workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok\n"
+  },
+  {
+    "command": "node scripts/workshop-delivery-socket-e2e.mjs",
+    "exitCode": 0,
+    "durationMs": 2328,
+    "output": "workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok\n"
+  },
+  {
+    "command": "node scripts/livestream-service-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 51,
+    "output": "livestream-service-smoke: room authority + legacy retirement ok\n"
+  },
+  {
+    "command": "node scripts/world-store-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 57,
+    "output": "world-store-smoke: memory store + server wiring ok\n"
+  },
+  {
+    "command": "node scripts/world-persist-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 67,
+    "output": "world-persist-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/sqlite-world-persist-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 122,
+    "output": "sqlite-world-persist-smoke: transactions + migration + fallback ok\n"
+  },
+  {
+    "command": "node scripts/persistence-crash-recovery-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 237,
+    "output": "persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok\n"
+  },
+  {
+    "command": "node scripts/runtime-soak-smoke.mjs",
+    "exitCode": 0,
+    "output": "runtime-soak-smoke: 30 simulated days + repeated SQLite restarts ok\n",
+    "initialAttempt": {
+      "exitCode": null,
+      "durationMs": 180036,
+      "note": "Batch runner timed out after 180 seconds; no assertion failed."
+    },
+    "note": "Re-run separately without the batch timeout; completed successfully."
+  },
+  {
+    "command": "node scripts/styles-split-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 44,
+    "output": "styles-split-smoke: 16 parts, resolved 722276 bytes ok\n"
+  },
+  {
+    "command": "node scripts/action-router-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 49,
+    "output": "action-router-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/jade-loop-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 40,
+    "output": "Jade idle loop rules checks passed\n"
+  },
+  {
+    "command": "node scripts/jade-auction-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 41,
+    "output": "Jade 10-minute auction checks passed\n"
+  },
+  {
+    "command": "node scripts/server-idle-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 521,
+    "output": "Server idle behavior checks passed\n"
+  },
+  {
+    "command": "node scripts/task-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 385,
+    "output": "task-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/equipment-system-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 40,
+    "output": "equipment-system-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/workshop-planner-ui-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 49,
+    "output": "workshop-planner-ui-smoke: independent planning step ok\n"
+  },
+  {
+    "command": "node scripts/opening-planner-drag-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 82,
+    "output": "opening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed\n"
+  },
+  {
+    "command": "node scripts/employee-system-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 43,
+    "output": "employee-system-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/worker-detail-view-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 47,
+    "output": "worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok\n"
+  },
+  {
+    "command": "node scripts/recruit-detail-controller-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 40,
+    "output": "recruit-detail-controller-smoke: real lifecycle keeps modal identity on failures\n"
+  },
+  {
+    "command": "node scripts/hire-market-roster-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 47,
+    "output": "hire-market-roster-smoke: employee roster tab shell ok\n"
+  },
+  {
+    "command": "node scripts/player-progression-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 71,
+    "output": "player-progression-smoke: exp / achievements / hall unlock ok\n"
+  },
+  {
+    "command": "node scripts/inlay-system-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 44,
+    "output": "inlay-system-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/inlay-artwork-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 83,
+    "output": "inlay-artwork-smoke: RGBA assets, crop bounds, all settings, exact stone counts, source preservation and bitmap capture embedding ok\n"
+  },
+  {
+    "command": "node scripts/finish-plan-model-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 49,
+    "output": "finish-plan-model-smoke: progressive material selection ok\n"
+  },
+  {
+    "command": "node scripts/finished-product-design-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 493,
+    "output": "finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok\n"
+  },
+  {
+    "command": "node scripts/jade-piece-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 553,
+    "output": "jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok\n"
+  },
+  {
+    "command": "node scripts/finish-plan-controller-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 73,
+    "output": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok\n"
+  },
+  {
+    "command": "node scripts/inlay-preview-tester-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 60,
+    "output": "inlay-preview-tester-smoke: model ok\n"
+  },
+  {
+    "command": "node scripts/jade-rules-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 44,
+    "output": "Jade expert rules checks passed\n"
+  },
+  {
+    "command": "node scripts/jade-renderer-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 52,
+    "output": "jade renderer smoke test passed\n"
+  },
+  {
+    "command": "node scripts/jade-opening-engine-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 93,
+    "output": "jade opening engine smoke test passed\n"
+  },
+  {
+    "command": "node scripts/jade-volume-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 40,
+    "output": "jade volume smoke test passed\n"
+  },
+  {
+    "command": "node scripts/canvas-only-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 46,
+    "output": "Canvas-only jade rendering checks passed\n"
+  },
+  {
+    "command": "node scripts/simplified-flow-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 478,
+    "output": "Simplified rough-to-bracelet flow checks passed\n"
+  },
+  {
+    "command": "node scripts/ui-overlay-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 44,
+    "output": ""
+  },
+  {
+    "command": "node scripts/ui-stability-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 58,
+    "output": "ui-stability-smoke: stable overview guards ok\n"
+  },
+  {
+    "command": "node scripts/modal-lifecycle-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 46,
+    "output": "modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok\n"
+  },
+  {
+    "command": "node scripts/shop-material-modal-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 40,
+    "output": "shop-material-modal-smoke: body-mounted material buy modal ok\n"
+  },
+  {
+    "command": "node scripts/night-theme-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 536,
+    "output": "night-theme-smoke: effective low-luminance surfaces ok\n"
+  },
+  {
+    "command": "node scripts/responsive-layout-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 51,
+    "output": "responsive-layout-smoke: desktop guards ok\n"
+  },
+  {
+    "command": "node scripts/experience-regressions-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 92,
+    "output": "experience-regressions-smoke: rollover, lot sort/bid chrome, wages, collection theme and cutouts ok\n"
+  },
+  {
+    "command": "node scripts/money-compact-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 57,
+    "output": "money-compact-smoke: HUD compact cash formatting ok\n"
+  },
+  {
+    "command": "node scripts/inventory-module-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 80,
+    "output": "inventory-module-smoke: normalization, filters, sorting and inventory view ok\n"
+  },
+  {
+    "command": "node scripts/bill-module-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 60,
+    "output": "bill-module-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/lazy-preview-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 50,
+    "output": "lazy-preview-smoke: bitmap cache + virtual grid ok\n"
+  },
+  {
+    "command": "node scripts/livestream-room-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 43,
+    "output": "Livestream room checks passed\n"
+  },
+  {
+    "command": "node scripts/livestream-buy-flow-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 413,
+    "output": "livestream-buy-flow-smoke: seller→buyer purchase ok\n"
+  },
+  {
+    "command": "node scripts/livestream-ui-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 66,
+    "output": "livestream-ui-smoke: wizard, shelf, owner dash and hall sort ok\n"
+  },
+  {
+    "command": "node scripts/livestream-settle-modal-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 73,
+    "output": "livestream-settle-modal-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/chatdock-compact-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 237,
+    "output": "chatdock-compact-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/debug-spawn-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 104,
+    "output": "debug-spawn-smoke: ok\n"
+  },
+  {
+    "command": "node scripts/debug-tools-smoke.mjs",
+    "exitCode": 0,
+    "durationMs": 62,
+    "output": "debug-tools-smoke: exp +100 and idempotent mining unlock ok\n"
+  },
+  {
+    "command": "node scripts/player-exploration-regressions.mjs",
+    "exitCode": 0,
+    "durationMs": 459,
+    "output": "player-exploration-regressions: free processing, idle duration, 2,000 order rewards, reputation and mining gate restored; cost, motif and payout fixes passed\n"
+  },
+  {
+    "command": "node scripts/architecture-quality-gate.mjs",
+    "exitCode": 0,
+    "durationMs": 48,
+    "output": "architecture-quality-gate: 9 module budgets, 9 black-market modules, 14 assets ok\n"
+  }
+]

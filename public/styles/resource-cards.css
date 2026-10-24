@@ -1,0 +1,301 @@
+/* Resource cards share the black-market outline, preview field and copy rhythm. */
+.resource-card-grid,
+.owned-worker-list,
+.recruit-candidate-list,
+.workshop-recipe-grid,
+.workshop-worker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+  min-width: 0;
+  align-items: stretch;
+}
+
+.inventory-slot.resource-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--game-line, var(--line));
+  border-radius: var(--r-md);
+  color: var(--ink);
+  background: var(--game-surface, var(--panel));
+  text-align: left;
+  box-shadow: var(--lift);
+  cursor: default;
+}
+
+button.inventory-slot.resource-card { cursor: pointer; }
+.inventory-slot.resource-card.equipment-listing,
+.inventory-slot.resource-card.workshop-recipe-card,
+.inventory-slot.resource-card:has(.equipment-param-help) { overflow: visible; }
+.inventory-slot.resource-card:hover,
+.inventory-slot.resource-card:focus-within {
+  border-color: var(--jade);
+  transform: none;
+}
+.resource-card:focus-visible,
+.resource-card-visual:focus-visible {
+  outline: 2px solid var(--jade);
+  outline-offset: -3px;
+}
+
+.resource-card > .resource-card-visual {
+  display: grid;
+  width: 100%;
+  height: 148px;
+  min-height: 148px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  background: var(--field-bg);
+  color: inherit;
+  box-shadow: none;
+}
+.resource-card > button.resource-card-visual:hover { transform: none; }
+.resource-card-art { min-height: 0; }
+.resource-card .resource-card-art { color: var(--jade); }
+.bm-svc-device.resource-card .resource-card-art { color: var(--jade); }
+
+.resource-card > .resource-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px 12px;
+  min-width: 0;
+  text-align: left;
+}
+.resource-card .inventory-slot-name strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.resource-card-summary {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.resource-card-details,
+.resource-card-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+.resource-card-details { position: relative; margin-top: 4px; }
+.resource-card .equipment-param-pill { position: static; }
+.resource-card .equipment-param-help::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: 280px;
+  max-width: calc(100vw - 48px);
+  box-sizing: border-box;
+  font-weight: 500;
+  line-height: 1.65;
+  transform: translateY(-2px);
+}
+.resource-card .equipment-param-help:hover::after,
+.resource-card .equipment-param-help:focus::after { transform: translateY(0); }
+.eq-shop .equipment-param-help::after {
+  max-width: min(calc(100vw - 48px), calc(100cqw - 28px));
+}
+.resource-card-footer { margin-top: auto; padding-top: 8px; }
+.resource-card .recruit-skill-row,
+.resource-card .trait-row { margin: 0; }
+.resource-card .recruit-skill-row { flex-wrap: wrap; }
+.resource-card .inventory-slot-value { flex-wrap: wrap; }
+.resource-card-footer > button,
+.resource-card .ws-big-worker-actions > button {
+  flex: 1;
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  background: var(--jade-soft);
+  box-shadow: none;
+  font-size: 12px;
+}
+.resource-card-footer > button:not(:disabled):hover,
+.resource-card .ws-big-worker-actions > button:hover { background: var(--overlay); }
+.equipment-listing .resource-card-footer > button:not(:disabled) {
+  color: #fff;
+  background: var(--jade-dark);
+}
+.inventory-slot.resource-card.equipment-listing { cursor: pointer; }
+.jm-equipment-card.resource-card .jm-buy {
+  min-height: 38px;
+  font-size: 12px;
+  border-radius: var(--r-sm);
+  box-shadow: none;
+}
+.jm-equipment-card.resource-card.is-buyable { cursor: pointer; }
+.jm-equipment-card.resource-card .jm-buy:not(.jm-buy-mine) {
+  color: #fff;
+  background: var(--jade-dark);
+}
+.jm-equipment-card.resource-card .jm-seller {
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  overflow-wrap: anywhere;
+}
+.resource-card:disabled { opacity: .55; cursor: not-allowed; }
+.resource-card:disabled:hover { border-color: var(--line); }
+
+.inventory-slot.resource-card:is(.is-active, .assigned, .selected, .is-selected, .on),
+.inventory-slot.resource-card:has(> input:checked) {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--jade) 28%, transparent);
+}
+.resource-card.is-assigned .inventory-slot-badge { background: var(--jade-dark); }
+.ws-picker-list.picker-worker {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  grid-auto-rows: max-content;
+  align-items: stretch;
+}
+.resource-card.is-hidden { display: none; }
+.resource-card .wsp-worker-mini {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+.resource-card .wsp-worker-mini > span { min-width: 0; }
+.resource-card .wsp-worker-mini strong { overflow-wrap: anywhere; }
+.resource-card .wrc-foot { flex-wrap: wrap; }
+.resource-card .ws-big-worker-actions { margin: 0; }
+.resource-card .ws-big-worker-preview { gap: 6px 12px; }
+.resource-card .ws-big-worker-flaws { margin-top: 2px; }
+
+/* Dialog summaries retain the same card with a compact preview beside the copy. */
+.inventory-slot.resource-card--compact {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+}
+.resource-card--compact > .resource-card-visual {
+  height: 100%;
+  min-height: 120px;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+}
+.resource-card--compact .resource-card-art { padding: 8px; }
+.resource-card--compact .resource-card-art .workshop-resource-outline { height: 80px; }
+.resource-card--compact .equipment-param-help::after {
+  left: 0;
+  right: auto;
+  width: 100%;
+  max-width: 100%;
+}
+.worker-detail-panel > .wsp-pick-side-head {
+  display: block;
+  padding: 0 0 12px;
+  background: transparent;
+}
+.worker-detail-identity .wsp-tier-badge { align-self: flex-start; }
+.worker-detail-identity { flex: none; }
+.resource-card.ml-slot { cursor: pointer; }
+#bmMlGrid:has(> .resource-card) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  grid-auto-rows: max-content;
+}
+.resource-card .bm-ml-check { left: auto; right: 8px; z-index: 3; }
+.resource-card.bm-profile-pick { cursor: pointer; }
+.resource-card.bm-profile-pick > input {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  opacity: 1;
+  pointer-events: auto;
+}
+.resource-card.bm-profile-pick::after { display: none; }
+.resource-card.bm-profile-pick:focus-within { outline: 2px solid var(--jade); }
+.bm-svc-workers.resource-card-grid,
+.bm-svc-devices.resource-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+}
+.livestream-host-modal .livestream-host-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 12px;
+}
+.jm-modal.jm-modal-wide.livestream-host-modal {
+  width: min(760px, 92vw);
+  height: min(720px, 90dvh);
+  max-height: 90dvh;
+}
+.livestream-host-modal [data-livestream-action="clear-modal-host"] { grid-column: 1 / -1; }
+.inventory-detail-modal .is-resource .inventory-detail-preview {
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+.inventory-detail-modal .is-resource .inventory-detail-preview > .resource-card { max-height: none; }
+
+@media (max-width: 767px) {
+  .resource-card-grid > .resource-card:nth-child(even) .equipment-param-help::after {
+    left: auto;
+    right: 0;
+  }
+  .resource-card-grid,
+  .owned-worker-list,
+  .recruit-candidate-list,
+  .workshop-recipe-grid,
+  .workshop-worker-grid,
+  .ws-picker-modal.kind-worker .picker-worker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .resource-card > .resource-card-visual { height: 112px; min-height: 112px; }
+  .resource-card-art .workshop-resource-outline { height: 84px; }
+  .resource-card > .resource-card-copy { padding: 9px 10px 10px; }
+  .inventory-slot.resource-card--compact { grid-template-columns: 90px minmax(0, 1fr); }
+  .resource-card--compact > .resource-card-visual { height: 100%; min-height: 100px; }
+  .resource-card--compact .resource-card-art .workshop-resource-outline { height: 65px; }
+  .livestream-host-modal .livestream-host-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resource-card .inventory-slot-name strong { font-size: 14px; }
+  .resource-card .recruit-skill-row > span { font-size: 11px; }
+  .resource-card .recruit-trait-chip,
+  .resource-card .wsp-trait-chip { font-size: 11px; padding-inline: 6px; }
+  .resource-card .wsp-worker-mini > span { padding: 5px; }
+  .resource-card .wsp-worker-mini em { font-size: 11px; }
+  .resource-card .wsp-worker-mini strong { font-size: 13px; }
+  .ws-picker-modal.kind-worker .ws-picker-content { overflow: hidden; }
+  .ws-picker-modal.kind-worker .ws-picker-body {
+    grid-template-rows: minmax(170px, .95fr) minmax(0, 1fr);
+    overflow: hidden;
+  }
+  .ws-picker-modal.kind-worker .picker-worker {
+    height: 100%;
+    max-height: none;
+    overflow: auto;
+  }
+  .ws-picker-modal.kind-worker .wsp-pick-side {
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+  }
+}
+
+@media (max-width: 359px) {
+  .resource-card-grid,
+  .owned-worker-list,
+  .recruit-candidate-list,
+  .workshop-recipe-grid,
+  .workshop-worker-grid,
+  .ws-picker-modal.kind-worker .picker-worker { grid-template-columns: minmax(0, 1fr); }
+}

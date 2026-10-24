@@ -1,0 +1,142 @@
+[
+  {
+    "name": "jade-piece",
+    "passed": true,
+    "output": "jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok"
+  },
+  {
+    "name": "finish-plan-model",
+    "passed": true,
+    "output": "finish-plan-model-smoke: progressive material selection ok"
+  },
+  {
+    "name": "finished-product-design",
+    "passed": true,
+    "output": "finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok"
+  },
+  {
+    "name": "finish-plan-controller",
+    "passed": true,
+    "output": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok"
+  },
+  {
+    "name": "inlay-system",
+    "passed": true,
+    "output": "inlay-system-smoke: ok"
+  },
+  {
+    "name": "inlay-preview-tester",
+    "passed": true,
+    "output": "inlay-preview-tester-smoke: model ok"
+  },
+  {
+    "name": "planning-authority",
+    "passed": true,
+    "output": "planning-authority-smoke: ok"
+  },
+  {
+    "name": "workshop-service",
+    "passed": true,
+    "output": "workshop-service-smoke: ok"
+  },
+  {
+    "name": "workshop-planner-ui",
+    "passed": true,
+    "output": "workshop-planner-ui-smoke: independent planning step ok"
+  },
+  {
+    "name": "jade-opening-engine",
+    "passed": true,
+    "output": "jade opening engine smoke test passed"
+  },
+  {
+    "name": "jade-renderer",
+    "passed": true,
+    "output": "jade renderer smoke test passed"
+  },
+  {
+    "name": "shared-domain",
+    "passed": true,
+    "output": "shared-domain-smoke: ok"
+  },
+  {
+    "name": "snapshot-service",
+    "passed": true,
+    "output": "snapshot-service-smoke: ok"
+  },
+  {
+    "name": "inventory-module",
+    "passed": true,
+    "output": "inventory-module-smoke: normalization, filters, sorting and inventory view ok"
+  },
+  {
+    "name": "collection-service",
+    "passed": true,
+    "output": "collection-service-smoke: ok"
+  },
+  {
+    "name": "market-service",
+    "passed": true,
+    "output": "market-service-smoke: ok"
+  },
+  {
+    "name": "livestream-service",
+    "passed": true,
+    "output": "livestream-service-smoke: room authority + legacy retirement ok"
+  },
+  {
+    "name": "bm-plan-pool",
+    "passed": true,
+    "output": "bm-plan-pool-smoke: ok"
+  },
+  {
+    "name": "blackmarket-service",
+    "passed": true,
+    "output": "blackmarket-service-smoke: ok"
+  },
+  {
+    "name": "gameplay-rules",
+    "passed": true,
+    "output": "gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok"
+  },
+  {
+    "name": "experience-regressions",
+    "passed": true,
+    "output": "experience-regressions-smoke: rollover, lot sort/bid chrome, wages, collection theme and cutouts ok"
+  },
+  {
+    "name": "responsive-layout",
+    "passed": true,
+    "output": "responsive-layout-smoke: desktop guards ok"
+  },
+  {
+    "name": "night-theme",
+    "passed": true,
+    "output": "night-theme-smoke: effective low-luminance surfaces ok"
+  },
+  {
+    "name": "styles-split",
+    "passed": true,
+    "output": "styles-split-smoke: 15 parts, resolved 711169 bytes ok"
+  },
+  {
+    "name": "ui-stability",
+    "passed": true,
+    "output": "ui-stability-smoke: stable overview guards ok"
+  },
+  {
+    "name": "world-store",
+    "passed": true,
+    "output": "world-store-smoke: memory store + server wiring ok"
+  },
+  {
+    "name": "world-persist",
+    "passed": true,
+    "output": "world-persist-smoke: ok"
+  },
+  {
+    "name": "architecture-quality-gate",
+    "passed": true,
+    "output": "architecture-quality-gate: 9 module budgets, 9 black-market modules, 12 assets ok"
+  }
+]

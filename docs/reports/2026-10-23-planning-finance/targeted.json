@@ -1,0 +1,170 @@
+[
+  {
+    "script": "scripts/planner-drafts-smoke.mjs",
+    "exitCode": 0,
+    "ms": 59,
+    "output": "planner-drafts-smoke: gestures, bounded undo/redo, reload, confirmed versions, window isolation, material/owner checks, rejected/uncertain/accepted submissions and storage failures passed\n"
+  },
+  {
+    "script": "scripts/finance-book-smoke.mjs",
+    "exitCode": 0,
+    "ms": 59,
+    "output": "finance-book-smoke: ok (567 component splits, costs, realized sales, payroll accrual, debt preview, privacy, persistence shape)\n"
+  },
+  {
+    "script": "scripts/finance-ui-smoke.mjs",
+    "exitCode": 0,
+    "ms": 67,
+    "output": "finance-ui-smoke: ok\n"
+  },
+  {
+    "script": "scripts/finance-services-smoke.mjs",
+    "exitCode": 0,
+    "ms": 580,
+    "output": "{\"ok\":true,\"scenarios\":[\"market\",\"market-want\",\"wholesale-discount-loss\",\"order-two-batches\",\"livestream\",\"blackmarket\",\"recycle-carved-piece\",\"carving-batch-cost-conservation\",\"service-delivery-resold-before-confirmation\",\"technical-service-costs-and-offcut-transfer\",\"achievement-free-material-pool-conservation\",\"sqlite-and-normalization\"],\"players\":10,\"permanentPersistence\":false}\n"
+  },
+  {
+    "script": "scripts/snapshot-service-smoke.mjs",
+    "exitCode": 0,
+    "ms": 441,
+    "output": "snapshot-service-smoke: ok\n"
+  },
+  {
+    "script": "scripts/market-want-smoke.mjs",
+    "exitCode": 0,
+    "ms": 476,
+    "output": "Market want board checks passed\n"
+  },
+  {
+    "script": "scripts/blackmarket-service-smoke.mjs",
+    "exitCode": 0,
+    "ms": 566,
+    "output": "blackmarket-service-smoke: ok\n"
+  },
+  {
+    "script": "scripts/blackmarket-resources-smoke.mjs",
+    "exitCode": 0,
+    "ms": 704,
+    "output": "blackmarket-resources-smoke: NPC supply, resale, payroll, locking, capacity, repricing, rollback, withdrawal and save/restore ok\n"
+  },
+  {
+    "script": "scripts/blackmarket-empty-roster-smoke.mjs",
+    "exitCode": 0,
+    "ms": 706,
+    "output": "blackmarket-empty-roster-smoke: initial resource transfers, local ID collisions, rollback, zero-roster save/restore and repurchase ok\n"
+  },
+  {
+    "script": "scripts/employee-system-smoke.mjs",
+    "exitCode": 0,
+    "ms": 45,
+    "output": "employee-system-smoke: ok\n"
+  },
+  {
+    "script": "scripts/employee-payroll-smoke.mjs",
+    "exitCode": 0,
+    "ms": 68,
+    "output": "employee-payroll-smoke: login dates, snapshots, same-day dedupe, dismissal, migration and UI ok\n"
+  },
+  {
+    "script": "scripts/employee-payroll-policy-smoke.mjs",
+    "exitCode": 0,
+    "ms": 731,
+    "output": "employee-payroll-policy-smoke: business-day grace,reserve-protected 20%,offline exclusion,cross-day service entries,stop/resume and rollback ok\n"
+  },
+  {
+    "script": "scripts/employee-payroll-socket-e2e.mjs",
+    "exitCode": 0,
+    "ms": 4249,
+    "output": "employee-payroll-socket-e2e: login-only bills, modal ack, dismissal,20%, migration, dedupe and SQLite restarts ok\n"
+  },
+  {
+    "script": "scripts/workshop-service-smoke.mjs",
+    "exitCode": 0,
+    "ms": 424,
+    "output": "workshop-service-smoke: ok\n"
+  },
+  {
+    "script": "scripts/workshop-delivery-smoke.mjs",
+    "exitCode": 0,
+    "ms": 493,
+    "output": "workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok\n"
+  },
+  {
+    "script": "scripts/workshop-scratch-smoke.mjs",
+    "exitCode": 0,
+    "ms": 109,
+    "output": "workshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok\n"
+  },
+  {
+    "script": "scripts/workshop-delivery-socket-e2e.mjs",
+    "exitCode": 0,
+    "ms": 2563,
+    "output": "workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok\n"
+  },
+  {
+    "script": "scripts/inventory-service-smoke.mjs",
+    "exitCode": 0,
+    "ms": 393,
+    "output": "inventory-service-smoke: ok\n"
+  },
+  {
+    "script": "scripts/inventory-recycle-smoke.mjs",
+    "exitCode": 0,
+    "ms": 64,
+    "output": "inventory-recycle-smoke: ok\n"
+  },
+  {
+    "script": "scripts/player-progression-smoke.mjs",
+    "exitCode": 0,
+    "ms": 75,
+    "output": "player-progression-smoke: exp / achievements / hall unlock ok\n"
+  },
+  {
+    "script": "scripts/world-persist-smoke.mjs",
+    "exitCode": 0,
+    "ms": 85,
+    "output": "world-persist-smoke: ok\n"
+  },
+  {
+    "script": "scripts/sqlite-world-persist-smoke.mjs",
+    "exitCode": 0,
+    "ms": 131,
+    "output": "sqlite-world-persist-smoke: transactions + migration + fallback ok\n"
+  },
+  {
+    "script": "scripts/report-service-smoke.mjs",
+    "exitCode": 0,
+    "ms": 440,
+    "output": "report-service-smoke: ok\n"
+  },
+  {
+    "script": "scripts/styles-split-smoke.mjs",
+    "exitCode": 0,
+    "ms": 47,
+    "output": "styles-split-smoke: 22 parts, resolved 765362 bytes ok\n"
+  },
+  {
+    "script": "scripts/responsive-layout-smoke.mjs",
+    "exitCode": 0,
+    "ms": 53,
+    "output": "responsive-layout-smoke: desktop guards ok\n"
+  },
+  {
+    "script": "scripts/ui-stability-smoke.mjs",
+    "exitCode": 0,
+    "ms": 55,
+    "output": "ui-stability-smoke: stable overview guards ok\n"
+  },
+  {
+    "script": "scripts/side-panel-progress-smoke.mjs",
+    "exitCode": 0,
+    "ms": 48,
+    "output": "side-panel-progress-smoke: all three stages auto-claimable, missed updates recover, active jobs coexist and DOM stays stable\n"
+  },
+  {
+    "script": "scripts/architecture-quality-gate.mjs",
+    "exitCode": 0,
+    "ms": 46,
+    "output": "architecture-quality-gate: 9 module budgets, 10 black-market modules, 17 assets ok\n"
+  }
+]

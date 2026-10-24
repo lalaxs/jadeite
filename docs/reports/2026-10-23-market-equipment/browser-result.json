@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "checks": [
+    "workshop entry",
+    "listing",
+    "withdrawal",
+    "relisting",
+    "equipment filters",
+    "purchase costs",
+    "purchase into workshop",
+    "original durability",
+    "listing all devices",
+    "empty-workshop reload",
+    "no horizontal overflow",
+    "no browser errors"
+  ],
+  "errors": []
+}

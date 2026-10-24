@@ -1,0 +1,23 @@
+Mode: built-in image_gen; precise-object-edit.
+Edit target: public/assets/inlay/jade-and-mounts-handpainted-v2.png, original upper-second Buddha only.
+Supporting reference: docs/reports/2026-10-23-buddha-rounded-minimal/before-detail.png.
+Production PNG: public/assets/inlay/buddha-original-clean-lines-v1.png.
+Generated PNG copied without pixel changes; original alpha preserved. 1278x1230 RGBA.
+Runtime crop: [146,140,1000,944]. Neutral relief intercept 1.06 aligns brightness with original grayscale atlas.
+
+Final prompt:
+Use case: precise-object-edit.
+Asset type: production grayscale jade relief painting for an existing Chinese jade crafting game.
+Image 1 is the ORIGINAL EDIT TARGET ATLAS. The ONLY target object is the seated smiling Buddha in the TOP ROW, SECOND COLUMN. Extract and redraw ONLY that Buddha as a single standalone transparent grayscale image. Do not include the other atlas objects.
+Image 2 is the ORIGINAL in-game appearance reference, to confirm the same original face, pose and proportions; ignore the gold jewelry frame and background.
+User request: use the ORIGINAL Buddha version, just simplify some of its excessive carved lines. This is a CONSERVATIVE linework cleanup of the original, NOT a new character or new styling.
+LOCK ORIGINAL IDENTITY AND FORMS: match the original head size, broad laughing smile shape, rounded cheeks, original ear shape and placement, original proportions, shoulders, hand positions on the outer sides of the belly, broad oval belly and low seated base. Match the same outer silhouette, including contour from small dome head to shoulder slope to broad rounded body. Preserve the original cheerful traditional Budai character, sculptural facial depth and gentle hand-painted gouache jade carving. Do NOT enlarge the head, change expression to a tiny closed smile, make mitten paws, baby proportions, smooth toy forms, or replace the original with a cartoon round Buddha.
+ONLY simplify redundant internal carved LINEWORK by roughly 25-35 percent:
+- Keep the original arched eyebrows and smiling eyes, but combine double/triple parallel eyelid and brow ridges into single clean forms.
+- Preserve the original wide laughing mouth and nose; remove only redundant cheek/chin crease rings and tiny nostril incisions.
+- Keep recognizably carved fingers on both original hands, but use just one or two clear finger divisions instead of many little grooves; keep the hands' size, gesture and position.
+- Keep the original robe opening and cuffs, but reduce parallel cuff/robe fold outlines to one main clean fold. Remove little decorative chest endpoints and extra nested chest arcs.
+- Keep the big rounded belly and its simple boundary. Keep a subtle original brushed jade surface and original broad lighting; reduce contrast of tiny mottled patches only slightly. Do not flatten all volume or completely smooth the material.
+COMPOSITION: ONE isolated frontal Buddha only, centered, the same near-square width/height ratio as the original upper-second atlas object (361:347). Full silhouette visible with generous 12% transparent padding, no cropping. Neutral GRAYSCALE only, not green: mid surfaces around RGB128, highlights lighter gray, incisions darker gray. Opaque inside carving with genuine alpha transparency outside. No gold, silver, mount, bail, cord, gems, pedestal, floor shadow, background, labels, text, extra shapes or drawn checkerboard.
+Priority: faithful old-version character and silhouette > conservative fewer cleaner lines > everything else.
+

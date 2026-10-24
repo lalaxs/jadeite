@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-09",
+  "seed": 20261009,
+  "samples": 2000,
+  "kindCounts": {
+    "bracelet": 144,
+    "fuBeanPendant": 170,
+    "dropPendant": 185,
+    "leafPendant": 186,
+    "plaque": 179,
+    "ruyiPendant": 180,
+    "cabochon": 136,
+    "gourdPendant": 171,
+    "beads": 152,
+    "buddhaPendant": 140,
+    "peacePendant": 171,
+    "guanyinPendant": 186
+  },
+  "kindOutsideNormalFinishOutputs": 1856,
+  "wholeShapeMetalRequirements": 72,
+  "orderFitReproduction": {
+    "before": "full",
+    "valid": true,
+    "kindAfter": "pendant",
+    "productTypeAfter": "pendant",
+    "after": "hard_fail",
+    "reasons": [
+      "题材不符（要平安扣挂件，实际pendant）"
+    ]
+  }
+}

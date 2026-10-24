@@ -1,0 +1,3826 @@
+{
+  "reports": [
+    {
+      "name": "day-1440-inventory-detail-hidden",
+      "width": 840,
+      "top": 176.265625,
+      "bottom": 723.734375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 208.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 656.734375,
+        "bottom": 722.734375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-inventory-detail-windowed",
+      "width": 840,
+      "top": 145.359375,
+      "bottom": 754.625,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 270.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 687.625,
+        "bottom": 753.625,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-inventory-detail-opened",
+      "width": 840,
+      "top": 136.75,
+      "bottom": 763.234375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 287.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "阶段产物：到工坊对应设备继续加工。",
+      "footer": {
+        "top": 696.234375,
+        "bottom": 762.234375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-inventory-detail-finished",
+      "width": 840,
+      "top": 123.5,
+      "bottom": 776.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 287.5,
+      "overviewText": "分类\n成品\n阶段\n最终成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92\n入库声望\n+6",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "分类": "成品",
+        "阶段": "最终成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92",
+        "入库声望": "+6"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "入库声望",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "估值\n¥19,500\n已记货品成本\n待补全",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "最终成品：可收入藏宝阁（0/20，入库后冻结）。入库声望 +6。也可去订单 / 交易行 / 直播间出手。",
+      "footer": {
+        "top": 709.484375,
+        "bottom": 775.484375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-inventory-detail-origin",
+      "width": 840,
+      "top": 106.65625,
+      "bottom": 793.328125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 318.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "阶段产物：到工坊对应设备继续加工。\n\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 726.328125,
+        "bottom": 792.328125,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-inventory-external:gold18k",
+      "width": 840,
+      "top": 142.5,
+      "bottom": 757.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 183.6875,
+      "overviewText": "分类\n镶嵌材料\n阶段\n金属\n持有\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "分类": "镶嵌材料",
+        "阶段": "金属",
+        "持有": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "持有",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "总价值\n¥1,440",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "镶嵌材料，在工坊精加工方案里选用。",
+      "footer": {
+        "top": 690.484375,
+        "bottom": 756.484375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-hidden",
+      "width": 840,
+      "top": 176.265625,
+      "bottom": 723.734375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 208.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 656.734375,
+        "bottom": 722.734375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-windowed",
+      "width": 840,
+      "top": 145.359375,
+      "bottom": 754.625,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 270.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 687.625,
+        "bottom": 753.625,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-opened",
+      "width": 840,
+      "top": 136.75,
+      "bottom": 763.234375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 287.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 696.234375,
+        "bottom": 762.234375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-finished",
+      "width": 840,
+      "top": 123.5,
+      "bottom": 776.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 287.5,
+      "overviewText": "阶段\n最终成品\n分类\n成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "阶段": "最终成品",
+        "分类": "成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "售价\n¥16,575\n参考估值\n¥19,500\n较参考估值省\n¥2,925",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 709.484375,
+        "bottom": 775.484375,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-origin",
+      "width": 840,
+      "top": 106.65625,
+      "bottom": 793.328125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 318.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 726.328125,
+        "bottom": 792.328125,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-supply",
+      "width": 840,
+      "top": 127.90625,
+      "bottom": 772.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 183.6875,
+      "overviewText": "阶段\n金属\n分类\n镶嵌材料\n数量\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "阶段": "金属",
+        "分类": "镶嵌材料",
+        "数量": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "售价\n¥1,224\n商店同批价\n¥1,440\n较商店同批省\n¥216",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n整批材料将加入镶嵌材料库存。",
+      "footer": {
+        "top": 705.078125,
+        "bottom": 771.078125,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-employee",
+      "width": 840,
+      "top": 89.90625,
+      "bottom": 810.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 352,
+      "contentHeight": 334,
+      "overviewText": "阶段\n员工转聘\n优点\n细心\n缺点\n易疲\n分类\n员工\n数量\n1 名\n岗位\n精加工师傅\n等阶\n8阶",
+      "contentText": "员工详情\n登录日日薪\n¥590\n雕琢\nLv.6 · 经验 230\n镶嵌\nLv.1 · 经验 0\n解料\nLv.1 · 经验 0\n打磨\nLv.1 · 经验 0\n切料\nLv.1 · 经验 0\n修形\nLv.1 · 经验 0\n话术\nLv.1 · 经验 0\n控场\nLv.1 · 经验 0\n催单\nLv.1 · 经验 0",
+      "publicFacts": {
+        "阶段": "员工转聘",
+        "优点": "细心",
+        "缺点": "易疲",
+        "分类": "员工",
+        "数量": "1 名",
+        "岗位": "精加工师傅",
+        "等阶": "8阶"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "优点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "缺点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "岗位",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "等阶",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥31,500\n同阶招聘基准\n¥35,000\n较同阶招聘省\n¥3,500",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n员工将加入名册，保留技能和经验，加入当天记薪；原雇主欠薪不会转给你。",
+      "footer": {
+        "top": 743.078125,
+        "bottom": 809.078125,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-1440-blackmarket-detail-equipment",
+      "width": 840,
+      "top": 108.90625,
+      "bottom": 791.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 245,
+      "overviewText": "阶段\n二手设备\n分类\n设备\n数量\n1 台\n品牌\n翠捷\n型号\nCJ-O1 快切型",
+      "contentText": "设备详情\n耐久\n70 / 100\n维修报价\n¥510\n修满后总投入\n¥4,900\n科技等级\n1级\n设备参数\n品质+2%（每步加值≤136） · 风险×1.18 · 速度+15% · 保底0%",
+      "publicFacts": {
+        "阶段": "二手设备",
+        "分类": "设备",
+        "数量": "1 台",
+        "品牌": "翠捷",
+        "型号": "CJ-O1 快切型"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "品牌",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "型号",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥4,390\n同款新机价\n¥6,800\n修满后较新机省\n¥1,900",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n设备将加入工坊，可在设备页查看和维修。",
+      "footer": {
+        "top": 724.078125,
+        "bottom": 790.078125,
+        "height": 66
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-detail-hidden",
+      "width": 840,
+      "top": 175.265625,
+      "bottom": 724.734375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 208.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 655.734375,
+        "bottom": 723.734375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-detail-windowed",
+      "width": 840,
+      "top": 144.359375,
+      "bottom": 755.625,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 270.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 686.625,
+        "bottom": 754.625,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-detail-opened",
+      "width": 840,
+      "top": 135.75,
+      "bottom": 764.234375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 287.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "阶段产物：到工坊对应设备继续加工。",
+      "footer": {
+        "top": 695.234375,
+        "bottom": 763.234375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-detail-finished",
+      "width": 840,
+      "top": 122.5,
+      "bottom": 777.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 287.5,
+      "overviewText": "分类\n成品\n阶段\n最终成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92\n入库声望\n+6",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "分类": "成品",
+        "阶段": "最终成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92",
+        "入库声望": "+6"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "入库声望",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "估值\n¥19,500\n已记货品成本\n待补全",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "最终成品：可收入藏宝阁（0/20，入库后冻结）。入库声望 +6。也可去订单 / 交易行 / 直播间出手。",
+      "footer": {
+        "top": 708.484375,
+        "bottom": 776.484375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-detail-origin",
+      "width": 840,
+      "top": 105.65625,
+      "bottom": 794.328125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 318.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "阶段产物：到工坊对应设备继续加工。\n\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 725.328125,
+        "bottom": 793.328125,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-inventory-external:gold18k",
+      "width": 840,
+      "top": 141.5,
+      "bottom": 758.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 183.6875,
+      "overviewText": "分类\n镶嵌材料\n阶段\n金属\n持有\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "分类": "镶嵌材料",
+        "阶段": "金属",
+        "持有": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "持有",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "总价值\n¥1,440",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "镶嵌材料，在工坊精加工方案里选用。",
+      "footer": {
+        "top": 689.484375,
+        "bottom": 757.484375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-hidden",
+      "width": 840,
+      "top": 175.265625,
+      "bottom": 724.734375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 208.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 655.734375,
+        "bottom": 723.734375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-windowed",
+      "width": 840,
+      "top": 144.359375,
+      "bottom": 755.625,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 190,
+      "contentHeight": 270.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 686.625,
+        "bottom": 754.625,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-opened",
+      "width": 840,
+      "top": 135.75,
+      "bottom": 764.234375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 287.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 695.234375,
+        "bottom": 763.234375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-finished",
+      "width": 840,
+      "top": 122.5,
+      "bottom": 777.484375,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 287.5,
+      "overviewText": "阶段\n最终成品\n分类\n成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "阶段": "最终成品",
+        "分类": "成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "售价\n¥16,575\n参考估值\n¥19,500\n较参考估值省\n¥2,925",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 708.484375,
+        "bottom": 776.484375,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-origin",
+      "width": 840,
+      "top": 105.65625,
+      "bottom": 794.328125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 318.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 725.328125,
+        "bottom": 793.328125,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-supply",
+      "width": 840,
+      "top": 126.90625,
+      "bottom": 773.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 276,
+      "contentHeight": 183.6875,
+      "overviewText": "阶段\n金属\n分类\n镶嵌材料\n数量\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "阶段": "金属",
+        "分类": "镶嵌材料",
+        "数量": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "售价\n¥1,224\n商店同批价\n¥1,440\n较商店同批省\n¥216",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n整批材料将加入镶嵌材料库存。",
+      "footer": {
+        "top": 704.078125,
+        "bottom": 772.078125,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-employee",
+      "width": 840,
+      "top": 88.90625,
+      "bottom": 811.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 352,
+      "contentHeight": 334,
+      "overviewText": "阶段\n员工转聘\n优点\n细心\n缺点\n易疲\n分类\n员工\n数量\n1 名\n岗位\n精加工师傅\n等阶\n8阶",
+      "contentText": "员工详情\n登录日日薪\n¥590\n雕琢\nLv.6 · 经验 230\n镶嵌\nLv.1 · 经验 0\n解料\nLv.1 · 经验 0\n打磨\nLv.1 · 经验 0\n切料\nLv.1 · 经验 0\n修形\nLv.1 · 经验 0\n话术\nLv.1 · 经验 0\n控场\nLv.1 · 经验 0\n催单\nLv.1 · 经验 0",
+      "publicFacts": {
+        "阶段": "员工转聘",
+        "优点": "细心",
+        "缺点": "易疲",
+        "分类": "员工",
+        "数量": "1 名",
+        "岗位": "精加工师傅",
+        "等阶": "8阶"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "优点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "缺点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "岗位",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "等阶",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥31,500\n同阶招聘基准\n¥35,000\n较同阶招聘省\n¥3,500",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n员工将加入名册，保留技能和经验，加入当天记薪；原雇主欠薪不会转给你。",
+      "footer": {
+        "top": 742.078125,
+        "bottom": 810.078125,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-1440-blackmarket-detail-equipment",
+      "width": 840,
+      "top": 107.90625,
+      "bottom": 792.078125,
+      "previewHeight": 190,
+      "columns": 2,
+      "overviewWidth": 386,
+      "contentWidth": 386,
+      "overviewHeight": 314,
+      "contentHeight": 245,
+      "overviewText": "阶段\n二手设备\n分类\n设备\n数量\n1 台\n品牌\n翠捷\n型号\nCJ-O1 快切型",
+      "contentText": "设备详情\n耐久\n70 / 100\n维修报价\n¥510\n修满后总投入\n¥4,900\n科技等级\n1级\n设备参数\n品质+2%（每步加值≤136） · 风险×1.18 · 速度+15% · 保底0%",
+      "publicFacts": {
+        "阶段": "二手设备",
+        "分类": "设备",
+        "数量": "1 台",
+        "品牌": "翠捷",
+        "型号": "CJ-O1 快切型"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "品牌",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "型号",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥4,390\n同款新机价\n¥6,800\n修满后较新机省\n¥1,900",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": true,
+      "footerText": "摊位详情布局验证摊\n\n设备将加入工坊，可在设备页查看和维修。",
+      "footer": {
+        "top": 723.078125,
+        "bottom": 791.078125,
+        "height": 68
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-detail-hidden",
+      "width": 354,
+      "top": 32.5625,
+      "bottom": 811.421875,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 225.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 741.421875,
+        "bottom": 810.421875,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 287.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 304.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "阶段产物：到工坊对应设备继续加工。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 315,
+      "contentHeight": 304.5,
+      "overviewText": "分类\n成品\n阶段\n最终成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92\n入库声望\n+6",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "分类": "成品",
+        "阶段": "最终成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92",
+        "入库声望": "+6"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "入库声望",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "估值\n¥19,500\n已记货品成本\n待补全",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "最终成品：可收入藏宝阁（0/20，入库后冻结）。入库声望 +6。也可去订单 / 交易行 / 直播间出手。",
+      "footer": {
+        "top": 706,
+        "bottom": 825,
+        "height": 119
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-detail-origin",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 335.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "阶段产物：到工坊对应设备继续加工。\n\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-inventory-external:gold18k",
+      "width": 354,
+      "top": 35.96875,
+      "bottom": 808.03125,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 200.6875,
+      "overviewText": "分类\n镶嵌材料\n阶段\n金属\n持有\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "分类": "镶嵌材料",
+        "阶段": "金属",
+        "持有": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "持有",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "总价值\n¥1,440",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "镶嵌材料，在工坊精加工方案里选用。",
+      "footer": {
+        "top": 738.03125,
+        "bottom": 807.03125,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-hidden",
+      "width": 354,
+      "top": 32.5625,
+      "bottom": 811.421875,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 225.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 741.421875,
+        "bottom": 810.421875,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 287.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 304.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 315,
+      "contentHeight": 304.5,
+      "overviewText": "阶段\n最终成品\n分类\n成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "阶段": "最终成品",
+        "分类": "成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "售价\n¥16,575\n参考估值\n¥19,500\n较参考估值省\n¥2,925",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-origin",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 335.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-supply",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 200.6875,
+      "overviewText": "阶段\n金属\n分类\n镶嵌材料\n数量\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "阶段": "金属",
+        "分类": "镶嵌材料",
+        "数量": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "售价\n¥1,224\n商店同批价\n¥1,440\n较商店同批省\n¥216",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n整批材料将加入镶嵌材料库存。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-employee",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 332,
+      "contentHeight": 351,
+      "overviewText": "阶段\n员工转聘\n优点\n细心\n缺点\n易疲\n分类\n员工\n数量\n1 名\n岗位\n精加工师傅\n等阶\n8阶",
+      "contentText": "员工详情\n登录日日薪\n¥590\n雕琢\nLv.6 · 经验 230\n镶嵌\nLv.1 · 经验 0\n解料\nLv.1 · 经验 0\n打磨\nLv.1 · 经验 0\n切料\nLv.1 · 经验 0\n修形\nLv.1 · 经验 0\n话术\nLv.1 · 经验 0\n控场\nLv.1 · 经验 0\n催单\nLv.1 · 经验 0",
+      "publicFacts": {
+        "阶段": "员工转聘",
+        "优点": "细心",
+        "缺点": "易疲",
+        "分类": "员工",
+        "数量": "1 名",
+        "岗位": "精加工师傅",
+        "等阶": "8阶"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "优点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "缺点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "岗位",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "等阶",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥31,500\n同阶招聘基准\n¥35,000\n较同阶招聘省\n¥3,500",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n员工将加入名册，保留技能和经验，加入当天记薪；原雇主欠薪不会转给你。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "day-390-blackmarket-detail-equipment",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 294,
+      "contentHeight": 262,
+      "overviewText": "阶段\n二手设备\n分类\n设备\n数量\n1 台\n品牌\n翠捷\n型号\nCJ-O1 快切型",
+      "contentText": "设备详情\n耐久\n70 / 100\n维修报价\n¥510\n修满后总投入\n¥4,900\n科技等级\n1级\n设备参数\n品质+2%（每步加值≤136） · 风险×1.18 · 速度+15% · 保底0%",
+      "publicFacts": {
+        "阶段": "二手设备",
+        "分类": "设备",
+        "数量": "1 台",
+        "品牌": "翠捷",
+        "型号": "CJ-O1 快切型"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "品牌",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "型号",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥4,390\n同款新机价\n¥6,800\n修满后较新机省\n¥1,900",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n设备将加入工坊，可在设备页查看和维修。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-detail-hidden",
+      "width": 354,
+      "top": 32.5625,
+      "bottom": 811.421875,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 225.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 741.421875,
+        "bottom": 810.421875,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 287.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n分类\n原石\n阶段\n暗料原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "分类": "原石",
+        "阶段": "暗料原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "估值\n¥2,418\n已记货品成本\n¥1,700",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "暗料原石：种水未完全揭露，可去公盘对照或送工坊解料。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 304.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "阶段产物：到工坊对应设备继续加工。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 315,
+      "contentHeight": 304.5,
+      "overviewText": "分类\n成品\n阶段\n最终成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92\n入库声望\n+6",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "分类": "成品",
+        "阶段": "最终成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92",
+        "入库声望": "+6"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "入库声望",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "估值\n¥19,500\n已记货品成本\n待补全",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "最终成品：可收入藏宝阁（0/20，入库后冻结）。入库声望 +6。也可去订单 / 交易行 / 直播间出手。",
+      "footer": {
+        "top": 706,
+        "bottom": 825,
+        "height": 119
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-detail-origin",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 335.5,
+      "overviewText": "分类\n阶段产物\n阶段\n明料\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "分类": "阶段产物",
+        "阶段": "明料",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "估值\n¥12,500\n已记货品成本\n¥8,300\n成本明细",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "阶段产物：到工坊对应设备继续加工。\n\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-inventory-external:gold18k",
+      "width": 354,
+      "top": 35.96875,
+      "bottom": 808.03125,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 200.6875,
+      "overviewText": "分类\n镶嵌材料\n阶段\n金属\n持有\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "分类": "镶嵌材料",
+        "阶段": "金属",
+        "持有": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "持有",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "总价值\n¥1,440",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "镶嵌材料，在工坊精加工方案里选用。",
+      "footer": {
+        "top": 738.03125,
+        "bottom": 807.03125,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-hidden",
+      "width": 354,
+      "top": 32.5625,
+      "bottom": 811.421875,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 225.484375,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n未揭露\n\n内部料质未揭露，开窗或开料后可查看。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 741.421875,
+        "bottom": 810.421875,
+        "height": 69
+      },
+      "bodyScrollable": false,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-windowed",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 170,
+      "contentHeight": 287.28125,
+      "overviewText": "",
+      "contentText": "基础信息\n阶段\n暗料原石\n分类\n原石\n数量\n1 件\n重量\n0.70 kg\n开窗\n1 处\n\n松花皮壳 · 轮廓饱满\n\n料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "publicFacts": {
+        "阶段": "暗料原石",
+        "分类": "原石",
+        "数量": "1 件",
+        "重量": "0.70 kg",
+        "开窗": "1 处"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [],
+      "analysis": "料质详情\n局部已揭露\n\n开窗仅揭露局部皮壳线索，内部种水、颜色占比及裂纹尚未揭露。",
+      "summaryText": "售价\n¥2,055\n参考估值\n¥2,418\n较参考估值省\n¥363",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-opened",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 304.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n82.5%\n废料\n17.5%\n裂纹覆盖\n1.3%\n废料占比\n17.5%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-finished",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 315,
+      "contentHeight": 304.5,
+      "overviewText": "阶段\n最终成品\n分类\n成品\n数量\n1 件\n原件尺寸\n30.0 × 30.0 mm\n工分\n92",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "publicFacts": {
+        "阶段": "最终成品",
+        "分类": "成品",
+        "数量": "1 件",
+        "原件尺寸": "30.0 × 30.0 mm",
+        "工分": "92"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "原件尺寸",
+          "width": 56,
+          "scroll": 56,
+          "client": 56,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "工分",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n2.5%\n废料\n97.5%\n裂纹覆盖\n暂无统计\n废料占比\n97.5%",
+      "summaryText": "售价\n¥16,575\n参考估值\n¥19,500\n较参考估值省\n¥2,925",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-origin",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 335.5,
+      "overviewText": "阶段\n明料\n分类\n阶段产物\n数量\n1 件\n重量\n1.20 kg",
+      "contentText": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "publicFacts": {
+        "阶段": "明料",
+        "分类": "阶段产物",
+        "数量": "1 件",
+        "重量": "1.20 kg"
+      },
+      "sourceFacts": {
+        "矿山来源": "会卡深层矿区 · 西侧老坑通道",
+        "所属矿带": "深层绿色含玉矿带",
+        "开采环境": "雨后潮湿围岩",
+        "值班班长": "老张 · 支护与通风",
+        "井下分工": "开采、支护、运输",
+        "矿工专精": "识玉、围岩辨识、安全支护"
+      },
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "重量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "料质详情\n已揭露\n种水\n玉肉内占比\n正冰\n100.0%\n颜色分布\n占整块料面\n翠绿\n76.7%\n墨绿\n10.1%\n废料\n13.2%\n裂纹覆盖\n1.3%\n废料占比\n13.2%",
+      "summaryText": "售价\n¥10,625\n参考估值\n¥12,500\n较参考估值省\n¥1,875",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n来源档案 · 会卡深层矿区 · 西侧老坑通道",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-supply",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 256,
+      "contentHeight": 200.6875,
+      "overviewText": "阶段\n金属\n分类\n镶嵌材料\n数量\n3克",
+      "contentText": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "publicFacts": {
+        "阶段": "金属",
+        "分类": "镶嵌材料",
+        "数量": "3克"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "analysis": "材料详情\n金属\n材料类型\n金属\n单价\n¥480 / 克\n用途\n工坊精加工镶嵌\n\n镶嵌材料不适用种水、裂纹和开料占比分析。",
+      "summaryText": "售价\n¥1,224\n商店同批价\n¥1,440\n较商店同批省\n¥216",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n整批材料将加入镶嵌材料库存。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-employee",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 332,
+      "contentHeight": 351,
+      "overviewText": "阶段\n员工转聘\n优点\n细心\n缺点\n易疲\n分类\n员工\n数量\n1 名\n岗位\n精加工师傅\n等阶\n8阶",
+      "contentText": "员工详情\n登录日日薪\n¥590\n雕琢\nLv.6 · 经验 230\n镶嵌\nLv.1 · 经验 0\n解料\nLv.1 · 经验 0\n打磨\nLv.1 · 经验 0\n切料\nLv.1 · 经验 0\n修形\nLv.1 · 经验 0\n话术\nLv.1 · 经验 0\n控场\nLv.1 · 经验 0\n催单\nLv.1 · 经验 0",
+      "publicFacts": {
+        "阶段": "员工转聘",
+        "优点": "细心",
+        "缺点": "易疲",
+        "分类": "员工",
+        "数量": "1 名",
+        "岗位": "精加工师傅",
+        "等阶": "8阶"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "优点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "缺点",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "岗位",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "等阶",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥31,500\n同阶招聘基准\n¥35,000\n较同阶招聘省\n¥3,500",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n员工将加入名册，保留技能和经验，加入当天记薪；原雇主欠薪不会转给你。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    },
+    {
+      "name": "night-390-blackmarket-detail-equipment",
+      "width": 354,
+      "top": 18,
+      "bottom": 826,
+      "previewHeight": 170,
+      "columns": 1,
+      "overviewWidth": 316,
+      "contentWidth": 316,
+      "overviewHeight": 294,
+      "contentHeight": 262,
+      "overviewText": "阶段\n二手设备\n分类\n设备\n数量\n1 台\n品牌\n翠捷\n型号\nCJ-O1 快切型",
+      "contentText": "设备详情\n耐久\n70 / 100\n维修报价\n¥510\n修满后总投入\n¥4,900\n科技等级\n1级\n设备参数\n品质+2%（每步加值≤136） · 风险×1.18 · 速度+15% · 保底0%",
+      "publicFacts": {
+        "阶段": "二手设备",
+        "分类": "设备",
+        "数量": "1 台",
+        "品牌": "翠捷",
+        "型号": "CJ-O1 快切型"
+      },
+      "sourceFacts": {},
+      "labelMetrics": [
+        {
+          "text": "阶段",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "分类",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "数量",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "品牌",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        },
+        {
+          "text": "型号",
+          "width": 28,
+          "scroll": 28,
+          "client": 28,
+          "overflow": "visible",
+          "textOverflow": "clip",
+          "before": "none",
+          "after": "none"
+        }
+      ],
+      "summaryText": "售价\n¥4,390\n同款新机价\n¥6,800\n修满后较新机省\n¥1,900",
+      "summaryBeforeColumns": true,
+      "fullSummaryWidth": false,
+      "footerText": "摊位详情布局验证摊\n\n设备将加入工坊，可在设备页查看和维修。",
+      "footer": {
+        "top": 756,
+        "bottom": 825,
+        "height": 69
+      },
+      "bodyScrollable": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "consoleErrors": []
+}

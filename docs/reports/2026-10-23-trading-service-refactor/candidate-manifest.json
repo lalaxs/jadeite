@@ -1,0 +1,2534 @@
+{
+  "capturedAt": "2026-10-23T11:43:35.769Z",
+  "snapshotPath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\.refactor-test-results\\trading\\trading-final-2026-10-23-01",
+  "files": [
+    {
+      "path": ".dockerignore",
+      "sha256": "c4c09984dfc7a459850b4b21f5fe6a984701b58c0e937f2d9fb890123281aeb1"
+    },
+    {
+      "path": ".env.production.example",
+      "sha256": "5c144524cc527d7d212de6025013bb36924e71c4c6f4cadf1aa679ff28bea009"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "221c946023a0cd62f26d14dc878eb0c2326b7d9b52dfb96c46dbe355bdba57f1"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "85d967bea57b1b40fbc8565cc6ee46dc81c67f378727911e39c9a464645d7297"
+    },
+    {
+      "path": "Dockerfile",
+      "sha256": "78d931c58d11c408f854703ed7109cacccdbdb6e191bd09b6bf3bc60db6842d1"
+    },
+    {
+      "path": "README.md",
+      "sha256": "041ad6e382a1e2a912e8a4eb526541030c9c4d6f5e5c72594147f749e7a56396"
+    },
+    {
+      "path": "compose.yaml",
+      "sha256": "2132210216118888d099eafe230ab628ac93bfdafac118edba2ac29d8d586c52"
+    },
+    {
+      "path": "docs/art/2026-10-23-buddha-original-lines/buddha-original-clean-lines-v1.png",
+      "sha256": "45b8e80740e66e57743bea8bbe15eda967a734f3b6a05c91be1816fd566f5d11"
+    },
+    {
+      "path": "docs/operations-runbook.md",
+      "sha256": "48a219869ee2c3a70feb1d3a72dad40389196923f72954c4fcacf8d392207a10"
+    },
+    {
+      "path": "docs/predeploy-checklist.md",
+      "sha256": "d16bdc5fb0d7423f946e059fa1c3f1e4083c8e1a8feee8bdd387cde3b3edcb56"
+    },
+    {
+      "path": "docs/reports/2026-10-23-workshop-server-refactor/baseline-manifest.json",
+      "sha256": "d17706d763cb897eb77aa9065975f5a6a329a8f9409e74b264d84445c6198946"
+    },
+    {
+      "path": "docs/server-architecture.md",
+      "sha256": "c4f21036f2800f170f729eb9b2d59229e7c00064b6734854f195f2f25a392776"
+    },
+    {
+      "path": "docs/server-deployment-plan.md",
+      "sha256": "e131d9360faa828db4638ddb4a44d9b09963d5e3fe50ea87dfb2cdd8ea9c3a32"
+    },
+    {
+      "path": "ops/Caddyfile",
+      "sha256": "0e0b069e1bddcb480c33c56c384a9495aecf0185e66d20869f82b523b9161c02"
+    },
+    {
+      "path": "ops/backup-postgres.sh",
+      "sha256": "62b83bb3dc4d895057dc631e861790d1a4314e887f02eb452f10e65a0f49d18d"
+    },
+    {
+      "path": "ops/refresh-blackmarket.mjs",
+      "sha256": "1feb74d500b01d6588c8484d123428268d9489ba5e3d82e16f0bbf52b1e3aa45"
+    },
+    {
+      "path": "ops/restore-postgres.sh",
+      "sha256": "a62e02299ab1fd74522f6581e1ba86c0cce816878615374b3f830ccfa9035347"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "3ba1fafe95e3f73fcbf91468b529c53a27a17fc301d069ddff46d7a3ef6a900d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "9fc10ca4b417074ec3fbffdd9d4a9f82d8eae773ecf5bd967bc3f819be406ecf"
+    },
+    {
+      "path": "playwright.workshop.config.mjs",
+      "sha256": "ba913fcaee720999cef394b71581055cbfbfce70961257bf5c7e09a110ff6333"
+    },
+    {
+      "path": "public/account-module.js",
+      "sha256": "8340d00184dd450740a2f4651d76132b12ba89d94afeb0c5d16135b8502e80cf"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-equipment.svg",
+      "sha256": "9b4048fe0289e40c73aa41d32549614d933dfe0707b46b152756a7f9fad34ece"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-finished.svg",
+      "sha256": "a22d183d1556f288ce8475fc64d85648ee47a9442e464d36b6d0045f91f04d5e"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-offcut.svg",
+      "sha256": "111fed2e0be8dab307e3670d43a5b984fa8faecac1eb602cd48bc37c6537a77d"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-stone.svg",
+      "sha256": "55a7df16387cace1c7eef8371c8fc9ffbe3e956232cdb69e79e2f85cf199e7e9"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-supplies.svg",
+      "sha256": "688904ae1991a079aaf01afa5c7d87d518648a873e86488d80dd5fbb000991d0"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-traveler.svg",
+      "sha256": "0b062b6e2153dfd3b9eebf1112c04879748c88d6d6ee2d4b3b66f4100be42364"
+    },
+    {
+      "path": "public/assets/fonts/AlimamaFangYuanTiVF-Thin.woff2",
+      "sha256": "ff7aea3016e0aa128eef3e04dd7dd8df189fe105ecde567b1d2074619a936f39"
+    },
+    {
+      "path": "public/assets/fonts/SOURCE.txt",
+      "sha256": "5f9dc879cd51725bb41471a3e670f20ec9578e311991393964752d47e1bd17be"
+    },
+    {
+      "path": "public/assets/inlay/accessories-handpainted-v1.png",
+      "sha256": "c6fd463f2ae418c42305d68a52109559c4fe5ad1925b797fb5e6a1b25434683a"
+    },
+    {
+      "path": "public/assets/inlay/buddha-original-clean-lines-v1.png",
+      "sha256": "45b8e80740e66e57743bea8bbe15eda967a734f3b6a05c91be1816fd566f5d11"
+    },
+    {
+      "path": "public/assets/inlay/buddha-rounded-minimal-v1.png",
+      "sha256": "b8cac5b32414611fe3204f156eb699534710e498935aa7220f1907ccfbd6041f"
+    },
+    {
+      "path": "public/assets/inlay/gems-handpainted-v1.png",
+      "sha256": "71920a0235d6972960ee87b93277d8793ff6ff601e3c2b415b227e9760fd9838"
+    },
+    {
+      "path": "public/assets/inlay/jade-and-mounts-handpainted-v2.png",
+      "sha256": "8262aeb6473acf55206bac057cc2e5d222f034e661e3f0c4660b5912cf8fc8e8"
+    },
+    {
+      "path": "public/assets/locations/auction.jpg",
+      "sha256": "f4301706bba7351cdb7ad06e90c6011d45c59bc526883d2e474d51601c41a772"
+    },
+    {
+      "path": "public/assets/locations/collection.jpg",
+      "sha256": "df6f8028eee3c52504aec7552c38a6cb25826f87137776a59d2d2bfc0cb6307a"
+    },
+    {
+      "path": "public/assets/locations/livestream-card-bg.jpg",
+      "sha256": "0379ee92f3c0505240eab1b48d44ceb3e44bdfc85babe05a1e769ad2ccc4c45f"
+    },
+    {
+      "path": "public/assets/locations/livestream.jpg",
+      "sha256": "7cacec1daa301b73aa7066fc7c399883ee624b708d8321db69eac215d9d5aca6"
+    },
+    {
+      "path": "public/assets/locations/market.jpg",
+      "sha256": "deeff53503c1c609ecfe67805cb90ac7230186637ab03c322398c572149e6e06"
+    },
+    {
+      "path": "public/assets/locations/orders.jpg",
+      "sha256": "c828768dacec2f869bdfff1621877bf8b8c9ac2aa95a78ea6ba3cdb60883084a"
+    },
+    {
+      "path": "public/assets/locations/reports.jpg",
+      "sha256": "592ddacc04c1e5edc38bfbc6a3a29dd8868d22177eb512f707f8fe2ba534c6c0"
+    },
+    {
+      "path": "public/assets/locations/shop.jpg",
+      "sha256": "f7e5d35c41a9f158dd51fd8e32918c5cb67d530841a396700f17236005e53759"
+    },
+    {
+      "path": "public/assets/locations/workshop.jpg",
+      "sha256": "e1dac3098e68fd7ebe42e5bd2a6caa8cd68084b52859d2f4664a640c77c6b76d"
+    },
+    {
+      "path": "public/assets/mining/mining-interior-v1.png",
+      "sha256": "dcccc443f578d81fd0ced8a0f5672384271836ffe8e1a9e443593fa09a04ea8b"
+    },
+    {
+      "path": "public/assets/mining/mining-panorama-v2.png",
+      "sha256": "730e451cc921f80231a3825caa1a70da1d9a1cbc500db0fad00543fca80e3b92"
+    },
+    {
+      "path": "public/assets/mining/mining-panorama-v3.png",
+      "sha256": "418f4d5bb578ee74830ab6690ce4ba35fdbc4ddb0bd94e57d5f983745e35732d"
+    },
+    {
+      "path": "public/auction-module.js",
+      "sha256": "8e806e09fe2d83f50a48da282efd72fa05f3fbce1775d85abcaf9fe631ac5d35"
+    },
+    {
+      "path": "public/bill-module.js",
+      "sha256": "eeeae7c03cc7da992c4a0272bdce0595f5ba36c06f26fb486faaf7b07ef6c29e"
+    },
+    {
+      "path": "public/blackmarket-module.js",
+      "sha256": "6ca66e905d894ae76a90eb9bc2c0047779ede4c9028711caa2f0e437a9fa0550"
+    },
+    {
+      "path": "public/blackmarket/actions.js",
+      "sha256": "d7f5ac2b801b8f7eb7ca00209a693c3bbfc98a265e6f8fc998cae7c0d43ef5dc"
+    },
+    {
+      "path": "public/blackmarket/blind-ui.js",
+      "sha256": "8a9ea1b835ecff47acf7832f00a8fcc3e1573b35998f45692b25b871dc733d80"
+    },
+    {
+      "path": "public/blackmarket/goods.js",
+      "sha256": "866ec527d7b16ab6c8196b2ce2afac72a680ab5a1a45d45ad0f55947a1c84fcb"
+    },
+    {
+      "path": "public/blackmarket/index.js",
+      "sha256": "132c92e786ffcdd0d9cb5da2ff97bb4a0fc1e8388eb4da8d1f2ec95b1a178758"
+    },
+    {
+      "path": "public/blackmarket/plaza.js",
+      "sha256": "e77ed967173ccf30eb0763bad098858dd6de89f524d0b1f373e7964df97fd9d1"
+    },
+    {
+      "path": "public/blackmarket/service-ui.js",
+      "sha256": "0f879820df3d880e0d41ab95e717186509fe022613bbc62da26442e11bf8af6b"
+    },
+    {
+      "path": "public/blackmarket/shared.js",
+      "sha256": "744d2f22cba27f43cff57480705562d172821e191df81c597ddbc6236a264e69"
+    },
+    {
+      "path": "public/bm-constants.js",
+      "sha256": "a517d059c92b8d5f8755e12ad69ffed679e7749124bd2b9522ca9e04c2dbec8e"
+    },
+    {
+      "path": "public/bm-plan-pool.js",
+      "sha256": "e6b2a56f68636df055a835b3c4794da619ed6a77c90eeffc56c66738d72ae351"
+    },
+    {
+      "path": "public/bm-service-templates.js",
+      "sha256": "d68cd4809299663a759ce3fa1a27bec589119bb63f35efbd5b6bb4cc55c696dc"
+    },
+    {
+      "path": "public/chat-module.js",
+      "sha256": "546d059707e4b5cdba3a750b15770b704c6d14790b5968393f51a7bcde177e15"
+    },
+    {
+      "path": "public/collection-module.js",
+      "sha256": "a74364274d97e4b84283394c3bfd1ea9544fb62ae1690e8bc448a63d588c37f4"
+    },
+    {
+      "path": "public/equipment-maintenance.js",
+      "sha256": "89f61353d82ff2fbf37f517c4245786affbcfe73ec4f4a44283e96ad26f7fbd4"
+    },
+    {
+      "path": "public/equipment-param-view.js",
+      "sha256": "01adba2ba8556b414cc93ba47442227c1d74d7ba8ae5215a6f5d5b832cee3ea9"
+    },
+    {
+      "path": "public/equipment-trading.js",
+      "sha256": "8f9906cd485cf9fadd72c8fb95fd605b32ee9d30fa714e008030e3c63b979943"
+    },
+    {
+      "path": "public/extra-module.js",
+      "sha256": "5ec9ab60c06f78a228daae7e5086a6c451ee2fb0f0d9c52ab16c60de674d0ab5"
+    },
+    {
+      "path": "public/feature-availability.js",
+      "sha256": "cf318d92aeb5ef07127caeed5db57f435af85685c501946fac2e204664b4b919"
+    },
+    {
+      "path": "public/features/auction/auction-module.js",
+      "sha256": "4143f238588f0ad32b39dafd1d872224d0222698a7565dbc70829e151ff4c607"
+    },
+    {
+      "path": "public/features/auction/index.js",
+      "sha256": "9700742fa4e3ba3849d00cc1db93fb79ce97ac9bff733042be857ac14aee327b"
+    },
+    {
+      "path": "public/features/bill/bill-module.js",
+      "sha256": "06d4ffac2c08d6aba73e4a16be840aa8a322b7c11c4cd526fe6afaf7b9283182"
+    },
+    {
+      "path": "public/features/bill/index.js",
+      "sha256": "b75f015b87defb09901afad19f20f1876b6ea07941ead17fcd7a93ddad4f9ec7"
+    },
+    {
+      "path": "public/features/blackmarket/actions.js",
+      "sha256": "5e85a8e94746491aee2184fc80e03fea2d125b0c2c7cb0637a6902a1998540ad"
+    },
+    {
+      "path": "public/features/blackmarket/blind-ui.js",
+      "sha256": "f01b38ef8adb2e5492f9e9ad67fee38a1e98cbf0024d82a4a0d07ce649f7fddf"
+    },
+    {
+      "path": "public/features/blackmarket/controller.js",
+      "sha256": "6aa081e7ce43bd065de5e73991d70a7b6bb29a3753b30d4f4c5b634c9becb744"
+    },
+    {
+      "path": "public/features/blackmarket/goods-display.js",
+      "sha256": "973a281e71a1d0a6e793a20691a05082b3dc17b97208a0b7b72b96efd9c79bce"
+    },
+    {
+      "path": "public/features/blackmarket/goods.js",
+      "sha256": "e63300c80b45d4a590497ce7a9a693dc49256c24c5abb4843dbe231364d44f84"
+    },
+    {
+      "path": "public/features/blackmarket/index.js",
+      "sha256": "a4e5c8b61964880a390ddb7f661bf9bafd6fc3fa4045b3ef94897bf9440b18c5"
+    },
+    {
+      "path": "public/features/blackmarket/plaza.js",
+      "sha256": "6a4d8bc07c94d3ea869f21fbc105349951d3e8edf141d1cecbe998b517a3c1aa"
+    },
+    {
+      "path": "public/features/blackmarket/previews.js",
+      "sha256": "d376748d17f1c051299ab3f20e1e4da2394fb9238eebf5af75dea25300c86ab0"
+    },
+    {
+      "path": "public/features/blackmarket/service-ui.js",
+      "sha256": "02de9aa582757486ee837996755b4a97b847ba6406521bf88dce3e966ae54253"
+    },
+    {
+      "path": "public/features/blackmarket/shared.js",
+      "sha256": "b76cf9b058a67ae1322c4b8277d0025a68d64121ed608839fd0f87c6ad5633e3"
+    },
+    {
+      "path": "public/features/chat/chat-module.js",
+      "sha256": "f2a65ac117acc38de32bd548e30d3fc0c4a28886cb8858f63415792ab25d3f1e"
+    },
+    {
+      "path": "public/features/chat/index.js",
+      "sha256": "e771d53811ae616c81d65ad66f1f205be31a1892d32948ca5363ddb2efa02c92"
+    },
+    {
+      "path": "public/features/collection/collection-module.js",
+      "sha256": "4c4075bf2a5fb3527ed10aea5e671516483909e975f90c25b94648b2815f742d"
+    },
+    {
+      "path": "public/features/collection/index.js",
+      "sha256": "88b8f6d4ec96e96a9fcb318905bdf44b3ded57f4e1ee6bb214859a062bb62da1"
+    },
+    {
+      "path": "public/features/extra/extra-module.js",
+      "sha256": "c72885d49d39d83686178c17d6d48eb6b61a5cf148bfb4bd32fc3e81289bf819"
+    },
+    {
+      "path": "public/features/extra/index.js",
+      "sha256": "64cb464bf8231d50c159c08d1e0e09730017b5f56f415d7d667538a4609145b5"
+    },
+    {
+      "path": "public/features/hire/hire-module.js",
+      "sha256": "494f92acc3db13305b19ac6aeb98e894c16facf043c27fd46e58e81b5fe5a2f8"
+    },
+    {
+      "path": "public/features/hire/index.js",
+      "sha256": "1367383fb2deeaa69703d2b01c7d3db1bece6118497680ed46d5ce2e933cd86a"
+    },
+    {
+      "path": "public/features/hud/index.js",
+      "sha256": "e2c2876217bbd06c5ef742ca82756b12f4e6c0774763e87b4f68b694d239b73b"
+    },
+    {
+      "path": "public/features/hud/player-card.js",
+      "sha256": "f728a66e147187301446eb4398266a7bb05787381af8f50b549d401888017e85"
+    },
+    {
+      "path": "public/features/hud/side-panel.js",
+      "sha256": "5aea6efcb79991c123d917047c4ed3b812a89ea32f849ce015d3302a62e95319"
+    },
+    {
+      "path": "public/features/hud/top-hud.js",
+      "sha256": "93bdf3de3d94501f99e33aff6ade4cc71cc48e3bfa28a395f41ba155e9f460d9"
+    },
+    {
+      "path": "public/features/inventory-helpers.js",
+      "sha256": "d8131cc80a76778c49ea997dade44d09a5dee43eab13603027be58f4eaa420f5"
+    },
+    {
+      "path": "public/features/inventory/index.js",
+      "sha256": "f68b5d5e980b3f24c33c63c9580c00351fa233304d4c675347cb1394a2a35ddb"
+    },
+    {
+      "path": "public/features/inventory/inventory-module.js",
+      "sha256": "0298d3c6b17ddf55e81267d6879a97b981fa41128e8b236693a01219bb95ff9b"
+    },
+    {
+      "path": "public/features/inventory/item-detail-model.js",
+      "sha256": "69a9143eef86223bb4ff337c35c94b728ba5d7c7edd889395450a391e331af9e"
+    },
+    {
+      "path": "public/features/livestream/index.js",
+      "sha256": "9c2b1e263927ee42755087ebdc54d7839888c0d49f65bea227b2423d1d5b5308"
+    },
+    {
+      "path": "public/features/livestream/livestream-module.js",
+      "sha256": "440a7944e010b9080fd4b177265e2ec4a5b13890af7c53c5f9f86e4ce35c28ca"
+    },
+    {
+      "path": "public/features/market/equipment-view.js",
+      "sha256": "bd25bf98a82febab3c8259019e31d7cb4371f8876a7df1c2bf36d00789f50482"
+    },
+    {
+      "path": "public/features/market/index.js",
+      "sha256": "adb42d27c276ccde7b9cea42249f0e0ed721ef0226dfd1159d70fb30a7807955"
+    },
+    {
+      "path": "public/features/market/market-module.js",
+      "sha256": "52801c8ed3240bf998a703b71aad191eb292d30413fe5a5e27e2aa7b17ade928"
+    },
+    {
+      "path": "public/features/opening/index.js",
+      "sha256": "36024edac77b3329b27b1bd997e2b934a9bbc63a52b1b0657e81332a60c431fd"
+    },
+    {
+      "path": "public/features/opening/opening-actions.js",
+      "sha256": "3271fadac9c552192a8e9a519553552ad093f05b38a4edb9da6a387e260f6fef"
+    },
+    {
+      "path": "public/features/opening/opening-kits.js",
+      "sha256": "181ad589a750df89b8a2b0246b84852b41b33d9ab9bc3b7dcb3c814ecf1178b1"
+    },
+    {
+      "path": "public/features/opening/opening-pointer.js",
+      "sha256": "e2900593af890377788a9f20f924e2673fae3181d4800f82f9b073a0bf703a20"
+    },
+    {
+      "path": "public/features/opening/opening-render.js",
+      "sha256": "2702ab0477be7b1691f02faa781aa6051a04458939f4871688386472d3248905"
+    },
+    {
+      "path": "public/features/opening/opening-state.js",
+      "sha256": "3d6af9a82a4680c219d336548c4159debb85fe76dc9038b23a5b28c1f8180998"
+    },
+    {
+      "path": "public/features/orders/index.js",
+      "sha256": "8cafb48906be9ebac32603d585da7aeb7475f0d95a8db435f87dcce2b4eacfd4"
+    },
+    {
+      "path": "public/features/orders/orders-module.js",
+      "sha256": "84ee579e8db8bf2e8a1d62bd41ebae4a2e6f6f3d37a1ae668e9f0a9dcb27a1d6"
+    },
+    {
+      "path": "public/features/overview/achievements-ui.js",
+      "sha256": "69d00ffe34b7d0a7a8606e5ca26af78302a95a63aa40f3e2bbf43603062dfe52"
+    },
+    {
+      "path": "public/features/overview/index.js",
+      "sha256": "b94d7967922aeadfb9929ed5346c0cdb39aeea2a5fddb0753ea2f8b346a2e1bd"
+    },
+    {
+      "path": "public/features/overview/overview-render.js",
+      "sha256": "0a40f3e8d1bc746521ed031b12258860c54594f2f8fafbb8dbc2eb63cf5cde63"
+    },
+    {
+      "path": "public/features/overview/tasks-ui.js",
+      "sha256": "e86fb22da62dfbaf5da98145cfa51420382c5eda734bcf28d6ea50e5974cba9f"
+    },
+    {
+      "path": "public/features/ranking/index.js",
+      "sha256": "56aadc033bdb0ff53288ed763e55f1c35e16e2528074edd0321bd156ab0f1937"
+    },
+    {
+      "path": "public/features/ranking/ranking-module.js",
+      "sha256": "dd6cf0ca9f03aa252a68a0903bf3841642a32eac11d1a47b7c84488780b3b5f5"
+    },
+    {
+      "path": "public/features/reports/index.js",
+      "sha256": "599d558e233fe517e08a530b98e61690454fa8a833cf1d384a91ef6074d67082"
+    },
+    {
+      "path": "public/features/reports/reports-module.js",
+      "sha256": "6debd15201db60781fffaf87b6736949321c799ceea34dab18fd05177b72a9c3"
+    },
+    {
+      "path": "public/features/shop/index.js",
+      "sha256": "1d14a23826e8825b4bf75d3ff9895259edd3534759de37c8cb2de7e4075f76c4"
+    },
+    {
+      "path": "public/features/shop/shop-module.js",
+      "sha256": "43762cc3ed3b8d513a7cd2a7daa46549ff24fbfce9aa39e04b1e53b295aeeb73"
+    },
+    {
+      "path": "public/features/workshop/actions.js",
+      "sha256": "9ee96b8de4cf3cf5027e78c82d90a2456e1a42e80a836ebdd3a4cdfcbe8f90ac"
+    },
+    {
+      "path": "public/features/workshop/bangle-finish-ui.js",
+      "sha256": "f8ce88ffc7cf6b10d3e5019206c9fc74aa2ffc27dce7951ec4690cf06b507081"
+    },
+    {
+      "path": "public/features/workshop/catalog.js",
+      "sha256": "57de0bfc777ff0646ebf448aba54e9f22b3f8aa97f50ef8687687241c76c11a3"
+    },
+    {
+      "path": "public/features/workshop/commission-ui.js",
+      "sha256": "e7e5332f3fe0b3f99ce43c5500f68437629a6de2a15b7952dc1bc448559b840e"
+    },
+    {
+      "path": "public/features/workshop/create-workshop-feature.js",
+      "sha256": "fe8aba62accfbf2f03b04fb79d5e2ac944faf5f50f53c39fbf3053a3c5f44450"
+    },
+    {
+      "path": "public/features/workshop/delivery-details-ui.js",
+      "sha256": "7de3fb10f78e2ac64c5ce72f54494ebae11eaba508f0c85f3f0f7751f79db521"
+    },
+    {
+      "path": "public/features/workshop/delivery-material-analysis.js",
+      "sha256": "d300609c31dd5d09c5dedeb0367b5282bba70bf42b8eaf62cc596bd0975568c9"
+    },
+    {
+      "path": "public/features/workshop/delivery-scratch-ui.js",
+      "sha256": "2ab65aae691d23f7a630d2b7e2d891a970877e1b0a69d58f9b605e29e0fe22e3"
+    },
+    {
+      "path": "public/features/workshop/delivery-spotlight-ui.js",
+      "sha256": "5c68c16c846945a38c3515a84a1302e1a61c2d4333e60f3e31386dc26e1ddbf8"
+    },
+    {
+      "path": "public/features/workshop/delivery-ui.js",
+      "sha256": "63f85f909a3be6aa247dceae69c2c8d29395cf40f17a31615155b2e78dd42233"
+    },
+    {
+      "path": "public/features/workshop/finish-controller.js",
+      "sha256": "ac00092a19e3ed97df6515fe26837f03440651aea85d1d349cd14499edfa546b"
+    },
+    {
+      "path": "public/features/workshop/index.js",
+      "sha256": "5150efb3caf2fdf27ec931a447cd86c6a6ed17122d276e84d3dcd3b61f7fe902"
+    },
+    {
+      "path": "public/features/workshop/inlay-preview-controller.js",
+      "sha256": "d33fe91619adbb973a73c3dfe51707129b87cfa5284e9e6cc7772466cc0badd0"
+    },
+    {
+      "path": "public/features/workshop/item-preview.js",
+      "sha256": "ccefc03400588c56d0a9a285771a70e771c882886ba8e93a819f92ac603e05cc"
+    },
+    {
+      "path": "public/features/workshop/picker-controller.js",
+      "sha256": "2587c2b1d927b7f8ce8a821287a642ac4a9057d98c6fe8adf0a7f7525d577ca7"
+    },
+    {
+      "path": "public/features/workshop/planner-controller.js",
+      "sha256": "5ee4009803947aaf8b208fcaa1d9641f7623f5a8c4a0796df7e2ae700e1dda6a"
+    },
+    {
+      "path": "public/features/workshop/scope.js",
+      "sha256": "8946309ce5d68a16743a520b7317988d4c4793ce1ce565f1489aaee5b7ca4ea4"
+    },
+    {
+      "path": "public/features/workshop/scratch-coverage.js",
+      "sha256": "482350b1565a5cd54f803776afa73fb042154b8d7994512374c0a559833dafdc"
+    },
+    {
+      "path": "public/features/workshop/selectors.js",
+      "sha256": "b78ff56d0ddc4fe4d22d8913dcb954c6d66370206bdb604572827685377b13df"
+    },
+    {
+      "path": "public/features/workshop/state.js",
+      "sha256": "ccbe5625f68a9c01144b56142bea9526ff8953b004431b527ef49951525e0c49"
+    },
+    {
+      "path": "public/features/workshop/view.js",
+      "sha256": "24552413d7e6e3292f7c71d22c8e689728b1014addd3766d54f542794a33cc5b"
+    },
+    {
+      "path": "public/features/workshop/worker-view.js",
+      "sha256": "daf4d7748f5b462b4e429b9c5ce61ac0d93a0a9c63942fdf62c2b2a000b5d314"
+    },
+    {
+      "path": "public/features/workshop/workshop-module.js",
+      "sha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778"
+    },
+    {
+      "path": "public/finish-plan-dom.js",
+      "sha256": "4b7ae61eab20ee37c5663a772d5122dffcca219f26d14d67ad2b79be796ccb3a"
+    },
+    {
+      "path": "public/finish-plan-modal-controller.js",
+      "sha256": "999cf6c69c0d3802886e0f9e5c49e2c18628c42bf4237d4bf4b21b1e42876c44"
+    },
+    {
+      "path": "public/finish-plan-model.js",
+      "sha256": "45a9b3b659fc17f68c2e3f624ff6cd0d9645d8f3afe6a03edc8445fa46699667"
+    },
+    {
+      "path": "public/finished-product-renderer.js",
+      "sha256": "35cad0347ef11949c18781af9629bc4bfa0b859080785c04340422624a18234d"
+    },
+    {
+      "path": "public/hire-module.js",
+      "sha256": "59f14b4c7b7a6a9e98fa58d7f1c0f1020004987435f88e60110ce74ec3f4dba8"
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "14889a40efb1bb0ee09f8932b459a42712d88d3dbf97027c53ddc94503152698"
+    },
+    {
+      "path": "public/inlay-artwork.js",
+      "sha256": "5c76d0acac653cdec869f5cd729c71650e3e761c5cbcaa9cf3d8ad22e71cd99c"
+    },
+    {
+      "path": "public/inlay-painted-mounts.js",
+      "sha256": "4b359025f303d6212f545ad578748b2c1c64181684a9e117364e3975c2a21f74"
+    },
+    {
+      "path": "public/inlay-preview-tester.js",
+      "sha256": "000cbf54263ee184df0653ac9312e1a4dc2f1352fd51b9545ab2a60589c7aaf4"
+    },
+    {
+      "path": "public/inlay-product-renderer.js",
+      "sha256": "0f09bbeb7f03d01f43648039b20d05d43d8da518662f8cddb1b9e207aca08d2b"
+    },
+    {
+      "path": "public/inventory-module.js",
+      "sha256": "efa34192beb6dc9c52a48436313b9652d67ee40e31ee5ddaf5a881a950f9dfbd"
+    },
+    {
+      "path": "public/inventory-recycle.js",
+      "sha256": "0ee0542e35259ea386f09b8334a3067abb2b8da6c9a3ab8b9c6c7749fcbbaa61"
+    },
+    {
+      "path": "public/jade-auction.js",
+      "sha256": "7e9652efe8b89279ff419eca2c8f75a2569f9debddc13ac840cf02565edb308c"
+    },
+    {
+      "path": "public/jade-categories.js",
+      "sha256": "61b57f77f9701b4f7307267b03e060614b823039ec21d37b601af251872a3aea"
+    },
+    {
+      "path": "public/jade-loop.js",
+      "sha256": "440174b901f21f14de41a6b8ded9051676b26cb4e843f5f13a870aae28b9f7ad"
+    },
+    {
+      "path": "public/jade-opening-engine.js",
+      "sha256": "27e19f049a86aa049a063d850611e7349ba989a0ae7b4f40d5fa2842a5dcc527"
+    },
+    {
+      "path": "public/jade-piece-view.js",
+      "sha256": "2c0cd20bc25ac55ad16b7734d661c87495b75eb6e0da35704b9dfaa5f50c0eb9"
+    },
+    {
+      "path": "public/jade-renderer.js",
+      "sha256": "8b6266354edaa5929b9fbec139963e05c5d5a790ac12394ad1c03d4005bf1e98"
+    },
+    {
+      "path": "public/jade-rules.js",
+      "sha256": "10521ee600a4d5c1384af577121365ae6bae41bd236fabe8108b08306599f8c5"
+    },
+    {
+      "path": "public/jade-volume.js",
+      "sha256": "716ef04b9e1896a86b6bf61e6029a8ddfa665ce11b66d757d4b37104bd0c8fe0"
+    },
+    {
+      "path": "public/lazy-preview.js",
+      "sha256": "9d184567420ea3aaef7b469d7a80dca472525505bf623ee3fb16bef45ff5180c"
+    },
+    {
+      "path": "public/livestream-host-bonuses.js",
+      "sha256": "6a5d920194153d81654c2954b58e82b55e6b23d3447ed25fccd25656009fd4ee"
+    },
+    {
+      "path": "public/livestream-module.js",
+      "sha256": "eb99fae7e34c0c54fd546050a3767610e61b071a405067d5a794268b19ddd6e8"
+    },
+    {
+      "path": "public/livestream-rules.js",
+      "sha256": "b57cc14618f1c6567ac305a894f22179b22397575a159d1df6290e4293d899e0"
+    },
+    {
+      "path": "public/main.js",
+      "sha256": "e0a677d8ed0eab9139f5694a199b9b73359eb3127c4c88a38226a990130ebbfb"
+    },
+    {
+      "path": "public/market-module.js",
+      "sha256": "b51a5072e4a7fbb4be94618495e24c378e02b00704aedfab0a93ebf9b0d126f8"
+    },
+    {
+      "path": "public/market-rules.js",
+      "sha256": "538a111bf8e430916bed1e6d8ae5ea64f0359c49e3bb7b745517bfcb279b79f4"
+    },
+    {
+      "path": "public/material-pricing.js",
+      "sha256": "dd72362e2c981c366c65471121e52d0cbf63f738c6845aedcebb33a14b6c75bd"
+    },
+    {
+      "path": "public/metric-history.js",
+      "sha256": "d0aa059cdf54b6a84cfd1ef31581e93934220676a3973b124d189c725d2f5c57"
+    },
+    {
+      "path": "public/mining-module.js",
+      "sha256": "6e11b8e6f118ead983dcf6d59684fc1beceed821ae6e02bbc08aea1cba037d87"
+    },
+    {
+      "path": "public/modal-lifecycle.js",
+      "sha256": "8f2f16ce457927972d44309ba2ce6d087bf0634a29f56bfdfb2c713175260710"
+    },
+    {
+      "path": "public/order-refresh.js",
+      "sha256": "661fd24faf561c62a471be54ed3ff9fb4e787c5b22b840422a90172e80e5fdf0"
+    },
+    {
+      "path": "public/orders-module.js",
+      "sha256": "c4c932ec238753ce3b72e9dde732439f1386be568379cb25a34547c127b2e3f8"
+    },
+    {
+      "path": "public/payroll-work-notice.js",
+      "sha256": "3d4753829d7327a05f97b73a053310fe381743db0677571bc3e4b9e27f77d969"
+    },
+    {
+      "path": "public/planner-dom.js",
+      "sha256": "3e07d2dcd3f3860828355fe8fed6e65fb3ec30f3b2901f316c9dfa73ccd6a115"
+    },
+    {
+      "path": "public/player-progression.js",
+      "sha256": "5e5b38bceae6aee5ae28d22a36dd03cec627bebe548434d7ba7c8c7b29586f05"
+    },
+    {
+      "path": "public/preview-bitmap-cache.js",
+      "sha256": "3e45f23aaf770a792b0214f3e2014790cc03c2726d7b4753d84b118a8650d9b5"
+    },
+    {
+      "path": "public/product-meta.js",
+      "sha256": "e0b53f48b7e29f892720f69ff081ac1706647cba5942a09c2e59c95636a32323"
+    },
+    {
+      "path": "public/ranking-module.js",
+      "sha256": "bcea9489a550fc70456b0e5d5353deee8ad09a5aea0a51b1eeafa014222736d7"
+    },
+    {
+      "path": "public/recruit-detail-controller.js",
+      "sha256": "6118a50ce4f7493b88c04ca1cd18e0c6fae2d3e8e67ed6f20b143cd170baa924"
+    },
+    {
+      "path": "public/recruit-detail-dom.js",
+      "sha256": "eb9ac1592181cbd4346273ddf91a24ae3170208c8038a20d4bca85e4cc81a517"
+    },
+    {
+      "path": "public/reports-module.js",
+      "sha256": "474c756a90146a7e0b045bd518ec34d519ade0a878a443f610c3385c6c01bfef"
+    },
+    {
+      "path": "public/shell/action-router.js",
+      "sha256": "44795671e9d4956efce86d62d483cf7b3f9f85a643230075cd22cb244cc22cb8"
+    },
+    {
+      "path": "public/shell/format-utils.js",
+      "sha256": "c1a7554c2b5a9ffbb9e28d4f3fafa451946b2a1204b2806a9b0e85d97b1ef132"
+    },
+    {
+      "path": "public/shell/game-modal.js",
+      "sha256": "e58fcc8add1e4553b6a6b1d5c16c2229dfbc243a4e49808d19243412a54cfb24"
+    },
+    {
+      "path": "public/shell/mutation-socket.js",
+      "sha256": "f50a3be5611c43ba16c7f955487692bdfe24ea2fe61ca6adff7435bc60504289"
+    },
+    {
+      "path": "public/shell/navigation.js",
+      "sha256": "c3d731ea12e180141e16a8f409818978084235019364992561e6950f956f4d86"
+    },
+    {
+      "path": "public/shell/payroll-notifications.js",
+      "sha256": "50fa0a747cbedb363fe617229ce15a9a3810aab7c5d1508945fc3771f67e95da"
+    },
+    {
+      "path": "public/shell/payroll-settle-modal.js",
+      "sha256": "467c73e7457edca9a910a79472406790036c4c401028320333e2d813acf71c09"
+    },
+    {
+      "path": "public/shell/render-pipeline.js",
+      "sha256": "595e503fce72b3dbc788c716ac93ee7b3e50fc1d29323642a164b3aa35cff5b0"
+    },
+    {
+      "path": "public/shell/theme.js",
+      "sha256": "17f6cddf359bb765e100a7df3c2e251c59e22a8e56bc9cce9855bd718aa23604"
+    },
+    {
+      "path": "public/shell/toast-fx.js",
+      "sha256": "73db798715f30b7dcf911e6c8178918ee3eb50019fdddb0125f8dd4af3972d2c"
+    },
+    {
+      "path": "public/shell/wire-modules.js",
+      "sha256": "0dcfd4b5f9bf3524ae0a5129c3d655d00c79428241120c5f235e62608e0507c8"
+    },
+    {
+      "path": "public/shell/wire-shell-actions.js",
+      "sha256": "3ceb8d14d4555812d14fc5a2fc446b8bd661331420340cb9558b1158414713bf"
+    },
+    {
+      "path": "public/shell/wire-shell-ui.js",
+      "sha256": "9e5625c377ad58dc71d19c0c095dd42f55ac8c23e400f1a229d95a4253a9e442"
+    },
+    {
+      "path": "public/shell/wire-socket.js",
+      "sha256": "da96b4bdbee38263ecba7d6ba75a73e0557f9789d19723b475f3587d58ae1861"
+    },
+    {
+      "path": "public/shop-module.js",
+      "sha256": "b9ca815c5291ea9923a587b6892cb1a54bf9bb77862261cbf9efb540919a1fb6"
+    },
+    {
+      "path": "public/styles.css",
+      "sha256": "748af2798e67fe63436a4de9deeb8f84fb96d5dd0fd81ef69e8dde677a074d9b"
+    },
+    {
+      "path": "public/styles.css.bak",
+      "sha256": "d6de2e08a4b9f61c1906b7ba70e947315c2e41a9819af5771ec79cf1529faa3b"
+    },
+    {
+      "path": "public/styles.css.layoutbak",
+      "sha256": "3b009b357ece5a6367390192587ad06c6b53e6de0c677f9100d28c6bd6c82cba"
+    },
+    {
+      "path": "public/styles.css.strongbak",
+      "sha256": "666b290a45fc786c05a85e0e0cc2fed3a0a3bad8ba481df8eaefcc40cfa437bd"
+    },
+    {
+      "path": "public/styles.css.workshop-detail-bak",
+      "sha256": "a827d18eedf47f8cdf9ca34cb794e504f2797e7264e8a502ddf812d1b6e87c85"
+    },
+    {
+      "path": "public/styles.css.workshop-night-bak",
+      "sha256": "8e2179a95a904557a04fb4d9612b46585b3085763c711c931e200c66d9d3f26a"
+    },
+    {
+      "path": "public/styles.css.workshop-tabs-bak",
+      "sha256": "1ee8638fe480b670745d35e887a97cb6199b8054a71da38e936c6de8a324e9b0"
+    },
+    {
+      "path": "public/styles/account.css",
+      "sha256": "3793ccc9d5407b83a3f4915a221fc073c4bf6e06989ee55dd909b7aa1aff742b"
+    },
+    {
+      "path": "public/styles/auction-chat.css",
+      "sha256": "54c8ba9d51dc1dd63e43f579e39739403420315d7b92c362a4322fe38205fe4a"
+    },
+    {
+      "path": "public/styles/commission.css",
+      "sha256": "fd250dac067e33a1067cd2d0ffd101c64c4f348f6b833bc98733019abb89e683"
+    },
+    {
+      "path": "public/styles/feedback-modal.css",
+      "sha256": "576af3e2e2c8c81309a2f450e1a7259e4d57e4e927392dc220a7a24011b2bfc7"
+    },
+    {
+      "path": "public/styles/game-polish.css",
+      "sha256": "68b8868ce533be6a31b0054f1a2cff86e8b38f7a43ed1e68e288e01849f8314e"
+    },
+    {
+      "path": "public/styles/gameplay-ui.css",
+      "sha256": "1edfcb449a884e11a4373a885fa0ae24b179bbb509cd3f05dfeb2ac331000706"
+    },
+    {
+      "path": "public/styles/hud-fx.css",
+      "sha256": "7761b605ab69afc6a37b7236e2471a6387d1e3da834a031699cd5886eef3f37d"
+    },
+    {
+      "path": "public/styles/jade-piece.css",
+      "sha256": "f7d8ad2d026189e99cc28b10afb11ee51bf2ce4b153567554586870fa2be2e50"
+    },
+    {
+      "path": "public/styles/livestream.css",
+      "sha256": "502b6ba9c82820e5a502331556b4684850768d69cad2ab172f3cb92560e7f697"
+    },
+    {
+      "path": "public/styles/market-equipment.css",
+      "sha256": "32a71aa210758260334ac264bc025ffb5c3ee8c51c5310af0f92487e14f5da51"
+    },
+    {
+      "path": "public/styles/mining.css",
+      "sha256": "e492c483d0f206b3fee8ba8451ee4b5ff1214ab55bcde856555eaf4d5117420a"
+    },
+    {
+      "path": "public/styles/order-cards.css",
+      "sha256": "939a4a01cd65c35627f5f3f7e46637800a8ae05bd8deda1579ce369a31acc17f"
+    },
+    {
+      "path": "public/styles/shop-hire.css",
+      "sha256": "c2464b60de0b0bfb8d8826f36e761a46ed07dd8755d17d05e635a62c3a8cbd77"
+    },
+    {
+      "path": "public/styles/theme-inventory-chat.css",
+      "sha256": "0cd5fab3b36aa9a5cc2a817a8620dbd07e4f4ef1881c3738f8275553dbcd6fe5"
+    },
+    {
+      "path": "public/styles/theme-night-panels.css",
+      "sha256": "18c6ae28426b187e80d225e379466733f006704a8e7ad9dc8108b807e7c94d7b"
+    },
+    {
+      "path": "public/styles/tokens-shell.css",
+      "sha256": "57fd3ceacaee8f0d6f6ce2dbb4ef7d0eae35480c8fd7c576e38d79398e89f9d9"
+    },
+    {
+      "path": "public/styles/workshop-delivery.css",
+      "sha256": "ad24104c8af3cb41e97f16259c86d49736c326174e6656e62679ef1906219323"
+    },
+    {
+      "path": "public/styles/workshop-device.css",
+      "sha256": "b8659d69f9f4d9b89b1475c09049151e87b0255a1b3ce40fbad5dbfca89c2034"
+    },
+    {
+      "path": "public/styles/workshop-shop.css",
+      "sha256": "8bcbb7100fc1ee058251d99ca618cd1a5e9d48dfe24f3c8f6a671ece16124c11"
+    },
+    {
+      "path": "public/virtual-grid.js",
+      "sha256": "efa7cfbdc50f50d0b196593c65c217638c2c781b1d5d64d5677e5f6c15f796c0"
+    },
+    {
+      "path": "public/worker-detail-view.js",
+      "sha256": "ab5428d595ae5b944971c5f113985616e0eeb718b19c69ee534659052507879e"
+    },
+    {
+      "path": "public/worker-economy.js",
+      "sha256": "962ebfe5d8212b50793c24fcec724671cee43a3d4c4e2bb04e78cfc401367ec2"
+    },
+    {
+      "path": "public/workshop-craft-scoring.js",
+      "sha256": "df42df62ab1b4674d66a18b549c9876b6652c5c39defee24105c3adb066bf816"
+    },
+    {
+      "path": "public/workshop-module.js",
+      "sha256": "6b77d9ddd5f4d6e6e59be13c6d6abbc4e148db5399e997b2f1b7d2d24e481aa9"
+    },
+    {
+      "path": "public/workshop-resource-art.js",
+      "sha256": "da7764c7f7bb0bb236f3312436396ec7a52a358e842cadf2f8d3eeeb4c4a3b63"
+    },
+    {
+      "path": "scripts/account-http-e2e.mjs",
+      "sha256": "edf7a183ade78404d8fd3bdb25945f2f391b0f2561ebdf6cb91f597731335a65"
+    },
+    {
+      "path": "scripts/account-service-smoke.mjs",
+      "sha256": "7fb463297d83f297d38e73995f5dea30ee7e85dd0347b306560b11419d5e0040"
+    },
+    {
+      "path": "scripts/account-ui-smoke.mjs",
+      "sha256": "e658200c0007442d332f215947f0781717ec1bb18406883ef48ca40d2c658965"
+    },
+    {
+      "path": "scripts/action-router-smoke.mjs",
+      "sha256": "94730e7595fa8cb79190262a224b1ca7ec06bde3c7a9a5ea32d868f30d4de289"
+    },
+    {
+      "path": "scripts/architecture-quality-gate.mjs",
+      "sha256": "538553848e8d96e7ee927631541fcaa3213622e28fa1bb1b4e307976e1469c2f"
+    },
+    {
+      "path": "scripts/assets-service-smoke.mjs",
+      "sha256": "fe2750a6c12a0b14720065ab3247f56794986337dd40e0e2391dab4e7617def6"
+    },
+    {
+      "path": "scripts/atomic-mutation-smoke.mjs",
+      "sha256": "6c59164caa5915749692fb04afdb1fec3b60727a877f4772b1bb7be3be391049"
+    },
+    {
+      "path": "scripts/auction-clock-smoke.mjs",
+      "sha256": "00aa5c26635bded7994a6498378ce779df018ff4fce6d1e47c6464df679b380a"
+    },
+    {
+      "path": "scripts/auction-halls-browser-fixture.mjs",
+      "sha256": "dc7bec49348bc043af4b4fa8e2a8f46b8c8b245de3c1af4796efc55fd8a9bb69"
+    },
+    {
+      "path": "scripts/auction-halls-socket-e2e.mjs",
+      "sha256": "6f2a02724a75356087b70b5a128fe93c97c1a5efe822a0a8049f3a3953ca7a4a"
+    },
+    {
+      "path": "scripts/auction-halls-unlock-smoke.mjs",
+      "sha256": "52008d8e88d1bbce0c06d9e94b71820eec4727a12fdb834e2b30b974f55d9290"
+    },
+    {
+      "path": "scripts/auction-service-smoke.mjs",
+      "sha256": "70c3cdc3e1d72a6faa5c21d05e17eb8efc7bb2e268ea99b900ced973909fc15b"
+    },
+    {
+      "path": "scripts/auction-settle-modal-smoke.mjs",
+      "sha256": "8a3f9783a76ea1b9f5ab6f77401012d4ee92d42eacef1200cbb8fb34454a5f0b"
+    },
+    {
+      "path": "scripts/bangle-finish-browser-fixture.mjs",
+      "sha256": "d879a0868eabe3b9365423e68169f011c854b4fc5364a11d87105d9a0f6589dc"
+    },
+    {
+      "path": "scripts/bangle-finish-smoke.mjs",
+      "sha256": "3a448ba50df6405f0b9349f0dffe87c02cce132ae1b067090961d5d40b5a55de"
+    },
+    {
+      "path": "scripts/bangle-finish-socket-e2e.mjs",
+      "sha256": "abb3e5fb30a9f43ede46ff6ebdea2d1eadbe6f0e5a66c77161f6085d316c26a6"
+    },
+    {
+      "path": "scripts/bill-module-smoke.mjs",
+      "sha256": "1ad2be555b5e329072c4b5a908b48ab25e79a1211be9bfe0a2f1fd5b5ab962df"
+    },
+    {
+      "path": "scripts/blackmarket-empty-roster-smoke.mjs",
+      "sha256": "3291daae825ed3235ec85fca277fc1bede62fcd2cb27a6aca717c87f52be2870"
+    },
+    {
+      "path": "scripts/blackmarket-npc-finish-smoke.mjs",
+      "sha256": "28f3893b3bca871486646519bc6f2d3a7a2d256fbae3b05d3e671fb3440a4bb7"
+    },
+    {
+      "path": "scripts/blackmarket-npc-schedule-smoke.mjs",
+      "sha256": "4138ca37fa2e09f3b0fc79328d1fa1a6b60e0a9ec42548c3d7019aed17b524b2"
+    },
+    {
+      "path": "scripts/blackmarket-npc-smoke.mjs",
+      "sha256": "07d3a4e59533186b945cce17475a85bfe4b6ca5d74f7147ea4522e4407aefd51"
+    },
+    {
+      "path": "scripts/blackmarket-npc-socket-e2e.mjs",
+      "sha256": "f24b1ed47fa0c8bc91f58b31804ef7670a421ae683eae79d10886350f2a25035"
+    },
+    {
+      "path": "scripts/blackmarket-npc-variety-smoke.mjs",
+      "sha256": "f8145ac16a081f1e25e7ac3e46d17b5d0b40ff6cb9539f70be807fc1ba4a3eaf"
+    },
+    {
+      "path": "scripts/blackmarket-offcut-smoke.mjs",
+      "sha256": "4a2be08dd0df79c729a9eb9ececdf073bbe611bcff3f537f29e4ff33993a208d"
+    },
+    {
+      "path": "scripts/blackmarket-price-display-smoke.mjs",
+      "sha256": "473395c94f1fb1d561cb9487f89876b48a805596a4c87329a5c06c93e443d12c"
+    },
+    {
+      "path": "scripts/blackmarket-pricing-smoke.mjs",
+      "sha256": "0229f6929fe9cf794a64b6d5f88fab7da82d67e11d90a4ef26896e02c55247ac"
+    },
+    {
+      "path": "scripts/blackmarket-refresh-smoke.mjs",
+      "sha256": "0c2f6bd3e11358abcecc899dff232994bd1f30d02d419cbbf6312d36a73cc9af"
+    },
+    {
+      "path": "scripts/blackmarket-render-smoke.mjs",
+      "sha256": "a99bd3d8f50040e5f473dec164b558fc7227a2371a8b06ebca34f661d10fd065"
+    },
+    {
+      "path": "scripts/blackmarket-resources-browser.mjs",
+      "sha256": "a9aa04c97f5b7960941cd4f4a60d96b8d7f2454acdfd06393b97198e9b33f080"
+    },
+    {
+      "path": "scripts/blackmarket-resources-smoke.mjs",
+      "sha256": "eac4cfa5c59ae4e6f39a505d317fa42204fd3dbf55867eda17a7468b003b67e4"
+    },
+    {
+      "path": "scripts/blackmarket-service-smoke.mjs",
+      "sha256": "9ddfd905288019eba6fa4f458edc4affca16f7a40ceca04768bf3d6ddec795b1"
+    },
+    {
+      "path": "scripts/blackmarket-socket-e2e.mjs",
+      "sha256": "246f9e6007a3e8a2c834c8959a35ae3294277b552f4da3aecbfbad6967c5d802"
+    },
+    {
+      "path": "scripts/blind-price-live-socket.mjs",
+      "sha256": "667b1f3b59411720b3b881e8f33e7a9e3ff0ee16f54e25a502342caee9ad7f61"
+    },
+    {
+      "path": "scripts/blind-price-refresh-e2e.mjs",
+      "sha256": "843e1a29fff082719b12e5ad158effae9a8144e2815da43dd9630a282594e8db"
+    },
+    {
+      "path": "scripts/bm-plan-pool-smoke.mjs",
+      "sha256": "14ac9cdb2e2b90871c7e493ac05e18136a2ce3d0148ff7e915533d3c4f6a61db"
+    },
+    {
+      "path": "scripts/browser/workshop.spec.mjs",
+      "sha256": "7a1e4219ac6569f7a6316e0edc68b1e326542ad05c345fec0de08719beb7d1fb"
+    },
+    {
+      "path": "scripts/canvas-only-smoke.mjs",
+      "sha256": "41a3f51a10ce86c3d0d12855f5e8344cffc71243bcefa9266a4e20e092bb96b6"
+    },
+    {
+      "path": "scripts/capture-refactor-baseline.mjs",
+      "sha256": "ca3b682a000a7b7d8f684e352a5d4e64ffbee30bae480510044186bd54177d25"
+    },
+    {
+      "path": "scripts/capture-trading-baseline.mjs",
+      "sha256": "1f03f26ebcf1582d2de0f09631a7d611899e06c7dc8ebc6d03262d015467eea6"
+    },
+    {
+      "path": "scripts/capture-workshop-fixture.mjs",
+      "sha256": "a4a5d074982a1d30a18776b984bbc1aa16f0cf22f68315f133bbab7e496ab8ae"
+    },
+    {
+      "path": "scripts/capture-workshop-server-baseline.mjs",
+      "sha256": "ba06ddbd68ff2eb422d81cf501491ec9a04c177c58de293f7b163058b8c286ed"
+    },
+    {
+      "path": "scripts/capture-workshop-server-snapshot.mjs",
+      "sha256": "32b2cceff0208f21ebc38a47d6889e53f4d4f80acf04891f67cfa077e2255072"
+    },
+    {
+      "path": "scripts/chat-service-smoke.mjs",
+      "sha256": "f1b522c87513f8073fc663760cfc57a47c0a76a5dca0733ec056feaed5041c9f"
+    },
+    {
+      "path": "scripts/chatdock-compact-smoke.mjs",
+      "sha256": "e7d919120afc4c6c757898ab4510999e10ba8b88d527bbafbe83cee5520b9759"
+    },
+    {
+      "path": "scripts/collection-service-smoke.mjs",
+      "sha256": "77ff911f0f923591494df6a9b6312eaf57e5b51cbf9e87db41723ba13ac3a2fd"
+    },
+    {
+      "path": "scripts/commission-gift-order-smoke.mjs",
+      "sha256": "1be5d937eb988ccb2e2bbbe75e6b3b98f0cfed1ff36283617ffd30deace76d1b"
+    },
+    {
+      "path": "scripts/commission-socket-e2e.mjs",
+      "sha256": "81d4f95b86949a3cacc4da3de63c10855b75c51f1c414474dae48b9fa168fbae"
+    },
+    {
+      "path": "scripts/debug-spawn-smoke.mjs",
+      "sha256": "1318e85fb77ebc3f2ced41cb9434c6bef5da116742b723e4cb4cd8a79ee667e1"
+    },
+    {
+      "path": "scripts/debug-tools-smoke.mjs",
+      "sha256": "6ce6597654251dbe3b1baeb2f1425c5d79166aad36bf96d9bd404af705e45be8"
+    },
+    {
+      "path": "scripts/durable-mutation-coordinator-smoke.mjs",
+      "sha256": "2936d801535bbb52cec31445a618a6a6db2a144cb1e4eaf7663b0d82f7e15a41"
+    },
+    {
+      "path": "scripts/economy-craft-regressions.mjs",
+      "sha256": "d367be97767c0a8791985f5866b5eb4fa50e4d802bf30fd1cbd99f0dd1d7e819"
+    },
+    {
+      "path": "scripts/economy-overhaul-browser.mjs",
+      "sha256": "d49e2ade94411cc3e709deef186be2b1a718c02046ee33423205a0bd56f29e20"
+    },
+    {
+      "path": "scripts/economy-progression-simulation.mjs",
+      "sha256": "81e04ec780be6bf0bed9d6bd13d44fe3e50d779c84fcb10d2ca49514dd706527"
+    },
+    {
+      "path": "scripts/economy-service-smoke.mjs",
+      "sha256": "13b6810ac0fb82570b3e2f502fab45a86ed671749f7288a8cb168381eb804d93"
+    },
+    {
+      "path": "scripts/economy-value-pool-smoke.mjs",
+      "sha256": "cf23cb8bb4f66c083ff304ae546f4c4b3de68ce66deaf350a949ccd8bb7f0d3e"
+    },
+    {
+      "path": "scripts/employee-payroll-browser-fixture.mjs",
+      "sha256": "3dbb548dbef0b8c40b11dde1a3034d195ad684fbe5095964f596a52f877bdd38"
+    },
+    {
+      "path": "scripts/employee-payroll-policy-smoke.mjs",
+      "sha256": "53b2bf7620331b26bd8bd88912aa0f15de55d4bcda4a6078841fb4e3725695b4"
+    },
+    {
+      "path": "scripts/employee-payroll-smoke.mjs",
+      "sha256": "0b7bd053290d95b02401c0890b8ecf11fa025c4dbcdc1adcfae53d6f18fe3fa4"
+    },
+    {
+      "path": "scripts/employee-payroll-socket-e2e.mjs",
+      "sha256": "4dacf463a7d82ccf256bff41db882a370cfd007e94162af0b6264e3d5a1878bf"
+    },
+    {
+      "path": "scripts/employee-system-smoke.mjs",
+      "sha256": "9cfe50444c2ea5d184ec9345f491246e3bea79cbdf4441fbe7b38e8a8837d4d4"
+    },
+    {
+      "path": "scripts/equipment-system-smoke.mjs",
+      "sha256": "021f2a4f296029d92d7e39deccaf5bc3b7edffc0adcbe42a7092affa333811a7"
+    },
+    {
+      "path": "scripts/experience-regressions-smoke.mjs",
+      "sha256": "aa0ebf798c37c8e6391690030ade3f26fb3a25b41d87501e18d7959a6cb41580"
+    },
+    {
+      "path": "scripts/feature-availability-smoke.mjs",
+      "sha256": "d7960947edaf682ac76cbecab8c3edcf4a79daf8ac851662b30ba4bf95c3a45a"
+    },
+    {
+      "path": "scripts/finish-plan-controller-smoke.mjs",
+      "sha256": "4308036c8d0a56f3b7aeac7113e933b292c40555dfa8bb455a3d93cf6a7008c1"
+    },
+    {
+      "path": "scripts/finish-plan-model-smoke.mjs",
+      "sha256": "cd6e3d63fc98d71c6c4c241dd74b6902aab6647058e9e3bfbed105027f995637"
+    },
+    {
+      "path": "scripts/finished-product-design-smoke.mjs",
+      "sha256": "96213db2e28ba6ca8592aec7175cc327ce45fbd1a50dabe851215a213a3dd3ed"
+    },
+    {
+      "path": "scripts/fixtures/owned-workshop.mjs",
+      "sha256": "8a4e77b60a00b06664cfc567d06bef3e7359095b0fe0df5ee11c6a8c9a7a2756"
+    },
+    {
+      "path": "scripts/fixtures/persistence-crash-child.mjs",
+      "sha256": "dd37fb77eba58b33f49a375eae16db6dc8428ed32aeacde8aa83d7890cae0be4"
+    },
+    {
+      "path": "scripts/fixtures/postgres-test-environment.mjs",
+      "sha256": "a35d90b5853d542fe272a65d5751f4316f356569cda98272c1137d8ab4a8e084"
+    },
+    {
+      "path": "scripts/fixtures/test-server-process.mjs",
+      "sha256": "b995d6d4e2f2b919bb1720f602b8e0b42e8c252c74a200c7be1228ed5cf44abd"
+    },
+    {
+      "path": "scripts/fixtures/test-signal-bridge.mjs",
+      "sha256": "1b46dd8ef2e5091f47a984794223ef8bb304db4972ab573ff9d3cd36eec1150a"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/commerce-commands.js",
+      "sha256": "e11573077a2061fdb2e1043a07d380e8c7cc26ea7ee9a23a8b5be9b63e170442"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/socket-handlers.js",
+      "sha256": "60ff8088ad0b9eee096d280ec02c33471b5fa62985edac4f653ee5ef02d383f5"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/sources.json",
+      "sha256": "893598ec7bd30cc8bafa58e059c6a033583bb267dbfbadc1adcf1d20e602eb79"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/wire-server.js",
+      "sha256": "13c70c6dd6890a1da2190723271dda42b0a7ddba03e8844ef77a7480902e461e"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/contract.json",
+      "sha256": "7f7015702c423fe9b88cf567124b0fe1ef802dc0443196360fcf4627b52a9b0c"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/state.json",
+      "sha256": "547693c56af1560531a0e8209fd3f15a2e4864fe8fa34dba7c8a2d92814e2448"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/workshop-module.js",
+      "sha256": "522da3d4f61716c2a682f5145b69e5f31227fd14f832dc4d4ffe6d375d6c95e0"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/contract.json",
+      "sha256": "fbde5802856a57d9268f6e472dd6b62e02405b6de3c6fe596c76e215f1fec77d"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/players.json",
+      "sha256": "c15a8e080288bac0172ece56bae7c3e6d632ce8343f9cf572fa62bd43a357981"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/server-contract.json",
+      "sha256": "4d1fa645ded942115bb80ceeb2fbccc526e6cba6e99201860327c14b75d01375"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/server-service.js",
+      "sha256": "882e97b07df0e993dc92ee083c4cb58d49dc43f0fb4f375294b9b03ffb971568"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/state.json",
+      "sha256": "20a81bf17f37146cd63ab398d9b99db21323162cca0d925b2f23dc3cb0df0ee8"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/workshop-module.js",
+      "sha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778"
+    },
+    {
+      "path": "scripts/gameplay-rules-smoke.mjs",
+      "sha256": "ba3bbb637ded1307bef5dd20c00d25d77cbff3f1b6586a05e4106b88fb80ef1a"
+    },
+    {
+      "path": "scripts/generate-template-icons.mjs",
+      "sha256": "97c8ed7911c00a5320520e0f1010b7e0343f2dd0ed10f5de34ee38926d390c32"
+    },
+    {
+      "path": "scripts/hire-market-roster-smoke.mjs",
+      "sha256": "7e58275ca6f461ffbda686bb0b08fb626712e483415ee8562c8e8cd0af8028ef"
+    },
+    {
+      "path": "scripts/http-security-smoke.mjs",
+      "sha256": "f95559f111d148e859b946cb98c03a34accdf328e1d3fa502002ccf07074e187"
+    },
+    {
+      "path": "scripts/inlay-art-browser-fixture.mjs",
+      "sha256": "da9f8f9e5385295ceaf3c3a63392e316cde08fe8ec1e186f06d07179ca2f83b0"
+    },
+    {
+      "path": "scripts/inlay-artwork-smoke.mjs",
+      "sha256": "568f3d1510996637a1c8f80a444948fdd8614538c0b27b98c9ea4d0ed2d9f792"
+    },
+    {
+      "path": "scripts/inlay-preview-tester-smoke.mjs",
+      "sha256": "b135cf851fa198037da51a41b6c012f2bb500dbdce1fedf8eec4d20495255fee"
+    },
+    {
+      "path": "scripts/inlay-system-smoke.mjs",
+      "sha256": "68ea4ee876389193029ee2652fe87c2d4fc0b21d3dde95396c4f5a5dc02a395e"
+    },
+    {
+      "path": "scripts/inventory-module-smoke.mjs",
+      "sha256": "69b39dab49d2a5ec1966164a2c6af2b46e81d74e40ae5686875aad26fdb3cbb3"
+    },
+    {
+      "path": "scripts/inventory-recycle-smoke.mjs",
+      "sha256": "8272e037a2f8c1f4f770f637cc8fff80937fa29c78c23b06d6b12445e358cb0e"
+    },
+    {
+      "path": "scripts/inventory-service-smoke.mjs",
+      "sha256": "45b03dbbc729a6c293abf0c37ebec024b3e0ea6fffea472cae8088283c76bdc7"
+    },
+    {
+      "path": "scripts/inventory-unseen-smoke.mjs",
+      "sha256": "996d3a2a6496f80791afafa1bec1ef6ecdafa53d9b3d6033671888bac66497de"
+    },
+    {
+      "path": "scripts/jade-auction-smoke.mjs",
+      "sha256": "b37885e6c7183614e5603794e499b00f7670d06f89d0c8c73850be5ff45ca40b"
+    },
+    {
+      "path": "scripts/jade-loop-smoke.mjs",
+      "sha256": "666256a77e7e42741063b59491a6d4b5781fa3cdf72af6d1b528e77f70624a5d"
+    },
+    {
+      "path": "scripts/jade-opening-engine-smoke.mjs",
+      "sha256": "aaf4f0f8895f3b763389d924520d4a0e75acd6ea1ce6a027f0865f12b7c0961d"
+    },
+    {
+      "path": "scripts/jade-piece-browser-fixture.mjs",
+      "sha256": "416935b585705717c1b557f7ecd05e269c4fe5e82053a693add37f442bd73023"
+    },
+    {
+      "path": "scripts/jade-piece-smoke.mjs",
+      "sha256": "fc2b66024e5e12cce97e8af7f127b2d1e86b92296604dec21802dad2bae12f17"
+    },
+    {
+      "path": "scripts/jade-renderer-smoke.mjs",
+      "sha256": "7b86b785cbd7f468fc643b4643b828992fca07732f526ba7ba95d1267ed8d72d"
+    },
+    {
+      "path": "scripts/jade-rules-smoke.mjs",
+      "sha256": "cd6673c79c6d2fec090c6aa36273dac42a015c297f48239f192186ec6ea2713a"
+    },
+    {
+      "path": "scripts/jade-volume-smoke.mjs",
+      "sha256": "f8cce96184215faa16bdc6fadbfc9afbf83795ff99d11bad54831ffe6580f06b"
+    },
+    {
+      "path": "scripts/lazy-preview-smoke.mjs",
+      "sha256": "14471240d6d0bdd90e1375a6aef2c9edcef226a7556175b7082190c9796e09a0"
+    },
+    {
+      "path": "scripts/livestream-buy-flow-smoke.mjs",
+      "sha256": "f7298802d4f83316e995a0c2538ff5ab77eabc45f01c0d352297c4e29fc11b3b"
+    },
+    {
+      "path": "scripts/livestream-buy-socket-e2e.mjs",
+      "sha256": "c7dc38a9cab0c04aa40ce369f1feb256769798e500a756d5bb26ca888ebd7bf6"
+    },
+    {
+      "path": "scripts/livestream-room-smoke.mjs",
+      "sha256": "2acbb89268f21ae2238dca69b2087ccc38ce1b6167ad94534fcd99fd4b833aa7"
+    },
+    {
+      "path": "scripts/livestream-service-smoke.mjs",
+      "sha256": "bab24cc1dc2187f049e88f69d0c364771970c58f90ab8fa3947106a33c4d6f92"
+    },
+    {
+      "path": "scripts/livestream-settle-modal-smoke.mjs",
+      "sha256": "2d6467df37f9b05b715da6c0ca001d493d076a8e9e4c03a2d68dc05639fed8a7"
+    },
+    {
+      "path": "scripts/livestream-ui-smoke.mjs",
+      "sha256": "ba60caaeae203f79d1c45e078cce04fc8391f515906d620b663315b4ac308c06"
+    },
+    {
+      "path": "scripts/load-client-shell.mjs",
+      "sha256": "56520e5a9bf3c71a20cc307674f796d8df56ab70961ed0ee1d3f68757d8a2e26"
+    },
+    {
+      "path": "scripts/load-styles.mjs",
+      "sha256": "204a257b2d9f5585490892a2c9b4d1e97ab302c423d23f99afb27310a0387b2f"
+    },
+    {
+      "path": "scripts/load-trading-service-source.mjs",
+      "sha256": "e58739a1e03e58688b43f8f16f0a82037d631bd87714584ac02829744a9660d0"
+    },
+    {
+      "path": "scripts/load-workshop-service-source.mjs",
+      "sha256": "8570a799fdf1b0ed0704914c07ebc3f3b42f305d918c21a4ccb6c2566bfeb40f"
+    },
+    {
+      "path": "scripts/load-workshop-source.mjs",
+      "sha256": "f60bb30b6bd8a7c6a3fdead425380f4221ac8ab7ef6f7b21ad7118ba7c5a998e"
+    },
+    {
+      "path": "scripts/market-card-info-smoke.mjs",
+      "sha256": "6e4dcd372364e70ea6319ecabe2d6f13356476da6f3379971f82c59d74f8400b"
+    },
+    {
+      "path": "scripts/market-equipment-browser.mjs",
+      "sha256": "f04037a1e2f0be9a63995112ae8487af69586107879b1a8388ad8e67b294dad0"
+    },
+    {
+      "path": "scripts/market-equipment-smoke.mjs",
+      "sha256": "16a0f6353442b2aa7c7838f17db1ee34fab25e4b3322d131e0fd2b73d08b80ff"
+    },
+    {
+      "path": "scripts/market-equipment-socket-e2e.mjs",
+      "sha256": "0341fd120bb35f74a844f12d24923de23fcc279566090351f814fd2d63ca7163"
+    },
+    {
+      "path": "scripts/market-liquidity-service-smoke.mjs",
+      "sha256": "facc5754fe1252663ed1c28e0e317abab9b4cd5d78e24fa8357d5a1a235b952d"
+    },
+    {
+      "path": "scripts/market-service-smoke.mjs",
+      "sha256": "1d3e39cb8b38736d542ac5806d19162886bcc23ad7fecd33456c4512e23bafd7"
+    },
+    {
+      "path": "scripts/market-want-smoke.mjs",
+      "sha256": "8ce1813623f5cb77bd643e37421ea5b90d189d1b71b8703868a4f28f175e0ca5"
+    },
+    {
+      "path": "scripts/materials-service-smoke.mjs",
+      "sha256": "ac3f39fc1839a5954c285f1cb35c52f2e6e79131e391b0b836c2a649bc4eec8a"
+    },
+    {
+      "path": "scripts/migrate-world-to-postgres.mjs",
+      "sha256": "805344315235876043f24371239c9a1b20bcbea922cc585a20eb108561ac7aaa"
+    },
+    {
+      "path": "scripts/mining-allocation-smoke.mjs",
+      "sha256": "db4b2ee952313f32150639398d955c2b7a0c9b17476b10f0b87ee0c6a1ba2867"
+    },
+    {
+      "path": "scripts/mining-balance-smoke.mjs",
+      "sha256": "a44f0bee09ca22cd830d4d81cbd4351f62251d4adc8f34d3ff9c49a5ed3d95c5"
+    },
+    {
+      "path": "scripts/mining-basic-mode-smoke.mjs",
+      "sha256": "fff85e731e6e42d8eec390e42801a4fcf2c2e5dc78f11e5d08fbcd45e1274fe4"
+    },
+    {
+      "path": "scripts/mining-competition-health-smoke.mjs",
+      "sha256": "d39664fe01471ae05b88923ba81f3c9c874305920cfc73d97e51b45a833052fa"
+    },
+    {
+      "path": "scripts/mining-downtime-recovery-smoke.mjs",
+      "sha256": "291c050ba75880c9ddac5ba373e5640cac08bda6127c169e574b21d6a021a919"
+    },
+    {
+      "path": "scripts/mining-economy-insights-smoke.mjs",
+      "sha256": "bc9069350a298f9a2ab17b61554aa2f6f86d00b2cc9853b02ca7ccdf4e938f5f"
+    },
+    {
+      "path": "scripts/mining-fairness-smoke.mjs",
+      "sha256": "e7e7151b04d6229ee017536d5a57e9e67318621bebc3f9d66c4bed8000705b2f"
+    },
+    {
+      "path": "scripts/mining-health-smoke.mjs",
+      "sha256": "be369901b71e1e5ca323cdc6c89e4d36f2febbf2c91c11a0367329eaf03b8df5"
+    },
+    {
+      "path": "scripts/mining-job-recovery-smoke.mjs",
+      "sha256": "a290c60006b979fcd99310e96ae6fb6bbe7f3eae5a8bf0296bf0459a0adbda82"
+    },
+    {
+      "path": "scripts/mining-persistence-smoke.mjs",
+      "sha256": "334df64dc890757afc5bce3b778de96a371217ce6e2cea29ebebc64668d240fd"
+    },
+    {
+      "path": "scripts/mining-read-scope-regressions.mjs",
+      "sha256": "52fd0ca919c94dbcc4ec259919d7957c0d2faccbc29e110127e94fe4ddf1cda0"
+    },
+    {
+      "path": "scripts/mining-roster-participation-smoke.mjs",
+      "sha256": "78baee1209aaf59eeaff279f25d835644fd5cdc94aa675d1589156ebd4c59525"
+    },
+    {
+      "path": "scripts/mining-runtime-soak-smoke.mjs",
+      "sha256": "0d7de34615e61bf06b9f069352940518554a8ec4d4f62dbe455f5ddfb4239eaa"
+    },
+    {
+      "path": "scripts/mining-service-smoke.mjs",
+      "sha256": "f600be2d907126a988370620ccfe2a36dedd357e701d54d2ac6b7d4a9e1947a7"
+    },
+    {
+      "path": "scripts/mining-socket-e2e.mjs",
+      "sha256": "981c419a4a39169398fbe59aa3dae5b3331e2c9594b1ff9a1bfdc9d0a051f9cc"
+    },
+    {
+      "path": "scripts/mining-socket-fault-e2e.mjs",
+      "sha256": "a88bcefaf74119960ae34177ac28d883529ddb500ded3389821f1962811df0e3"
+    },
+    {
+      "path": "scripts/mining-socket-restart-e2e.mjs",
+      "sha256": "412cb9ded02b4cc029791596925796cf8c08a1bf2cdeb5f5b168a1b9fd2e9a53"
+    },
+    {
+      "path": "scripts/mining-tuning-governance-smoke.mjs",
+      "sha256": "e12ed4a66bf649b259129e32ac2e016d0ae92bf77e1dceac2d2f2319d49fa128"
+    },
+    {
+      "path": "scripts/mining-ui-smoke.mjs",
+      "sha256": "305fefde4d649c7b643cbc864f8c75f5aa3bd4569034bbe0c7261e854f662c40"
+    },
+    {
+      "path": "scripts/mining-world-economy-smoke.mjs",
+      "sha256": "b545885e0308a1b13b7fef8889edbf0b2a0442df1624a94de53d095446c2b104"
+    },
+    {
+      "path": "scripts/modal-lifecycle-smoke.mjs",
+      "sha256": "dd83cd8e7e6473df562a3536f1e5f7abb2a81cbf2ec1d14ef019bb66c0607abb"
+    },
+    {
+      "path": "scripts/money-compact-smoke.mjs",
+      "sha256": "9f6a41607e4ee21882e0bd2ec5785c21001b7c5a32279d8a823b3d95ea140a6c"
+    },
+    {
+      "path": "scripts/mutation-idempotency-socket-e2e.mjs",
+      "sha256": "86d61ab959383c9d1c96b738ac7b783eb3b9e464c23526e9007660656cb345e1"
+    },
+    {
+      "path": "scripts/mutation-socket-smoke.mjs",
+      "sha256": "d593ee506ba433c1ff44ff23392a61fc5df480778496fdcfd1cc2f2d8df67f92"
+    },
+    {
+      "path": "scripts/night-theme-smoke.mjs",
+      "sha256": "e175ed3b77e4f54b989f82ee587f01428350cf4005f92fa8c3dc90d32891f262"
+    },
+    {
+      "path": "scripts/offline-service-smoke.mjs",
+      "sha256": "3d40aee7b796038b2ac9098ad49400d8eb6b268d2cdeea2b14ea30d60cf40361"
+    },
+    {
+      "path": "scripts/opening-planner-drag-smoke.mjs",
+      "sha256": "5a9121314ed7bf50a39dbe26b05770ae32834cc9eb949efbe07af7a2e8a47bfd"
+    },
+    {
+      "path": "scripts/opening-value-preview-smoke.mjs",
+      "sha256": "43b90c8086340d1c02fa3dd7c7d095664dd4a56c9d3e6930769370ca0ddadfe1"
+    },
+    {
+      "path": "scripts/orders-service-smoke.mjs",
+      "sha256": "6adef0efd77994dd916de6a78ec85ff33cce0d9e3ef72af3ec135ebbddff0b76"
+    },
+    {
+      "path": "scripts/overview-turnover-smoke.mjs",
+      "sha256": "9a711f651510bb01b5d8ceaae5c2ede0a2256efc539f52e4807a9347d530a5c3"
+    },
+    {
+      "path": "scripts/persistence-crash-recovery-smoke.mjs",
+      "sha256": "3a62d2dea445139039fc8f87d4ff8105b95ef0f87201919c87a6461ec1172eec"
+    },
+    {
+      "path": "scripts/phase-metrics-smoke.mjs",
+      "sha256": "ac87a8dec85a62b30b8698785129c96e794f9c579d8a58ae89591f61c51f1338"
+    },
+    {
+      "path": "scripts/planning-authority-smoke.mjs",
+      "sha256": "829ab3b2f155e168a7d37e41339cc987a6171a73170ad8d22ef3bb1f985f9ba8"
+    },
+    {
+      "path": "scripts/player-exploration-regressions.mjs",
+      "sha256": "d6197b2d7168ef69e2e3e1fa0405658053991e5d9ee085bca1151db2e37b812b"
+    },
+    {
+      "path": "scripts/player-progression-smoke.mjs",
+      "sha256": "0047dbff480371b2a390289793c1bf0bfe605a5e1e366a205026d35eb78f278c"
+    },
+    {
+      "path": "scripts/player-service-smoke.mjs",
+      "sha256": "1a61e0712c454f8c55685e0bd18f7f13b1ab4beed813ef9f4c70ae916c525330"
+    },
+    {
+      "path": "scripts/player-session-service-smoke.mjs",
+      "sha256": "7866183bdb21a810ce25b7c6d6014d844956763663684903a0c58c4ba1326d75"
+    },
+    {
+      "path": "scripts/player-session-socket-e2e.mjs",
+      "sha256": "b9db91210062282c6ee9b39826861fc6046cb1e35eb6865089ce6001c6dc9472"
+    },
+    {
+      "path": "scripts/postgres-integration.mjs",
+      "sha256": "77eb6df53621e79ece66791a3705205008074f98e0f34b4fbb267db908154bb1"
+    },
+    {
+      "path": "scripts/postgres-world-persist-smoke.mjs",
+      "sha256": "e865f0648fde04b99d5708cdc53b2521716e0a952c817911b2afad9e4015eb19"
+    },
+    {
+      "path": "scripts/production-readiness-smoke.mjs",
+      "sha256": "b9b298da91f02a221fd429e1e5fdd613139072fbe2bbe08fffa91777f083adf3"
+    },
+    {
+      "path": "scripts/public-workshop-economy-smoke.mjs",
+      "sha256": "15bdb93ab2df15ca244e9111219d7d7b3e19b4d5da9f9383cecabe73a3d9594b"
+    },
+    {
+      "path": "scripts/recovery-service-smoke.mjs",
+      "sha256": "ce43c94cb721c11a0c2395ea075912f7612747da7e91f64f6ab8ca2cfe172a9c"
+    },
+    {
+      "path": "scripts/recruit-detail-controller-smoke.mjs",
+      "sha256": "50ad9069d96100d4764a0c233b3af1db6102ced5fa9b4f334c6056f898eb7bed"
+    },
+    {
+      "path": "scripts/refactor-contracts-smoke.mjs",
+      "sha256": "0e44fe56052d28c30921beafe83e31f2ea690025d74c2925a21c909c980bc285"
+    },
+    {
+      "path": "scripts/report-service-smoke.mjs",
+      "sha256": "54de0fb2c842caae20d8d967c294748858e8588789fe7ee90e39574522eb4133"
+    },
+    {
+      "path": "scripts/responsive-layout-smoke.mjs",
+      "sha256": "faad6e8c40683d1a14be548ef966c88d1b7007ce52d886b68d30d524e47b9a53"
+    },
+    {
+      "path": "scripts/rough-pool-service-smoke.mjs",
+      "sha256": "0900a73675bc07e4c1bb79d398ae0bb83f1a163531977e5a420957f97cfe7960"
+    },
+    {
+      "path": "scripts/run-economy-regressions.mjs",
+      "sha256": "9b97a05cb6445f33b659ff61dfde3135b973b39823583e6b0bd057ac476dac96"
+    },
+    {
+      "path": "scripts/run-workshop-browser.mjs",
+      "sha256": "e28bb9b73db262d6529b6e4f5edaf258a00f53773ace4906aa905776fbb0b561"
+    },
+    {
+      "path": "scripts/run-workshop-regressions.mjs",
+      "sha256": "c785ed3439104623ec938522397a235a9825942ac3fd72a10f4a6781e1f3284d"
+    },
+    {
+      "path": "scripts/runtime-health-smoke.mjs",
+      "sha256": "9fc301404ceb9164008246f453fe54fbd9c5ee2d375a9d419e2cec0f7420860a"
+    },
+    {
+      "path": "scripts/runtime-soak-smoke.mjs",
+      "sha256": "bcaa4d28165981421028ee0b17d884344ec519ccafa3521a39f30a7ca3bf99ae"
+    },
+    {
+      "path": "scripts/runtime-ticks-smoke.mjs",
+      "sha256": "ffa79f31246dd6d5059f2c60397990e37481cc6f63ef24f0cb8fc0819a4a9721"
+    },
+    {
+      "path": "scripts/sales-finance-balance-smoke.mjs",
+      "sha256": "14af96ac0ac3395497dae9288c1cf289434443693feee1952dd99e925fdf84d0"
+    },
+    {
+      "path": "scripts/server-architecture-regressions.mjs",
+      "sha256": "4cccd069b4604b858754b6b0ee5cd4d5ba6e047e7567a750850c820b5d509b10"
+    },
+    {
+      "path": "scripts/server-capacity-regressions.mjs",
+      "sha256": "862bd817ed4ab5295b8a32248980a0bf182211421af92cdeaf3914fe1dfe7ce8"
+    },
+    {
+      "path": "scripts/server-context-smoke.mjs",
+      "sha256": "66f30e4ad3b849d44329b78f66a1a625a4e14ee5643b52bf0157a537bb2e41b8"
+    },
+    {
+      "path": "scripts/server-idle-smoke.mjs",
+      "sha256": "d605edaf804a2c034287161e8d39c801148df4c7b414b6e5fc95f5c8b2285ef1"
+    },
+    {
+      "path": "scripts/server-optimization-regressions.mjs",
+      "sha256": "5ab4f110d276f8f2aeef95a48740c705832f9e6328b959f94fbb637b868efae4"
+    },
+    {
+      "path": "scripts/shared-domain-smoke.mjs",
+      "sha256": "a08338d8d9f1b7a4cd2e4ff759a0e5a4d294fe12d4e5afb2fb52101c73d421a8"
+    },
+    {
+      "path": "scripts/shop-material-modal-smoke.mjs",
+      "sha256": "546113ae49ac17eb680d8952589751b635c28325d944e1acb8d806d1645cfbf5"
+    },
+    {
+      "path": "scripts/side-panel-progress-smoke.mjs",
+      "sha256": "dc0daa2eb5807cd4902af4173385b287cd2be83ffa5dcad1d3c5d928480e60fb"
+    },
+    {
+      "path": "scripts/simplified-flow-smoke.mjs",
+      "sha256": "0e78e4c90d8d360b495537ecda93e2cd053facbb175068784153e8fbf96df012"
+    },
+    {
+      "path": "scripts/snapshot-service-smoke.mjs",
+      "sha256": "6907a3742464d91b1a03b090687120fa651152a6d353c76b5d0d5b18841c8207"
+    },
+    {
+      "path": "scripts/socket-event-schema-smoke.mjs",
+      "sha256": "8d0614e317f821f68849c9b5bfa3570b9aa487f834f2e8c81fdec1cec200bce5"
+    },
+    {
+      "path": "scripts/socket-handlers-smoke.mjs",
+      "sha256": "5c0231be815215a82c88c0078f4777be4f5251487c9897176d629c93798d33f3"
+    },
+    {
+      "path": "scripts/socket-load-smoke.mjs",
+      "sha256": "7165e559ab961d32cea698bcb6d0f00f9ac7165aa1cfabc66040606e155e55cd"
+    },
+    {
+      "path": "scripts/socket-mixed-load.mjs",
+      "sha256": "71240f8cedcbf156fb8a180b7fb35357c5443460eda46cae42b3babdd7594c3e"
+    },
+    {
+      "path": "scripts/socket-payload-hardening-e2e.mjs",
+      "sha256": "da3b316bdb30006d70b5b451fa09ffacfbea3cafb10cacd7c70b255f402b7dca"
+    },
+    {
+      "path": "scripts/sqlite-socket-release-e2e.mjs",
+      "sha256": "d3658847afa2dc170a56d5160d645449958a8a5bdb3624f011b907801cbb7c54"
+    },
+    {
+      "path": "scripts/sqlite-world-persist-smoke.mjs",
+      "sha256": "4e448b29d97421caac6a38eea9caaaacb770b53ff9aa8a3c32b1d2ed3102c2e4"
+    },
+    {
+      "path": "scripts/starter-economy-browser.mjs",
+      "sha256": "1952060c5f076884a8c1689dda6b2ff4d7f15aa4f46b66abe1e048248e5dbc07"
+    },
+    {
+      "path": "scripts/starter-economy-smoke.mjs",
+      "sha256": "80b7820e12e8bdc66b28a4bc43f01bd4494c8884e69c1baaf9d989b3a3c32a6f"
+    },
+    {
+      "path": "scripts/state-patch-smoke.mjs",
+      "sha256": "c8618fc667cfc0481c8abbdef565dc239b914cba4ff495dc9a5ac804d8ef2f3c"
+    },
+    {
+      "path": "scripts/styles-split-smoke.mjs",
+      "sha256": "7943d9466e3245ea7beac90bfc7a6980de837be87223a584ca565af9b16c454d"
+    },
+    {
+      "path": "scripts/task-smoke.mjs",
+      "sha256": "fc88e0ce21333d4801edbe5a84fde6a071d4761164a12df732b5f88fbb5ffa4a"
+    },
+    {
+      "path": "scripts/test-hooks-smoke.mjs",
+      "sha256": "ac079011f8eaa0f2a07ab89e3cde9f9fc36743d13cfed4905e2bb9209946089b"
+    },
+    {
+      "path": "scripts/trading-boundary-smoke.mjs",
+      "sha256": "1592e3193d72fc3d828d4c5b33cfe88de7403fd02ae07e96fa7a1417743dde4a"
+    },
+    {
+      "path": "scripts/trading-equivalence-smoke.mjs",
+      "sha256": "4f86315b4e807baa60214f8d47f840851a4d4a6b9b3c34bf1023762a00790839"
+    },
+    {
+      "path": "scripts/trading-source-parity-smoke.mjs",
+      "sha256": "919d7830899571d30b0c05b9c11d07b46d33ae6d630d4de90ebad2c265340f1d"
+    },
+    {
+      "path": "scripts/ui-overlay-smoke.mjs",
+      "sha256": "b6f9322842e3d78a9a9472ace3c69f419fa742275c36efa82c407f9adedb670b"
+    },
+    {
+      "path": "scripts/ui-stability-smoke.mjs",
+      "sha256": "6403d68165a157a91f71cdec09012629d8d30d5aabbd7e4610c1c81c36aae61c"
+    },
+    {
+      "path": "scripts/worker-detail-view-smoke.mjs",
+      "sha256": "ed7ef9a88214553b052d3b11c0e269dce05e86a57b40493b63af6f99d3936793"
+    },
+    {
+      "path": "scripts/workshop-boundary-smoke.mjs",
+      "sha256": "14bc4e2262fa4a9bbe84efbe50f0655dd427dea16325c3a72f351429cd806195"
+    },
+    {
+      "path": "scripts/workshop-craft-scoring-smoke.mjs",
+      "sha256": "0c23ed4b1570e97d8afbf159244116f3edcd9fdc37efee2d70fadf7ccc91348f"
+    },
+    {
+      "path": "scripts/workshop-delivery-browser-fixture.mjs",
+      "sha256": "818960f13e50bfb733c1a16b916e5577c1de1180f6ace32c8df6e620c920561e"
+    },
+    {
+      "path": "scripts/workshop-delivery-details-smoke.mjs",
+      "sha256": "58dd53d696468d9db25d9cdb554f449fcb5181d5fcbd1caf29a96ebc7b93a0a5"
+    },
+    {
+      "path": "scripts/workshop-delivery-fixtures.mjs",
+      "sha256": "dbe6ba9c778d904b38404e97830a4be8abd99ec75f583ca5cdd37112c2165ab0"
+    },
+    {
+      "path": "scripts/workshop-delivery-smoke.mjs",
+      "sha256": "3f78321eb9207f60d168b977c4292aa79f047af3a6c52fff8ce2f6706e89d652"
+    },
+    {
+      "path": "scripts/workshop-delivery-socket-e2e.mjs",
+      "sha256": "517f67a2f8e82b1154658812b1681e2f44943f5b2c30f33a65a8eabf2f744ec9"
+    },
+    {
+      "path": "scripts/workshop-equivalence-smoke.mjs",
+      "sha256": "4ec6fa7c35c05d4990e2f56370542183814d76277373d3b3eea8ab3151834abd"
+    },
+    {
+      "path": "scripts/workshop-material-analysis-smoke.mjs",
+      "sha256": "e1f85482f428435d2a574c7682aa663c720da1c9e19e6694b5b12a35fc42dd10"
+    },
+    {
+      "path": "scripts/workshop-planner-ui-smoke.mjs",
+      "sha256": "8ddc9a27b908be60890b2053922abd14ab2f8a126a544cfabff8c79971505d3b"
+    },
+    {
+      "path": "scripts/workshop-scope-smoke.mjs",
+      "sha256": "c6db97041d1f94d6b40326129a560d16e7f903fa12e336a1d86aba001ce29b84"
+    },
+    {
+      "path": "scripts/workshop-scratch-smoke.mjs",
+      "sha256": "1b65a57c1f78d84b11d041ebe4723875a2f1d64282071c025e71af1b16a54523"
+    },
+    {
+      "path": "scripts/workshop-server-boundary-smoke.mjs",
+      "sha256": "3272d8729ae4925b2fc09b96e6f3a7a8d6b6c89f7a4fa2e9d93764015ec1083b"
+    },
+    {
+      "path": "scripts/workshop-server-equivalence-smoke.mjs",
+      "sha256": "b40baf9a5bef6dc51493ba398a1d979eef391a969b85581881813506618e8c25"
+    },
+    {
+      "path": "scripts/workshop-server-parity-smoke.mjs",
+      "sha256": "8b9f30cf764ea0f06617f350530c04cfb2fc23b23c73d64310d78ef10c252e40"
+    },
+    {
+      "path": "scripts/workshop-service-smoke.mjs",
+      "sha256": "55285a568aa8b1362589e323f54bbd3057005b37a0446053a3d617fd07c9371f"
+    },
+    {
+      "path": "scripts/workshop-source-parity-smoke.mjs",
+      "sha256": "36eb67e1cb83fb98e06613c6679368d5730e71393679fff90c84a7f98809bd24"
+    },
+    {
+      "path": "scripts/workshop-test-utils.mjs",
+      "sha256": "b44bb3006b4647e602c7cbff4e6e97ee1df37c4258a511a4b71721882b307315"
+    },
+    {
+      "path": "scripts/workshop-visual-server.mjs",
+      "sha256": "1eaa500bec1d5357a017a8c0b29f572d16df7009a7ece98641e8f381dc9c78b0"
+    },
+    {
+      "path": "scripts/world-persist-smoke.mjs",
+      "sha256": "6d1d859fc17e46980607561e2f32e3277345c22411ae7a827f3a213ed1ee4c9c"
+    },
+    {
+      "path": "scripts/world-store-smoke.mjs",
+      "sha256": "669d0b7f0a8190750b9152b6f96da3447670292dc0b23414b42044213b654eb4"
+    },
+    {
+      "path": "server.js",
+      "sha256": "2dcfdec1583c1028cd861d396e2ac6ad3863bedb18b1f6504ffa9538809ed5b3"
+    },
+    {
+      "path": "server/boot/wire-server.js",
+      "sha256": "e8eb96b644d6c838cc903c825b2a32c5cb88c93086ac782a7c55cf1311fba7ad"
+    },
+    {
+      "path": "server/config/runtime-config.js",
+      "sha256": "f3b67ba338ed3724ae3d5096a393b259f08affcde6932de3c793423a7f792264"
+    },
+    {
+      "path": "server/gateway/account-routes.js",
+      "sha256": "e219e073182867c9491e6bc456bdd229dfb2b4c07f13bf392f2e648b2d4899fe"
+    },
+    {
+      "path": "server/gateway/admin-routes.js",
+      "sha256": "0f0027fe7fdc67da474cb2291227843db31aa74aada0cbb9e378107d68d9f729"
+    },
+    {
+      "path": "server/observability/logger.js",
+      "sha256": "1b67a24af691c3a448d30068b18f39242448507b86c3c984d9ba1c35046666df"
+    },
+    {
+      "path": "server/observability/metrics.js",
+      "sha256": "65dc9e377952e4f7b797530e968f2de0320e6c0740ca6e18647274621d86e1e6"
+    },
+    {
+      "path": "server/observability/runtime-health.js",
+      "sha256": "f7712f0730bc20e89bf599a8dd08dde2d8c35957c261ef35fc9e306d5ae52989"
+    },
+    {
+      "path": "server/persistence/auction-snapshot-schema.js",
+      "sha256": "76d030b3eec34117175518b7837827852f2206329356c4837c082c4e4446ee8c"
+    },
+    {
+      "path": "server/persistence/blackmarket-npc-schema.js",
+      "sha256": "578a2d27612623b32a28ddb099625f72ed359446c0cb1098a175247669a2082e"
+    },
+    {
+      "path": "server/persistence/economy-snapshot-schema.js",
+      "sha256": "d1889dbcdf4d947a6576057b42bc62710a01a72f532391af2ae09938cd440d90"
+    },
+    {
+      "path": "server/persistence/migrations/001_world_snapshots.sql",
+      "sha256": "a2ecdb42a0702e0499ce8896fa4e0175e6e897914441a11b39b9d977041b2f40"
+    },
+    {
+      "path": "server/persistence/migrations/002_incremental_world_journal.sql",
+      "sha256": "e3077966b7175e47f5938efa72289f6578b072f2ad59d09944041e6f420709d0"
+    },
+    {
+      "path": "server/persistence/migrations/003_audit_retention.sql",
+      "sha256": "acb8e2970ee4d6baa8745464a0a2798972d60384180a54b1abb5f82b94e681b4"
+    },
+    {
+      "path": "server/persistence/migrations/004_request_journal_scope.sql",
+      "sha256": "b197b55b43d74fbe889ccaa1af9a68708837d217906e93dae2a82deb33b87bc2"
+    },
+    {
+      "path": "server/persistence/mining-snapshot-schema.js",
+      "sha256": "d31692f4b020db38fdcaea73fb084865b22e059b707c2ee2e47869f0ee30ce02"
+    },
+    {
+      "path": "server/persistence/mutation-scope.js",
+      "sha256": "ccd7f5c7ce08d5d5b678a03fdc25b41549c4eb8838c5e79e98f36cee91fcd434"
+    },
+    {
+      "path": "server/persistence/player-snapshot-schema.js",
+      "sha256": "c378526c8a973dbb432ae33e9b5e9156dfa75715133832e699dcc86df29c07c0"
+    },
+    {
+      "path": "server/persistence/postgres-migrations.js",
+      "sha256": "bd3d0bc63ee102d94ef688907d49763ab99ae6d379bdfdbb3e8d0b68eb1b1194"
+    },
+    {
+      "path": "server/persistence/projection-delta.js",
+      "sha256": "625883aae7f0dc8a915222f270421d7c4396347a5f9ea41e81a95479f67aa9e8"
+    },
+    {
+      "path": "server/persistence/world-delta.js",
+      "sha256": "29046eaff2cf5a09d82ddd949860f78b137bc73d5b2e1b92934c908b83119760"
+    },
+    {
+      "path": "server/persistence/world-schema-utils.js",
+      "sha256": "b3fab184685ad99d19f8f9f8939ee177329eb89eb14547baf830b3ca8156f86e"
+    },
+    {
+      "path": "server/persistence/world-schema.js",
+      "sha256": "c476c8cffedde4b93f905df6d881fff74b4db326ec0a60bbf8921d29be297515"
+    },
+    {
+      "path": "server/protocol/socket-event-schemas.js",
+      "sha256": "7dc4c8722094b8fdce4ee9f1787bdc9bfe0ff1aa211d4353fde1af5ad1026537"
+    },
+    {
+      "path": "server/security/http-security.js",
+      "sha256": "929976e5c5df0598d4aaaed70dd1f84a3788710944246efac55b9d7732ef23f0"
+    },
+    {
+      "path": "server/security/socket-security.js",
+      "sha256": "4312ec05310f507808393efc5c5d197227591c153ec8aac84467c37fda206c34"
+    },
+    {
+      "path": "server/services/account-service.js",
+      "sha256": "89e5b041513e313d42bd39a91868bed9041b756b329e53be5c9534771c74635e"
+    },
+    {
+      "path": "server/services/achievement-rewards-instance.js",
+      "sha256": "b37fed5666f83e1812ba41ff02845b6d1bbeb69613de6c134329111fc6fa5bdd"
+    },
+    {
+      "path": "server/services/achievement-rewards.js",
+      "sha256": "3da1f3f5d778e002f1001f5539ed2b46b57f9a3f9b19db2d18da8f57a32a8fc3"
+    },
+    {
+      "path": "server/services/assets-service.js",
+      "sha256": "3adc6255edf0f79c5c50213c553331b4376c40b523cf5ada8eba72c8b396aad6"
+    },
+    {
+      "path": "server/services/atomic-mutation.js",
+      "sha256": "399c4b0bbf070aa521b69ff64281a771c89e4079a538b0f5936316ce899ccf8e"
+    },
+    {
+      "path": "server/services/auction-instance.js",
+      "sha256": "035454400eef3d232d853eb7e455705b9897648045cb51019a5cc51080b1dbf4"
+    },
+    {
+      "path": "server/services/auction-rounds.js",
+      "sha256": "a2fc93fa6c8d493da003dde79bd12a87f8c67c26d779b976dff29ed8b2c3f159"
+    },
+    {
+      "path": "server/services/auction-service.js",
+      "sha256": "cf1bfa03860b0c0b0611b72db275972c8914d0da82e18095ab2a6d6910e7c080"
+    },
+    {
+      "path": "server/services/blackmarket-service.js",
+      "sha256": "2fa376b5b27324358ef1c9a830db69eaf30d09f074092007123ad3ff82a3c794"
+    },
+    {
+      "path": "server/services/blackmarket/blind.js",
+      "sha256": "a44b234f5c576b3a777ec06addcd89de91cbf112b26d89ddaf0de1299d0e869b"
+    },
+    {
+      "path": "server/services/blackmarket/context.js",
+      "sha256": "b110572af625cd7340efbf94c5d95c09d219704e867c584c8f329f1e7be3de00"
+    },
+    {
+      "path": "server/services/blackmarket/create-service.js",
+      "sha256": "4d11368a3ee4e87babc74ea6e59485df0f4d17e6498733a744bfd625bbe78a0f"
+    },
+    {
+      "path": "server/services/blackmarket/helpers.js",
+      "sha256": "6d76505de367c9b5fdff9bbf0da4fadad2e921dcb35cc499690412ec4bfec44d"
+    },
+    {
+      "path": "server/services/blackmarket/index.js",
+      "sha256": "225d51adf1380ef186fcb3ed0229bac3f6beb2063eb7d76b057ce846e713a331"
+    },
+    {
+      "path": "server/services/blackmarket/instances/blind.js",
+      "sha256": "802c5ce0d0d273608ba0198e0db6eda2809bbe32c8e2594dbde13b782e3fc27a"
+    },
+    {
+      "path": "server/services/blackmarket/instances/context.js",
+      "sha256": "6b6a83294ea199c6c693ed673d7111698f589b77bf831a209f9e6bed28bbcdd6"
+    },
+    {
+      "path": "server/services/blackmarket/instances/helpers.js",
+      "sha256": "6920488225f685c637476b4c0584638f5f21fc9706c49c3e5efbc077bc403033"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-catalog.js",
+      "sha256": "96e7f0962211643d6699566659ab5d1ec73d7391a3ddb23ef952b4c9142122ce"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-finish-plans.js",
+      "sha256": "658e7a6d592d51eb3cb0e26daf7b92d2dcd6008915592b234ed1bfb59942d8ee"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-jade-finish.js",
+      "sha256": "959b3bd7a4c5f596390b9670daf5b7a7c76882d6bb8987aa06dd307ff3314287"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-offcut.js",
+      "sha256": "ed1c08aa912f3c66034529530f3869569cad54f5b0dd49a5abdf28fe74c0db94"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc.js",
+      "sha256": "e352fbee3a4816d57f0cc4e6c107b58bafb44ad2399cd9a667af935d12a28e84"
+    },
+    {
+      "path": "server/services/blackmarket/instances/rating.js",
+      "sha256": "c9c3805f9a91bcbc4869b3b8ba45a240286e846990184c9a9364ed1cae62475d"
+    },
+    {
+      "path": "server/services/blackmarket/instances/recovery.js",
+      "sha256": "5bc8288cd56ed52b10a726eca7d52742c98fecaf39c12685323f56007a874a27"
+    },
+    {
+      "path": "server/services/blackmarket/instances/resources.js",
+      "sha256": "66b38831d5bd06bc26c515cc2087e6174ddca44d0ddb06ad4952388429b8d16e"
+    },
+    {
+      "path": "server/services/blackmarket/instances/service.js",
+      "sha256": "c6a42d031e802006e3103da137f24fd9016abc104ef43af85bcdd2f6a93fc8c2"
+    },
+    {
+      "path": "server/services/blackmarket/instances/stall.js",
+      "sha256": "2839137a1592d274ad2db4fa120dbf1758f5bd052c9f15e1c83bea00adecc309"
+    },
+    {
+      "path": "server/services/blackmarket/legacy.js",
+      "sha256": "81d8bb9c7fba87142ca0a212e05d2d55e60821c2825005630f95ee2b1ff8eb72"
+    },
+    {
+      "path": "server/services/blackmarket/npc-catalog.js",
+      "sha256": "87a04e89b227f85be6b98aa28fd27058a2de96fceb89ea47029b094b7cbf3016"
+    },
+    {
+      "path": "server/services/blackmarket/npc-finish-plans.js",
+      "sha256": "742c70af1775c5effe76e4dbe5e04620658f0470fdec827f8cdcac54d3b7e0d5"
+    },
+    {
+      "path": "server/services/blackmarket/npc-jade-finish.js",
+      "sha256": "14159d13405f35c218442d9a755e702427f8f938dea935cc432365d71f945b9b"
+    },
+    {
+      "path": "server/services/blackmarket/npc-offcut.js",
+      "sha256": "a37bcca35a2a6d323a6a4079e003d95e3d5f5468fdd4f754c448f3fff8736dd0"
+    },
+    {
+      "path": "server/services/blackmarket/npc.js",
+      "sha256": "da2bfd84b2e7695724274e49f74751e8e99bdeb80745d5d868d1bcb3f28b7458"
+    },
+    {
+      "path": "server/services/blackmarket/rating.js",
+      "sha256": "2e7d8077011346107f2df3efbff30d8bd22e185b86221d5b9861fc7f5f8e5009"
+    },
+    {
+      "path": "server/services/blackmarket/recovery.js",
+      "sha256": "816dc737f73e2ae7ecb160e6a744e68e4e381258d8306a94b17f9abc89ae1d8d"
+    },
+    {
+      "path": "server/services/blackmarket/resources.js",
+      "sha256": "666bc2fa91cab00022fc354f92606fcaf9722a0e3916a233d2bd1391e74bbadd"
+    },
+    {
+      "path": "server/services/blackmarket/service.js",
+      "sha256": "6efa5a2a58b948fd77e950d269872b4961e5fde5b20e8f36c5c353063647c2ad"
+    },
+    {
+      "path": "server/services/blackmarket/stall.js",
+      "sha256": "feb7befaea1834d0961c3593f5c4af263927fa77ae0d12ec0a58dc493daa1d49"
+    },
+    {
+      "path": "server/services/chat-service.js",
+      "sha256": "0d78a7bee3da109a7a1fa31e0a9f4b712e8011c271da931fb9d4dc6a6b4e4f2e"
+    },
+    {
+      "path": "server/services/collection-service.js",
+      "sha256": "33a5cb999e8288727539d1670353ec39d36770a5574e4f0ebbb80c74b9fdba20"
+    },
+    {
+      "path": "server/services/commission-service.js",
+      "sha256": "95819ae34e038d95862788560ac3f4545242f5fbb89743bcf4de509e06321cd3"
+    },
+    {
+      "path": "server/services/debug-spawn-service.js",
+      "sha256": "00ba18a571d00e441d31d285c69825f1838d6b442b112c2d082ea57add4e011f"
+    },
+    {
+      "path": "server/services/durable-mutation-coordinator.js",
+      "sha256": "f965f36aa758a566c4b27e9fcd94c0b8bcecb91c690d48c669775b72f55e68af"
+    },
+    {
+      "path": "server/services/economy-service.js",
+      "sha256": "75c2b1b6b47abb8f3d038accc54917bf94d238891847730a2a0957ad8b02a1b5"
+    },
+    {
+      "path": "server/services/inventory-service.js",
+      "sha256": "fb07577ec18a0d2d690ab2d3726fbd5d6b8f9bed854d1ce0901b65126f741d9c"
+    },
+    {
+      "path": "server/services/livestream-service.js",
+      "sha256": "ec024aabc3cedbcc460fce8babb5eaddba4a95328f6fa9e7d65cc88d6925727e"
+    },
+    {
+      "path": "server/services/market-equipment.js",
+      "sha256": "41078251b8e2b8d503ac7d30c8e20ab34ab53163a4af3fd7365b8d2cfea0447c"
+    },
+    {
+      "path": "server/services/market-instance.js",
+      "sha256": "7f2f00a54edfaad2c9a704ea4b0622f8479b001ce9cdbaf608332d1047328da6"
+    },
+    {
+      "path": "server/services/market-liquidity-service.js",
+      "sha256": "23d074d8c6c0b06520097edaf419d86ca521d9a5b2cb78926682594d26837cde"
+    },
+    {
+      "path": "server/services/market-service.js",
+      "sha256": "551b026c19000fc08d0380f4f7dfc891fa0d1a26cd383905b2042bc8087a074c"
+    },
+    {
+      "path": "server/services/materials-service.js",
+      "sha256": "4ea2f89c68db9dcc7ad771e2d922574db7c672885f52c6d678b769c0c2d88c81"
+    },
+    {
+      "path": "server/services/mining-service.js",
+      "sha256": "d742b1ebf138d5aba29fbfe8756cfbe320e18941e57a944ea0ec37bb88a9513c"
+    },
+    {
+      "path": "server/services/mining/mining-economy.js",
+      "sha256": "649e644a09a8d0130e974e75ec66057911ece50d82f979781e9f62d4f05ae57b"
+    },
+    {
+      "path": "server/services/offline-service.js",
+      "sha256": "f2f267b4800d375a4b196089645cfac354fc6599df2f75c4d12175e61b8031df"
+    },
+    {
+      "path": "server/services/orders-service.js",
+      "sha256": "929e949f195ccb583d2c3e2c5b4f9e29a3f5145e27a40eec22a60ec60cc97eb4"
+    },
+    {
+      "path": "server/services/player-service.js",
+      "sha256": "b687913ee833e16541a1802b7101f8ee3e3076aa661df5a2ea1ec7dc1d4dd414"
+    },
+    {
+      "path": "server/services/player-session-service.js",
+      "sha256": "d3140d0776e6d8399f671b79b3ca50cb81f2e814e493912dedaaf9080e652dcf"
+    },
+    {
+      "path": "server/services/recovery-service.js",
+      "sha256": "82fec36b9d0859e9bd5b8bfa36e90213b54d8d00a7aaa0f3beeb4dba8f00f034"
+    },
+    {
+      "path": "server/services/report-service.js",
+      "sha256": "ac9418c815ff5c35306dd37e71fb9b4f8930ea2d779ddbae67ea646fe19214be"
+    },
+    {
+      "path": "server/services/request-id-policy.js",
+      "sha256": "657937db58e8f8974938ba4e3a9a31e09dd30d039bf431cce719c67b5257cbbf"
+    },
+    {
+      "path": "server/services/rough-pool-service.js",
+      "sha256": "af107b530944c399f8b3285d302aebb9654647758e0ef99b13927a31f6ebe936"
+    },
+    {
+      "path": "server/services/snapshot-public.js",
+      "sha256": "f26d54daff11fb02cce5abed506b0534b2af8c26d31b3883a6e67f598638e188"
+    },
+    {
+      "path": "server/services/snapshot-service.js",
+      "sha256": "138f96058ee0da1c366a58ba318119eb8de6d0d8e56d13b4cbddd4b1b22a2086"
+    },
+    {
+      "path": "server/services/task-service.js",
+      "sha256": "1e3b4228b202558aa424a02afcdd4d489b6b04736cf110617afe5c2de282d1b9"
+    },
+    {
+      "path": "server/services/workshop-delivery.js",
+      "sha256": "d87481a95bd5102747ede0872c6cc52b27fc7daff531964f26457fab284b6bcf"
+    },
+    {
+      "path": "server/services/workshop-planning.js",
+      "sha256": "850002d0683aeda1543ea5db057232bc72c9e6df8cc22def013c3b87dd737aac"
+    },
+    {
+      "path": "server/services/workshop-roster.js",
+      "sha256": "5b0b725492fab6d0f94f9ec996e1c62f2c2e8e0a1e34cc2ef21a2cdbf559588f"
+    },
+    {
+      "path": "server/services/workshop-service.js",
+      "sha256": "1195f66d005b827b0a6999e59b9aa2697b7ffeae8ced420e0a4b731e9cf291cd"
+    },
+    {
+      "path": "server/services/workshop/commands.js",
+      "sha256": "d9cfac9dd5071a30fee2003b43e0725b5d591816c4675024511f23a6a862d272"
+    },
+    {
+      "path": "server/services/workshop/completion.js",
+      "sha256": "71861e2491a0b5f9b04581b7c89448d319fe3c61f94c0c0541a85a3b6a7c975e"
+    },
+    {
+      "path": "server/services/workshop/inventory.js",
+      "sha256": "7da56f3c408fc016d51bba9dd651d98a56e5c4ce1eceb9d370458231a12cc405"
+    },
+    {
+      "path": "server/services/workshop/products.js",
+      "sha256": "a4624a139ad52833591565b325f6256578fbf1b9e8e31da889e865ccbe74b636"
+    },
+    {
+      "path": "server/services/workshop/queries.js",
+      "sha256": "8f859586f3f9eae191ac6decebf42e7602f9f10d727766f61ea42b5ecc3a3f56"
+    },
+    {
+      "path": "server/services/workshop/runtime.js",
+      "sha256": "a6c7323e518b0a76beaac71d93fe56f0e5d20964342800952cfbe01cc659de1d"
+    },
+    {
+      "path": "server/shell/broadcast-scheduler.js",
+      "sha256": "503d47905bdafb0a7e57a0a6c79515df7eecebbaa8af81ab2e5d4abd8cdb6f87"
+    },
+    {
+      "path": "server/shell/commands/blackmarket-commands.js",
+      "sha256": "20886eb8c621cdf7cbbd5749e8f0d0f54da138a6cbc7fc93fff62bac7e03f516"
+    },
+    {
+      "path": "server/shell/commands/commerce-commands.js",
+      "sha256": "77cdf21dfc4637bcf7928186c4fe9aca7be493a5b9375ac5eeb75a285a6edfc4"
+    },
+    {
+      "path": "server/shell/commands/commission-commands.js",
+      "sha256": "db05122512bf39b8b3a87a1029a905d6841d70857e52cd683e3d980b58f7dbea"
+    },
+    {
+      "path": "server/shell/commands/debug-commands.js",
+      "sha256": "5d8b810d9258a90d986add78c4820c31a23632e2498fe53c1483542c1ea8cea0"
+    },
+    {
+      "path": "server/shell/commands/mining-commands.js",
+      "sha256": "28095b7d14a8e0e170e7ec159418d32e1d6f0a904d680bd5ecb3dbf2a822815d"
+    },
+    {
+      "path": "server/shell/commands/payroll-commands.js",
+      "sha256": "2a1188be6d58887c1369c86c10d195f4d14a6f617031563cf582ff4c5a144011"
+    },
+    {
+      "path": "server/shell/commands/progression-commands.js",
+      "sha256": "c1c8e2497fbac71c2fe075a665e015150c3cef0bd937c11ad337056d3285f95c"
+    },
+    {
+      "path": "server/shell/commands/workshop-delivery-commands.js",
+      "sha256": "8c9224b60a16dfbea4ab6b45dec5045f6537ed649a53c79ee5b065e6ea087a24"
+    },
+    {
+      "path": "server/shell/postgres-world-persist.js",
+      "sha256": "62106cfed5fdd365505e644d110162bda3ada974517055745268f6f21aba4904"
+    },
+    {
+      "path": "server/shell/runtime-ticks.js",
+      "sha256": "93a3a62786af7f17ebeb00a2895e593c2e864ef479947e5f8486a7c8fa230793"
+    },
+    {
+      "path": "server/shell/server-context.js",
+      "sha256": "bdb8dc44774064f87bf638f062d6e906b077a5f1eb81331de977423510fa5599"
+    },
+    {
+      "path": "server/shell/socket-handlers.js",
+      "sha256": "6be22b1b25d2435bd07f25ed3591a0a2ad32c66b0733a84d96e7e477b368bc2f"
+    },
+    {
+      "path": "server/shell/sqlite-world-persist.js",
+      "sha256": "7fa5276592c8dc7c20096ae9a744827f4f21b745bef8be5856bef6a276405d85"
+    },
+    {
+      "path": "server/shell/state-signatures.js",
+      "sha256": "7a93f13d079ebd638c65f97a8515629eb7cfdfda9a29642fc3346b553c01ed39"
+    },
+    {
+      "path": "server/shell/test-hooks.js",
+      "sha256": "7a779e284886544038bbfae260df37cf8cf3a6a8bcfe4745ffb6bd7258bc8c42"
+    },
+    {
+      "path": "server/shell/workshop-start-handler.js",
+      "sha256": "8f9c6d0c4f5f6a194897cb2c73665a771c36f794369c378a7803e549d21b66e5"
+    },
+    {
+      "path": "server/shell/world-persist.js",
+      "sha256": "0b5cc20ca7e0b5e54591b754fb37d06aa88d492f5e8c35f5d71c62875ecc6c80"
+    },
+    {
+      "path": "server/shell/world-persistence.js",
+      "sha256": "e04ef934154690bdce86eb84c3a236e1affc11cdb87f9eaead3aa45565cf6b55"
+    },
+    {
+      "path": "server/systems/employee-payroll.js",
+      "sha256": "1b89b442b98b017cb43862c6041494d027725741d288f2d6ae1c122fc8e4b65d"
+    },
+    {
+      "path": "server/systems/employee-system.js",
+      "sha256": "6f9e7b356365c2544e4efbe92abfd6d12b37acb836babdd6d3747d9fa23b0086"
+    },
+    {
+      "path": "server/systems/equipment-system.js",
+      "sha256": "24abb1387c8028cec1aa3fdfb52bf5d150f463db1288d5afe157bfce8547179a"
+    },
+    {
+      "path": "server/systems/inlay-system.js",
+      "sha256": "5833b0dbba20b9789121a247f2f0262b4ade4dfe0c5b6fd654e3d6562a319a45"
+    },
+    {
+      "path": "server/systems/livestream-room-system.js",
+      "sha256": "8efab3fc04cc795a1b2ee71a01faeada3d513a3168a36370bf64b91fa1f41d7d"
+    },
+    {
+      "path": "server/systems/miner-system.js",
+      "sha256": "be49c3470f6a4abad74e112e85a6db6266c5b8c20fc4cc7a2fecb28fa8b3e1aa"
+    },
+    {
+      "path": "server/world-store.js",
+      "sha256": "f54742c3137e1a72296cb1d4d2d2902847bcb0343d58bd6f13a0bc1b98d31fb1"
+    },
+    {
+      "path": "shared/domain/auction/jade-auction.js",
+      "sha256": "6a9cfe652266c43fbb11deaa4c12859801e9237872e7e42684ca0c279cbcf5bb"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-constants.js",
+      "sha256": "b175035a1de87389bb8fe7d9e7c6dd327743d7916a087a2b02cef54301cec836"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-plan-pool.js",
+      "sha256": "341fb364fee6c16899a515c1ec8b3a4a0a3fbe8a07becaabb8efe895689eaf14"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-resources.js",
+      "sha256": "9155f6cf968d414586ab4503645661f9d44a80bd22212655b5c75b5c3d2df561"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-service-templates.js",
+      "sha256": "98ee2155fa91a9b34ea759852436128ac8415f749b8b293b4621c7c88d646444"
+    },
+    {
+      "path": "shared/domain/blackmarket/npc-pricing.js",
+      "sha256": "71b6c5b609db1d9060f40b47c49f37f6ce446cd5b2d804e6d44cf33aa2c7a20d"
+    },
+    {
+      "path": "shared/domain/blackmarket/npc-rules.js",
+      "sha256": "03d1354d8c93b2aeffe9c3a1568e0894f4f56c8d739d58ac3232111c280c812a"
+    },
+    {
+      "path": "shared/domain/economy/commission-rules.js",
+      "sha256": "aa5a30977175b7f9df7558f40dfb387d9a86b5bc307c664a6209d7ccc6391279"
+    },
+    {
+      "path": "shared/domain/economy/equipment-maintenance.js",
+      "sha256": "229d1459868f5108242c3b357803c41707131308809d39c9fafde6caba67e03f"
+    },
+    {
+      "path": "shared/domain/economy/equipment-trading.js",
+      "sha256": "f5eda7bf0cb75326d4f647dc581a272dc99bc3054ba9c15a6d6d90438046c40c"
+    },
+    {
+      "path": "shared/domain/economy/inventory-recycle.js",
+      "sha256": "8566f8aa28cfd0010fb59d6da70c4da10caf32022270e6e430c760f236fc266c"
+    },
+    {
+      "path": "shared/domain/economy/item-cost.js",
+      "sha256": "7f7c34282270b922537913040d2c96895d1c31d80505e9a4c112623227037e1f"
+    },
+    {
+      "path": "shared/domain/economy/jade-loop.js",
+      "sha256": "9c1650d744e5481793ba41c2da2883d64681bdde6e91aba13130fbfe8d52ca80"
+    },
+    {
+      "path": "shared/domain/economy/market-rules.js",
+      "sha256": "d4a2c78ca8f5f115adee313dd799fcd8aa2d5bba4a90e7b34ab4e9de1918c5c6"
+    },
+    {
+      "path": "shared/domain/economy/material-pricing.js",
+      "sha256": "3494e1afbc63d71990e1dc75895de3ed825e986c386fa0adb2f7226b86e6d6c2"
+    },
+    {
+      "path": "shared/domain/economy/metric-history.js",
+      "sha256": "57a375aeceda6b31c6728432789d7164571a39e1af5a6a94a4053567e73ca0d9"
+    },
+    {
+      "path": "shared/domain/economy/new-player-economy.js",
+      "sha256": "1c4ad0bdefb6415c5b38bf95b774ac35efb951f7526003eccf5ca7783371e4fe"
+    },
+    {
+      "path": "shared/domain/economy/operating-reserve.js",
+      "sha256": "41a5d03207532154b1d60210260db0608da7f6ebe256a5b7402ed6018986eefc"
+    },
+    {
+      "path": "shared/domain/economy/order-refresh.js",
+      "sha256": "edfa3f113105c4f76d8bddd2e43d2f8fbf0a99e7b6a49c90916e799a29b6273a"
+    },
+    {
+      "path": "shared/domain/economy/public-workstations.js",
+      "sha256": "50c3e10e8e5abf355f3c2bb3754eadbe63110abf2b17abbb4993b1bfa707cdd6"
+    },
+    {
+      "path": "shared/domain/economy/system-demand.js",
+      "sha256": "7ae3d4a41926b62528d11b851cbe944679f7eab518a48a82a2e71e008ac718e6"
+    },
+    {
+      "path": "shared/domain/economy/worker-economy.js",
+      "sha256": "e9de85c3e1f66fb83aed3c773b00db8377e00f5367968e9903f468e16b9a0a61"
+    },
+    {
+      "path": "shared/domain/feature-availability.js",
+      "sha256": "42c160b7535d5ab909d449b902c96acadf45bf58f17b5335d1064bd4682d9622"
+    },
+    {
+      "path": "shared/domain/jade/jade-categories.js",
+      "sha256": "78ec54d5ce855247029c72b98ed9be8c8fe8162038786851c550c2149ab74351"
+    },
+    {
+      "path": "shared/domain/jade/jade-opening-engine.js",
+      "sha256": "7a51edb722e6238105482ce7422e3353ee20d8091d5349b8a44dda1bf994ca6b"
+    },
+    {
+      "path": "shared/domain/jade/jade-piece.js",
+      "sha256": "7d8ea7253ad874f3665b94fcdd7f441d3075704b0f9f9b8c9c3ceb144b9f455d"
+    },
+    {
+      "path": "shared/domain/jade/jade-rules.js",
+      "sha256": "0d381cb4bd096c689a536955ce5b4a4863170f61ea01ebedad70dbe3d03981a8"
+    },
+    {
+      "path": "shared/domain/jade/jade-volume.js",
+      "sha256": "6c44443633030e9a27ab4256412078f6860dce9757e625b156bfd3047c145767"
+    },
+    {
+      "path": "shared/domain/jade/offcut-layout.js",
+      "sha256": "6cecfd6a50807296c150832b139822bf71c5ab31155a25921e4be0eb7fe2a7df"
+    },
+    {
+      "path": "shared/domain/jade/outline-geometry.js",
+      "sha256": "bf757e0fcf25f70bfddc78d833a5a1c64bc8bc2a5056d662927f0e0d8dde58f2"
+    },
+    {
+      "path": "shared/domain/jade/product-meta.js",
+      "sha256": "03fe9b5c356eb3cd845347bb7293250d5d53c609fb82918593c4e1a3aed713b3"
+    },
+    {
+      "path": "shared/domain/livestream/livestream-host-bonuses.js",
+      "sha256": "4c51e50b325a0a680c32dad9f88573b405c8b8a02c3ffcaa81e02cec32680ef6"
+    },
+    {
+      "path": "shared/domain/livestream/livestream-rules.js",
+      "sha256": "e36635ad0840acce044f3a4f65eb655b0bd7997936886f48c563a647b5c35e76"
+    },
+    {
+      "path": "shared/domain/livestream/settle-modal.js",
+      "sha256": "c98fb5e148dad449616e3d8f33f21df6e5ec6ecda8eebec9d2a817f62dd11bd5"
+    },
+    {
+      "path": "shared/domain/mining/mining-rules.js",
+      "sha256": "5c117c86297c3325bd1a4d454885cc6eda8b24c3c29f648d768a368b153653bb"
+    },
+    {
+      "path": "shared/domain/progression/player-progression.js",
+      "sha256": "6a3c4c46f88e04a078dc8a421d8e779f5e7b5b454c6d40523fb7d36299cb2456"
+    },
+    {
+      "path": "shared/domain/workshop/bangle-finish.js",
+      "sha256": "3e7d2521fc2732c377ff5ceb48a63c2bbb79b2a6710bca9b090abb4c7967894b"
+    },
+    {
+      "path": "shared/domain/workshop/delivery-scratch.js",
+      "sha256": "b19fe74bc525cb784ac4a03f7290e8759272476e554ee8feddd877049858fc48"
+    },
+    {
+      "path": "shared/domain/workshop/finish-plan-model.js",
+      "sha256": "e6ef02ca53163ad5d37a74ec9f880f3d4fc62b3097fe95a88b331bb2d9a93d0d"
+    },
+    {
+      "path": "shared/domain/workshop/finished-product-design.js",
+      "sha256": "e3e0101abbacc1608cd69ed96a422fc65378842c7e7e89f678774edafe4f1d7a"
+    },
+    {
+      "path": "shared/domain/workshop/inlay-value.js",
+      "sha256": "72317d677c3912171188624b4c792cc989540283dcaa79cf0cc150e9e18c3aff"
+    },
+    {
+      "path": "shared/domain/workshop/material-value-pool.js",
+      "sha256": "0d54c434af382505fe1f65a8d6039c7f980c48c24d2f6e129eb04ae2fb342832"
+    },
+    {
+      "path": "shared/domain/workshop/workshop-craft-scoring.js",
+      "sha256": "53c64c77ab19c15b2828b3ccd0e1cff080820e6ea65f7071d823f2edbef83b7f"
+    },
+    {
+      "path": "shared/protocol/mutation-events.js",
+      "sha256": "40c0cd5cd676698acabd9536d0ec16c77aca7ea0b8a9da96bb6b24d797a94242"
+    },
+    {
+      "path": "workshop-start-handler.js",
+      "sha256": "dd52c6a774c4e906cf805c68129954a47b1c776cc6e525a7b0d4906bc799f919"
+    }
+  ]
+}

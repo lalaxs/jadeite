@@ -1,24 +1,27 @@
 import assert from "node:assert/strict";
 import { __testHooks } from "../server.js";
+import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
+import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
 
 const {
-  makePlayer,
+  makePlayer: makeFreshPlayer,
   normalizePlayer,
   spendCash,
   consumeRequestId,
   normalizeMutationPayload,
   earnCash,
-  settleOfflinePlayer,
+  settleOfflinePlayer: settleOfflineWithoutHandover,
   enterAuctionForPlayer,
   submitAuctionBidForPlayer,
   joinAuctionForPlayer,
   requestAuctionWindowForPlayer,
   ensureAuctionRound,
   settleAuctionIfDue,
+  processAuctionLifecycle,
   snapshotFor,
   startRoughOpeningForPlayer,
   startProductionJob,
-  processProductionJobs,
+  processProductionJobs: processProductionWithoutHandover,
   scheduleLivestream,
   sellLivestreamNow,
   assetListingsForPlayer,
@@ -26,7 +29,7 @@ const {
   playerOwnsWorkshop,
   playerCanLivestream,
   processLivestreamJobs,
-  processPolishingJobs,
+  processPolishingJobs: processPolishingWithoutHandover,
   playerSocketCount,
   isPlayerOnline,
   revealPolishedRough,
@@ -47,6 +50,7 @@ const {
   repairQuote,
   ensureRecruitCandidates,
   recruitWorker,
+  dismissWorker,
   isWorkerBusy,
   grantActivityExperience,
   expandKitPlacements,
@@ -64,6 +68,34 @@ function resetState() {
   state.auction = null;
   state.latestAuctionResults = [];
   state.auctionHistory = [];
+}
+
+function settleOfflinePlayer(player, ...args) {
+  const result = settleOfflineWithoutHandover(player, ...args);
+  claimWorkshopOutputs(__testHooks, player);
+  return result;
+}
+
+function processProductionJobs(...args) {
+  const result = processProductionWithoutHandover(...args);
+  for (const player of state.players.values()) claimWorkshopOutputs(__testHooks, player);
+  return result;
+}
+
+function processPolishingJobs(...args) {
+  const result = processPolishingWithoutHandover(...args);
+  for (const player of state.players.values()) claimWorkshopOutputs(__testHooks, player);
+  return result;
+}
+
+function processReadyJobsWithoutRandomShatter() {
+  const originalRandom = Math.random;
+  Math.random = () => 1;
+  try {
+    return processProductionJobs(Date.now(), { onlineOnly: false });
+  } finally {
+    Math.random = originalRandom;
+  }
 }
 
 function testRough(id = "rough-1") {
@@ -123,8 +155,13 @@ function makeAuctionRound(roughs, overrides = {}) {
   return state.auction;
 }
 
+function makePlayer(playerId) {
+  return installOwnedWorkshopFixture(makeFreshPlayer(playerId));
+}
+
 function makeEmptyPlayer(playerId) {
   const player = makePlayer(playerId);
+  player.cash = 30_000; // Funded legacy scenarios; starter resources are tested separately.
   player.rough = [];
   player.starterRoughGranted = true;
   player.assets.workshopOwned = false;
@@ -148,25 +185,28 @@ assert.equal(typeof startWorkshopJobForPlayer, "function", "startWorkshopJobForP
 assert.equal(typeof buyEquipment, "function", "buyEquipment should be testable");
 assert.equal(typeof repairEquipment, "function", "repairEquipment should be testable");
 assert.equal(typeof recruitWorker, "function", "recruitWorker should be testable");
+assert.equal(typeof dismissWorker, "function", "dismissWorker should be testable");
 
-const starterPlayer = makePlayer("starter-player");
-assert.equal(starterPlayer.rough.length, 3);
+const starterPlayer = makeFreshPlayer("starter-player");
+assert.equal(starterPlayer.rough.length, 1);
 assert.equal(starterPlayer.starterRoughGranted, true);
 assert.equal(starterPlayer.assets.workshopOwned, true);
 assert.equal(playerOwnsWorkshop(starterPlayer), true);
-assert.equal(new Set(starterPlayer.rough.map((rough) => rough.id)).size, 3);
+assert.equal(new Set(starterPlayer.rough.map((rough) => rough.id)).size, 1);
 assert.ok(starterPlayer.rough.every((rough) => rough.type === "rough" && rough.owner === starterPlayer.id && rough.revealed === false));
 const starterSnapshot = snapshotFor(starterPlayer, 10);
-assert.equal(starterSnapshot.me.rough.length, 3);
+assert.equal(starterSnapshot.me.rough.length, 1);
 assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueValue"), false);
 assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueQualityKey"), false);
-const starterDevices = starterSnapshot.me.workshop.devices;
+assert.equal(starterSnapshot.me.workshop.devices.length, 0);
+const starterDevices = starterSnapshot.me.workshop.publicStations;
 assert.equal(starterDevices.length, 3);
 assert.deepEqual(starterDevices.map((device) => device.stage), ["opening", "carving", "finishing"]);
-assert.equal(starterSnapshot.me.workshop.workers.length, 4);
+assert.equal(starterSnapshot.me.workshop.workers.length, 0);
+assert.equal(starterSnapshot.me.workshop.owner.id, "owner-operator");
 assert.equal(starterSnapshot.me.recruitCandidates.length, 3);
 assert.equal(starterSnapshot.me.workshop.workers.every((worker) => worker.busy === false), true);
-assert.equal(starterSnapshot.equipmentCatalog.length, 9);
+assert.equal(starterSnapshot.equipmentCatalog.length, equipmentCatalog().length);
 assert.equal(equipmentCatalog().every((entry) => entry.tier === 1), true);
 assert.equal(starterDevices.every((device) => device.capacity === 1), true);
 assert.equal(starterDevices.every((device) => device.workerId), true);
@@ -176,15 +216,18 @@ const starterCarvingDevice = starterDevices.find((device) => device.stage === "c
 const starterFinishingDevice = starterDevices.find((device) => device.stage === "finishing");
 assert.ok(starterOpeningDevice && starterCarvingDevice && starterFinishingDevice);
 assert.equal(starterPlayer.rough.every((rough) => materialStageFor(rough) === "rough"), true);
-assert.equal(workshopProcessableItems(starterPlayer, starterOpeningDevice.id).length, 3);
+assert.equal(workshopProcessableItems(starterPlayer, starterOpeningDevice.id).length, 1);
 assert.equal(workshopProcessableItems(starterPlayer, starterCarvingDevice.id).length, 0);
+// Remaining cases exercise a mature, explicitly equipped workshop.
+installOwnedWorkshopFixture(starterPlayer);
 
 const instantOpeningPlayer = makePlayer("instant-opening-player");
+instantOpeningPlayer.rough.push(...__testHooks.makeStarterRoughs(instantOpeningPlayer.id, 2)); // Multi-job capacity fixture.
 const instantOpeningRoughId = instantOpeningPlayer.rough[0].id;
 const instantOpeningCash = instantOpeningPlayer.cash;
 const instantOpeningResult = startRoughOpeningForPlayer(instantOpeningPlayer, instantOpeningRoughId);
 assert.equal(instantOpeningResult.ok, true);
-assert.equal(instantOpeningPlayer.cash, instantOpeningCash - 620);
+assert.equal(instantOpeningPlayer.cash, instantOpeningCash - instantOpeningResult.fee);
 assert.equal(instantOpeningPlayer.jobs.length, 1, "opening should now queue a workshop device job");
 assert.equal(instantOpeningPlayer.jobs[0].stage, "opening");
 assert.equal(instantOpeningPlayer.jobs[0].deviceId, instantOpeningResult.device.id);
@@ -199,14 +242,18 @@ state.players.set(instantOpeningPlayer.id, instantOpeningPlayer);
 const instantOpeningCondition = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
 const openingSkillExpBefore = instantOpeningPlayer.workshop.workers
   .find((worker) => worker.id === "worker-opening").skills.cut.jieliao.exp;
+instantOpeningPlayer.jobs[0].deviceAttrs = { ...instantOpeningPlayer.jobs[0].deviceAttrs, risk: 1 };
 instantOpeningPlayer.jobs[0].readyAt = 0;
-processProductionJobs(Date.now(), { onlineOnly: false });
+processReadyJobsWithoutRandomShatter();
 assert.equal(instantOpeningPlayer.jobs.length, 0);
-assert.equal(instantOpeningPlayer.rough.length, 3);
-const instantOpenedRough = instantOpeningPlayer.rough.find((rough) => rough.id === instantOpeningRoughId);
+assert.equal(instantOpeningPlayer.rough.length, 2);
+const instantOpenedRough = instantOpeningPlayer.materials.find((material) => material.id === instantOpeningRoughId);
+assert.ok(instantOpenedRough, "opened rough should move into materials inventory");
 assert.equal(instantOpenedRough.revealed, true);
 assert.equal(instantOpenedRough.polished, true);
 assert.equal(instantOpenedRough.materialStage, "opened");
+assert.ok(Number.isFinite(instantOpenedRough.craftScore), "opening completion must apply the worker craft score");
+assert.ok(Object.keys(instantOpenedRough.craftScores || {}).length >= 1, "opening completion must record its craft step");
 const instantOpeningConditionAfter = workshopDeviceForPlayer(instantOpeningPlayer, instantOpeningResult.device.id).condition;
 assert.ok(instantOpeningConditionAfter < instantOpeningCondition, "completion should consume device durability exactly once");
 assert.equal(
@@ -218,6 +265,7 @@ assert.ok(instantCarvingDevice);
 assert.equal(workshopProcessableItems(instantOpeningPlayer, instantCarvingDevice.id).some((rough) => rough.id === instantOpeningRoughId), true);
 
 const equipmentPlayer = makePlayer("equipment-player");
+equipmentPlayer.rough.push(...__testHooks.makeStarterRoughs(equipmentPlayer.id, 2)); // Parallel-job fixture.
 equipmentPlayer.cash = 100000;
 const equipmentCountBefore = workshopDevicesForPlayer(equipmentPlayer).length;
 const equipmentCashBefore = equipmentPlayer.cash;
@@ -226,7 +274,10 @@ const equipmentPurchase = buyEquipment(equipmentPlayer, "rough", {
   makeId: () => "equipment-extra-opening"
 });
 assert.equal(equipmentPurchase.ok, true);
-assert.equal(equipmentPlayer.cash, equipmentCashBefore - 9000);
+const equipmentPaid = equipmentCashBefore - equipmentPlayer.cash;
+const equipmentListPrice = equipmentCatalog().find((entry) => entry.modelKey === equipmentPurchase.device.modelKey)?.price;
+assert.equal(equipmentPaid, equipmentListPrice);
+assert.equal(equipmentPlayer.cash, equipmentCashBefore - equipmentPaid);
 assert.equal(workshopDevicesForPlayer(equipmentPlayer).length, equipmentCountBefore + 1);
 assert.equal(equipmentPurchase.device.capacity, 1);
 const firstOpeningDevice = workshopDevicesForPlayer(equipmentPlayer).find(
@@ -311,6 +362,19 @@ assert.equal(recruitPlayer.workshop.workers.length, recruitWorkerCount + 1);
 assert.equal(recruitPlayer.workshop.workers.some((worker) => worker.id === recruitResult.worker.id), true);
 recruitPlayer.jobs.push({ workerId: recruitResult.worker.id });
 assert.equal(isWorkerBusy(recruitPlayer, recruitResult.worker.id), true);
+assert.equal(dismissWorker(recruitPlayer, recruitResult.worker.id).code, "BUSY");
+recruitPlayer.jobs = [];
+const starterBefore = recruitPlayer.workshop.workers.length;
+assert.equal(dismissWorker(recruitPlayer, "worker-opening").ok, true);
+assert.deepEqual(recruitPlayer.workshop.dismissedStarterIds, ["worker-opening"]);
+normalizePlayer(recruitPlayer);
+assert.equal(recruitPlayer.workshop.workers.some((worker) => worker.id === "worker-opening"), false);
+assert.equal(recruitPlayer.workshop.workers.length, starterBefore - 1);
+assert.equal(dismissWorker(recruitPlayer, recruitResult.worker.id).ok, true);
+normalizePlayer(recruitPlayer);
+assert.equal(recruitPlayer.workshop.workers.some((worker) => worker.id === recruitResult.worker.id), false);
+assert.equal(recruitPlayer.workshop.workers.length, recruitWorkerCount - 1);
+assert.equal(recruitPlayer.workshop.workers.some((worker) => worker.id === "worker-opening"), false);
 
 const chainPlayer = makePlayer("workshop-chain-player");
 state.players.set(chainPlayer.id, chainPlayer);
@@ -321,29 +385,60 @@ assert.ok(chainOpeningDevice && chainCarvingDevice && chainFinishingDevice);
 const chainRoughId = chainPlayer.rough[0].id;
 const chainOpeningStart = startWorkshopJobForPlayer(chainPlayer, chainOpeningDevice.id, { itemId: chainRoughId });
 assert.equal(chainOpeningStart.ok, true);
+chainPlayer.jobs[0].deviceAttrs = { ...chainPlayer.jobs[0].deviceAttrs, risk: 1 };
 chainPlayer.jobs[0].readyAt = 0;
-processProductionJobs(Date.now(), { onlineOnly: false });
-const chainOpenedRough = chainPlayer.rough.find((rough) => rough.id === chainRoughId);
+processReadyJobsWithoutRandomShatter();
+const chainOpenedRough = chainPlayer.materials.find((material) => material.id === chainRoughId);
+assert.ok(chainOpenedRough, "opened rough should land in materials inventory");
 assert.equal(chainOpenedRough.materialStage, "opened");
 const chainKits = normalizeExtractionKits([{ id: "chain-bangle", type: "bangle", x: 42, y: 52, ringSize: 56 }]);
+
+const poorCarvingPlayer = makePlayer("poor-carving-player");
+normalizePlayer(poorCarvingPlayer);
+poorCarvingPlayer.cash = 0;
+poorCarvingPlayer.rough = [];
+poorCarvingPlayer.materials = [{
+  ...testRough("poor-carving-material"),
+  type: "material",
+  materialStage: "opened",
+  revealed: true,
+  polished: true,
+  extractionKits: [],
+  braceletPlacements: []
+}];
+const poorCarvingDevice = workshopDevicesForPlayer(poorCarvingPlayer).find((device) => device.stage === "carving");
+const poorCarvingCashBefore = poorCarvingPlayer.cash;
+const poorCarvingResult = startWorkshopJobForPlayer(poorCarvingPlayer, poorCarvingDevice.id, {
+  itemId: "poor-carving-material",
+  kits: chainKits
+});
+assert.equal(poorCarvingResult.ok, true);
+assert.equal(poorCarvingResult.fee, 0);
+assert.equal(poorCarvingPlayer.jobs.length, 1);
+assert.equal(poorCarvingPlayer.materials.length, 0);
+assert.equal(poorCarvingPlayer.cash, poorCarvingCashBefore);
+assert.equal(poorCarvingPlayer.jobs[0].item.id, "poor-carving-material");
+assert.equal(
+  normalizeExtractionKits(
+    poorCarvingPlayer.jobs[0].item.extractionKits || []
+  ).length,
+  chainKits.length,
+  "free workshop processing should preserve the planned cutouts in the job"
+);
+
 const carvingStart = startWorkshopJobForPlayer(chainPlayer, chainCarvingDevice.id, { itemId: chainOpenedRough.id, kits: chainKits });
 assert.equal(carvingStart.ok, true);
 assert.equal(chainPlayer.jobs[0].deviceId, chainCarvingDevice.id);
 assert.equal(chainPlayer.jobs[0].outputStage, "carved");
+chainPlayer.jobs[0].deviceAttrs = { ...chainPlayer.jobs[0].deviceAttrs, risk: 1 };
 chainPlayer.jobs[0].readyAt = 0;
-processProductionJobs(Date.now(), { onlineOnly: false });
+processReadyJobsWithoutRandomShatter();
 const carvedProduct = chainPlayer.bracelets.find((item) => item.materialStage === "carved");
 assert.ok(carvedProduct);
 assert.equal(carvedProduct.sourceRoughId, chainOpenedRough.id);
 assert.equal(workshopProcessableItems(chainPlayer, chainFinishingDevice.id).some((item) => item.id === carvedProduct.id), true);
 const chainFinishPlan = {
-  productType: "bracelet",
-  settingId: "cord",
-  metalId: null,
-  gemId: null,
-  gemCount: 0,
-  polishId: "bright",
-  backingId: null
+  process: "bangle", productType: "bangle", refinementId: "standard", polishId: "bright"
 };
 const finishStart = startWorkshopJobForPlayer(chainPlayer, chainFinishingDevice.id, {
   itemId: carvedProduct.id,
@@ -361,9 +456,9 @@ try {
 }
 const finishedProduct = chainPlayer.bracelets.find((item) => item.materialStage === "finished");
 assert.ok(finishedProduct);
-assert.equal(finishedProduct.inlaid, true);
-assert.equal(finishedProduct.inlay.settingId, "cord");
-assert.equal(finishedProduct.inlay.productType, "bracelet");
+assert.equal(finishedProduct.inlaid, false);
+assert.equal(finishedProduct.finish.refinementId, "standard");
+assert.equal(finishedProduct.productType, "bangle");
 
 function carvedCabochon(id) {
   return {
@@ -390,7 +485,8 @@ const inlayPlan = {
   backingId: "open"
 };
 assert.equal(validateFinishPlan(carvedCabochon("validate-item"), inlayPlan).ok, true);
-assert.equal(quoteFinishPlan(carvedCabochon("quote-item"), inlayPlan).laborFee, 410);
+const inlayQuote = quoteFinishPlan(carvedCabochon("quote-item"), inlayPlan);
+assert.equal(inlayQuote.craftLaborFee, 0);
 
 function inlayTransactionState(player) {
   return JSON.stringify({
@@ -418,11 +514,13 @@ assert.equal(rejectedResult.code, "INVALID_COMBINATION");
 assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
 
 rejectedBefore = inlayTransactionState(rejectedInlayPlayer);
-rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDevice.id, {
+const canonicalCountPlayer = structuredClone(rejectedInlayPlayer);
+rejectedResult = startWorkshopJobForPlayer(canonicalCountPlayer, rejectedFinishDevice.id, {
   itemId: "rejected-cabochon",
   finishPlan: { ...inlayPlan, gemCount: 13 }
 });
-assert.equal(rejectedResult.code, "INVALID_QUANTITY");
+assert.equal(rejectedResult.ok, true, "current plans derive the gem count from the actual stone seats");
+assert.equal(rejectedResult.job.finishPlan.gemCount, 2, "the client cannot override seat count");
 assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
 
 rejectedInlayPlayer.externalMaterials.gold18k = 0;
@@ -451,8 +549,11 @@ rejectedResult = startWorkshopJobForPlayer(rejectedInlayPlayer, rejectedFinishDe
   itemId: "rejected-cabochon",
   finishPlan: inlayPlan
 });
-assert.equal(rejectedResult.code, "INSUFFICIENT_CASH");
-assert.equal(inlayTransactionState(rejectedInlayPlayer), rejectedBefore);
+assert.equal(rejectedResult.ok, true);
+assert.equal(rejectedResult.fee, 0);
+assert.equal(rejectedInlayPlayer.cash, 0);
+assert.equal(rejectedInlayPlayer.externalMaterials.gold18k, 8.35);
+assert.equal(rejectedInlayPlayer.externalMaterials.diamond, 8);
 
 const successfulInlayPlayer = makePlayer("successful-inlay-player");
 state.players.set(successfulInlayPlayer.id, successfulInlayPlayer);
@@ -468,7 +569,7 @@ const successfulStart = startWorkshopJobForPlayer(successfulInlayPlayer, success
   finishPlan: inlayPlan
 });
 assert.equal(successfulStart.ok, true);
-assert.equal(successfulInlayPlayer.cash, successCashBefore - 410);
+assert.equal(successfulInlayPlayer.cash, successCashBefore - successfulStart.fee);
 assert.equal(successfulInlayPlayer.externalMaterials.gold18k, 8.35);
 assert.equal(successfulInlayPlayer.externalMaterials.diamond, 8);
 assert.deepEqual(successfulStart.job.reservedMaterials, { gold18k: 1.65, diamond: 2 });
@@ -514,7 +615,7 @@ try {
 }
 assert.equal(failedCompletion.shattered, true);
 assert.equal(failedCompletion.refunded, true);
-assert.equal(failedInlayPlayer.cash, failedCashBefore - 410);
+assert.equal(failedInlayPlayer.cash, failedCashBefore - failedStart.fee);
 assert.equal(failedInlayPlayer.externalMaterials.gold18k, 10);
 assert.equal(failedInlayPlayer.externalMaterials.diamond, 10);
 assert.equal(failedInlayPlayer.bracelets.some((item) => item.id === "failed-cabochon" && item.materialStage === "carved"), true);
@@ -531,7 +632,7 @@ const existingEmptyPlayer = {
   rough: []
 };
 normalizePlayer(existingEmptyPlayer);
-assert.equal(existingEmptyPlayer.rough.length, 3);
+assert.equal(existingEmptyPlayer.rough.length, 0, "loading an existing empty account must not mint starter gifts");
 assert.equal(existingEmptyPlayer.starterRoughGranted, true);
 existingEmptyPlayer.rough.length = 0;
 normalizePlayer(existingEmptyPlayer);
@@ -551,7 +652,7 @@ const workshopPurchase = buyAssetListingForPlayer(assetPlayer, "starter-workshop
 assert.equal(workshopPurchase.ok, true);
 assert.equal(assetPlayer.assets.workshopOwned, true);
 assert.equal(playerOwnsWorkshop(assetPlayer), true);
-assert.equal(assetPlayer.cash, cashBeforeWorkshop - 12000);
+assert.equal(assetPlayer.cash, cashBeforeWorkshop - 8000);
 assetListings = assetListingsForPlayer(assetPlayer);
 assert.deepEqual(assetListings.map((listing) => listing.id), ["livestream-permit"]);
 
@@ -564,7 +665,7 @@ const permitPurchase = buyAssetListingForPlayer(assetPlayer, "livestream-permit"
 assert.equal(permitPurchase.ok, true);
 assert.equal(assetPlayer.assets.livestreamPermitOwned, true);
 assert.equal(playerCanLivestream(assetPlayer), true);
-assert.equal(assetPlayer.cash, cashBeforePermit - 8000);
+assert.equal(assetPlayer.cash, cashBeforePermit - 10000);
 assert.deepEqual(assetListingsForPlayer(assetPlayer), []);
 
 resetState();
@@ -590,14 +691,14 @@ assert.equal(blockedBid.ok, false);
 assert.match(blockedBid.message, /先入场/);
 const enterResult = enterAuctionForPlayer(uiAuctionPlayer, { hallId: "novice" }, 100_300);
 assert.equal(enterResult.ok, true);
-assert.equal(enterResult.entryFee, 5000);
-assert.equal(uiAuctionPlayer.cash, 25000);
+assert.equal(enterResult.entryFee, 200);
+assert.equal(uiAuctionPlayer.cash, 29800);
 const joinedAuctionSnapshot = snapshotFor(uiAuctionPlayer, 100_400);
 assert.equal(joinedAuctionSnapshot.auction.entered, true);
 assert.equal(joinedAuctionSnapshot.auction.myBids.length, 0);
 const duplicateEnterResult = joinAuctionForPlayer(uiAuctionPlayer, { hallId: "novice" }, 100_500);
 assert.equal(duplicateEnterResult.ok, true);
-assert.equal(uiAuctionPlayer.cash, 25000);
+assert.equal(uiAuctionPlayer.cash, 29800);
 assert.equal(settleAuctionIfDue(uiRound.endsAt), true);
 assert.notEqual(state.auction.id, uiRound.id);
 assert.deepEqual(state.auction.entries, []);
@@ -606,7 +707,7 @@ assert.equal(nextRoundSnapshot.auction.entered, false);
 assert.equal(nextRoundSnapshot.auction.roughs.length, 0);
 const reenterResult = enterAuctionForPlayer(uiAuctionPlayer, { hallId: "novice" }, uiRound.endsAt + 100);
 assert.equal(reenterResult.ok, true);
-assert.equal(uiAuctionPlayer.cash, 20000);
+assert.equal(uiAuctionPlayer.cash, 29600);
 const reenteredSnapshot = snapshotFor(uiAuctionPlayer, uiRound.endsAt + 200);
 assert.equal(reenteredSnapshot.auction.entered, true);
 assert.equal(reenteredSnapshot.auction.roughs.length, 8);
@@ -642,14 +743,16 @@ offlinePlayer.polishingJobs.push({
 const offlineEvents = settleOfflinePlayer(offlinePlayer, offlineNow);
 assert.equal(offlineEvents.length, 1);
 assert.equal(offlinePlayer.polishingJobs.length, 0);
-assert.equal(offlinePlayer.rough.length, 1);
+assert.equal(offlinePlayer.rough.length, 0);
+assert.equal(offlinePlayer.materials.length, 1);
 assert.equal(offlinePlayer.offlineSummary.count, 1);
 assert.equal(offlinePlayer.lastSeenAt, offlineNow);
 assert.equal(offlinePlayer.reports.length, 1);
 
 const duplicateEvents = settleOfflinePlayer(offlinePlayer, offlineNow + 1);
 assert.equal(duplicateEvents.length, 0);
-assert.equal(offlinePlayer.rough.length, 1);
+assert.equal(offlinePlayer.rough.length, 0);
+assert.equal(offlinePlayer.materials.length, 1);
 assert.equal(offlinePlayer.offlineSummary, null);
 
 const realtimePlayer = makeEmptyPlayer("realtime-player");
@@ -673,7 +776,7 @@ assert.equal(isPlayerOnline(realtimePlayer), true);
 
 processPolishingJobs();
 assert.equal(realtimePlayer.polishingJobs.length, 0);
-assert.equal(realtimePlayer.rough.length, 1);
+assert.equal(realtimePlayer.materials.length, 1);
 
 resetState();
 
@@ -687,8 +790,9 @@ stagedOfflineJob.readyAt = 7_000;
 const stagedOfflineEvents = settleOfflinePlayer(stagedOfflinePlayer, offlineNow);
 assert.equal(stagedOfflineEvents.length, 1);
 assert.equal(stagedOfflinePlayer.jobs.length, 0);
-assert.equal(stagedOfflinePlayer.rough.length, 1);
-assert.equal(stagedOfflinePlayer.rough[0].revealed, true);
+assert.equal(stagedOfflinePlayer.rough.length, 0);
+assert.equal(stagedOfflinePlayer.materials.length, 1);
+assert.equal(stagedOfflinePlayer.materials[0].revealed, true);
 assert.equal(stagedOfflinePlayer.offlineSummary.count, 1);
 
 resetState();
@@ -705,7 +809,7 @@ assert.equal(stagedRealtimePlayer.rough.length, 0);
 state.sockets.set("socket-staged", stagedRealtimePlayer.id);
 processProductionJobs();
 assert.equal(stagedRealtimePlayer.jobs.length, 0);
-assert.equal(stagedRealtimePlayer.rough.length, 1);
+assert.equal(stagedRealtimePlayer.materials.length, 1);
 
 resetState();
 
@@ -714,6 +818,7 @@ normalizePlayer(refinePlayer);
 state.players.set(refinePlayer.id, refinePlayer);
 state.sockets.set("socket-refine", refinePlayer.id);
 const revealedRough = revealPolishedRough(testRough("refine-rough"));
+const revealedRoughValue = revealedRough.value;
 const firstRefineKit = { id: "kit-a", type: "bangle", x: 50, y: 50, ringSize: 56 };
 const refineJob = startProductionJob(refinePlayer, "refine", revealedRough, {
   label: "精加工",
@@ -725,10 +830,30 @@ revealedRough.braceletPlacements = revealedRough.extractionKits;
 refineJob.readyAt = Date.now() - 1;
 processProductionJobs();
 assert.equal(refinePlayer.jobs.length, 0);
-assert.equal(refinePlayer.rough.length, 1);
-assert.equal(refinePlayer.rough[0].id, revealedRough.id);
-assert.equal(refinePlayer.rough[0].extractionKits.length, 1);
-assert.equal(refinePlayer.rough[0].braceletPlacements.length, 1);
+assert.equal(refinePlayer.materials.length, 1);
+assert.equal(refinePlayer.materials[0].id, revealedRough.id);
+assert.equal(
+  refinePlayer.materials[0].leftover,
+  true,
+  "carving leftover must be marked leftover"
+);
+assert.ok(
+  Array.isArray(refinePlayer.materials[0].extractionKits)
+    && refinePlayer.materials[0].extractionKits.length >= 1,
+  "carving leftover keeps extractionKits so UI can render consumed cutouts"
+);
+const firstLeftoverValue = refinePlayer.materials[0].value;
+assert.ok(firstLeftoverValue < revealedRoughValue, "carving must reduce leftover value by the consumed area");
+assert.ok(refinePlayer.materials[0].remainingRatio < 1, "carving must record the remaining material ratio");
+{
+  const carvingDevice = workshopDevicesForPlayer(refinePlayer).find((device) => device.stage === "carving");
+  assert.ok(carvingDevice);
+  assert.equal(
+    workshopProcessableItems(refinePlayer, carvingDevice.id).some((item) => item.id === revealedRough.id),
+    true,
+    "planning picker should list carving leftovers for further planning"
+  );
+}
 assert.equal(refinePlayer.bracelets.length, 1);
 assert.equal(refinePlayer.bracelets[0].sourceRoughId, revealedRough.id);
 assert.equal(refinePlayer.reports.length, 1);
@@ -742,16 +867,38 @@ assert.equal(
   false,
   "server overlap detection should match the UI-scaled kit footprint"
 );
-const secondRefineJob = startProductionJob(refinePlayer, "refine", refinePlayer.rough[0], {
+const secondRefineKit = { id: "kit-b", type: "cabochon", x: 70, y: 50, ringSize: 56 };
+const secondRefineJob = startProductionJob(refinePlayer, "refine", refinePlayer.materials[0], {
   label: "精加工",
-  kits: [{ id: "kit-b", type: "cabochon", x: 76, y: 76, ringSize: 56 }]
+  kits: [secondRefineKit]
 });
 assert.ok(secondRefineJob);
+secondRefineJob.item.extractionKits = [...secondRefineJob.item.extractionKits, secondRefineKit];
+secondRefineJob.item.braceletPlacements = secondRefineJob.item.extractionKits;
 secondRefineJob.readyAt = Date.now() - 1;
 processProductionJobs();
-assert.equal(refinePlayer.rough.filter((rough) => rough.id === revealedRough.id).length, 1);
+assert.equal(refinePlayer.materials.filter((material) => material.id === revealedRough.id).length, 1);
 assert.equal(refinePlayer.bracelets.length, 2);
 assert.equal(refinePlayer.bracelets[1].sourceRoughId, revealedRough.id);
+{
+  const leftoverAfterCarve = refinePlayer.materials.find((material) => material.id === revealedRough.id);
+  assert.equal(leftoverAfterCarve?.leftover, true);
+  assert.ok(leftoverAfterCarve.value < firstLeftoverValue, "each additional cut must reduce leftover value again");
+  const kitCountBeforeSell = Array.isArray(leftoverAfterCarve?.extractionKits)
+    ? leftoverAfterCarve.extractionKits.length
+    : 0;
+  assert.ok(kitCountBeforeSell >= 1, "leftover should keep extractionKits after carving");
+  // 卖掉取件产物后，normalize 仍须保留余料遮罩，不能回退成「完整料」外观
+  refinePlayer.bracelets = [];
+  normalizePlayer(refinePlayer);
+  const leftoverAfterSell = refinePlayer.materials.find((material) => material.id === revealedRough.id);
+  assert.equal(leftoverAfterSell?.leftover, true, "leftover flag must survive selling extracted products");
+  assert.equal(
+    Array.isArray(leftoverAfterSell?.extractionKits) ? leftoverAfterSell.extractionKits.length : 0,
+    kitCountBeforeSell,
+    "leftover extractionKits must survive normalize after products are sold"
+  );
+}
 
 resetState();
 
@@ -780,86 +927,20 @@ assert.equal(scheduleLivestream(gatedLivestreamPlayer, gatedLiveProduct.id, "aut
 assert.equal(gatedLivestreamPlayer.bracelets.length, 1);
 gatedLivestreamPlayer.assets.livestreamPermitOwned = true;
 livestreamPlayer.assets.livestreamPermitOwned = true;
-const liveJob = scheduleLivestream(livestreamPlayer, liveProduct.id, "autoBalanced");
-assert.ok(liveJob);
-assert.equal(liveJob.workerId, "worker-finishing");
-assert.equal(isWorkerBusy(livestreamPlayer, liveJob.workerId), true);
-const liveSkillExpBefore = livestreamPlayer.workshop.workers
-  .find((worker) => worker.id === liveJob.workerId).skills.speak.huashu.exp;
-assert.equal(livestreamPlayer.bracelets.length, 0);
-assert.equal(livestreamPlayer.livestreamJobs.length, 1);
-assert.ok(refreshPlayerReport(livestreamPlayer).inventoryValue >= liveProduct.value);
-liveJob.readyAt = 1;
-processLivestreamJobs(2);
-assert.equal(livestreamPlayer.livestreamJobs.length, 1);
-assert.equal(livestreamPlayer.ledger.length, 0);
-state.sockets.set("socket-live", livestreamPlayer.id);
-processLivestreamJobs(2);
+assert.equal(scheduleLivestream(livestreamPlayer, liveProduct.id, "autoBalanced"), null);
+assert.equal(livestreamPlayer.bracelets.length, 1);
 assert.equal(livestreamPlayer.livestreamJobs.length, 0);
-assert.equal(livestreamPlayer.livestreamHistory.length, 1);
-assert.equal(livestreamPlayer.livestreamHistory[0].outcome.sold, true);
-assert.equal(livestreamPlayer.ledger[0].source, "livestream");
-assert.equal(livestreamPlayer.ledger[0].amount, livestreamPlayer.livestreamHistory[0].outcome.price);
-assert.equal(
-  livestreamPlayer.workshop.workers.find((worker) => worker.id === liveJob.workerId).skills.speak.huashu.exp,
-  liveSkillExpBefore + 10
-);
-
-resetState();
-
-const unsoldLivestreamPlayer = makeEmptyPlayer("unsold-livestream-player");
-normalizePlayer(unsoldLivestreamPlayer);
-state.players.set(unsoldLivestreamPlayer.id, unsoldLivestreamPlayer);
-state.sockets.set("socket-unsold-live", unsoldLivestreamPlayer.id);
-const unsoldProduct = testProduct("unsold-live-product");
-unsoldLivestreamPlayer.bracelets.push(unsoldProduct);
-unsoldLivestreamPlayer.assets.livestreamPermitOwned = true;
-const unsoldLiveJob = scheduleLivestream(unsoldLivestreamPlayer, unsoldProduct.id, "autoBalanced");
-unsoldLiveJob.readyAt = 8;
-processLivestreamJobs(9);
-assert.equal(unsoldLivestreamPlayer.livestreamJobs.length, 0);
-assert.equal(unsoldLivestreamPlayer.bracelets.length, 1);
-assert.equal(unsoldLivestreamPlayer.bracelets[0].id, unsoldProduct.id);
-assert.equal(unsoldLivestreamPlayer.livestreamHistory[0].outcome.sold, false);
-
-resetState();
-
-const offlineLivestreamPlayer = makeEmptyPlayer("offline-livestream-player");
-normalizePlayer(offlineLivestreamPlayer);
-offlineLivestreamPlayer.lastSeenAt = 4_000;
-state.players.set(offlineLivestreamPlayer.id, offlineLivestreamPlayer);
-const offlineLiveProduct = testProduct("offline-live-product");
-offlineLivestreamPlayer.bracelets.push(offlineLiveProduct);
-offlineLivestreamPlayer.assets.livestreamPermitOwned = true;
-const offlineLiveJob = scheduleLivestream(offlineLivestreamPlayer, offlineLiveProduct.id, "autoBalanced");
-offlineLiveJob.readyAt = 4_500;
-const offlineLiveEvents = settleOfflinePlayer(offlineLivestreamPlayer, 5_000);
-assert.equal(offlineLiveEvents.length, 1);
-assert.equal(offlineLiveEvents[0].type, "livestream");
-assert.equal(offlineLivestreamPlayer.livestreamJobs.length, 0);
-assert.equal(offlineLivestreamPlayer.livestreamHistory.length, 1);
-assert.equal(offlineLivestreamPlayer.offlineSummary.count, 1);
-assert.equal(offlineLivestreamPlayer.offlineSummary.income, offlineLiveEvents[0].income);
+assert.equal(processLivestreamJobs(2), false);
 
 resetState();
 
 const manualLivestreamPlayer = makeEmptyPlayer("manual-livestream-player");
 normalizePlayer(manualLivestreamPlayer);
 const manualProduct = testProduct("manual-live-product");
-const cashBeforeManualSale = manualLivestreamPlayer.cash;
 manualLivestreamPlayer.bracelets.push(manualProduct);
 manualLivestreamPlayer.assets.livestreamPermitOwned = true;
-const manualSale = sellLivestreamNow(manualLivestreamPlayer, manualProduct.id, 12);
-assert.ok(manualSale);
-assert.equal(manualSale.worker.id, "worker-finishing");
-assert.deepEqual(manualSale.xpResult.grants, { huashu: 10, kongchang: 7, cuidan: 5 });
-assert.equal(manualSale.outcome.sold, true);
-assert.equal(manualLivestreamPlayer.bracelets.length, 0);
-assert.equal(manualLivestreamPlayer.cash, cashBeforeManualSale + manualSale.outcome.price);
-assert.equal(manualLivestreamPlayer.ledger[0].source, "livestream");
-assert.equal(manualLivestreamPlayer.ledger[0].itemId, manualProduct.id);
-assert.equal(manualLivestreamPlayer.livestreamHistory.length, 1);
-assert.equal(manualLivestreamPlayer.livestreamHistory[0].outcome.sold, true);
+assert.equal(sellLivestreamNow(manualLivestreamPlayer, manualProduct.id, 12), null);
+assert.equal(manualLivestreamPlayer.bracelets.length, 1);
 
 resetState();
 
@@ -888,18 +969,18 @@ normalizePlayer(directBidPlayer);
 directBidPlayer.cash = 100000;
 state.players.set(directBidPlayer.id, directBidPlayer);
 const directBidRough = auctionRough("direct-bid-rough", { price: 1000, trueValue: 1000, value: 1000 });
-makeAuctionRound([directBidRough]);
+makeAuctionRound([directBidRough], { endsAt: 20_000 });
 
 let bidResult = submitAuctionBidForPlayer(directBidPlayer, { roughId: directBidRough.id, amount: 1000 }, 1_100);
 assert.equal(bidResult.ok, false);
 assert.match(bidResult.message, /先入场/);
 const directEnter = enterAuctionForPlayer(directBidPlayer, { hallId: "novice" }, 1_150);
 assert.equal(directEnter.ok, true);
-assert.equal(directBidPlayer.cash, 95000);
+assert.equal(directBidPlayer.cash, 100000 - directEnter.entryFee);
 bidResult = submitAuctionBidForPlayer(directBidPlayer, { roughId: directBidRough.id, amount: 1000 }, 1_200);
 assert.equal(bidResult.ok, true);
 assert.equal(directBidPlayer.rep, 0);
-assert.equal(directBidPlayer.cash, 95000);
+assert.equal(directBidPlayer.cash, 100000 - directEnter.entryFee - 1000);
 assert.equal(state.auction.bids[0].amount, 1000);
 assert.equal(Object.hasOwn(state.auction.bids[0], "proxyMax"), false);
 assert.equal(snapshotFor(directBidPlayer, 1_300).auction.myBids[0].deposit, undefined);
@@ -915,17 +996,17 @@ normalizePlayer(closedPlayer);
 closedPlayer.cash = 100000;
 state.players.set(closedPlayer.id, closedPlayer);
 const closedRough = auctionRough("closed-rough", { price: 1000, trueValue: 1000, value: 1000 });
-makeAuctionRound([closedRough]);
+makeAuctionRound([closedRough], { endsAt: 12_000 });
 assert.equal(enterAuctionForPlayer(closedPlayer, { hallId: "novice" }, 1_100).ok, true);
 const cashAfterClose = closedPlayer.cash;
 const bidsAfterClose = state.auction.bids.filter((bid) => bid.playerId === closedPlayer.id).length;
-bidResult = submitAuctionBidForPlayer(closedPlayer, { roughId: closedRough.id, amount: 5000 }, 2_000);
+bidResult = submitAuctionBidForPlayer(closedPlayer, { roughId: closedRough.id, amount: 5000 }, 12_000);
 assert.equal(bidResult.ok, false);
 assert.equal(closedPlayer.cash, cashAfterClose);
 assert.equal(closedPlayer.rep, 0);
 assert.equal(state.auction.bids.filter((bid) => bid.playerId === closedPlayer.id).length, bidsAfterClose);
 
-bidResult = submitAuctionBidForPlayer(closedPlayer, null, 2_100);
+bidResult = submitAuctionBidForPlayer(closedPlayer, null, 12_100);
 assert.equal(bidResult.ok, false);
 assert.equal(closedPlayer.cash, cashAfterClose);
 
@@ -949,17 +1030,18 @@ normalizePlayer(successPlayer);
 successPlayer.cash = 50000;
 state.players.set(successPlayer.id, successPlayer);
 const successRough = auctionRough("success-rough", { price: 12000, trueValue: 7000, value: 7000 });
-makeAuctionRound([successRough]);
-assert.equal(enterAuctionForPlayer(successPlayer, { hallId: "novice" }, 1_100).ok, true);
+makeAuctionRound([successRough], { endsAt: 12_000 });
+const successEnter = enterAuctionForPlayer(successPlayer, { hallId: "novice" }, 1_100);
+assert.equal(successEnter.ok, true);
 bidResult = submitAuctionBidForPlayer(successPlayer, { roughId: successRough.id, amount: 14000 }, 1_200);
 assert.equal(bidResult.ok, true);
-assert.equal(successPlayer.cash, 45000);
+assert.equal(successPlayer.cash, 50000 - successEnter.entryFee - 14000);
 assert.equal(successPlayer.rep, 0);
-assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(settleAuctionIfDue(12_000), true);
 assert.equal(state.latestAuctionResults[0].status, "won");
 assert.equal(successPlayer.rough.some((rough) => rough.id === successRough.id), true);
 assert.equal(state.roughPool.some((rough) => rough.id === successRough.id), false);
-assert.equal(successPlayer.cash, 50000 - 5000 - state.latestAuctionResults[0].price);
+assert.equal(successPlayer.cash, 50000 - successEnter.entryFee - state.latestAuctionResults[0].price);
 assert.ok(successPlayer.reports[0].inventoryValue >= (successRough.value || successRough.price));
 
 resetState();
@@ -973,17 +1055,18 @@ fallbackPlayer.cash = 50000;
 state.players.set(shortPlayer.id, shortPlayer);
 state.players.set(fallbackPlayer.id, fallbackPlayer);
 const shortRough = auctionRough("short-tail-rough", { price: 10000, trueValue: 1000, value: 1000 });
-makeAuctionRound([shortRough]);
+makeAuctionRound([shortRough], { endsAt: 12_000 });
 state.auction.entries.push({ playerId: shortPlayer.id, fee: 0, at: 1_100 }, { playerId: fallbackPlayer.id, fee: 0, at: 1_110 });
 bidResult = submitAuctionBidForPlayer(shortPlayer, { roughId: shortRough.id, amount: 20000 }, 1_200);
-assert.equal(bidResult.ok, true);
+assert.equal(bidResult.ok, false);
+assert.match(bidResult.message, /现金|抵押/);
 bidResult = submitAuctionBidForPlayer(fallbackPlayer, { roughId: shortRough.id, amount: 15000 }, 1_300);
 assert.equal(bidResult.ok, true);
-assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(settleAuctionIfDue(12_000), true);
 assert.equal(state.latestAuctionResults[0].status, "won");
 assert.equal(state.latestAuctionResults[0].winnerId, fallbackPlayer.id);
 assert.equal(state.latestAuctionResults[0].price, 15000);
-assert.equal(state.latestAuctionResults[0].skippedBids, 1);
+assert.equal(state.latestAuctionResults[0].skippedBids, 0);
 assert.equal(shortPlayer.rough.some((rough) => rough.id === shortRough.id), false);
 assert.equal(fallbackPlayer.rough.some((rough) => rough.id === shortRough.id), true);
 assert.equal(fallbackPlayer.cash, 35000);
@@ -995,7 +1078,11 @@ makeAuctionRound([lowAiRough]);
 assert.equal(settleAuctionIfDue(2_000), true);
 assert.equal(state.latestAuctionResults[0].status, "passed");
 assert.equal(state.latestAuctionResults[0].winnerId, undefined);
-assert.equal(state.roughPool.some((rough) => rough.id === lowAiRough.id), true);
+assert.equal(
+  state.roughPool.some((rough) => rough.id === lowAiRough.id),
+  false,
+  "passed lots should not leak into the next hall's curated pool"
+);
 
 resetState();
 
@@ -1005,11 +1092,11 @@ offlineAuctionWinner.cash = 50000;
 offlineAuctionWinner.lastSeenAt = 1_000;
 state.players.set(offlineAuctionWinner.id, offlineAuctionWinner);
 const offlineAuctionRough = auctionRough("offline-auction-rough", { price: 1000, trueValue: 1000, value: 1000 });
-makeAuctionRound([offlineAuctionRough], { endsAt: 2_000 });
+makeAuctionRound([offlineAuctionRough], { endsAt: 12_000 });
 assert.equal(enterAuctionForPlayer(offlineAuctionWinner, { hallId: "novice" }, 1_100).ok, true);
 bidResult = submitAuctionBidForPlayer(offlineAuctionWinner, { roughId: offlineAuctionRough.id, amount: 1000 }, 1_200);
 assert.equal(bidResult.ok, true);
-const offlineAuctionEvents = settleOfflinePlayer(offlineAuctionWinner, 3_000);
+const offlineAuctionEvents = settleOfflinePlayer(offlineAuctionWinner, 13_000);
 assert.equal(offlineAuctionEvents.length, 1);
 assert.equal(offlineAuctionEvents[0].type, "auction");
 assert.match(offlineAuctionEvents[0].text, /公盘/);
@@ -1017,7 +1104,7 @@ assert.equal(offlineAuctionWinner.offlineSummary.count, 1);
 assert.match(offlineAuctionWinner.offlineSummary.lines[0], /公盘/);
 assert.equal(offlineAuctionWinner.rough.some((rough) => rough.id === offlineAuctionRough.id), true);
 assert.equal(offlineAuctionWinner.cash, 44000);
-const duplicateOfflineAuctionEvents = settleOfflinePlayer(offlineAuctionWinner, 3_001);
+const duplicateOfflineAuctionEvents = settleOfflinePlayer(offlineAuctionWinner, 13_001);
 assert.equal(duplicateOfflineAuctionEvents.length, 0);
 assert.equal(offlineAuctionWinner.offlineSummary, null);
 
@@ -1029,21 +1116,21 @@ rotatedOfflineAuctionWinner.cash = 50000;
 rotatedOfflineAuctionWinner.lastSeenAt = 1_000;
 state.players.set(rotatedOfflineAuctionWinner.id, rotatedOfflineAuctionWinner);
 const rotatedOfflineAuctionRough = auctionRough("rotated-offline-auction-rough", { price: 1000, trueValue: 1000, value: 1000 });
-makeAuctionRound([rotatedOfflineAuctionRough], { endsAt: 2_000 });
+makeAuctionRound([rotatedOfflineAuctionRough], { endsAt: 12_000 });
 assert.equal(enterAuctionForPlayer(rotatedOfflineAuctionWinner, { hallId: "novice" }, 1_100).ok, true);
 bidResult = submitAuctionBidForPlayer(rotatedOfflineAuctionWinner, { roughId: rotatedOfflineAuctionRough.id, amount: 1000 }, 1_200);
 assert.equal(bidResult.ok, true);
-assert.equal(settleAuctionIfDue(2_000), true);
+assert.equal(settleAuctionIfDue(12_000), true);
 assert.equal(rotatedOfflineAuctionWinner.rough.some((rough) => rough.id === rotatedOfflineAuctionRough.id), true);
 assert.equal(rotatedOfflineAuctionWinner.cash, 44000);
 state.auction = null;
-const rotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 5_000);
+const rotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 15_000);
 assert.equal(rotatedOfflineAuctionEvents.length, 1);
 assert.equal(rotatedOfflineAuctionEvents[0].type, "auction");
 assert.match(rotatedOfflineAuctionEvents[0].text, /公盘/);
 assert.equal(rotatedOfflineAuctionWinner.offlineSummary.count, 1);
 assert.match(rotatedOfflineAuctionWinner.offlineSummary.lines[0], /公盘/);
-const duplicateRotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 5_001);
+const duplicateRotatedOfflineAuctionEvents = settleOfflinePlayer(rotatedOfflineAuctionWinner, 15_001);
 assert.equal(duplicateRotatedOfflineAuctionEvents.length, 0);
 assert.equal(rotatedOfflineAuctionWinner.offlineSummary, null);
 
@@ -1076,6 +1163,14 @@ const generatedSnapshot = snapshotFor(generatedViewer, generatedRound.startsAt +
 for (const rough of [...generatedSnapshot.roughPool, ...generatedSnapshot.auction.roughs]) {
   assert.equal(Object.hasOwn(rough, "trueValue"), false);
 }
+const guaranteedAiRough = generatedRound.roughs[0];
+generatedRound.bids.push({
+  playerId: `ai-${guaranteedAiRough.id}-smoke`,
+  roughId: guaranteedAiRough.id,
+  amount: guaranteedAiRough.price,
+  at: generatedRound.startsAt + 1,
+  ai: true
+});
 assert.equal(settleAuctionIfDue(generatedRound.endsAt), true);
 assert.ok(state.latestAuctionResults.some((result) => result.status === "aiWon"));
 assert.equal(state.auctionHistory.length, 1);
@@ -1091,8 +1186,19 @@ const snapshotPlayer = makeEmptyPlayer("snapshot-player");
 normalizePlayer(snapshotPlayer);
 state.players.set(snapshotPlayer.id, snapshotPlayer);
 const snapshotRough = auctionRough("snapshot-rough", { price: 10000, trueValue: 30000, value: 30000 });
-makeAuctionRound([snapshotRough], { startsAt: Date.now() - 600_001, endsAt: Date.now() - 1 });
-const snapshot = snapshotFor(snapshotPlayer);
+const expiredAuctionNow = Date.now();
+const expiredSnapshotRound = makeAuctionRound([snapshotRough], {
+  startsAt: expiredAuctionNow - 600_001,
+  endsAt: expiredAuctionNow - 1
+});
+const expiredSnapshot = snapshotFor(snapshotPlayer, expiredAuctionNow);
+assert.equal(expiredSnapshot.auction.phase, "settlement");
+assert.equal(state.auction.id, expiredSnapshotRound.id, "snapshot reads must not rotate auction rounds");
+assert.equal(state.latestAuctionResults.length, 0, "snapshot reads must not settle auction results");
+assert.equal(state.auctionHistory.length, 0, "snapshot reads must not append auction history");
+
+assert.equal(processAuctionLifecycle(expiredAuctionNow), true);
+const snapshot = snapshotFor(snapshotPlayer, expiredAuctionNow);
 assert.equal(snapshot.auction.phase, "live");
 assert.equal(state.latestAuctionResults[0].status, "aiWon");
 assert.equal(snapshot.auction.results[0].status, "aiWon");
@@ -1109,13 +1215,13 @@ normalizePlayer(windowPlayer);
 windowPlayer.cash = 100000;
 state.players.set(windowPlayer.id, windowPlayer);
 const windowRough = auctionRough("window-rough", { price: 10000, trueValue: 30000, value: 30000 });
-makeAuctionRound([windowRough]);
+makeAuctionRound([windowRough], { endsAt: 12_000 });
 assert.equal(enterAuctionForPlayer(windowPlayer, { hallId: "novice" }, 1_100).ok, true);
 let windowResult = requestAuctionWindowForPlayer(windowPlayer, { roughId: windowRough.id, x: 50, y: 50 }, 1_200);
 assert.equal(windowResult.ok, true);
 assert.equal(windowRough.windows.length, 1);
 const cashAfterWindow = windowPlayer.cash;
-windowResult = requestAuctionWindowForPlayer(windowPlayer, { roughId: windowRough.id, x: 55, y: 55 }, 2_000);
+windowResult = requestAuctionWindowForPlayer(windowPlayer, { roughId: windowRough.id, x: 55, y: 55 }, 12_000);
 assert.equal(windowResult.ok, false);
 assert.equal(windowRough.windows.length, 1);
 assert.equal(windowPlayer.cash, cashAfterWindow);

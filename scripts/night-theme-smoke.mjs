@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { loadResolvedStyles } from "./load-styles.mjs";
 
-const css = readFileSync("public/styles.css", "utf8");
+const css = loadResolvedStyles();
 const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const rules = [];
 const blockPattern = /([^{}]+)\{([^{}]*)\}/g;
@@ -239,7 +239,6 @@ for (const traitText of ["#a9d9c4", "#e5ad9c"]) {
 const surfaceSelectors = [
   ".ws-picker-modal",
   ".ws-planner-modal",
-  ".game-modal",
   ".worker-detail-panel",
   ".recruit-candidate-card",
   ".ws-big-card",
@@ -257,6 +256,15 @@ for (const baseSelector of surfaceSelectors) {
   assert.equal(declarations.background, "var(--night-surface-2)", `${selector} must use the shared low surface`);
   assert.equal(declarations.color, "var(--night-text)", `${selector} must use shared night text`);
   assert.equal(winners.background.selector, selector, `${selector} must win the effective surface cascade`);
+}
+
+for (const selector of [
+  '[data-theme="night"] .game-modal',
+  '[data-theme="night"] .jm-modal'
+]) {
+  const { values: declarations, winners } = cascadedDeclarations(selector);
+  assert.equal(declarations.background, "var(--panel)", `${selector} must use the unified modal surface`);
+  assert.equal(winners.background.selector, selector, `${selector} must win the effective modal surface cascade`);
 }
 
 const primary = cascadedDeclarations('[data-theme="night"] button.primary').values;

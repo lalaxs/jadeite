@@ -1,0 +1,14 @@
+{
+  "stall": "finished",
+  "syncMs": 22.9,
+  "readyMs": 609.6,
+  "frames": 43,
+  "bitmaps": 6,
+  "svgNodes": 0,
+  "longTasks": [
+    {
+      "start": 5338.5,
+      "ms": 75
+    }
+  ]
+}

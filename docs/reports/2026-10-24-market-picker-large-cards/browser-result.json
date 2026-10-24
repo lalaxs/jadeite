@@ -1,0 +1,611 @@
+{
+  "passed": true,
+  "baseline": false,
+  "measurements": [
+    {
+      "label": "desktop-day",
+      "controls": [
+        {
+          "x": 200,
+          "y": 171,
+          "width": 349.28125,
+          "height": 48
+        },
+        {
+          "x": 561.28125,
+          "y": 171,
+          "width": 174.640625,
+          "height": 48
+        },
+        {
+          "x": 747.921875,
+          "y": 171,
+          "width": 174.640625,
+          "height": 48
+        }
+      ],
+      "product": {
+        "x": 1071.28125,
+        "y": 186,
+        "width": 140,
+        "height": 140
+      },
+      "svg": {
+        "x": 1071.28125,
+        "y": 186,
+        "width": 140,
+        "height": 140
+      },
+      "detailOverflow": false,
+      "modalOverflow": false,
+      "pageOverflow": false
+    },
+    {
+      "label": "1542px",
+      "controls": [
+        {
+          "x": 200,
+          "y": 171,
+          "width": 349.28125,
+          "height": 48
+        },
+        {
+          "x": 561.28125,
+          "y": 171,
+          "width": 174.640625,
+          "height": 48
+        },
+        {
+          "x": 747.921875,
+          "y": 171,
+          "width": 174.640625,
+          "height": 48
+        }
+      ],
+      "product": {
+        "x": 1071.28125,
+        "y": 186,
+        "width": 140,
+        "height": 140
+      },
+      "svg": {
+        "x": 1071.28125,
+        "y": 186,
+        "width": 140,
+        "height": 140
+      },
+      "detailOverflow": false,
+      "modalOverflow": false,
+      "pageOverflow": false
+    },
+    {
+      "label": "1024px",
+      "controls": [
+        {
+          "x": 43,
+          "y": 112,
+          "width": 283.703125,
+          "height": 48
+        },
+        {
+          "x": 338.703125,
+          "y": 112,
+          "width": 141.859375,
+          "height": 48
+        },
+        {
+          "x": 492.5625,
+          "y": 112,
+          "width": 141.859375,
+          "height": 48
+        }
+      ],
+      "product": {
+        "x": 746.703125,
+        "y": 127,
+        "width": 140,
+        "height": 140
+      },
+      "svg": {
+        "x": 746.703125,
+        "y": 127,
+        "width": 140,
+        "height": 140
+      },
+      "detailOverflow": false,
+      "modalOverflow": false,
+      "pageOverflow": false
+    },
+    {
+      "label": "390px",
+      "controls": [
+        {
+          "x": 31,
+          "y": 108,
+          "width": 328,
+          "height": 48
+        },
+        {
+          "x": 31,
+          "y": 164,
+          "width": 160,
+          "height": 48
+        },
+        {
+          "x": 199,
+          "y": 164,
+          "width": 160,
+          "height": 48
+        }
+      ],
+      "product": {
+        "x": 125,
+        "y": 419.53125,
+        "width": 140,
+        "height": 140
+      },
+      "svg": {
+        "x": 125,
+        "y": 419.53125,
+        "width": 140,
+        "height": 140
+      },
+      "detailOverflow": false,
+      "modalOverflow": false,
+      "pageOverflow": false
+    }
+  ],
+  "scrollChecks": [
+    {
+      "label": "1542px",
+      "initial": {
+        "left": 0,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1206,
+        "rightRange": 89,
+        "bodyRange": 0,
+        "toolbarY": 171,
+        "buttonY": 794,
+        "buttonHeight": 48,
+        "buttonBottom": 842,
+        "panelBottom": 857,
+        "footerY": 875
+      },
+      "afterLeft": {
+        "left": 400,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1206,
+        "rightRange": 89,
+        "bodyRange": 0,
+        "toolbarY": 171,
+        "buttonY": 794,
+        "buttonHeight": 48,
+        "buttonBottom": 842,
+        "panelBottom": 857,
+        "footerY": 875
+      },
+      "leftBoundary": {
+        "left": 1206,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1206,
+        "rightRange": 89,
+        "bodyRange": 0,
+        "toolbarY": 171,
+        "buttonY": 794,
+        "buttonHeight": 48,
+        "buttonBottom": 842,
+        "panelBottom": 857,
+        "footerY": 875
+      },
+      "afterRight": {
+        "left": 1206,
+        "right": 89,
+        "body": 0,
+        "leftRange": 1206,
+        "rightRange": 89,
+        "bodyRange": 0,
+        "toolbarY": 171,
+        "buttonY": 794,
+        "buttonHeight": 48,
+        "buttonBottom": 842,
+        "panelBottom": 857,
+        "footerY": 875
+      },
+      "rightBoundary": {
+        "left": 1206,
+        "right": 89,
+        "body": 0,
+        "leftRange": 1206,
+        "rightRange": 89,
+        "bodyRange": 0,
+        "toolbarY": 171,
+        "buttonY": 794,
+        "buttonHeight": 48,
+        "buttonBottom": 842,
+        "panelBottom": 857,
+        "footerY": 875
+      }
+    },
+    {
+      "label": "1024px",
+      "initial": {
+        "left": 0,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1674,
+        "rightRange": 97,
+        "bodyRange": 0,
+        "toolbarY": 112,
+        "buttonY": 727,
+        "buttonHeight": 48,
+        "buttonBottom": 775,
+        "panelBottom": 790,
+        "footerY": 808
+      },
+      "afterLeft": {
+        "left": 400,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1674,
+        "rightRange": 97,
+        "bodyRange": 0,
+        "toolbarY": 112,
+        "buttonY": 727,
+        "buttonHeight": 48,
+        "buttonBottom": 775,
+        "panelBottom": 790,
+        "footerY": 808
+      },
+      "leftBoundary": {
+        "left": 1674,
+        "right": 0,
+        "body": 0,
+        "leftRange": 1674,
+        "rightRange": 97,
+        "bodyRange": 0,
+        "toolbarY": 112,
+        "buttonY": 727,
+        "buttonHeight": 48,
+        "buttonBottom": 775,
+        "panelBottom": 790,
+        "footerY": 808
+      },
+      "afterRight": {
+        "left": 1674,
+        "right": 97,
+        "body": 0,
+        "leftRange": 1674,
+        "rightRange": 97,
+        "bodyRange": 0,
+        "toolbarY": 112,
+        "buttonY": 727,
+        "buttonHeight": 48,
+        "buttonBottom": 775,
+        "panelBottom": 790,
+        "footerY": 808
+      },
+      "rightBoundary": {
+        "left": 1674,
+        "right": 97,
+        "body": 0,
+        "leftRange": 1674,
+        "rightRange": 97,
+        "bodyRange": 0,
+        "toolbarY": 112,
+        "buttonY": 727,
+        "buttonHeight": 48,
+        "buttonBottom": 775,
+        "panelBottom": 790,
+        "footerY": 808
+      }
+    },
+    {
+      "label": "390px",
+      "initial": {
+        "left": 0,
+        "right": 0,
+        "body": 0,
+        "leftRange": 2973,
+        "rightRange": 401,
+        "bodyRange": 0,
+        "toolbarY": 108,
+        "buttonY": 682.984375,
+        "buttonHeight": 48,
+        "buttonBottom": 730.984375,
+        "panelBottom": 745.984375,
+        "footerY": 764
+      },
+      "afterLeft": {
+        "left": 400,
+        "right": 0,
+        "body": 0,
+        "leftRange": 2973,
+        "rightRange": 401,
+        "bodyRange": 0,
+        "toolbarY": 108,
+        "buttonY": 682.984375,
+        "buttonHeight": 48,
+        "buttonBottom": 730.984375,
+        "panelBottom": 745.984375,
+        "footerY": 764
+      },
+      "leftBoundary": {
+        "left": 2973,
+        "right": 0,
+        "body": 0,
+        "leftRange": 2973,
+        "rightRange": 401,
+        "bodyRange": 0,
+        "toolbarY": 108,
+        "buttonY": 682.984375,
+        "buttonHeight": 48,
+        "buttonBottom": 730.984375,
+        "panelBottom": 745.984375,
+        "footerY": 764
+      },
+      "afterRight": {
+        "left": 2973,
+        "right": 400,
+        "body": 0,
+        "leftRange": 2973,
+        "rightRange": 401,
+        "bodyRange": 0,
+        "toolbarY": 108,
+        "buttonY": 682.984375,
+        "buttonHeight": 48,
+        "buttonBottom": 730.984375,
+        "panelBottom": 745.984375,
+        "footerY": 764
+      },
+      "rightBoundary": {
+        "left": 2973,
+        "right": 401,
+        "body": 0,
+        "leftRange": 2973,
+        "rightRange": 401,
+        "bodyRange": 0,
+        "toolbarY": 108,
+        "buttonY": 682.984375,
+        "buttonHeight": 48,
+        "buttonBottom": 730.984375,
+        "panelBottom": 745.984375,
+        "footerY": 764
+      }
+    }
+  ],
+  "equipmentDetailChecks": [
+    {
+      "viewport": {
+        "width": 1542,
+        "height": 1026
+      },
+      "productLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      "equipmentLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+        "centered": true,
+        "nameBelowVisual": true
+      }
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "productLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      "equipmentLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+        "centered": true,
+        "nameBelowVisual": true
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "productLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      "equipmentLayout": {
+        "visualWidth": 140,
+        "visualHeight": 140,
+        "nameFontSize": "19px",
+        "nameFontFamily": "AlimamaFangYuan, \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+        "centered": true,
+        "nameBelowVisual": true
+      }
+    }
+  ],
+  "cardChecks": [
+    {
+      "viewport": {
+        "width": 1542,
+        "height": 1026
+      },
+      "equipmentCard": {
+        "width": 170.640625,
+        "height": 218,
+        "visualWidth": 152.640625,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "jadeCard": {
+        "width": 170.640625,
+        "height": 218,
+        "visualWidth": 152.640625,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "equipmentOnlyCard": {
+        "width": 170.640625,
+        "height": 218,
+        "visualWidth": 152.640625,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "equipmentCard": {
+        "width": 187.8125,
+        "height": 218,
+        "visualWidth": 169.8125,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "jadeCard": {
+        "width": 187.796875,
+        "height": 218,
+        "visualWidth": 169.796875,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "equipmentOnlyCard": {
+        "width": 187.796875,
+        "height": 218,
+        "visualWidth": 169.796875,
+        "visualHeight": 148,
+        "artWidth": 148,
+        "artHeight": 148,
+        "nameOffset": 165,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "equipmentCard": {
+        "width": 156,
+        "height": 198,
+        "visualWidth": 138,
+        "visualHeight": 128,
+        "artWidth": 112,
+        "artHeight": 112,
+        "nameOffset": 145,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "jadeCard": {
+        "width": 156,
+        "height": 198,
+        "visualWidth": 138,
+        "visualHeight": 128,
+        "artWidth": 112,
+        "artHeight": 112,
+        "nameOffset": 145,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      },
+      "equipmentOnlyCard": {
+        "width": 156,
+        "height": 198,
+        "visualWidth": 138,
+        "visualHeight": 128,
+        "artWidth": 112,
+        "artHeight": 112,
+        "nameOffset": 145,
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "textAlign": "center",
+        "whiteSpace": "normal"
+      }
+    }
+  ],
+  "traitFontChecks": [
+    {
+      "theme": "day",
+      "positive": {
+        "family": "AlimamaFangYuan, \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+        "size": "14px",
+        "weight": "700",
+        "lineHeight": "21px"
+      },
+      "negative": {
+        "family": "AlimamaFangYuan, \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+        "size": "14px",
+        "weight": "700",
+        "lineHeight": "21px"
+      }
+    },
+    {
+      "theme": "night",
+      "positive": {
+        "family": "AlimamaFangYuan, \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+        "size": "14px",
+        "weight": "700",
+        "lineHeight": "21px"
+      },
+      "negative": {
+        "family": "AlimamaFangYuan, \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", sans-serif",
+        "size": "14px",
+        "weight": "700",
+        "lineHeight": "21px"
+      }
+    }
+  ],
+  "errors": []
+}

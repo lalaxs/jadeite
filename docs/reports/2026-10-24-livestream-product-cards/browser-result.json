@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop-day: shared order facts/preview, selection, price input, presets, search/filter/sort, select all and keyboard",
+    "mobile-day: shared order facts/preview, selection, price input, presets, search/filter/sort, select all and keyboard",
+    "desktop-night: shared order facts/preview, selection, price input, presets, search/filter/sort, select all and keyboard",
+    "real start with three products and real replenishment with two products"
+  ],
+  "errors": []
+}

@@ -4,9 +4,17 @@ node_modules/
 npm-debug.log*
 .env
 .env.*
+!.env.production.example
 dist/
 coverage/
 server.log
+data/
+backups/
 public/*.bak
 public/styles.css.*bak
 test-task-e2e.mjs
+.refactor-test-results/
+/.tmp/
+/.workbuddy/
+/.codex-*-results.json
+/.codex-*-tests.log

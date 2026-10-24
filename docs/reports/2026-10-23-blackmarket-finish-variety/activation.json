@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-23",
+  "port": 3000,
+  "previousProcessId": 2716,
+  "processId": 32112,
+  "startedAt": 1792728312874,
+  "backup": "data/world.json.before-npc-finish-variety-restart-20261023-1792728297813.bak",
+  "ready": true,
+  "persistence": "ready",
+  "consecutivePersistenceFailures": 0,
+  "lastError": null,
+  "playersBefore": 104,
+  "playersAfter": 104,
+  "ownedFinishedItemsVerifiedUnchanged": 112,
+  "newBackendRulesLoaded": true,
+  "forcedStockRefresh": false,
+  "activation": "New goods generated during normal rotation or replenishment use the new rules. Existing stock and purchased goods retain their original finishes."
+}

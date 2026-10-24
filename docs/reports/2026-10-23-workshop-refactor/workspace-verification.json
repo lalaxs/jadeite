@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-23T09:19:32.334Z",
+  "candidate": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-refactor-baselines\\workshop-2026-10-23-candidate-03",
+  "checkedFiles": 18,
+  "changed": [],
+  "candidateProtectedProductionFiles": 330,
+  "subsequentParallelChanges": [
+    "public/features/workshop/delivery-details-ui.js",
+    "public/styles/workshop-delivery.css"
+  ],
+  "subsequentParallelAdditions": [
+    "public/features/workshop/delivery-material-analysis.js"
+  ],
+  "workspaceProtectedBoundary": "Changed by subsequent parallel work after final-03; candidate boundary passed."
+}

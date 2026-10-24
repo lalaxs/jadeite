@@ -1,0 +1,26 @@
+Generation mode: built-in image_gen
+Style reference: inlay-art-direction-v2.png
+Atlas: inlay-gems-atlas-v1.png
+Size: 1536x1024, RGBA transparent background.
+Layout: three columns of 512px by two rows of 512px. Top row round; bottom row square. Left to right: diamond, ruby, sapphire.
+Separate gemstone bodies only; no integrated mounting hardware. Visual asset only; no application code or runtime reference changes.
+
+Final prompt:
+Use case: stylized-concept.
+Asset type: ONE production-minded transparent sprite ATLAS for a Chinese jade crafting game's inlay accent gems. A single six-cell atlas texture, 1536x1024 landscape, clean true RGBA alpha background, no panels, no text or labels.
+Input image 1 role: STYLE REFERENCE ONLY, the game's approved hand-painted jewelry direction. Extract ONLY its gentle illustrated color handling, fine brush finish and small game-item clarity. Do not reproduce the jewelry board, title, background, jade pieces or metal mounts.
+Primary request: Independent inlay gem sprites to pair with the previously designed jewelry mount artwork. Exactly SIX loose gem sprites in a precise 3 columns by 2 rows arrangement, widely separated, each gem by itself with NO metal setting. These are ornament accents for jewelry, not large fantasy inventory crystals.
+Atlas layout: virtual equal 512x512 cells, centers at (256,256), (768,256), (1280,256), (256,768), (768,768), (1280,768). Each isolated gem centered in its own cell, approximately 230-250 pixels in diameter/width. Consistent optical size. At least 120px of totally transparent empty gutter between gem silhouettes. All shapes fully visible and disjoint, no overlapping.
+Top row, from left to right:
+1. Round diamond accent, face-on circular silhouette, muted pale grey-ivory #ccd0ca with soft sage-grey #aeb7b0 small facet zones, very subtle pale ivory edge highlight.
+2. Round ruby accent, exactly the same silhouette/facet language, muted dusty wine-red #864e58, pale dusty rose #9b676c, muted dark burgundy #70404c.
+3. Round sapphire accent, same silhouette/facet language, muted smoky slate blue #4e6478, soft grey-blue #718396, dark desaturated slate #3c5163.
+Bottom row, from left to right:
+4. Square diamond accent, frontal square silhouette aligned to canvas, subtly softened/chamfered corners, same muted pale diamond palette.
+5. Square ruby accent, same square shape and dusty wine-red ruby palette.
+6. Square sapphire accent, same square shape and smoky slate-blue sapphire palette.
+Style: softly hand-painted 2D game ornament sprites, restrained simplified gouache illustration with 5-8 broad gently differentiated facet patches, delicate soft-colored thin outline, low saturation, modest soft upper-left painted highlight, readable at tiny inlay sizes. Do not draw realistic physical facet optics. Use calm soft facets rather than pointy brilliant-cut starbursts. Square and round versions share the same hand-painted material handling.
+Critical separability: each sprite consists ONLY of the gemstone body. No metal rim, no gold, no silver, no prongs, no bezel, no bail, no beads, no mounting hardware, no jade center, no ring, no necklace. Every sprite must have a clean self-contained silhouette with genuine transparent alpha outside. No detached particles or sparkle marks. No cast shadows, no ground plane or diffuse shadow halos, no baked backgrounds, no checkerboard drawn into image.
+Avoid: photorealism, 3D render, PBR reflections, shiny polished advertising, large white gloss streaks, fluorescent red or blue, fantasy crystalline shards, magical glow, jewel piles, labels, typography, border, logo, watermark.
+Output: single six-sprite atlas with TRUE TRANSPARENT BACKGROUND, suitable for later simple grid slicing. The atlas must preserve the reference's calm subdued Chinese crafting-game art style.
+

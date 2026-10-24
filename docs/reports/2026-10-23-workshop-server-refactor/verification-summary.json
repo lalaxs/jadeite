@@ -1,0 +1,1538 @@
+{
+  "phase": "server-workshop",
+  "completedAt": "2026-10-23T10:39:53.410Z",
+  "baseline": {
+    "capturedAt": "2026-10-23T10:29:01.298Z",
+    "total": 159,
+    "firstRunPassed": 157,
+    "testHarnessFailures": [
+      "account-http-e2e",
+      "production-readiness-smoke"
+    ],
+    "unsplitRetestPassed": 2,
+    "productionBaselineIntact": true
+  },
+  "final": {
+    "total": 162,
+    "passed": 162,
+    "failed": 0,
+    "mode": "npm test + test:server-release + server phase gates (unique leaves)",
+    "legacyFunctionsPreserved": 26,
+    "differentialScenarios": 26,
+    "publicMembersPreserved": 49
+  },
+  "browser": [
+    {
+      "stage": "baseline",
+      "passed": 8,
+      "states": 160,
+      "screenshots": 320,
+      "cases": [
+        {
+          "name": "workshop-1280x720-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 1,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 13346,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1280x720-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1440x900-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 1,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 5,
+              "maxChannelDelta": 1
+            },
+            "bangle-rejected": {
+              "changedPixels": 5,
+              "maxChannelDelta": 1
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1440x900-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 3,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 22,
+              "maxChannelDelta": 3
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-390x844-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 2,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 14,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 88,
+              "maxChannelDelta": 2
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-390x844-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-430x932-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 1,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 14,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-430x932-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "stage": "candidate",
+      "passed": 8,
+      "states": 160,
+      "screenshots": 320,
+      "cases": [
+        {
+          "name": "workshop-1280x720-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 1,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 13234,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1280x720-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1440x900-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 2,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 6212,
+              "maxChannelDelta": 2
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-1440x900-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-390x844-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 2,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 40,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 28,
+              "maxChannelDelta": 2
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-390x844-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-430x932-day-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 2,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 14,
+              "maxChannelDelta": 1
+            },
+            "planner-empty": {
+              "changedPixels": 18,
+              "maxChannelDelta": 2
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        },
+        {
+          "name": "workshop-430x932-night-frozen-current-workshop-equivalence",
+          "states": 20,
+          "maxChannelDelta": 0,
+          "results": {
+            "opening-home": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "opening-device": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "material-search": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "worker-picker": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-empty": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-kit": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-dragged": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "planner-committed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "bangle-rejected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "cabochon-plan": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "finish-stock-shortage": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-pending": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-covered": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-material-info": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-returned": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-details": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-revealed": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            },
+            "delivery-collected": {
+              "changedPixels": 0,
+              "maxChannelDelta": 0
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "realBrowser": {
+    "before": {
+      "ok": true,
+      "timing": "test profile; real production and transaction handlers",
+      "milestones": [
+        {
+          "stage": "initial",
+          "cash": 12000,
+          "rough": 1
+        },
+        {
+          "stage": "commission-claimed-once",
+          "net": 180,
+          "cash": 12180
+        },
+        {
+          "stage": "finished",
+          "cash": 12180,
+          "productValue": 280
+        },
+        {
+          "stage": "sold",
+          "cash": 12503,
+          "revenue": 323
+        },
+        {
+          "stage": "replenished",
+          "price": 1618,
+          "cash": 10885
+        },
+        {
+          "stage": "bought-first-machine",
+          "price": 3200,
+          "cash": 7685,
+          "nextCommissionNet": 212
+        },
+        {
+          "stage": "owned-opening-completed",
+          "cash": 7685,
+          "operator": "owner-operator"
+        }
+      ],
+      "pageErrors": []
+    },
+    "after": {
+      "ok": true,
+      "timing": "test profile; real production and transaction handlers",
+      "milestones": [
+        {
+          "stage": "initial",
+          "cash": 12000,
+          "rough": 1
+        },
+        {
+          "stage": "commission-claimed-once",
+          "net": 180,
+          "cash": 12180
+        },
+        {
+          "stage": "finished",
+          "cash": 12180,
+          "productValue": 116
+        },
+        {
+          "stage": "sold",
+          "cash": 12310,
+          "revenue": 130
+        },
+        {
+          "stage": "replenished",
+          "price": 1614,
+          "cash": 10696
+        },
+        {
+          "stage": "bought-first-machine",
+          "price": 3200,
+          "cash": 7496,
+          "nextCommissionNet": 212
+        },
+        {
+          "stage": "owned-opening-completed",
+          "cash": 7496,
+          "operator": "owner-operator"
+        }
+      ],
+      "pageErrors": []
+    }
+  },
+  "workspace": {
+    "matchingTestedFiles": 604,
+    "unchangedProduction": 357,
+    "changedProduction": [
+      "server/services/workshop-service.js"
+    ],
+    "addedProduction": [
+      "server/services/workshop/commands.js",
+      "server/services/workshop/completion.js",
+      "server/services/workshop/inventory.js",
+      "server/services/workshop/products.js",
+      "server/services/workshop/queries.js",
+      "server/services/workshop/runtime.js"
+    ]
+  },
+  "postgres": "adapter smoke only; no TEST_DATABASE_URL live integration"
+}

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "checks": [
+    "employee shortcut and listing",
+    "repricing",
+    "equipment shortcut and listing",
+    "category filtering",
+    "P2P employee and equipment purchases",
+    "preserved skills and durability",
+    "NPC employee and equipment purchases",
+    "resale and withdrawal",
+    "SQLite restart",
+    "no overflow or browser errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,3995 @@
+{
+  "verifiedAt": "2026-10-23T12:36:33.677Z",
+  "snapshotPath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\.refactor-test-results\\trading\\trading-integration-2026-10-23-02",
+  "baselineAndRefactorSnapshotsIntact": true,
+  "matchingFiles": 655,
+  "runtimeFiles": 394,
+  "acceptedChangesAfterRefactor": [
+    "README.md",
+    "package.json",
+    "public/features/auction/auction-module.js",
+    "public/features/bill/bill-module.js",
+    "public/features/blackmarket/plaza.js",
+    "public/features/hud/side-panel.js",
+    "public/features/inventory-helpers.js",
+    "public/features/inventory/item-detail-model.js",
+    "public/features/market/market-module.js",
+    "public/features/opening/index.js",
+    "public/features/opening/opening-actions.js",
+    "public/features/opening/opening-kits.js",
+    "public/features/opening/opening-pointer.js",
+    "public/features/reports/reports-module.js",
+    "public/features/workshop/actions.js",
+    "public/features/workshop/create-workshop-feature.js",
+    "public/features/workshop/finish-controller.js",
+    "public/features/workshop/planner-controller.js",
+    "public/features/workshop/view.js",
+    "public/main.js",
+    "public/shell/navigation.js",
+    "public/styles.css",
+    "scripts/blackmarket-price-display-smoke.mjs",
+    "scripts/browser/workshop.spec.mjs",
+    "scripts/economy-overhaul-browser.mjs",
+    "scripts/market-want-smoke.mjs",
+    "scripts/run-workshop-browser.mjs",
+    "scripts/run-workshop-regressions.mjs",
+    "scripts/snapshot-service-smoke.mjs",
+    "scripts/task-smoke.mjs",
+    "scripts/trading-equivalence-smoke.mjs",
+    "server/persistence/economy-snapshot-schema.js",
+    "server/services/auction-instance.js",
+    "server/services/blackmarket/instances/blind.js",
+    "server/services/blackmarket/instances/helpers.js",
+    "server/services/blackmarket/instances/recovery.js",
+    "server/services/blackmarket/instances/resources.js",
+    "server/services/blackmarket/instances/service.js",
+    "server/services/blackmarket/instances/stall.js",
+    "server/services/economy-service.js",
+    "server/services/inventory-service.js",
+    "server/services/market-instance.js",
+    "server/services/orders-service.js",
+    "server/services/player-service.js",
+    "server/services/recovery-service.js",
+    "server/services/report-service.js",
+    "server/services/rough-pool-service.js",
+    "server/services/snapshot-public.js",
+    "server/services/snapshot-service.js",
+    "server/services/task-service.js",
+    "server/services/workshop-service.js",
+    "server/services/workshop/commands.js",
+    "server/services/workshop/completion.js",
+    "server/systems/employee-payroll.js",
+    "server/systems/livestream-room-system.js",
+    "shared/domain/economy/item-cost.js",
+    "shared/domain/economy/system-demand.js",
+    "shared/domain/progression/player-progression.js"
+  ],
+  "acceptedAdditionsAfterRefactor": [
+    "public/features/blackmarket/item-detail-view.js",
+    "public/features/finance/finance-view.js",
+    "public/features/finance/index.js",
+    "public/features/finance/sale-comparison.js",
+    "public/features/inventory/item-detail-analysis.js",
+    "public/features/inventory/item-detail-view.js",
+    "public/features/opening/planner-draft-store.js",
+    "public/features/opening/planner-drafts.js",
+    "public/styles/finance.css",
+    "public/styles/inventory-detail.css",
+    "public/styles/planner-drafts.css",
+    "public/styles/public-workstations.css",
+    "scripts/capture-trading-integration.mjs",
+    "scripts/finance-book-smoke.mjs",
+    "scripts/finance-services-smoke.mjs",
+    "scripts/finance-ui-smoke.mjs",
+    "scripts/inventory-detail-analysis-smoke.mjs",
+    "scripts/inventory-detail-browser.mjs",
+    "scripts/planner-drafts-smoke.mjs",
+    "scripts/planning-finance-browser.mjs",
+    "scripts/run-planning-finance-regressions.mjs",
+    "scripts/trading-current-rules-smoke.mjs",
+    "scripts/trading-integration-smoke.mjs",
+    "server/persistence/finance-snapshot-schema.js",
+    "shared/domain/economy/finance-book.js"
+  ],
+  "files": [
+    {
+      "path": ".dockerignore",
+      "bytes": 171,
+      "sha256": "c4c09984dfc7a459850b4b21f5fe6a984701b58c0e937f2d9fb890123281aeb1"
+    },
+    {
+      "path": ".env.production.example",
+      "bytes": 770,
+      "sha256": "5c144524cc527d7d212de6025013bb36924e71c4c6f4cadf1aa679ff28bea009"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 950,
+      "sha256": "221c946023a0cd62f26d14dc878eb0c2326b7d9b52dfb96c46dbe355bdba57f1",
+      "normalizedSha256": "221c946023a0cd62f26d14dc878eb0c2326b7d9b52dfb96c46dbe355bdba57f1"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 210,
+      "sha256": "85d967bea57b1b40fbc8565cc6ee46dc81c67f378727911e39c9a464645d7297"
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 661,
+      "sha256": "78d931c58d11c408f854703ed7109cacccdbdb6e191bd09b6bf3bc60db6842d1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10967,
+      "sha256": "bc5ad40bec537a47e0d10d0cabda4ea71f078de50094941c24e588a4bc74373a",
+      "normalizedSha256": "bc5ad40bec537a47e0d10d0cabda4ea71f078de50094941c24e588a4bc74373a"
+    },
+    {
+      "path": "compose.yaml",
+      "bytes": 2798,
+      "sha256": "2132210216118888d099eafe230ab628ac93bfdafac118edba2ac29d8d586c52",
+      "normalizedSha256": "2132210216118888d099eafe230ab628ac93bfdafac118edba2ac29d8d586c52"
+    },
+    {
+      "path": "docs/art/2026-10-23-buddha-original-lines/buddha-original-clean-lines-v1.png",
+      "bytes": 1231569,
+      "sha256": "45b8e80740e66e57743bea8bbe15eda967a734f3b6a05c91be1816fd566f5d11"
+    },
+    {
+      "path": "docs/operations-runbook.md",
+      "bytes": 8827,
+      "sha256": "48a219869ee2c3a70feb1d3a72dad40389196923f72954c4fcacf8d392207a10",
+      "normalizedSha256": "48a219869ee2c3a70feb1d3a72dad40389196923f72954c4fcacf8d392207a10"
+    },
+    {
+      "path": "docs/predeploy-checklist.md",
+      "bytes": 2393,
+      "sha256": "d16bdc5fb0d7423f946e059fa1c3f1e4083c8e1a8feee8bdd387cde3b3edcb56",
+      "normalizedSha256": "d16bdc5fb0d7423f946e059fa1c3f1e4083c8e1a8feee8bdd387cde3b3edcb56"
+    },
+    {
+      "path": "docs/reports/2026-10-23-workshop-server-refactor/baseline-manifest.json",
+      "bytes": 154995,
+      "sha256": "d17706d763cb897eb77aa9065975f5a6a329a8f9409e74b264d84445c6198946",
+      "normalizedSha256": "d17706d763cb897eb77aa9065975f5a6a329a8f9409e74b264d84445c6198946"
+    },
+    {
+      "path": "docs/server-architecture.md",
+      "bytes": 10181,
+      "sha256": "c4f21036f2800f170f729eb9b2d59229e7c00064b6734854f195f2f25a392776",
+      "normalizedSha256": "c4f21036f2800f170f729eb9b2d59229e7c00064b6734854f195f2f25a392776"
+    },
+    {
+      "path": "docs/server-deployment-plan.md",
+      "bytes": 3540,
+      "sha256": "e131d9360faa828db4638ddb4a44d9b09963d5e3fe50ea87dfb2cdd8ea9c3a32",
+      "normalizedSha256": "e131d9360faa828db4638ddb4a44d9b09963d5e3fe50ea87dfb2cdd8ea9c3a32"
+    },
+    {
+      "path": "ops/Caddyfile",
+      "bytes": 331,
+      "sha256": "0e0b069e1bddcb480c33c56c384a9495aecf0185e66d20869f82b523b9161c02"
+    },
+    {
+      "path": "ops/backup-postgres.sh",
+      "bytes": 630,
+      "sha256": "62b83bb3dc4d895057dc631e861790d1a4314e887f02eb452f10e65a0f49d18d",
+      "normalizedSha256": "62b83bb3dc4d895057dc631e861790d1a4314e887f02eb452f10e65a0f49d18d"
+    },
+    {
+      "path": "ops/refresh-blackmarket.mjs",
+      "bytes": 5862,
+      "sha256": "1feb74d500b01d6588c8484d123428268d9489ba5e3d82e16f0bbf52b1e3aa45",
+      "normalizedSha256": "1feb74d500b01d6588c8484d123428268d9489ba5e3d82e16f0bbf52b1e3aa45"
+    },
+    {
+      "path": "ops/restore-postgres.sh",
+      "bytes": 450,
+      "sha256": "a62e02299ab1fd74522f6581e1ba86c0cce816878615374b3f830ccfa9035347",
+      "normalizedSha256": "a62e02299ab1fd74522f6581e1ba86c0cce816878615374b3f830ccfa9035347"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 61008,
+      "sha256": "3ba1fafe95e3f73fcbf91468b529c53a27a17fc301d069ddff46d7a3ef6a900d",
+      "normalizedSha256": "3ba1fafe95e3f73fcbf91468b529c53a27a17fc301d069ddff46d7a3ef6a900d"
+    },
+    {
+      "path": "package.json",
+      "bytes": 18040,
+      "sha256": "a279d952698e37266a49ceef7117ea121bc3795a5f27999b1c45712acba381b3",
+      "normalizedSha256": "a279d952698e37266a49ceef7117ea121bc3795a5f27999b1c45712acba381b3"
+    },
+    {
+      "path": "playwright.workshop.config.mjs",
+      "bytes": 640,
+      "sha256": "ba913fcaee720999cef394b71581055cbfbfce70961257bf5c7e09a110ff6333",
+      "normalizedSha256": "ba913fcaee720999cef394b71581055cbfbfce70961257bf5c7e09a110ff6333"
+    },
+    {
+      "path": "public/account-module.js",
+      "bytes": 7154,
+      "sha256": "8340d00184dd450740a2f4651d76132b12ba89d94afeb0c5d16135b8502e80cf",
+      "normalizedSha256": "8340d00184dd450740a2f4651d76132b12ba89d94afeb0c5d16135b8502e80cf"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-equipment.svg",
+      "bytes": 877,
+      "sha256": "9b4048fe0289e40c73aa41d32549614d933dfe0707b46b152756a7f9fad34ece",
+      "normalizedSha256": "9b4048fe0289e40c73aa41d32549614d933dfe0707b46b152756a7f9fad34ece"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-finished.svg",
+      "bytes": 852,
+      "sha256": "a22d183d1556f288ce8475fc64d85648ee47a9442e464d36b6d0045f91f04d5e",
+      "normalizedSha256": "a22d183d1556f288ce8475fc64d85648ee47a9442e464d36b6d0045f91f04d5e"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-offcut.svg",
+      "bytes": 793,
+      "sha256": "111fed2e0be8dab307e3670d43a5b984fa8faecac1eb602cd48bc37c6537a77d",
+      "normalizedSha256": "111fed2e0be8dab307e3670d43a5b984fa8faecac1eb602cd48bc37c6537a77d"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-stone.svg",
+      "bytes": 691,
+      "sha256": "55a7df16387cace1c7eef8371c8fc9ffbe3e956232cdb69e79e2f85cf199e7e9",
+      "normalizedSha256": "55a7df16387cace1c7eef8371c8fc9ffbe3e956232cdb69e79e2f85cf199e7e9"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-supplies.svg",
+      "bytes": 1134,
+      "sha256": "688904ae1991a079aaf01afa5c7d87d518648a873e86488d80dd5fbb000991d0",
+      "normalizedSha256": "688904ae1991a079aaf01afa5c7d87d518648a873e86488d80dd5fbb000991d0"
+    },
+    {
+      "path": "public/assets/blackmarket/stall-traveler.svg",
+      "bytes": 863,
+      "sha256": "0b062b6e2153dfd3b9eebf1112c04879748c88d6d6ee2d4b3b66f4100be42364",
+      "normalizedSha256": "0b062b6e2153dfd3b9eebf1112c04879748c88d6d6ee2d4b3b66f4100be42364"
+    },
+    {
+      "path": "public/assets/fonts/AlimamaFangYuanTiVF-Thin.woff2",
+      "bytes": 788720,
+      "sha256": "ff7aea3016e0aa128eef3e04dd7dd8df189fe105ecde567b1d2074619a936f39"
+    },
+    {
+      "path": "public/assets/fonts/SOURCE.txt",
+      "bytes": 418,
+      "sha256": "5f9dc879cd51725bb41471a3e670f20ec9578e311991393964752d47e1bd17be"
+    },
+    {
+      "path": "public/assets/inlay/accessories-handpainted-v1.png",
+      "bytes": 1215392,
+      "sha256": "c6fd463f2ae418c42305d68a52109559c4fe5ad1925b797fb5e6a1b25434683a"
+    },
+    {
+      "path": "public/assets/inlay/buddha-original-clean-lines-v1.png",
+      "bytes": 1231569,
+      "sha256": "45b8e80740e66e57743bea8bbe15eda967a734f3b6a05c91be1816fd566f5d11"
+    },
+    {
+      "path": "public/assets/inlay/buddha-rounded-minimal-v1.png",
+      "bytes": 1016585,
+      "sha256": "b8cac5b32414611fe3204f156eb699534710e498935aa7220f1907ccfbd6041f"
+    },
+    {
+      "path": "public/assets/inlay/gems-handpainted-v1.png",
+      "bytes": 1865253,
+      "sha256": "71920a0235d6972960ee87b93277d8793ff6ff601e3c2b415b227e9760fd9838"
+    },
+    {
+      "path": "public/assets/inlay/jade-and-mounts-handpainted-v2.png",
+      "bytes": 872820,
+      "sha256": "8262aeb6473acf55206bac057cc2e5d222f034e661e3f0c4660b5912cf8fc8e8"
+    },
+    {
+      "path": "public/assets/locations/auction.jpg",
+      "bytes": 244396,
+      "sha256": "f4301706bba7351cdb7ad06e90c6011d45c59bc526883d2e474d51601c41a772"
+    },
+    {
+      "path": "public/assets/locations/collection.jpg",
+      "bytes": 260586,
+      "sha256": "df6f8028eee3c52504aec7552c38a6cb25826f87137776a59d2d2bfc0cb6307a"
+    },
+    {
+      "path": "public/assets/locations/livestream-card-bg.jpg",
+      "bytes": 147851,
+      "sha256": "0379ee92f3c0505240eab1b48d44ceb3e44bdfc85babe05a1e769ad2ccc4c45f"
+    },
+    {
+      "path": "public/assets/locations/livestream.jpg",
+      "bytes": 218444,
+      "sha256": "7cacec1daa301b73aa7066fc7c399883ee624b708d8321db69eac215d9d5aca6"
+    },
+    {
+      "path": "public/assets/locations/market.jpg",
+      "bytes": 274991,
+      "sha256": "deeff53503c1c609ecfe67805cb90ac7230186637ab03c322398c572149e6e06"
+    },
+    {
+      "path": "public/assets/locations/orders.jpg",
+      "bytes": 266054,
+      "sha256": "c828768dacec2f869bdfff1621877bf8b8c9ac2aa95a78ea6ba3cdb60883084a"
+    },
+    {
+      "path": "public/assets/locations/reports.jpg",
+      "bytes": 207148,
+      "sha256": "592ddacc04c1e5edc38bfbc6a3a29dd8868d22177eb512f707f8fe2ba534c6c0"
+    },
+    {
+      "path": "public/assets/locations/shop.jpg",
+      "bytes": 245660,
+      "sha256": "f7e5d35c41a9f158dd51fd8e32918c5cb67d530841a396700f17236005e53759"
+    },
+    {
+      "path": "public/assets/locations/workshop.jpg",
+      "bytes": 254642,
+      "sha256": "e1dac3098e68fd7ebe42e5bd2a6caa8cd68084b52859d2f4664a640c77c6b76d"
+    },
+    {
+      "path": "public/assets/mining/mining-interior-v1.png",
+      "bytes": 1889985,
+      "sha256": "dcccc443f578d81fd0ced8a0f5672384271836ffe8e1a9e443593fa09a04ea8b"
+    },
+    {
+      "path": "public/assets/mining/mining-panorama-v2.png",
+      "bytes": 1999011,
+      "sha256": "730e451cc921f80231a3825caa1a70da1d9a1cbc500db0fad00543fca80e3b92"
+    },
+    {
+      "path": "public/assets/mining/mining-panorama-v3.png",
+      "bytes": 1928390,
+      "sha256": "418f4d5bb578ee74830ab6690ce4ba35fdbc4ddb0bd94e57d5f983745e35732d"
+    },
+    {
+      "path": "public/auction-module.js",
+      "bytes": 45,
+      "sha256": "8e806e09fe2d83f50a48da282efd72fa05f3fbce1775d85abcaf9fe631ac5d35",
+      "normalizedSha256": "8e806e09fe2d83f50a48da282efd72fa05f3fbce1775d85abcaf9fe631ac5d35"
+    },
+    {
+      "path": "public/bill-module.js",
+      "bytes": 42,
+      "sha256": "eeeae7c03cc7da992c4a0272bdce0595f5ba36c06f26fb486faaf7b07ef6c29e",
+      "normalizedSha256": "eeeae7c03cc7da992c4a0272bdce0595f5ba36c06f26fb486faaf7b07ef6c29e"
+    },
+    {
+      "path": "public/blackmarket-module.js",
+      "bytes": 49,
+      "sha256": "6ca66e905d894ae76a90eb9bc2c0047779ede4c9028711caa2f0e437a9fa0550",
+      "normalizedSha256": "6ca66e905d894ae76a90eb9bc2c0047779ede4c9028711caa2f0e437a9fa0550"
+    },
+    {
+      "path": "public/blackmarket/actions.js",
+      "bytes": 52,
+      "sha256": "d7f5ac2b801b8f7eb7ca00209a693c3bbfc98a265e6f8fc998cae7c0d43ef5dc",
+      "normalizedSha256": "d7f5ac2b801b8f7eb7ca00209a693c3bbfc98a265e6f8fc998cae7c0d43ef5dc"
+    },
+    {
+      "path": "public/blackmarket/blind-ui.js",
+      "bytes": 53,
+      "sha256": "8a9ea1b835ecff47acf7832f00a8fcc3e1573b35998f45692b25b871dc733d80",
+      "normalizedSha256": "8a9ea1b835ecff47acf7832f00a8fcc3e1573b35998f45692b25b871dc733d80"
+    },
+    {
+      "path": "public/blackmarket/goods.js",
+      "bytes": 50,
+      "sha256": "866ec527d7b16ab6c8196b2ce2afac72a680ab5a1a45d45ad0f55947a1c84fcb",
+      "normalizedSha256": "866ec527d7b16ab6c8196b2ce2afac72a680ab5a1a45d45ad0f55947a1c84fcb"
+    },
+    {
+      "path": "public/blackmarket/index.js",
+      "bytes": 50,
+      "sha256": "132c92e786ffcdd0d9cb5da2ff97bb4a0fc1e8388eb4da8d1f2ec95b1a178758",
+      "normalizedSha256": "132c92e786ffcdd0d9cb5da2ff97bb4a0fc1e8388eb4da8d1f2ec95b1a178758"
+    },
+    {
+      "path": "public/blackmarket/plaza.js",
+      "bytes": 50,
+      "sha256": "e77ed967173ccf30eb0763bad098858dd6de89f524d0b1f373e7964df97fd9d1",
+      "normalizedSha256": "e77ed967173ccf30eb0763bad098858dd6de89f524d0b1f373e7964df97fd9d1"
+    },
+    {
+      "path": "public/blackmarket/service-ui.js",
+      "bytes": 55,
+      "sha256": "0f879820df3d880e0d41ab95e717186509fe022613bbc62da26442e11bf8af6b",
+      "normalizedSha256": "0f879820df3d880e0d41ab95e717186509fe022613bbc62da26442e11bf8af6b"
+    },
+    {
+      "path": "public/blackmarket/shared.js",
+      "bytes": 51,
+      "sha256": "744d2f22cba27f43cff57480705562d172821e191df81c597ddbc6236a264e69",
+      "normalizedSha256": "744d2f22cba27f43cff57480705562d172821e191df81c597ddbc6236a264e69"
+    },
+    {
+      "path": "public/bm-constants.js",
+      "bytes": 62,
+      "sha256": "a517d059c92b8d5f8755e12ad69ffed679e7749124bd2b9522ca9e04c2dbec8e",
+      "normalizedSha256": "a517d059c92b8d5f8755e12ad69ffed679e7749124bd2b9522ca9e04c2dbec8e"
+    },
+    {
+      "path": "public/bm-plan-pool.js",
+      "bytes": 62,
+      "sha256": "e6b2a56f68636df055a835b3c4794da619ed6a77c90eeffc56c66738d72ae351",
+      "normalizedSha256": "e6b2a56f68636df055a835b3c4794da619ed6a77c90eeffc56c66738d72ae351"
+    },
+    {
+      "path": "public/bm-service-templates.js",
+      "bytes": 70,
+      "sha256": "d68cd4809299663a759ce3fa1a27bec589119bb63f35efbd5b6bb4cc55c696dc",
+      "normalizedSha256": "d68cd4809299663a759ce3fa1a27bec589119bb63f35efbd5b6bb4cc55c696dc"
+    },
+    {
+      "path": "public/chat-module.js",
+      "bytes": 42,
+      "sha256": "546d059707e4b5cdba3a750b15770b704c6d14790b5968393f51a7bcde177e15",
+      "normalizedSha256": "546d059707e4b5cdba3a750b15770b704c6d14790b5968393f51a7bcde177e15"
+    },
+    {
+      "path": "public/collection-module.js",
+      "bytes": 48,
+      "sha256": "a74364274d97e4b84283394c3bfd1ea9544fb62ae1690e8bc448a63d588c37f4",
+      "normalizedSha256": "a74364274d97e4b84283394c3bfd1ea9544fb62ae1690e8bc448a63d588c37f4"
+    },
+    {
+      "path": "public/equipment-maintenance.js",
+      "bytes": 67,
+      "sha256": "89f61353d82ff2fbf37f517c4245786affbcfe73ec4f4a44283e96ad26f7fbd4",
+      "normalizedSha256": "89f61353d82ff2fbf37f517c4245786affbcfe73ec4f4a44283e96ad26f7fbd4"
+    },
+    {
+      "path": "public/equipment-param-view.js",
+      "bytes": 2580,
+      "sha256": "01adba2ba8556b414cc93ba47442227c1d74d7ba8ae5215a6f5d5b832cee3ea9",
+      "normalizedSha256": "01adba2ba8556b414cc93ba47442227c1d74d7ba8ae5215a6f5d5b832cee3ea9"
+    },
+    {
+      "path": "public/equipment-trading.js",
+      "bytes": 63,
+      "sha256": "8f9906cd485cf9fadd72c8fb95fd605b32ee9d30fa714e008030e3c63b979943",
+      "normalizedSha256": "8f9906cd485cf9fadd72c8fb95fd605b32ee9d30fa714e008030e3c63b979943"
+    },
+    {
+      "path": "public/extra-module.js",
+      "bytes": 43,
+      "sha256": "5ec9ab60c06f78a228daae7e5086a6c451ee2fb0f0d9c52ab16c60de674d0ab5",
+      "normalizedSha256": "5ec9ab60c06f78a228daae7e5086a6c451ee2fb0f0d9c52ab16c60de674d0ab5"
+    },
+    {
+      "path": "public/feature-availability.js",
+      "bytes": 58,
+      "sha256": "cf318d92aeb5ef07127caeed5db57f435af85685c501946fac2e204664b4b919",
+      "normalizedSha256": "cf318d92aeb5ef07127caeed5db57f435af85685c501946fac2e204664b4b919"
+    },
+    {
+      "path": "public/features/auction/auction-module.js",
+      "bytes": 43149,
+      "sha256": "9336fb0d138fc75838f7c7c32fe443a4c1add2b77f051266d6386fd0717e1c34",
+      "normalizedSha256": "9336fb0d138fc75838f7c7c32fe443a4c1add2b77f051266d6386fd0717e1c34"
+    },
+    {
+      "path": "public/features/auction/index.js",
+      "bytes": 37,
+      "sha256": "9700742fa4e3ba3849d00cc1db93fb79ce97ac9bff733042be857ac14aee327b",
+      "normalizedSha256": "9700742fa4e3ba3849d00cc1db93fb79ce97ac9bff733042be857ac14aee327b"
+    },
+    {
+      "path": "public/features/bill/bill-module.js",
+      "bytes": 23302,
+      "sha256": "7f7f9538e073aa486cb46dc86781ee1cc86f267245409d9c4f1dc366ffe47863",
+      "normalizedSha256": "7f7f9538e073aa486cb46dc86781ee1cc86f267245409d9c4f1dc366ffe47863"
+    },
+    {
+      "path": "public/features/bill/index.js",
+      "bytes": 34,
+      "sha256": "b75f015b87defb09901afad19f20f1876b6ea07941ead17fcd7a93ddad4f9ec7",
+      "normalizedSha256": "b75f015b87defb09901afad19f20f1876b6ea07941ead17fcd7a93ddad4f9ec7"
+    },
+    {
+      "path": "public/features/blackmarket/actions.js",
+      "bytes": 15826,
+      "sha256": "5e85a8e94746491aee2184fc80e03fea2d125b0c2c7cb0637a6902a1998540ad",
+      "normalizedSha256": "5e85a8e94746491aee2184fc80e03fea2d125b0c2c7cb0637a6902a1998540ad"
+    },
+    {
+      "path": "public/features/blackmarket/blind-ui.js",
+      "bytes": 44488,
+      "sha256": "f01b38ef8adb2e5492f9e9ad67fee38a1e98cbf0024d82a4a0d07ce649f7fddf",
+      "normalizedSha256": "f01b38ef8adb2e5492f9e9ad67fee38a1e98cbf0024d82a4a0d07ce649f7fddf"
+    },
+    {
+      "path": "public/features/blackmarket/controller.js",
+      "bytes": 961,
+      "sha256": "6aa081e7ce43bd065de5e73991d70a7b6bb29a3753b30d4f4c5b634c9becb744",
+      "normalizedSha256": "6aa081e7ce43bd065de5e73991d70a7b6bb29a3753b30d4f4c5b634c9becb744"
+    },
+    {
+      "path": "public/features/blackmarket/goods-display.js",
+      "bytes": 6777,
+      "sha256": "973a281e71a1d0a6e793a20691a05082b3dc17b97208a0b7b72b96efd9c79bce",
+      "normalizedSha256": "973a281e71a1d0a6e793a20691a05082b3dc17b97208a0b7b72b96efd9c79bce"
+    },
+    {
+      "path": "public/features/blackmarket/goods.js",
+      "bytes": 15298,
+      "sha256": "e63300c80b45d4a590497ce7a9a693dc49256c24c5abb4843dbe231364d44f84",
+      "normalizedSha256": "e63300c80b45d4a590497ce7a9a693dc49256c24c5abb4843dbe231364d44f84"
+    },
+    {
+      "path": "public/features/blackmarket/index.js",
+      "bytes": 1649,
+      "sha256": "a4e5c8b61964880a390ddb7f661bf9bafd6fc3fa4045b3ef94897bf9440b18c5",
+      "normalizedSha256": "a4e5c8b61964880a390ddb7f661bf9bafd6fc3fa4045b3ef94897bf9440b18c5"
+    },
+    {
+      "path": "public/features/blackmarket/item-detail-view.js",
+      "bytes": 1934,
+      "sha256": "e0dc57e9809e5bea95beb8290eb43c53201e906bcedf88fa821891d7679b9cad",
+      "normalizedSha256": "e0dc57e9809e5bea95beb8290eb43c53201e906bcedf88fa821891d7679b9cad"
+    },
+    {
+      "path": "public/features/blackmarket/plaza.js",
+      "bytes": 58827,
+      "sha256": "3e5c8b46b971f97817242d4f12879b88ef1fe6084b4e998b095a297681eb5b07",
+      "normalizedSha256": "3e5c8b46b971f97817242d4f12879b88ef1fe6084b4e998b095a297681eb5b07"
+    },
+    {
+      "path": "public/features/blackmarket/previews.js",
+      "bytes": 2021,
+      "sha256": "d376748d17f1c051299ab3f20e1e4da2394fb9238eebf5af75dea25300c86ab0",
+      "normalizedSha256": "d376748d17f1c051299ab3f20e1e4da2394fb9238eebf5af75dea25300c86ab0"
+    },
+    {
+      "path": "public/features/blackmarket/service-ui.js",
+      "bytes": 30901,
+      "sha256": "02de9aa582757486ee837996755b4a97b847ba6406521bf88dce3e966ae54253",
+      "normalizedSha256": "02de9aa582757486ee837996755b4a97b847ba6406521bf88dce3e966ae54253"
+    },
+    {
+      "path": "public/features/blackmarket/shared.js",
+      "bytes": 8726,
+      "sha256": "b76cf9b058a67ae1322c4b8277d0025a68d64121ed608839fd0f87c6ad5633e3",
+      "normalizedSha256": "b76cf9b058a67ae1322c4b8277d0025a68d64121ed608839fd0f87c6ad5633e3"
+    },
+    {
+      "path": "public/features/chat/chat-module.js",
+      "bytes": 26297,
+      "sha256": "f2a65ac117acc38de32bd548e30d3fc0c4a28886cb8858f63415792ab25d3f1e",
+      "normalizedSha256": "f2a65ac117acc38de32bd548e30d3fc0c4a28886cb8858f63415792ab25d3f1e"
+    },
+    {
+      "path": "public/features/chat/index.js",
+      "bytes": 34,
+      "sha256": "e771d53811ae616c81d65ad66f1f205be31a1892d32948ca5363ddb2efa02c92",
+      "normalizedSha256": "e771d53811ae616c81d65ad66f1f205be31a1892d32948ca5363ddb2efa02c92"
+    },
+    {
+      "path": "public/features/collection/collection-module.js",
+      "bytes": 5092,
+      "sha256": "4c4075bf2a5fb3527ed10aea5e671516483909e975f90c25b94648b2815f742d",
+      "normalizedSha256": "4c4075bf2a5fb3527ed10aea5e671516483909e975f90c25b94648b2815f742d"
+    },
+    {
+      "path": "public/features/collection/index.js",
+      "bytes": 40,
+      "sha256": "88b8f6d4ec96e96a9fcb318905bdf44b3ded57f4e1ee6bb214859a062bb62da1",
+      "normalizedSha256": "88b8f6d4ec96e96a9fcb318905bdf44b3ded57f4e1ee6bb214859a062bb62da1"
+    },
+    {
+      "path": "public/features/extra/extra-module.js",
+      "bytes": 1009,
+      "sha256": "c72885d49d39d83686178c17d6d48eb6b61a5cf148bfb4bd32fc3e81289bf819",
+      "normalizedSha256": "c72885d49d39d83686178c17d6d48eb6b61a5cf148bfb4bd32fc3e81289bf819"
+    },
+    {
+      "path": "public/features/extra/index.js",
+      "bytes": 35,
+      "sha256": "64cb464bf8231d50c159c08d1e0e09730017b5f56f415d7d667538a4609145b5",
+      "normalizedSha256": "64cb464bf8231d50c159c08d1e0e09730017b5f56f415d7d667538a4609145b5"
+    },
+    {
+      "path": "public/features/finance/finance-view.js",
+      "bytes": 12046,
+      "sha256": "2d6ab248c058a3bf418aeaa81d1f433ad8e06501614988b157fd38a9caebe219",
+      "normalizedSha256": "2d6ab248c058a3bf418aeaa81d1f433ad8e06501614988b157fd38a9caebe219"
+    },
+    {
+      "path": "public/features/finance/index.js",
+      "bytes": 3296,
+      "sha256": "6e834c9312ea95f403d152ddd4c4eed9250b2c287f03205b70fe55133a814c85",
+      "normalizedSha256": "6e834c9312ea95f403d152ddd4c4eed9250b2c287f03205b70fe55133a814c85"
+    },
+    {
+      "path": "public/features/finance/sale-comparison.js",
+      "bytes": 6646,
+      "sha256": "c25a575117f8bd3376abf8d2f3bbeca993c29030c89f81b3615d1c08f19caaa1",
+      "normalizedSha256": "c25a575117f8bd3376abf8d2f3bbeca993c29030c89f81b3615d1c08f19caaa1"
+    },
+    {
+      "path": "public/features/hire/hire-module.js",
+      "bytes": 29716,
+      "sha256": "494f92acc3db13305b19ac6aeb98e894c16facf043c27fd46e58e81b5fe5a2f8",
+      "normalizedSha256": "494f92acc3db13305b19ac6aeb98e894c16facf043c27fd46e58e81b5fe5a2f8"
+    },
+    {
+      "path": "public/features/hire/index.js",
+      "bytes": 34,
+      "sha256": "1367383fb2deeaa69703d2b01c7d3db1bece6118497680ed46d5ce2e933cd86a",
+      "normalizedSha256": "1367383fb2deeaa69703d2b01c7d3db1bece6118497680ed46d5ce2e933cd86a"
+    },
+    {
+      "path": "public/features/hud/index.js",
+      "bytes": 1499,
+      "sha256": "e2c2876217bbd06c5ef742ca82756b12f4e6c0774763e87b4f68b694d239b73b",
+      "normalizedSha256": "e2c2876217bbd06c5ef742ca82756b12f4e6c0774763e87b4f68b694d239b73b"
+    },
+    {
+      "path": "public/features/hud/player-card.js",
+      "bytes": 2916,
+      "sha256": "f728a66e147187301446eb4398266a7bb05787381af8f50b549d401888017e85",
+      "normalizedSha256": "f728a66e147187301446eb4398266a7bb05787381af8f50b549d401888017e85"
+    },
+    {
+      "path": "public/features/hud/side-panel.js",
+      "bytes": 26600,
+      "sha256": "d7886ae71615c34007b77a9ad079572cce6129b848a2b86c48c071ba210d0e68",
+      "normalizedSha256": "d7886ae71615c34007b77a9ad079572cce6129b848a2b86c48c071ba210d0e68"
+    },
+    {
+      "path": "public/features/hud/top-hud.js",
+      "bytes": 11796,
+      "sha256": "93bdf3de3d94501f99e33aff6ade4cc71cc48e3bfa28a395f41ba155e9f460d9",
+      "normalizedSha256": "93bdf3de3d94501f99e33aff6ade4cc71cc48e3bfa28a395f41ba155e9f460d9"
+    },
+    {
+      "path": "public/features/inventory-helpers.js",
+      "bytes": 12012,
+      "sha256": "f03a1be7a4a22692b13b7c881b22400b27a093d5006c3c2babd67aa338d5b81f",
+      "normalizedSha256": "f03a1be7a4a22692b13b7c881b22400b27a093d5006c3c2babd67aa338d5b81f"
+    },
+    {
+      "path": "public/features/inventory/index.js",
+      "bytes": 39,
+      "sha256": "f68b5d5e980b3f24c33c63c9580c00351fa233304d4c675347cb1394a2a35ddb",
+      "normalizedSha256": "f68b5d5e980b3f24c33c63c9580c00351fa233304d4c675347cb1394a2a35ddb"
+    },
+    {
+      "path": "public/features/inventory/inventory-module.js",
+      "bytes": 37113,
+      "sha256": "0298d3c6b17ddf55e81267d6879a97b981fa41128e8b236693a01219bb95ff9b",
+      "normalizedSha256": "0298d3c6b17ddf55e81267d6879a97b981fa41128e8b236693a01219bb95ff9b"
+    },
+    {
+      "path": "public/features/inventory/item-detail-analysis.js",
+      "bytes": 8508,
+      "sha256": "0a7a6f5fe4bbc8815f0019262ae819b2506a4af5187ea7b5ba8acb5b203cb769",
+      "normalizedSha256": "0a7a6f5fe4bbc8815f0019262ae819b2506a4af5187ea7b5ba8acb5b203cb769"
+    },
+    {
+      "path": "public/features/inventory/item-detail-model.js",
+      "bytes": 4387,
+      "sha256": "c452027c1e159c4794ae07ca7fd8b558ab529243905794388ffc828bff2933d1",
+      "normalizedSha256": "c452027c1e159c4794ae07ca7fd8b558ab529243905794388ffc828bff2933d1"
+    },
+    {
+      "path": "public/features/inventory/item-detail-view.js",
+      "bytes": 5575,
+      "sha256": "6bec79ca7839f31a9e5c599308c666c596037a0beee488989fc7a9badff968c0",
+      "normalizedSha256": "6bec79ca7839f31a9e5c599308c666c596037a0beee488989fc7a9badff968c0"
+    },
+    {
+      "path": "public/features/livestream/index.js",
+      "bytes": 40,
+      "sha256": "9c2b1e263927ee42755087ebdc54d7839888c0d49f65bea227b2423d1d5b5308",
+      "normalizedSha256": "9c2b1e263927ee42755087ebdc54d7839888c0d49f65bea227b2423d1d5b5308"
+    },
+    {
+      "path": "public/features/livestream/livestream-module.js",
+      "bytes": 74307,
+      "sha256": "440a7944e010b9080fd4b177265e2ec4a5b13890af7c53c5f9f86e4ce35c28ca",
+      "normalizedSha256": "440a7944e010b9080fd4b177265e2ec4a5b13890af7c53c5f9f86e4ce35c28ca"
+    },
+    {
+      "path": "public/features/market/equipment-view.js",
+      "bytes": 3118,
+      "sha256": "bd25bf98a82febab3c8259019e31d7cb4371f8876a7df1c2bf36d00789f50482",
+      "normalizedSha256": "bd25bf98a82febab3c8259019e31d7cb4371f8876a7df1c2bf36d00789f50482"
+    },
+    {
+      "path": "public/features/market/index.js",
+      "bytes": 36,
+      "sha256": "adb42d27c276ccde7b9cea42249f0e0ed721ef0226dfd1159d70fb30a7807955",
+      "normalizedSha256": "adb42d27c276ccde7b9cea42249f0e0ed721ef0226dfd1159d70fb30a7807955"
+    },
+    {
+      "path": "public/features/market/market-module.js",
+      "bytes": 83414,
+      "sha256": "8b7b97987ba463b926d4232f4facc2ece6e3274d7d9310ef77ebda8ad43136aa",
+      "normalizedSha256": "8b7b97987ba463b926d4232f4facc2ece6e3274d7d9310ef77ebda8ad43136aa"
+    },
+    {
+      "path": "public/features/opening/index.js",
+      "bytes": 3758,
+      "sha256": "9702bf6aa6e4531d24b52cb0d0534402d375cb79c512459cff712f55668bac71",
+      "normalizedSha256": "9702bf6aa6e4531d24b52cb0d0534402d375cb79c512459cff712f55668bac71"
+    },
+    {
+      "path": "public/features/opening/opening-actions.js",
+      "bytes": 2076,
+      "sha256": "d5b48b5549b0d0643cf1112715718fa94b867d9883a524098b2d56f4cd0d8bd0",
+      "normalizedSha256": "d5b48b5549b0d0643cf1112715718fa94b867d9883a524098b2d56f4cd0d8bd0"
+    },
+    {
+      "path": "public/features/opening/opening-kits.js",
+      "bytes": 7674,
+      "sha256": "a6781e2acf983f98416bafb0a63330ef07992f85e89233b7eea7238f967b651d",
+      "normalizedSha256": "a6781e2acf983f98416bafb0a63330ef07992f85e89233b7eea7238f967b651d"
+    },
+    {
+      "path": "public/features/opening/opening-pointer.js",
+      "bytes": 5348,
+      "sha256": "c672fc2f2905a82764491134f74e8c63c38e675471ae5badd521a8d8c6a93cac",
+      "normalizedSha256": "c672fc2f2905a82764491134f74e8c63c38e675471ae5badd521a8d8c6a93cac"
+    },
+    {
+      "path": "public/features/opening/opening-render.js",
+      "bytes": 18070,
+      "sha256": "2702ab0477be7b1691f02faa781aa6051a04458939f4871688386472d3248905",
+      "normalizedSha256": "2702ab0477be7b1691f02faa781aa6051a04458939f4871688386472d3248905"
+    },
+    {
+      "path": "public/features/opening/opening-state.js",
+      "bytes": 2517,
+      "sha256": "3d6af9a82a4680c219d336548c4159debb85fe76dc9038b23a5b28c1f8180998",
+      "normalizedSha256": "3d6af9a82a4680c219d336548c4159debb85fe76dc9038b23a5b28c1f8180998"
+    },
+    {
+      "path": "public/features/opening/planner-draft-store.js",
+      "bytes": 7747,
+      "sha256": "bfa6df85ac9cb98f183a2e95c3994801eea1dd258204664adbfd0fe58d9e1f6b",
+      "normalizedSha256": "bfa6df85ac9cb98f183a2e95c3994801eea1dd258204664adbfd0fe58d9e1f6b"
+    },
+    {
+      "path": "public/features/opening/planner-drafts.js",
+      "bytes": 11792,
+      "sha256": "8f6b37470b260c56557296c698f28eb170e53a1412346bb6bb975d140f25c5ff",
+      "normalizedSha256": "8f6b37470b260c56557296c698f28eb170e53a1412346bb6bb975d140f25c5ff"
+    },
+    {
+      "path": "public/features/orders/index.js",
+      "bytes": 36,
+      "sha256": "8cafb48906be9ebac32603d585da7aeb7475f0d95a8db435f87dcce2b4eacfd4",
+      "normalizedSha256": "8cafb48906be9ebac32603d585da7aeb7475f0d95a8db435f87dcce2b4eacfd4"
+    },
+    {
+      "path": "public/features/orders/orders-module.js",
+      "bytes": 37289,
+      "sha256": "84ee579e8db8bf2e8a1d62bd41ebae4a2e6f6f3d37a1ae668e9f0a9dcb27a1d6",
+      "normalizedSha256": "84ee579e8db8bf2e8a1d62bd41ebae4a2e6f6f3d37a1ae668e9f0a9dcb27a1d6"
+    },
+    {
+      "path": "public/features/overview/achievements-ui.js",
+      "bytes": 11478,
+      "sha256": "69d00ffe34b7d0a7a8606e5ca26af78302a95a63aa40f3e2bbf43603062dfe52",
+      "normalizedSha256": "69d00ffe34b7d0a7a8606e5ca26af78302a95a63aa40f3e2bbf43603062dfe52"
+    },
+    {
+      "path": "public/features/overview/index.js",
+      "bytes": 1204,
+      "sha256": "b94d7967922aeadfb9929ed5346c0cdb39aeea2a5fddb0753ea2f8b346a2e1bd",
+      "normalizedSha256": "b94d7967922aeadfb9929ed5346c0cdb39aeea2a5fddb0753ea2f8b346a2e1bd"
+    },
+    {
+      "path": "public/features/overview/overview-render.js",
+      "bytes": 26454,
+      "sha256": "0a40f3e8d1bc746521ed031b12258860c54594f2f8fafbb8dbc2eb63cf5cde63",
+      "normalizedSha256": "0a40f3e8d1bc746521ed031b12258860c54594f2f8fafbb8dbc2eb63cf5cde63"
+    },
+    {
+      "path": "public/features/overview/tasks-ui.js",
+      "bytes": 4958,
+      "sha256": "e86fb22da62dfbaf5da98145cfa51420382c5eda734bcf28d6ea50e5974cba9f",
+      "normalizedSha256": "e86fb22da62dfbaf5da98145cfa51420382c5eda734bcf28d6ea50e5974cba9f"
+    },
+    {
+      "path": "public/features/ranking/index.js",
+      "bytes": 37,
+      "sha256": "56aadc033bdb0ff53288ed763e55f1c35e16e2528074edd0321bd156ab0f1937",
+      "normalizedSha256": "56aadc033bdb0ff53288ed763e55f1c35e16e2528074edd0321bd156ab0f1937"
+    },
+    {
+      "path": "public/features/ranking/ranking-module.js",
+      "bytes": 12884,
+      "sha256": "dd6cf0ca9f03aa252a68a0903bf3841642a32eac11d1a47b7c84488780b3b5f5",
+      "normalizedSha256": "dd6cf0ca9f03aa252a68a0903bf3841642a32eac11d1a47b7c84488780b3b5f5"
+    },
+    {
+      "path": "public/features/reports/index.js",
+      "bytes": 37,
+      "sha256": "599d558e233fe517e08a530b98e61690454fa8a833cf1d384a91ef6074d67082",
+      "normalizedSha256": "599d558e233fe517e08a530b98e61690454fa8a833cf1d384a91ef6074d67082"
+    },
+    {
+      "path": "public/features/reports/reports-module.js",
+      "bytes": 5883,
+      "sha256": "c09c2e586b2cda3c4d3939b1f0cc7bc48ff96b11934a8852bc5efa49458f3a57",
+      "normalizedSha256": "c09c2e586b2cda3c4d3939b1f0cc7bc48ff96b11934a8852bc5efa49458f3a57"
+    },
+    {
+      "path": "public/features/shop/index.js",
+      "bytes": 34,
+      "sha256": "1d14a23826e8825b4bf75d3ff9895259edd3534759de37c8cb2de7e4075f76c4",
+      "normalizedSha256": "1d14a23826e8825b4bf75d3ff9895259edd3534759de37c8cb2de7e4075f76c4"
+    },
+    {
+      "path": "public/features/shop/shop-module.js",
+      "bytes": 30052,
+      "sha256": "43762cc3ed3b8d513a7cd2a7daa46549ff24fbfce9aa39e04b1e53b295aeeb73",
+      "normalizedSha256": "43762cc3ed3b8d513a7cd2a7daa46549ff24fbfce9aa39e04b1e53b295aeeb73"
+    },
+    {
+      "path": "public/features/workshop/actions.js",
+      "bytes": 7218,
+      "sha256": "d7973a7f433c48398e07feb066f7a3652c2879a97e4c93776178645b79ab9ccb",
+      "normalizedSha256": "d7973a7f433c48398e07feb066f7a3652c2879a97e4c93776178645b79ab9ccb"
+    },
+    {
+      "path": "public/features/workshop/bangle-finish-ui.js",
+      "bytes": 2953,
+      "sha256": "f8ce88ffc7cf6b10d3e5019206c9fc74aa2ffc27dce7951ec4690cf06b507081",
+      "normalizedSha256": "f8ce88ffc7cf6b10d3e5019206c9fc74aa2ffc27dce7951ec4690cf06b507081"
+    },
+    {
+      "path": "public/features/workshop/catalog.js",
+      "bytes": 5678,
+      "sha256": "57de0bfc777ff0646ebf448aba54e9f22b3f8aa97f50ef8687687241c76c11a3",
+      "normalizedSha256": "57de0bfc777ff0646ebf448aba54e9f22b3f8aa97f50ef8687687241c76c11a3"
+    },
+    {
+      "path": "public/features/workshop/create-workshop-feature.js",
+      "bytes": 11180,
+      "sha256": "b26ed4d397a280107ef6ecaab2a9c3597f6c0e4fe27e889e625da45d0f910b01",
+      "normalizedSha256": "b26ed4d397a280107ef6ecaab2a9c3597f6c0e4fe27e889e625da45d0f910b01"
+    },
+    {
+      "path": "public/features/workshop/delivery-details-ui.js",
+      "bytes": 3664,
+      "sha256": "7de3fb10f78e2ac64c5ce72f54494ebae11eaba508f0c85f3f0f7751f79db521",
+      "normalizedSha256": "7de3fb10f78e2ac64c5ce72f54494ebae11eaba508f0c85f3f0f7751f79db521"
+    },
+    {
+      "path": "public/features/workshop/delivery-material-analysis.js",
+      "bytes": 1727,
+      "sha256": "d300609c31dd5d09c5dedeb0367b5282bba70bf42b8eaf62cc596bd0975568c9",
+      "normalizedSha256": "d300609c31dd5d09c5dedeb0367b5282bba70bf42b8eaf62cc596bd0975568c9"
+    },
+    {
+      "path": "public/features/workshop/delivery-scratch-ui.js",
+      "bytes": 7926,
+      "sha256": "2ab65aae691d23f7a630d2b7e2d891a970877e1b0a69d58f9b605e29e0fe22e3",
+      "normalizedSha256": "2ab65aae691d23f7a630d2b7e2d891a970877e1b0a69d58f9b605e29e0fe22e3"
+    },
+    {
+      "path": "public/features/workshop/delivery-spotlight-ui.js",
+      "bytes": 3182,
+      "sha256": "5c68c16c846945a38c3515a84a1302e1a61c2d4333e60f3e31386dc26e1ddbf8",
+      "normalizedSha256": "5c68c16c846945a38c3515a84a1302e1a61c2d4333e60f3e31386dc26e1ddbf8"
+    },
+    {
+      "path": "public/features/workshop/delivery-ui.js",
+      "bytes": 22142,
+      "sha256": "63f85f909a3be6aa247dceae69c2c8d29395cf40f17a31615155b2e78dd42233",
+      "normalizedSha256": "63f85f909a3be6aa247dceae69c2c8d29395cf40f17a31615155b2e78dd42233"
+    },
+    {
+      "path": "public/features/workshop/finish-controller.js",
+      "bytes": 17329,
+      "sha256": "0ed082f2991835eb8dd6728c6c43fed067db885806caae1abd33acda6f20f274",
+      "normalizedSha256": "0ed082f2991835eb8dd6728c6c43fed067db885806caae1abd33acda6f20f274"
+    },
+    {
+      "path": "public/features/workshop/index.js",
+      "bytes": 38,
+      "sha256": "5150efb3caf2fdf27ec931a447cd86c6a6ed17122d276e84d3dcd3b61f7fe902",
+      "normalizedSha256": "5150efb3caf2fdf27ec931a447cd86c6a6ed17122d276e84d3dcd3b61f7fe902"
+    },
+    {
+      "path": "public/features/workshop/inlay-preview-controller.js",
+      "bytes": 11741,
+      "sha256": "d33fe91619adbb973a73c3dfe51707129b87cfa5284e9e6cc7772466cc0badd0",
+      "normalizedSha256": "d33fe91619adbb973a73c3dfe51707129b87cfa5284e9e6cc7772466cc0badd0"
+    },
+    {
+      "path": "public/features/workshop/item-preview.js",
+      "bytes": 2165,
+      "sha256": "ccefc03400588c56d0a9a285771a70e771c882886ba8e93a819f92ac603e05cc",
+      "normalizedSha256": "ccefc03400588c56d0a9a285771a70e771c882886ba8e93a819f92ac603e05cc"
+    },
+    {
+      "path": "public/features/workshop/picker-controller.js",
+      "bytes": 15561,
+      "sha256": "2587c2b1d927b7f8ce8a821287a642ac4a9057d98c6fe8adf0a7f7525d577ca7",
+      "normalizedSha256": "2587c2b1d927b7f8ce8a821287a642ac4a9057d98c6fe8adf0a7f7525d577ca7"
+    },
+    {
+      "path": "public/features/workshop/planner-controller.js",
+      "bytes": 11055,
+      "sha256": "e22551b46c1434d8df46a0c6ca90820c26b62eb01f6bf97a4936f2583bae952e",
+      "normalizedSha256": "e22551b46c1434d8df46a0c6ca90820c26b62eb01f6bf97a4936f2583bae952e"
+    },
+    {
+      "path": "public/features/workshop/scope.js",
+      "bytes": 1950,
+      "sha256": "8946309ce5d68a16743a520b7317988d4c4793ce1ce565f1489aaee5b7ca4ea4",
+      "normalizedSha256": "8946309ce5d68a16743a520b7317988d4c4793ce1ce565f1489aaee5b7ca4ea4"
+    },
+    {
+      "path": "public/features/workshop/scratch-coverage.js",
+      "bytes": 2036,
+      "sha256": "482350b1565a5cd54f803776afa73fb042154b8d7994512374c0a559833dafdc",
+      "normalizedSha256": "482350b1565a5cd54f803776afa73fb042154b8d7994512374c0a559833dafdc"
+    },
+    {
+      "path": "public/features/workshop/selectors.js",
+      "bytes": 7237,
+      "sha256": "b78ff56d0ddc4fe4d22d8913dcb954c6d66370206bdb604572827685377b13df",
+      "normalizedSha256": "b78ff56d0ddc4fe4d22d8913dcb954c6d66370206bdb604572827685377b13df"
+    },
+    {
+      "path": "public/features/workshop/state.js",
+      "bytes": 760,
+      "sha256": "ccbe5625f68a9c01144b56142bea9526ff8953b004431b527ef49951525e0c49",
+      "normalizedSha256": "ccbe5625f68a9c01144b56142bea9526ff8953b004431b527ef49951525e0c49"
+    },
+    {
+      "path": "public/features/workshop/view.js",
+      "bytes": 26151,
+      "sha256": "07e8ebd40430c95204aa7568239073185485eed504541e8c5b20ba88dfb03e35",
+      "normalizedSha256": "07e8ebd40430c95204aa7568239073185485eed504541e8c5b20ba88dfb03e35"
+    },
+    {
+      "path": "public/features/workshop/worker-view.js",
+      "bytes": 3095,
+      "sha256": "daf4d7748f5b462b4e429b9c5ce61ac0d93a0a9c63942fdf62c2b2a000b5d314",
+      "normalizedSha256": "daf4d7748f5b462b4e429b9c5ce61ac0d93a0a9c63942fdf62c2b2a000b5d314"
+    },
+    {
+      "path": "public/features/workshop/workshop-module.js",
+      "bytes": 4819,
+      "sha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778",
+      "normalizedSha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778"
+    },
+    {
+      "path": "public/finish-plan-dom.js",
+      "bytes": 1037,
+      "sha256": "4b7ae61eab20ee37c5663a772d5122dffcca219f26d14d67ad2b79be796ccb3a",
+      "normalizedSha256": "4b7ae61eab20ee37c5663a772d5122dffcca219f26d14d67ad2b79be796ccb3a"
+    },
+    {
+      "path": "public/finish-plan-modal-controller.js",
+      "bytes": 1506,
+      "sha256": "999cf6c69c0d3802886e0f9e5c49e2c18628c42bf4237d4bf4b21b1e42876c44",
+      "normalizedSha256": "999cf6c69c0d3802886e0f9e5c49e2c18628c42bf4237d4bf4b21b1e42876c44"
+    },
+    {
+      "path": "public/finish-plan-model.js",
+      "bytes": 64,
+      "sha256": "45a9b3b659fc17f68c2e3f624ff6cd0d9645d8f3afe6a03edc8445fa46699667",
+      "normalizedSha256": "45a9b3b659fc17f68c2e3f624ff6cd0d9645d8f3afe6a03edc8445fa46699667"
+    },
+    {
+      "path": "public/finished-product-renderer.js",
+      "bytes": 23465,
+      "sha256": "35cad0347ef11949c18781af9629bc4bfa0b859080785c04340422624a18234d",
+      "normalizedSha256": "35cad0347ef11949c18781af9629bc4bfa0b859080785c04340422624a18234d"
+    },
+    {
+      "path": "public/hire-module.js",
+      "bytes": 42,
+      "sha256": "59f14b4c7b7a6a9e98fa58d7f1c0f1020004987435f88e60110ce74ec3f4dba8",
+      "normalizedSha256": "59f14b4c7b7a6a9e98fa58d7f1c0f1020004987435f88e60110ce74ec3f4dba8"
+    },
+    {
+      "path": "public/index.html",
+      "bytes": 52001,
+      "sha256": "14889a40efb1bb0ee09f8932b459a42712d88d3dbf97027c53ddc94503152698",
+      "normalizedSha256": "14889a40efb1bb0ee09f8932b459a42712d88d3dbf97027c53ddc94503152698"
+    },
+    {
+      "path": "public/inlay-artwork.js",
+      "bytes": 7661,
+      "sha256": "5c76d0acac653cdec869f5cd729c71650e3e761c5cbcaa9cf3d8ad22e71cd99c",
+      "normalizedSha256": "5c76d0acac653cdec869f5cd729c71650e3e761c5cbcaa9cf3d8ad22e71cd99c"
+    },
+    {
+      "path": "public/inlay-painted-mounts.js",
+      "bytes": 3105,
+      "sha256": "4b359025f303d6212f545ad578748b2c1c64181684a9e117364e3975c2a21f74",
+      "normalizedSha256": "4b359025f303d6212f545ad578748b2c1c64181684a9e117364e3975c2a21f74"
+    },
+    {
+      "path": "public/inlay-preview-tester.js",
+      "bytes": 10071,
+      "sha256": "000cbf54263ee184df0653ac9312e1a4dc2f1352fd51b9545ab2a60589c7aaf4",
+      "normalizedSha256": "000cbf54263ee184df0653ac9312e1a4dc2f1352fd51b9545ab2a60589c7aaf4"
+    },
+    {
+      "path": "public/inlay-product-renderer.js",
+      "bytes": 3601,
+      "sha256": "0f09bbeb7f03d01f43648039b20d05d43d8da518662f8cddb1b9e207aca08d2b",
+      "normalizedSha256": "0f09bbeb7f03d01f43648039b20d05d43d8da518662f8cddb1b9e207aca08d2b"
+    },
+    {
+      "path": "public/inventory-module.js",
+      "bytes": 47,
+      "sha256": "efa34192beb6dc9c52a48436313b9652d67ee40e31ee5ddaf5a881a950f9dfbd",
+      "normalizedSha256": "efa34192beb6dc9c52a48436313b9652d67ee40e31ee5ddaf5a881a950f9dfbd"
+    },
+    {
+      "path": "public/inventory-recycle.js",
+      "bytes": 63,
+      "sha256": "0ee0542e35259ea386f09b8334a3067abb2b8da6c9a3ab8b9c6c7749fcbbaa61",
+      "normalizedSha256": "0ee0542e35259ea386f09b8334a3067abb2b8da6c9a3ab8b9c6c7749fcbbaa61"
+    },
+    {
+      "path": "public/jade-auction.js",
+      "bytes": 58,
+      "sha256": "7e9652efe8b89279ff419eca2c8f75a2569f9debddc13ac840cf02565edb308c",
+      "normalizedSha256": "7e9652efe8b89279ff419eca2c8f75a2569f9debddc13ac840cf02565edb308c"
+    },
+    {
+      "path": "public/jade-categories.js",
+      "bytes": 58,
+      "sha256": "61b57f77f9701b4f7307267b03e060614b823039ec21d37b601af251872a3aea",
+      "normalizedSha256": "61b57f77f9701b4f7307267b03e060614b823039ec21d37b601af251872a3aea"
+    },
+    {
+      "path": "public/jade-loop.js",
+      "bytes": 55,
+      "sha256": "440174b901f21f14de41a6b8ded9051676b26cb4e843f5f13a870aae28b9f7ad",
+      "normalizedSha256": "440174b901f21f14de41a6b8ded9051676b26cb4e843f5f13a870aae28b9f7ad"
+    },
+    {
+      "path": "public/jade-opening-engine.js",
+      "bytes": 62,
+      "sha256": "27e19f049a86aa049a063d850611e7349ba989a0ae7b4f40d5fa2842a5dcc527",
+      "normalizedSha256": "27e19f049a86aa049a063d850611e7349ba989a0ae7b4f40d5fa2842a5dcc527"
+    },
+    {
+      "path": "public/jade-piece-view.js",
+      "bytes": 1760,
+      "sha256": "2c0cd20bc25ac55ad16b7734d661c87495b75eb6e0da35704b9dfaa5f50c0eb9",
+      "normalizedSha256": "2c0cd20bc25ac55ad16b7734d661c87495b75eb6e0da35704b9dfaa5f50c0eb9"
+    },
+    {
+      "path": "public/jade-renderer.js",
+      "bytes": 57131,
+      "sha256": "8b6266354edaa5929b9fbec139963e05c5d5a790ac12394ad1c03d4005bf1e98",
+      "normalizedSha256": "8b6266354edaa5929b9fbec139963e05c5d5a790ac12394ad1c03d4005bf1e98"
+    },
+    {
+      "path": "public/jade-rules.js",
+      "bytes": 53,
+      "sha256": "10521ee600a4d5c1384af577121365ae6bae41bd236fabe8108b08306599f8c5",
+      "normalizedSha256": "10521ee600a4d5c1384af577121365ae6bae41bd236fabe8108b08306599f8c5"
+    },
+    {
+      "path": "public/jade-volume.js",
+      "bytes": 54,
+      "sha256": "716ef04b9e1896a86b6bf61e6029a8ddfa665ce11b66d757d4b37104bd0c8fe0",
+      "normalizedSha256": "716ef04b9e1896a86b6bf61e6029a8ddfa665ce11b66d757d4b37104bd0c8fe0"
+    },
+    {
+      "path": "public/lazy-preview.js",
+      "bytes": 4357,
+      "sha256": "9d184567420ea3aaef7b469d7a80dca472525505bf623ee3fb16bef45ff5180c",
+      "normalizedSha256": "9d184567420ea3aaef7b469d7a80dca472525505bf623ee3fb16bef45ff5180c"
+    },
+    {
+      "path": "public/livestream-host-bonuses.js",
+      "bytes": 72,
+      "sha256": "6a5d920194153d81654c2954b58e82b55e6b23d3447ed25fccd25656009fd4ee",
+      "normalizedSha256": "6a5d920194153d81654c2954b58e82b55e6b23d3447ed25fccd25656009fd4ee"
+    },
+    {
+      "path": "public/livestream-module.js",
+      "bytes": 48,
+      "sha256": "eb99fae7e34c0c54fd546050a3767610e61b071a405067d5a794268b19ddd6e8",
+      "normalizedSha256": "eb99fae7e34c0c54fd546050a3767610e61b071a405067d5a794268b19ddd6e8"
+    },
+    {
+      "path": "public/livestream-rules.js",
+      "bytes": 65,
+      "sha256": "b57cc14618f1c6567ac305a894f22179b22397575a159d1df6290e4293d899e0",
+      "normalizedSha256": "b57cc14618f1c6567ac305a894f22179b22397575a159d1df6290e4293d899e0"
+    },
+    {
+      "path": "public/main.js",
+      "bytes": 21279,
+      "sha256": "ba76da3150a52aae5490750d25393e6f2d9ea5b10670065fd298a599aad43552",
+      "normalizedSha256": "ba76da3150a52aae5490750d25393e6f2d9ea5b10670065fd298a599aad43552"
+    },
+    {
+      "path": "public/market-module.js",
+      "bytes": 44,
+      "sha256": "b51a5072e4a7fbb4be94618495e24c378e02b00704aedfab0a93ebf9b0d126f8",
+      "normalizedSha256": "b51a5072e4a7fbb4be94618495e24c378e02b00704aedfab0a93ebf9b0d126f8"
+    },
+    {
+      "path": "public/market-rules.js",
+      "bytes": 58,
+      "sha256": "538a111bf8e430916bed1e6d8ae5ea64f0359c49e3bb7b745517bfcb279b79f4",
+      "normalizedSha256": "538a111bf8e430916bed1e6d8ae5ea64f0359c49e3bb7b745517bfcb279b79f4"
+    },
+    {
+      "path": "public/material-pricing.js",
+      "bytes": 62,
+      "sha256": "dd72362e2c981c366c65471121e52d0cbf63f738c6845aedcebb33a14b6c75bd",
+      "normalizedSha256": "dd72362e2c981c366c65471121e52d0cbf63f738c6845aedcebb33a14b6c75bd"
+    },
+    {
+      "path": "public/metric-history.js",
+      "bytes": 60,
+      "sha256": "d0aa059cdf54b6a84cfd1ef31581e93934220676a3973b124d189c725d2f5c57",
+      "normalizedSha256": "d0aa059cdf54b6a84cfd1ef31581e93934220676a3973b124d189c725d2f5c57"
+    },
+    {
+      "path": "public/mining-module.js",
+      "bytes": 214300,
+      "sha256": "6e11b8e6f118ead983dcf6d59684fc1beceed821ae6e02bbc08aea1cba037d87",
+      "normalizedSha256": "6e11b8e6f118ead983dcf6d59684fc1beceed821ae6e02bbc08aea1cba037d87"
+    },
+    {
+      "path": "public/modal-lifecycle.js",
+      "bytes": 6715,
+      "sha256": "8f2f16ce457927972d44309ba2ce6d087bf0634a29f56bfdfb2c713175260710",
+      "normalizedSha256": "8f2f16ce457927972d44309ba2ce6d087bf0634a29f56bfdfb2c713175260710"
+    },
+    {
+      "path": "public/order-refresh.js",
+      "bytes": 59,
+      "sha256": "661fd24faf561c62a471be54ed3ff9fb4e787c5b22b840422a90172e80e5fdf0",
+      "normalizedSha256": "661fd24faf561c62a471be54ed3ff9fb4e787c5b22b840422a90172e80e5fdf0"
+    },
+    {
+      "path": "public/orders-module.js",
+      "bytes": 44,
+      "sha256": "c4c932ec238753ce3b72e9dde732439f1386be568379cb25a34547c127b2e3f8",
+      "normalizedSha256": "c4c932ec238753ce3b72e9dde732439f1386be568379cb25a34547c127b2e3f8"
+    },
+    {
+      "path": "public/payroll-work-notice.js",
+      "bytes": 574,
+      "sha256": "3d4753829d7327a05f97b73a053310fe381743db0677571bc3e4b9e27f77d969",
+      "normalizedSha256": "3d4753829d7327a05f97b73a053310fe381743db0677571bc3e4b9e27f77d969"
+    },
+    {
+      "path": "public/planner-dom.js",
+      "bytes": 1848,
+      "sha256": "3e07d2dcd3f3860828355fe8fed6e65fb3ec30f3b2901f316c9dfa73ccd6a115",
+      "normalizedSha256": "3e07d2dcd3f3860828355fe8fed6e65fb3ec30f3b2901f316c9dfa73ccd6a115"
+    },
+    {
+      "path": "public/player-progression.js",
+      "bytes": 68,
+      "sha256": "5e5b38bceae6aee5ae28d22a36dd03cec627bebe548434d7ba7c8c7b29586f05",
+      "normalizedSha256": "5e5b38bceae6aee5ae28d22a36dd03cec627bebe548434d7ba7c8c7b29586f05"
+    },
+    {
+      "path": "public/preview-bitmap-cache.js",
+      "bytes": 8422,
+      "sha256": "3e45f23aaf770a792b0214f3e2014790cc03c2726d7b4753d84b118a8650d9b5",
+      "normalizedSha256": "3e45f23aaf770a792b0214f3e2014790cc03c2726d7b4753d84b118a8650d9b5"
+    },
+    {
+      "path": "public/product-meta.js",
+      "bytes": 55,
+      "sha256": "e0b53f48b7e29f892720f69ff081ac1706647cba5942a09c2e59c95636a32323",
+      "normalizedSha256": "e0b53f48b7e29f892720f69ff081ac1706647cba5942a09c2e59c95636a32323"
+    },
+    {
+      "path": "public/ranking-module.js",
+      "bytes": 45,
+      "sha256": "bcea9489a550fc70456b0e5d5353deee8ad09a5aea0a51b1eeafa014222736d7",
+      "normalizedSha256": "bcea9489a550fc70456b0e5d5353deee8ad09a5aea0a51b1eeafa014222736d7"
+    },
+    {
+      "path": "public/recruit-detail-controller.js",
+      "bytes": 1332,
+      "sha256": "6118a50ce4f7493b88c04ca1cd18e0c6fae2d3e8e67ed6f20b143cd170baa924",
+      "normalizedSha256": "6118a50ce4f7493b88c04ca1cd18e0c6fae2d3e8e67ed6f20b143cd170baa924"
+    },
+    {
+      "path": "public/recruit-detail-dom.js",
+      "bytes": 456,
+      "sha256": "eb9ac1592181cbd4346273ddf91a24ae3170208c8038a20d4bca85e4cc81a517",
+      "normalizedSha256": "eb9ac1592181cbd4346273ddf91a24ae3170208c8038a20d4bca85e4cc81a517"
+    },
+    {
+      "path": "public/reports-module.js",
+      "bytes": 45,
+      "sha256": "474c756a90146a7e0b045bd518ec34d519ade0a878a443f610c3385c6c01bfef",
+      "normalizedSha256": "474c756a90146a7e0b045bd518ec34d519ade0a878a443f610c3385c6c01bfef"
+    },
+    {
+      "path": "public/shell/action-router.js",
+      "bytes": 1066,
+      "sha256": "44795671e9d4956efce86d62d483cf7b3f9f85a643230075cd22cb244cc22cb8",
+      "normalizedSha256": "44795671e9d4956efce86d62d483cf7b3f9f85a643230075cd22cb244cc22cb8"
+    },
+    {
+      "path": "public/shell/format-utils.js",
+      "bytes": 4013,
+      "sha256": "c1a7554c2b5a9ffbb9e28d4f3fafa451946b2a1204b2806a9b0e85d97b1ef132",
+      "normalizedSha256": "c1a7554c2b5a9ffbb9e28d4f3fafa451946b2a1204b2806a9b0e85d97b1ef132"
+    },
+    {
+      "path": "public/shell/game-modal.js",
+      "bytes": 11229,
+      "sha256": "e58fcc8add1e4553b6a6b1d5c16c2229dfbc243a4e49808d19243412a54cfb24",
+      "normalizedSha256": "e58fcc8add1e4553b6a6b1d5c16c2229dfbc243a4e49808d19243412a54cfb24"
+    },
+    {
+      "path": "public/shell/mutation-socket.js",
+      "bytes": 1841,
+      "sha256": "f50a3be5611c43ba16c7f955487692bdfe24ea2fe61ca6adff7435bc60504289",
+      "normalizedSha256": "f50a3be5611c43ba16c7f955487692bdfe24ea2fe61ca6adff7435bc60504289"
+    },
+    {
+      "path": "public/shell/navigation.js",
+      "bytes": 15509,
+      "sha256": "e8354aacd67e38e7e145215509de443de51fd61ab4fddddd237c46737233dc2d",
+      "normalizedSha256": "e8354aacd67e38e7e145215509de443de51fd61ab4fddddd237c46737233dc2d"
+    },
+    {
+      "path": "public/shell/payroll-notifications.js",
+      "bytes": 2436,
+      "sha256": "50fa0a747cbedb363fe617229ce15a9a3810aab7c5d1508945fc3771f67e95da",
+      "normalizedSha256": "50fa0a747cbedb363fe617229ce15a9a3810aab7c5d1508945fc3771f67e95da"
+    },
+    {
+      "path": "public/shell/payroll-settle-modal.js",
+      "bytes": 2039,
+      "sha256": "467c73e7457edca9a910a79472406790036c4c401028320333e2d813acf71c09",
+      "normalizedSha256": "467c73e7457edca9a910a79472406790036c4c401028320333e2d813acf71c09"
+    },
+    {
+      "path": "public/shell/render-pipeline.js",
+      "bytes": 3572,
+      "sha256": "595e503fce72b3dbc788c716ac93ee7b3e50fc1d29323642a164b3aa35cff5b0",
+      "normalizedSha256": "595e503fce72b3dbc788c716ac93ee7b3e50fc1d29323642a164b3aa35cff5b0"
+    },
+    {
+      "path": "public/shell/theme.js",
+      "bytes": 1382,
+      "sha256": "17f6cddf359bb765e100a7df3c2e251c59e22a8e56bc9cce9855bd718aa23604",
+      "normalizedSha256": "17f6cddf359bb765e100a7df3c2e251c59e22a8e56bc9cce9855bd718aa23604"
+    },
+    {
+      "path": "public/shell/toast-fx.js",
+      "bytes": 12142,
+      "sha256": "73db798715f30b7dcf911e6c8178918ee3eb50019fdddb0125f8dd4af3972d2c",
+      "normalizedSha256": "73db798715f30b7dcf911e6c8178918ee3eb50019fdddb0125f8dd4af3972d2c"
+    },
+    {
+      "path": "public/shell/wire-modules.js",
+      "bytes": 1948,
+      "sha256": "0dcfd4b5f9bf3524ae0a5129c3d655d00c79428241120c5f235e62608e0507c8",
+      "normalizedSha256": "0dcfd4b5f9bf3524ae0a5129c3d655d00c79428241120c5f235e62608e0507c8"
+    },
+    {
+      "path": "public/shell/wire-shell-actions.js",
+      "bytes": 4761,
+      "sha256": "3ceb8d14d4555812d14fc5a2fc446b8bd661331420340cb9558b1158414713bf",
+      "normalizedSha256": "3ceb8d14d4555812d14fc5a2fc446b8bd661331420340cb9558b1158414713bf"
+    },
+    {
+      "path": "public/shell/wire-shell-ui.js",
+      "bytes": 5902,
+      "sha256": "9e5625c377ad58dc71d19c0c095dd42f55ac8c23e400f1a229d95a4253a9e442",
+      "normalizedSha256": "9e5625c377ad58dc71d19c0c095dd42f55ac8c23e400f1a229d95a4253a9e442"
+    },
+    {
+      "path": "public/shell/wire-socket.js",
+      "bytes": 3282,
+      "sha256": "da96b4bdbee38263ecba7d6ba75a73e0557f9789d19723b475f3587d58ae1861",
+      "normalizedSha256": "da96b4bdbee38263ecba7d6ba75a73e0557f9789d19723b475f3587d58ae1861"
+    },
+    {
+      "path": "public/shop-module.js",
+      "bytes": 42,
+      "sha256": "b9ca815c5291ea9923a587b6892cb1a54bf9bb77862261cbf9efb540919a1fb6",
+      "normalizedSha256": "b9ca815c5291ea9923a587b6892cb1a54bf9bb77862261cbf9efb540919a1fb6"
+    },
+    {
+      "path": "public/styles.css",
+      "bytes": 1015,
+      "sha256": "71cbb267fe3f786d85f42d88e877a1ca4bb0631fd29ca970c4347aef6dfc385f",
+      "normalizedSha256": "71cbb267fe3f786d85f42d88e877a1ca4bb0631fd29ca970c4347aef6dfc385f"
+    },
+    {
+      "path": "public/styles.css.bak",
+      "bytes": 122520,
+      "sha256": "d6de2e08a4b9f61c1906b7ba70e947315c2e41a9819af5771ec79cf1529faa3b"
+    },
+    {
+      "path": "public/styles.css.layoutbak",
+      "bytes": 209481,
+      "sha256": "3b009b357ece5a6367390192587ad06c6b53e6de0c677f9100d28c6bd6c82cba"
+    },
+    {
+      "path": "public/styles.css.strongbak",
+      "bytes": 122520,
+      "sha256": "666b290a45fc786c05a85e0e0cc2fed3a0a3bad8ba481df8eaefcc40cfa437bd"
+    },
+    {
+      "path": "public/styles.css.workshop-detail-bak",
+      "bytes": 135876,
+      "sha256": "a827d18eedf47f8cdf9ca34cb794e504f2797e7264e8a502ddf812d1b6e87c85"
+    },
+    {
+      "path": "public/styles.css.workshop-night-bak",
+      "bytes": 126260,
+      "sha256": "8e2179a95a904557a04fb4d9612b46585b3085763c711c931e200c66d9d3f26a"
+    },
+    {
+      "path": "public/styles.css.workshop-tabs-bak",
+      "bytes": 131280,
+      "sha256": "1ee8638fe480b670745d35e887a97cb6199b8054a71da38e936c6de8a324e9b0"
+    },
+    {
+      "path": "public/styles/account.css",
+      "bytes": 2254,
+      "sha256": "3793ccc9d5407b83a3f4915a221fc073c4bf6e06989ee55dd909b7aa1aff742b",
+      "normalizedSha256": "3793ccc9d5407b83a3f4915a221fc073c4bf6e06989ee55dd909b7aa1aff742b"
+    },
+    {
+      "path": "public/styles/auction-chat.css",
+      "bytes": 59792,
+      "sha256": "54c8ba9d51dc1dd63e43f579e39739403420315d7b92c362a4322fe38205fe4a",
+      "normalizedSha256": "54c8ba9d51dc1dd63e43f579e39739403420315d7b92c362a4322fe38205fe4a"
+    },
+    {
+      "path": "public/styles/feedback-modal.css",
+      "bytes": 14316,
+      "sha256": "576af3e2e2c8c81309a2f450e1a7259e4d57e4e927392dc220a7a24011b2bfc7",
+      "normalizedSha256": "576af3e2e2c8c81309a2f450e1a7259e4d57e4e927392dc220a7a24011b2bfc7"
+    },
+    {
+      "path": "public/styles/finance.css",
+      "bytes": 6186,
+      "sha256": "df4e961a4d22abcef1afe8b5bb21be70001d45a6ab3700c405de64bf937835f1",
+      "normalizedSha256": "df4e961a4d22abcef1afe8b5bb21be70001d45a6ab3700c405de64bf937835f1"
+    },
+    {
+      "path": "public/styles/game-polish.css",
+      "bytes": 12832,
+      "sha256": "68b8868ce533be6a31b0054f1a2cff86e8b38f7a43ed1e68e288e01849f8314e",
+      "normalizedSha256": "68b8868ce533be6a31b0054f1a2cff86e8b38f7a43ed1e68e288e01849f8314e"
+    },
+    {
+      "path": "public/styles/gameplay-ui.css",
+      "bytes": 36382,
+      "sha256": "1edfcb449a884e11a4373a885fa0ae24b179bbb509cd3f05dfeb2ac331000706",
+      "normalizedSha256": "1edfcb449a884e11a4373a885fa0ae24b179bbb509cd3f05dfeb2ac331000706"
+    },
+    {
+      "path": "public/styles/hud-fx.css",
+      "bytes": 50021,
+      "sha256": "7761b605ab69afc6a37b7236e2471a6387d1e3da834a031699cd5886eef3f37d",
+      "normalizedSha256": "7761b605ab69afc6a37b7236e2471a6387d1e3da834a031699cd5886eef3f37d"
+    },
+    {
+      "path": "public/styles/inventory-detail.css",
+      "bytes": 8587,
+      "sha256": "30f28592eede52118a2625c506ab4b0f9fc65d583ac2c9951ba67c8c643a60f3",
+      "normalizedSha256": "30f28592eede52118a2625c506ab4b0f9fc65d583ac2c9951ba67c8c643a60f3"
+    },
+    {
+      "path": "public/styles/jade-piece.css",
+      "bytes": 3244,
+      "sha256": "f7d8ad2d026189e99cc28b10afb11ee51bf2ce4b153567554586870fa2be2e50",
+      "normalizedSha256": "f7d8ad2d026189e99cc28b10afb11ee51bf2ce4b153567554586870fa2be2e50"
+    },
+    {
+      "path": "public/styles/livestream.css",
+      "bytes": 90295,
+      "sha256": "502b6ba9c82820e5a502331556b4684850768d69cad2ab172f3cb92560e7f697",
+      "normalizedSha256": "502b6ba9c82820e5a502331556b4684850768d69cad2ab172f3cb92560e7f697"
+    },
+    {
+      "path": "public/styles/market-equipment.css",
+      "bytes": 1972,
+      "sha256": "32a71aa210758260334ac264bc025ffb5c3ee8c51c5310af0f92487e14f5da51",
+      "normalizedSha256": "32a71aa210758260334ac264bc025ffb5c3ee8c51c5310af0f92487e14f5da51"
+    },
+    {
+      "path": "public/styles/mining.css",
+      "bytes": 154679,
+      "sha256": "e492c483d0f206b3fee8ba8451ee4b5ff1214ab55bcde856555eaf4d5117420a",
+      "normalizedSha256": "e492c483d0f206b3fee8ba8451ee4b5ff1214ab55bcde856555eaf4d5117420a"
+    },
+    {
+      "path": "public/styles/order-cards.css",
+      "bytes": 7550,
+      "sha256": "939a4a01cd65c35627f5f3f7e46637800a8ae05bd8deda1579ce369a31acc17f",
+      "normalizedSha256": "939a4a01cd65c35627f5f3f7e46637800a8ae05bd8deda1579ce369a31acc17f"
+    },
+    {
+      "path": "public/styles/planner-drafts.css",
+      "bytes": 1073,
+      "sha256": "7e9aca2c99f487441e9a70db6f8badc8e3eb05fad8268c430859598d5c0a67ea",
+      "normalizedSha256": "7e9aca2c99f487441e9a70db6f8badc8e3eb05fad8268c430859598d5c0a67ea"
+    },
+    {
+      "path": "public/styles/public-workstations.css",
+      "bytes": 717,
+      "sha256": "dc5a885ca8a86b63fc219b87b4a968d1d01c9bd6620efcb0946c42f23a7b4887",
+      "normalizedSha256": "dc5a885ca8a86b63fc219b87b4a968d1d01c9bd6620efcb0946c42f23a7b4887"
+    },
+    {
+      "path": "public/styles/shop-hire.css",
+      "bytes": 134170,
+      "sha256": "c2464b60de0b0bfb8d8826f36e761a46ed07dd8755d17d05e635a62c3a8cbd77",
+      "normalizedSha256": "c2464b60de0b0bfb8d8826f36e761a46ed07dd8755d17d05e635a62c3a8cbd77"
+    },
+    {
+      "path": "public/styles/theme-inventory-chat.css",
+      "bytes": 66451,
+      "sha256": "0cd5fab3b36aa9a5cc2a817a8620dbd07e4f4ef1881c3738f8275553dbcd6fe5",
+      "normalizedSha256": "0cd5fab3b36aa9a5cc2a817a8620dbd07e4f4ef1881c3738f8275553dbcd6fe5"
+    },
+    {
+      "path": "public/styles/theme-night-panels.css",
+      "bytes": 12319,
+      "sha256": "18c6ae28426b187e80d225e379466733f006704a8e7ad9dc8108b807e7c94d7b",
+      "normalizedSha256": "18c6ae28426b187e80d225e379466733f006704a8e7ad9dc8108b807e7c94d7b"
+    },
+    {
+      "path": "public/styles/tokens-shell.css",
+      "bytes": 27249,
+      "sha256": "57fd3ceacaee8f0d6f6ce2dbb4ef7d0eae35480c8fd7c576e38d79398e89f9d9",
+      "normalizedSha256": "57fd3ceacaee8f0d6f6ce2dbb4ef7d0eae35480c8fd7c576e38d79398e89f9d9"
+    },
+    {
+      "path": "public/styles/workshop-delivery.css",
+      "bytes": 17605,
+      "sha256": "ad24104c8af3cb41e97f16259c86d49736c326174e6656e62679ef1906219323",
+      "normalizedSha256": "ad24104c8af3cb41e97f16259c86d49736c326174e6656e62679ef1906219323"
+    },
+    {
+      "path": "public/styles/workshop-device.css",
+      "bytes": 28800,
+      "sha256": "b8659d69f9f4d9b89b1475c09049151e87b0255a1b3ce40fbad5dbfca89c2034",
+      "normalizedSha256": "b8659d69f9f4d9b89b1475c09049151e87b0255a1b3ce40fbad5dbfca89c2034"
+    },
+    {
+      "path": "public/styles/workshop-shop.css",
+      "bytes": 31252,
+      "sha256": "8bcbb7100fc1ee058251d99ca618cd1a5e9d48dfe24f3c8f6a671ece16124c11",
+      "normalizedSha256": "8bcbb7100fc1ee058251d99ca618cd1a5e9d48dfe24f3c8f6a671ece16124c11"
+    },
+    {
+      "path": "public/virtual-grid.js",
+      "bytes": 8474,
+      "sha256": "efa7cfbdc50f50d0b196593c65c217638c2c781b1d5d64d5677e5f6c15f796c0",
+      "normalizedSha256": "efa7cfbdc50f50d0b196593c65c217638c2c781b1d5d64d5677e5f6c15f796c0"
+    },
+    {
+      "path": "public/worker-detail-view.js",
+      "bytes": 5265,
+      "sha256": "ab5428d595ae5b944971c5f113985616e0eeb718b19c69ee534659052507879e",
+      "normalizedSha256": "ab5428d595ae5b944971c5f113985616e0eeb718b19c69ee534659052507879e"
+    },
+    {
+      "path": "public/worker-economy.js",
+      "bytes": 60,
+      "sha256": "962ebfe5d8212b50793c24fcec724671cee43a3d4c4e2bb04e78cfc401367ec2",
+      "normalizedSha256": "962ebfe5d8212b50793c24fcec724671cee43a3d4c4e2bb04e78cfc401367ec2"
+    },
+    {
+      "path": "public/workshop-craft-scoring.js",
+      "bytes": 69,
+      "sha256": "df42df62ab1b4674d66a18b549c9876b6652c5c39defee24105c3adb066bf816",
+      "normalizedSha256": "df42df62ab1b4674d66a18b549c9876b6652c5c39defee24105c3adb066bf816"
+    },
+    {
+      "path": "public/workshop-module.js",
+      "bytes": 46,
+      "sha256": "6b77d9ddd5f4d6e6e59be13c6d6abbc4e148db5399e997b2f1b7d2d24e481aa9",
+      "normalizedSha256": "6b77d9ddd5f4d6e6e59be13c6d6abbc4e148db5399e997b2f1b7d2d24e481aa9"
+    },
+    {
+      "path": "public/workshop-resource-art.js",
+      "bytes": 1308,
+      "sha256": "da7764c7f7bb0bb236f3312436396ec7a52a358e842cadf2f8d3eeeb4c4a3b63",
+      "normalizedSha256": "da7764c7f7bb0bb236f3312436396ec7a52a358e842cadf2f8d3eeeb4c4a3b63"
+    },
+    {
+      "path": "scripts/account-http-e2e.mjs",
+      "bytes": 5389,
+      "sha256": "edf7a183ade78404d8fd3bdb25945f2f391b0f2561ebdf6cb91f597731335a65",
+      "normalizedSha256": "edf7a183ade78404d8fd3bdb25945f2f391b0f2561ebdf6cb91f597731335a65"
+    },
+    {
+      "path": "scripts/account-service-smoke.mjs",
+      "bytes": 1653,
+      "sha256": "7fb463297d83f297d38e73995f5dea30ee7e85dd0347b306560b11419d5e0040",
+      "normalizedSha256": "7fb463297d83f297d38e73995f5dea30ee7e85dd0347b306560b11419d5e0040"
+    },
+    {
+      "path": "scripts/account-ui-smoke.mjs",
+      "bytes": 1084,
+      "sha256": "e658200c0007442d332f215947f0781717ec1bb18406883ef48ca40d2c658965",
+      "normalizedSha256": "e658200c0007442d332f215947f0781717ec1bb18406883ef48ca40d2c658965"
+    },
+    {
+      "path": "scripts/action-router-smoke.mjs",
+      "bytes": 4317,
+      "sha256": "94730e7595fa8cb79190262a224b1ca7ec06bde3c7a9a5ea32d868f30d4de289",
+      "normalizedSha256": "94730e7595fa8cb79190262a224b1ca7ec06bde3c7a9a5ea32d868f30d4de289"
+    },
+    {
+      "path": "scripts/architecture-quality-gate.mjs",
+      "bytes": 3460,
+      "sha256": "538553848e8d96e7ee927631541fcaa3213622e28fa1bb1b4e307976e1469c2f",
+      "normalizedSha256": "538553848e8d96e7ee927631541fcaa3213622e28fa1bb1b4e307976e1469c2f"
+    },
+    {
+      "path": "scripts/assets-service-smoke.mjs",
+      "bytes": 2505,
+      "sha256": "fe2750a6c12a0b14720065ab3247f56794986337dd40e0e2391dab4e7617def6",
+      "normalizedSha256": "fe2750a6c12a0b14720065ab3247f56794986337dd40e0e2391dab4e7617def6"
+    },
+    {
+      "path": "scripts/atomic-mutation-smoke.mjs",
+      "bytes": 2569,
+      "sha256": "6c59164caa5915749692fb04afdb1fec3b60727a877f4772b1bb7be3be391049",
+      "normalizedSha256": "6c59164caa5915749692fb04afdb1fec3b60727a877f4772b1bb7be3be391049"
+    },
+    {
+      "path": "scripts/auction-clock-smoke.mjs",
+      "bytes": 8357,
+      "sha256": "00aa5c26635bded7994a6498378ce779df018ff4fce6d1e47c6464df679b380a",
+      "normalizedSha256": "00aa5c26635bded7994a6498378ce779df018ff4fce6d1e47c6464df679b380a"
+    },
+    {
+      "path": "scripts/auction-halls-browser-fixture.mjs",
+      "bytes": 694,
+      "sha256": "dc7bec49348bc043af4b4fa8e2a8f46b8c8b245de3c1af4796efc55fd8a9bb69",
+      "normalizedSha256": "dc7bec49348bc043af4b4fa8e2a8f46b8c8b245de3c1af4796efc55fd8a9bb69"
+    },
+    {
+      "path": "scripts/auction-halls-socket-e2e.mjs",
+      "bytes": 7086,
+      "sha256": "6f2a02724a75356087b70b5a128fe93c97c1a5efe822a0a8049f3a3953ca7a4a",
+      "normalizedSha256": "6f2a02724a75356087b70b5a128fe93c97c1a5efe822a0a8049f3a3953ca7a4a"
+    },
+    {
+      "path": "scripts/auction-halls-unlock-smoke.mjs",
+      "bytes": 10241,
+      "sha256": "52008d8e88d1bbce0c06d9e94b71820eec4727a12fdb834e2b30b974f55d9290",
+      "normalizedSha256": "52008d8e88d1bbce0c06d9e94b71820eec4727a12fdb834e2b30b974f55d9290"
+    },
+    {
+      "path": "scripts/auction-service-smoke.mjs",
+      "bytes": 8624,
+      "sha256": "70c3cdc3e1d72a6faa5c21d05e17eb8efc7bb2e268ea99b900ced973909fc15b",
+      "normalizedSha256": "70c3cdc3e1d72a6faa5c21d05e17eb8efc7bb2e268ea99b900ced973909fc15b"
+    },
+    {
+      "path": "scripts/auction-settle-modal-smoke.mjs",
+      "bytes": 3267,
+      "sha256": "8a3f9783a76ea1b9f5ab6f77401012d4ee92d42eacef1200cbb8fb34454a5f0b",
+      "normalizedSha256": "8a3f9783a76ea1b9f5ab6f77401012d4ee92d42eacef1200cbb8fb34454a5f0b"
+    },
+    {
+      "path": "scripts/bangle-finish-browser-fixture.mjs",
+      "bytes": 2139,
+      "sha256": "d879a0868eabe3b9365423e68169f011c854b4fc5364a11d87105d9a0f6589dc",
+      "normalizedSha256": "d879a0868eabe3b9365423e68169f011c854b4fc5364a11d87105d9a0f6589dc"
+    },
+    {
+      "path": "scripts/bangle-finish-smoke.mjs",
+      "bytes": 11740,
+      "sha256": "3a448ba50df6405f0b9349f0dffe87c02cce132ae1b067090961d5d40b5a55de",
+      "normalizedSha256": "3a448ba50df6405f0b9349f0dffe87c02cce132ae1b067090961d5d40b5a55de"
+    },
+    {
+      "path": "scripts/bangle-finish-socket-e2e.mjs",
+      "bytes": 6294,
+      "sha256": "abb3e5fb30a9f43ede46ff6ebdea2d1eadbe6f0e5a66c77161f6085d316c26a6",
+      "normalizedSha256": "abb3e5fb30a9f43ede46ff6ebdea2d1eadbe6f0e5a66c77161f6085d316c26a6"
+    },
+    {
+      "path": "scripts/bill-module-smoke.mjs",
+      "bytes": 10723,
+      "sha256": "1ad2be555b5e329072c4b5a908b48ab25e79a1211be9bfe0a2f1fd5b5ab962df",
+      "normalizedSha256": "1ad2be555b5e329072c4b5a908b48ab25e79a1211be9bfe0a2f1fd5b5ab962df"
+    },
+    {
+      "path": "scripts/blackmarket-empty-roster-smoke.mjs",
+      "bytes": 6433,
+      "sha256": "3291daae825ed3235ec85fca277fc1bede62fcd2cb27a6aca717c87f52be2870",
+      "normalizedSha256": "3291daae825ed3235ec85fca277fc1bede62fcd2cb27a6aca717c87f52be2870"
+    },
+    {
+      "path": "scripts/blackmarket-npc-finish-smoke.mjs",
+      "bytes": 5557,
+      "sha256": "28f3893b3bca871486646519bc6f2d3a7a2d256fbae3b05d3e671fb3440a4bb7",
+      "normalizedSha256": "28f3893b3bca871486646519bc6f2d3a7a2d256fbae3b05d3e671fb3440a4bb7"
+    },
+    {
+      "path": "scripts/blackmarket-npc-schedule-smoke.mjs",
+      "bytes": 15756,
+      "sha256": "4138ca37fa2e09f3b0fc79328d1fa1a6b60e0a9ec42548c3d7019aed17b524b2",
+      "normalizedSha256": "4138ca37fa2e09f3b0fc79328d1fa1a6b60e0a9ec42548c3d7019aed17b524b2"
+    },
+    {
+      "path": "scripts/blackmarket-npc-smoke.mjs",
+      "bytes": 15119,
+      "sha256": "07d3a4e59533186b945cce17475a85bfe4b6ca5d74f7147ea4522e4407aefd51",
+      "normalizedSha256": "07d3a4e59533186b945cce17475a85bfe4b6ca5d74f7147ea4522e4407aefd51"
+    },
+    {
+      "path": "scripts/blackmarket-npc-socket-e2e.mjs",
+      "bytes": 7695,
+      "sha256": "f24b1ed47fa0c8bc91f58b31804ef7670a421ae683eae79d10886350f2a25035",
+      "normalizedSha256": "f24b1ed47fa0c8bc91f58b31804ef7670a421ae683eae79d10886350f2a25035"
+    },
+    {
+      "path": "scripts/blackmarket-npc-variety-smoke.mjs",
+      "bytes": 9698,
+      "sha256": "f8145ac16a081f1e25e7ac3e46d17b5d0b40ff6cb9539f70be807fc1ba4a3eaf",
+      "normalizedSha256": "f8145ac16a081f1e25e7ac3e46d17b5d0b40ff6cb9539f70be807fc1ba4a3eaf"
+    },
+    {
+      "path": "scripts/blackmarket-offcut-smoke.mjs",
+      "bytes": 11910,
+      "sha256": "4a2be08dd0df79c729a9eb9ececdf073bbe611bcff3f537f29e4ff33993a208d",
+      "normalizedSha256": "4a2be08dd0df79c729a9eb9ececdf073bbe611bcff3f537f29e4ff33993a208d"
+    },
+    {
+      "path": "scripts/blackmarket-price-display-smoke.mjs",
+      "bytes": 6461,
+      "sha256": "604b6667686b8b0cc4fd0016f7bbe8052eb468d6f299789b9eaf4249818b0b28",
+      "normalizedSha256": "604b6667686b8b0cc4fd0016f7bbe8052eb468d6f299789b9eaf4249818b0b28"
+    },
+    {
+      "path": "scripts/blackmarket-pricing-smoke.mjs",
+      "bytes": 13551,
+      "sha256": "0229f6929fe9cf794a64b6d5f88fab7da82d67e11d90a4ef26896e02c55247ac",
+      "normalizedSha256": "0229f6929fe9cf794a64b6d5f88fab7da82d67e11d90a4ef26896e02c55247ac"
+    },
+    {
+      "path": "scripts/blackmarket-refresh-smoke.mjs",
+      "bytes": 2775,
+      "sha256": "0c2f6bd3e11358abcecc899dff232994bd1f30d02d419cbbf6312d36a73cc9af",
+      "normalizedSha256": "0c2f6bd3e11358abcecc899dff232994bd1f30d02d419cbbf6312d36a73cc9af"
+    },
+    {
+      "path": "scripts/blackmarket-render-smoke.mjs",
+      "bytes": 1943,
+      "sha256": "a99bd3d8f50040e5f473dec164b558fc7227a2371a8b06ebca34f661d10fd065",
+      "normalizedSha256": "a99bd3d8f50040e5f473dec164b558fc7227a2371a8b06ebca34f661d10fd065"
+    },
+    {
+      "path": "scripts/blackmarket-resources-browser.mjs",
+      "bytes": 15499,
+      "sha256": "a9aa04c97f5b7960941cd4f4a60d96b8d7f2454acdfd06393b97198e9b33f080",
+      "normalizedSha256": "a9aa04c97f5b7960941cd4f4a60d96b8d7f2454acdfd06393b97198e9b33f080"
+    },
+    {
+      "path": "scripts/blackmarket-resources-smoke.mjs",
+      "bytes": 11320,
+      "sha256": "eac4cfa5c59ae4e6f39a505d317fa42204fd3dbf55867eda17a7468b003b67e4",
+      "normalizedSha256": "eac4cfa5c59ae4e6f39a505d317fa42204fd3dbf55867eda17a7468b003b67e4"
+    },
+    {
+      "path": "scripts/blackmarket-service-smoke.mjs",
+      "bytes": 52715,
+      "sha256": "9ddfd905288019eba6fa4f458edc4affca16f7a40ceca04768bf3d6ddec795b1",
+      "normalizedSha256": "9ddfd905288019eba6fa4f458edc4affca16f7a40ceca04768bf3d6ddec795b1"
+    },
+    {
+      "path": "scripts/blackmarket-socket-e2e.mjs",
+      "bytes": 2656,
+      "sha256": "246f9e6007a3e8a2c834c8959a35ae3294277b552f4da3aecbfbad6967c5d802",
+      "normalizedSha256": "246f9e6007a3e8a2c834c8959a35ae3294277b552f4da3aecbfbad6967c5d802"
+    },
+    {
+      "path": "scripts/blind-price-live-socket.mjs",
+      "bytes": 3339,
+      "sha256": "667b1f3b59411720b3b881e8f33e7a9e3ff0ee16f54e25a502342caee9ad7f61",
+      "normalizedSha256": "667b1f3b59411720b3b881e8f33e7a9e3ff0ee16f54e25a502342caee9ad7f61"
+    },
+    {
+      "path": "scripts/blind-price-refresh-e2e.mjs",
+      "bytes": 4564,
+      "sha256": "843e1a29fff082719b12e5ad158effae9a8144e2815da43dd9630a282594e8db",
+      "normalizedSha256": "843e1a29fff082719b12e5ad158effae9a8144e2815da43dd9630a282594e8db"
+    },
+    {
+      "path": "scripts/bm-plan-pool-smoke.mjs",
+      "bytes": 2455,
+      "sha256": "14ac9cdb2e2b90871c7e493ac05e18136a2ce3d0148ff7e915533d3c4f6a61db",
+      "normalizedSha256": "14ac9cdb2e2b90871c7e493ac05e18136a2ce3d0148ff7e915533d3c4f6a61db"
+    },
+    {
+      "path": "scripts/browser/workshop.spec.mjs",
+      "bytes": 15872,
+      "sha256": "aef55653c1589fd433eaca261d34e99b887e6231ac53219f867163a89f972b1f",
+      "normalizedSha256": "aef55653c1589fd433eaca261d34e99b887e6231ac53219f867163a89f972b1f"
+    },
+    {
+      "path": "scripts/canvas-only-smoke.mjs",
+      "bytes": 1306,
+      "sha256": "41a3f51a10ce86c3d0d12855f5e8344cffc71243bcefa9266a4e20e092bb96b6",
+      "normalizedSha256": "48054641f834905f17bbbebd9085bfda9e1056963de7b1f83b5a271e4ec8fcb2"
+    },
+    {
+      "path": "scripts/capture-refactor-baseline.mjs",
+      "bytes": 3431,
+      "sha256": "ca3b682a000a7b7d8f684e352a5d4e64ffbee30bae480510044186bd54177d25",
+      "normalizedSha256": "ca3b682a000a7b7d8f684e352a5d4e64ffbee30bae480510044186bd54177d25"
+    },
+    {
+      "path": "scripts/capture-trading-baseline.mjs",
+      "bytes": 3461,
+      "sha256": "1f03f26ebcf1582d2de0f09631a7d611899e06c7dc8ebc6d03262d015467eea6",
+      "normalizedSha256": "1f03f26ebcf1582d2de0f09631a7d611899e06c7dc8ebc6d03262d015467eea6"
+    },
+    {
+      "path": "scripts/capture-trading-integration.mjs",
+      "bytes": 3464,
+      "sha256": "f2e65a4cade88acda0cc1e85b3f548e015596b7e72ed20313aab981b8620f053",
+      "normalizedSha256": "f2e65a4cade88acda0cc1e85b3f548e015596b7e72ed20313aab981b8620f053"
+    },
+    {
+      "path": "scripts/capture-workshop-fixture.mjs",
+      "bytes": 3070,
+      "sha256": "a4a5d074982a1d30a18776b984bbc1aa16f0cf22f68315f133bbab7e496ab8ae",
+      "normalizedSha256": "a4a5d074982a1d30a18776b984bbc1aa16f0cf22f68315f133bbab7e496ab8ae"
+    },
+    {
+      "path": "scripts/capture-workshop-server-baseline.mjs",
+      "bytes": 3868,
+      "sha256": "ba06ddbd68ff2eb422d81cf501491ec9a04c177c58de293f7b163058b8c286ed",
+      "normalizedSha256": "ba06ddbd68ff2eb422d81cf501491ec9a04c177c58de293f7b163058b8c286ed"
+    },
+    {
+      "path": "scripts/capture-workshop-server-snapshot.mjs",
+      "bytes": 3394,
+      "sha256": "32b2cceff0208f21ebc38a47d6889e53f4d4f80acf04891f67cfa077e2255072",
+      "normalizedSha256": "32b2cceff0208f21ebc38a47d6889e53f4d4f80acf04891f67cfa077e2255072"
+    },
+    {
+      "path": "scripts/chat-service-smoke.mjs",
+      "bytes": 2733,
+      "sha256": "f1b522c87513f8073fc663760cfc57a47c0a76a5dca0733ec056feaed5041c9f",
+      "normalizedSha256": "f1b522c87513f8073fc663760cfc57a47c0a76a5dca0733ec056feaed5041c9f"
+    },
+    {
+      "path": "scripts/chatdock-compact-smoke.mjs",
+      "bytes": 9079,
+      "sha256": "e7d919120afc4c6c757898ab4510999e10ba8b88d527bbafbe83cee5520b9759",
+      "normalizedSha256": "1e5ff30eef2f6bc5df136fbfc38c65ba2e74f2abcf30bca7b0c8de6e18cf1701"
+    },
+    {
+      "path": "scripts/collection-service-smoke.mjs",
+      "bytes": 4294,
+      "sha256": "77ff911f0f923591494df6a9b6312eaf57e5b51cbf9e87db41723ba13ac3a2fd",
+      "normalizedSha256": "77ff911f0f923591494df6a9b6312eaf57e5b51cbf9e87db41723ba13ac3a2fd"
+    },
+    {
+      "path": "scripts/commission-gift-order-smoke.mjs",
+      "bytes": 2844,
+      "sha256": "1be5d937eb988ccb2e2bbbe75e6b3b98f0cfed1ff36283617ffd30deace76d1b",
+      "normalizedSha256": "1be5d937eb988ccb2e2bbbe75e6b3b98f0cfed1ff36283617ffd30deace76d1b"
+    },
+    {
+      "path": "scripts/commission-socket-e2e.mjs",
+      "bytes": 12360,
+      "sha256": "81d4f95b86949a3cacc4da3de63c10855b75c51f1c414474dae48b9fa168fbae",
+      "normalizedSha256": "81d4f95b86949a3cacc4da3de63c10855b75c51f1c414474dae48b9fa168fbae"
+    },
+    {
+      "path": "scripts/debug-spawn-smoke.mjs",
+      "bytes": 5088,
+      "sha256": "1318e85fb77ebc3f2ced41cb9434c6bef5da116742b723e4cb4cd8a79ee667e1",
+      "normalizedSha256": "1318e85fb77ebc3f2ced41cb9434c6bef5da116742b723e4cb4cd8a79ee667e1"
+    },
+    {
+      "path": "scripts/debug-tools-smoke.mjs",
+      "bytes": 4340,
+      "sha256": "6ce6597654251dbe3b1baeb2f1425c5d79166aad36bf96d9bd404af705e45be8",
+      "normalizedSha256": "6ce6597654251dbe3b1baeb2f1425c5d79166aad36bf96d9bd404af705e45be8"
+    },
+    {
+      "path": "scripts/durable-mutation-coordinator-smoke.mjs",
+      "bytes": 2960,
+      "sha256": "2936d801535bbb52cec31445a618a6a6db2a144cb1e4eaf7663b0d82f7e15a41",
+      "normalizedSha256": "2936d801535bbb52cec31445a618a6a6db2a144cb1e4eaf7663b0d82f7e15a41"
+    },
+    {
+      "path": "scripts/economy-craft-regressions.mjs",
+      "bytes": 4529,
+      "sha256": "d367be97767c0a8791985f5866b5eb4fa50e4d802bf30fd1cbd99f0dd1d7e819",
+      "normalizedSha256": "d367be97767c0a8791985f5866b5eb4fa50e4d802bf30fd1cbd99f0dd1d7e819"
+    },
+    {
+      "path": "scripts/economy-overhaul-browser.mjs",
+      "bytes": 16537,
+      "sha256": "e920e5f632bf48ba47cede909ec71f34a7af242e4866600a6946a22ff226bf6c",
+      "normalizedSha256": "e920e5f632bf48ba47cede909ec71f34a7af242e4866600a6946a22ff226bf6c"
+    },
+    {
+      "path": "scripts/economy-progression-simulation.mjs",
+      "bytes": 36961,
+      "sha256": "81e04ec780be6bf0bed9d6bd13d44fe3e50d779c84fcb10d2ca49514dd706527",
+      "normalizedSha256": "81e04ec780be6bf0bed9d6bd13d44fe3e50d779c84fcb10d2ca49514dd706527"
+    },
+    {
+      "path": "scripts/economy-service-smoke.mjs",
+      "bytes": 2866,
+      "sha256": "13b6810ac0fb82570b3e2f502fab45a86ed671749f7288a8cb168381eb804d93",
+      "normalizedSha256": "13b6810ac0fb82570b3e2f502fab45a86ed671749f7288a8cb168381eb804d93"
+    },
+    {
+      "path": "scripts/economy-value-pool-smoke.mjs",
+      "bytes": 2700,
+      "sha256": "cf23cb8bb4f66c083ff304ae546f4c4b3de68ce66deaf350a949ccd8bb7f0d3e",
+      "normalizedSha256": "cf23cb8bb4f66c083ff304ae546f4c4b3de68ce66deaf350a949ccd8bb7f0d3e"
+    },
+    {
+      "path": "scripts/employee-payroll-browser-fixture.mjs",
+      "bytes": 1498,
+      "sha256": "3dbb548dbef0b8c40b11dde1a3034d195ad684fbe5095964f596a52f877bdd38",
+      "normalizedSha256": "3dbb548dbef0b8c40b11dde1a3034d195ad684fbe5095964f596a52f877bdd38"
+    },
+    {
+      "path": "scripts/employee-payroll-policy-smoke.mjs",
+      "bytes": 6540,
+      "sha256": "53b2bf7620331b26bd8bd88912aa0f15de55d4bcda4a6078841fb4e3725695b4",
+      "normalizedSha256": "53b2bf7620331b26bd8bd88912aa0f15de55d4bcda4a6078841fb4e3725695b4"
+    },
+    {
+      "path": "scripts/employee-payroll-smoke.mjs",
+      "bytes": 6289,
+      "sha256": "0b7bd053290d95b02401c0890b8ecf11fa025c4dbcdc1adcfae53d6f18fe3fa4",
+      "normalizedSha256": "0b7bd053290d95b02401c0890b8ecf11fa025c4dbcdc1adcfae53d6f18fe3fa4"
+    },
+    {
+      "path": "scripts/employee-payroll-socket-e2e.mjs",
+      "bytes": 12449,
+      "sha256": "4dacf463a7d82ccf256bff41db882a370cfd007e94162af0b6264e3d5a1878bf",
+      "normalizedSha256": "4dacf463a7d82ccf256bff41db882a370cfd007e94162af0b6264e3d5a1878bf"
+    },
+    {
+      "path": "scripts/employee-system-smoke.mjs",
+      "bytes": 7986,
+      "sha256": "9cfe50444c2ea5d184ec9345f491246e3bea79cbdf4441fbe7b38e8a8837d4d4",
+      "normalizedSha256": "bb826daf4404b0d557b541b568c2ad9237822bc79600475ffa6b8a2317eee9f3"
+    },
+    {
+      "path": "scripts/equipment-system-smoke.mjs",
+      "bytes": 3894,
+      "sha256": "021f2a4f296029d92d7e39deccaf5bc3b7edffc0adcbe42a7092affa333811a7",
+      "normalizedSha256": "30493758a900aedee46f33cef47216218e2ec0d2b2e4d718dfa38f5f74c2cef2"
+    },
+    {
+      "path": "scripts/experience-regressions-smoke.mjs",
+      "bytes": 9932,
+      "sha256": "aa0ebf798c37c8e6391690030ade3f26fb3a25b41d87501e18d7959a6cb41580",
+      "normalizedSha256": "aa0ebf798c37c8e6391690030ade3f26fb3a25b41d87501e18d7959a6cb41580"
+    },
+    {
+      "path": "scripts/feature-availability-smoke.mjs",
+      "bytes": 3619,
+      "sha256": "d7960947edaf682ac76cbecab8c3edcf4a79daf8ac851662b30ba4bf95c3a45a",
+      "normalizedSha256": "d7960947edaf682ac76cbecab8c3edcf4a79daf8ac851662b30ba4bf95c3a45a"
+    },
+    {
+      "path": "scripts/finance-book-smoke.mjs",
+      "bytes": 11503,
+      "sha256": "16dc7134a7c44f0a797fe9a88b6705e1a1ed678ffdc6d8bc509cd01f1a3c741a",
+      "normalizedSha256": "16dc7134a7c44f0a797fe9a88b6705e1a1ed678ffdc6d8bc509cd01f1a3c741a"
+    },
+    {
+      "path": "scripts/finance-services-smoke.mjs",
+      "bytes": 27164,
+      "sha256": "4d5e1769c64afccacb1be316b40886a3ee72da7d7bb71906eeae6ae49590b067",
+      "normalizedSha256": "4d5e1769c64afccacb1be316b40886a3ee72da7d7bb71906eeae6ae49590b067"
+    },
+    {
+      "path": "scripts/finance-ui-smoke.mjs",
+      "bytes": 6190,
+      "sha256": "81612c2cf23894105f6d5c81bfdfaec2c18a69622b18b82ed505ecb324d1818d",
+      "normalizedSha256": "81612c2cf23894105f6d5c81bfdfaec2c18a69622b18b82ed505ecb324d1818d"
+    },
+    {
+      "path": "scripts/finish-plan-controller-smoke.mjs",
+      "bytes": 11035,
+      "sha256": "4308036c8d0a56f3b7aeac7113e933b292c40555dfa8bb455a3d93cf6a7008c1",
+      "normalizedSha256": "bcf57769e04ebb5f0b0119b73ab8afbd59b6ec500ef5ff410300b2e84da8c902"
+    },
+    {
+      "path": "scripts/finish-plan-model-smoke.mjs",
+      "bytes": 2782,
+      "sha256": "cd6e3d63fc98d71c6c4c241dd74b6902aab6647058e9e3bfbed105027f995637",
+      "normalizedSha256": "9e2a54b4812a5337155dd2d95efa20976c4f65797f30646fb1899d7762e35317"
+    },
+    {
+      "path": "scripts/finished-product-design-smoke.mjs",
+      "bytes": 11854,
+      "sha256": "96213db2e28ba6ca8592aec7175cc327ce45fbd1a50dabe851215a213a3dd3ed",
+      "normalizedSha256": "96213db2e28ba6ca8592aec7175cc327ce45fbd1a50dabe851215a213a3dd3ed"
+    },
+    {
+      "path": "scripts/fixtures/owned-workshop.mjs",
+      "bytes": 900,
+      "sha256": "8a4e77b60a00b06664cfc567d06bef3e7359095b0fe0df5ee11c6a8c9a7a2756",
+      "normalizedSha256": "8a4e77b60a00b06664cfc567d06bef3e7359095b0fe0df5ee11c6a8c9a7a2756"
+    },
+    {
+      "path": "scripts/fixtures/persistence-crash-child.mjs",
+      "bytes": 1640,
+      "sha256": "dd37fb77eba58b33f49a375eae16db6dc8428ed32aeacde8aa83d7890cae0be4",
+      "normalizedSha256": "dd37fb77eba58b33f49a375eae16db6dc8428ed32aeacde8aa83d7890cae0be4"
+    },
+    {
+      "path": "scripts/fixtures/postgres-test-environment.mjs",
+      "bytes": 959,
+      "sha256": "a35d90b5853d542fe272a65d5751f4316f356569cda98272c1137d8ab4a8e084",
+      "normalizedSha256": "a35d90b5853d542fe272a65d5751f4316f356569cda98272c1137d8ab4a8e084"
+    },
+    {
+      "path": "scripts/fixtures/test-server-process.mjs",
+      "bytes": 858,
+      "sha256": "b995d6d4e2f2b919bb1720f602b8e0b42e8c252c74a200c7be1228ed5cf44abd",
+      "normalizedSha256": "b995d6d4e2f2b919bb1720f602b8e0b42e8c252c74a200c7be1228ed5cf44abd"
+    },
+    {
+      "path": "scripts/fixtures/test-signal-bridge.mjs",
+      "bytes": 297,
+      "sha256": "1b46dd8ef2e5091f47a984794223ef8bb304db4972ab573ff9d3cd36eec1150a",
+      "normalizedSha256": "1b46dd8ef2e5091f47a984794223ef8bb304db4972ab573ff9d3cd36eec1150a"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/commerce-commands.js",
+      "bytes": 13041,
+      "sha256": "e11573077a2061fdb2e1043a07d380e8c7cc26ea7ee9a23a8b5be9b63e170442",
+      "normalizedSha256": "e11573077a2061fdb2e1043a07d380e8c7cc26ea7ee9a23a8b5be9b63e170442"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/socket-handlers.js",
+      "bytes": 36542,
+      "sha256": "60ff8088ad0b9eee096d280ec02c33471b5fa62985edac4f653ee5ef02d383f5",
+      "normalizedSha256": "60ff8088ad0b9eee096d280ec02c33471b5fa62985edac4f653ee5ef02d383f5"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/sources.json",
+      "bytes": 241780,
+      "sha256": "893598ec7bd30cc8bafa58e059c6a033583bb267dbfbadc1adcf1d20e602eb79",
+      "normalizedSha256": "893598ec7bd30cc8bafa58e059c6a033583bb267dbfbadc1adcf1d20e602eb79"
+    },
+    {
+      "path": "scripts/fixtures/trading-service-baseline/wire-server.js",
+      "bytes": 32693,
+      "sha256": "13c70c6dd6890a1da2190723271dda42b0a7ddba03e8844ef77a7480902e461e",
+      "normalizedSha256": "13c70c6dd6890a1da2190723271dda42b0a7ddba03e8844ef77a7480902e461e"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/contract.json",
+      "bytes": 1547,
+      "sha256": "7f7015702c423fe9b88cf567124b0fe1ef802dc0443196360fcf4627b52a9b0c",
+      "normalizedSha256": "7f7015702c423fe9b88cf567124b0fe1ef802dc0443196360fcf4627b52a9b0c"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/state.json",
+      "bytes": 489763,
+      "sha256": "547693c56af1560531a0e8209fd3f15a2e4864fe8fa34dba7c8a2d92814e2448",
+      "normalizedSha256": "547693c56af1560531a0e8209fd3f15a2e4864fe8fa34dba7c8a2d92814e2448"
+    },
+    {
+      "path": "scripts/fixtures/workshop-baseline/workshop-module.js",
+      "bytes": 94991,
+      "sha256": "522da3d4f61716c2a682f5145b69e5f31227fd14f832dc4d4ffe6d375d6c95e0",
+      "normalizedSha256": "522da3d4f61716c2a682f5145b69e5f31227fd14f832dc4d4ffe6d375d6c95e0"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/contract.json",
+      "bytes": 209,
+      "sha256": "fbde5802856a57d9268f6e472dd6b62e02405b6de3c6fe596c76e215f1fec77d",
+      "normalizedSha256": "fbde5802856a57d9268f6e472dd6b62e02405b6de3c6fe596c76e215f1fec77d"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/players.json",
+      "bytes": 157499,
+      "sha256": "c15a8e080288bac0172ece56bae7c3e6d632ce8343f9cf572fa62bd43a357981",
+      "normalizedSha256": "c15a8e080288bac0172ece56bae7c3e6d632ce8343f9cf572fa62bd43a357981"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/server-contract.json",
+      "bytes": 2356,
+      "sha256": "4d1fa645ded942115bb80ceeb2fbccc526e6cba6e99201860327c14b75d01375",
+      "normalizedSha256": "4d1fa645ded942115bb80ceeb2fbccc526e6cba6e99201860327c14b75d01375"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/server-service.js",
+      "bytes": 36291,
+      "sha256": "882e97b07df0e993dc92ee083c4cb58d49dc43f0fb4f375294b9b03ffb971568",
+      "normalizedSha256": "882e97b07df0e993dc92ee083c4cb58d49dc43f0fb4f375294b9b03ffb971568"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/state.json",
+      "bytes": 518663,
+      "sha256": "20a81bf17f37146cd63ab398d9b99db21323162cca0d925b2f23dc3cb0df0ee8",
+      "normalizedSha256": "20a81bf17f37146cd63ab398d9b99db21323162cca0d925b2f23dc3cb0df0ee8"
+    },
+    {
+      "path": "scripts/fixtures/workshop-server-baseline/workshop-module.js",
+      "bytes": 4819,
+      "sha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778",
+      "normalizedSha256": "f81cb8580cb123f68691732202b71299497a1c6cdee3b2749025a2df76a0d778"
+    },
+    {
+      "path": "scripts/gameplay-rules-smoke.mjs",
+      "bytes": 8773,
+      "sha256": "ba3bbb637ded1307bef5dd20c00d25d77cbff3f1b6586a05e4106b88fb80ef1a",
+      "normalizedSha256": "ba3bbb637ded1307bef5dd20c00d25d77cbff3f1b6586a05e4106b88fb80ef1a"
+    },
+    {
+      "path": "scripts/generate-template-icons.mjs",
+      "bytes": 6622,
+      "sha256": "97c8ed7911c00a5320520e0f1010b7e0343f2dd0ed10f5de34ee38926d390c32",
+      "normalizedSha256": "97c8ed7911c00a5320520e0f1010b7e0343f2dd0ed10f5de34ee38926d390c32"
+    },
+    {
+      "path": "scripts/hire-market-roster-smoke.mjs",
+      "bytes": 3192,
+      "sha256": "7e58275ca6f461ffbda686bb0b08fb626712e483415ee8562c8e8cd0af8028ef",
+      "normalizedSha256": "7e58275ca6f461ffbda686bb0b08fb626712e483415ee8562c8e8cd0af8028ef"
+    },
+    {
+      "path": "scripts/http-security-smoke.mjs",
+      "bytes": 3069,
+      "sha256": "f95559f111d148e859b946cb98c03a34accdf328e1d3fa502002ccf07074e187",
+      "normalizedSha256": "f95559f111d148e859b946cb98c03a34accdf328e1d3fa502002ccf07074e187"
+    },
+    {
+      "path": "scripts/inlay-art-browser-fixture.mjs",
+      "bytes": 2923,
+      "sha256": "da9f8f9e5385295ceaf3c3a63392e316cde08fe8ec1e186f06d07179ca2f83b0",
+      "normalizedSha256": "da9f8f9e5385295ceaf3c3a63392e316cde08fe8ec1e186f06d07179ca2f83b0"
+    },
+    {
+      "path": "scripts/inlay-artwork-smoke.mjs",
+      "bytes": 10114,
+      "sha256": "568f3d1510996637a1c8f80a444948fdd8614538c0b27b98c9ea4d0ed2d9f792",
+      "normalizedSha256": "568f3d1510996637a1c8f80a444948fdd8614538c0b27b98c9ea4d0ed2d9f792"
+    },
+    {
+      "path": "scripts/inlay-preview-tester-smoke.mjs",
+      "bytes": 6664,
+      "sha256": "b135cf851fa198037da51a41b6c012f2bb500dbdce1fedf8eec4d20495255fee",
+      "normalizedSha256": "b135cf851fa198037da51a41b6c012f2bb500dbdce1fedf8eec4d20495255fee"
+    },
+    {
+      "path": "scripts/inlay-system-smoke.mjs",
+      "bytes": 4305,
+      "sha256": "68ea4ee876389193029ee2652fe87c2d4fc0b21d3dde95396c4f5a5dc02a395e",
+      "normalizedSha256": "0903e7c261195c7e15e2be7e443a3ccea4e418aee296e1ba527038e7aafea38f"
+    },
+    {
+      "path": "scripts/inventory-detail-analysis-smoke.mjs",
+      "bytes": 10691,
+      "sha256": "da8490951cc4c7165ccd3178125a1dc619cf10eb6ff2cd2fc9139d91bb964b6e",
+      "normalizedSha256": "da8490951cc4c7165ccd3178125a1dc619cf10eb6ff2cd2fc9139d91bb964b6e"
+    },
+    {
+      "path": "scripts/inventory-detail-browser.mjs",
+      "bytes": 10235,
+      "sha256": "b3fc23190104325d81e97099ac2a4e28e3d6038b9af2b51a52069f5e8b41359c",
+      "normalizedSha256": "b3fc23190104325d81e97099ac2a4e28e3d6038b9af2b51a52069f5e8b41359c"
+    },
+    {
+      "path": "scripts/inventory-module-smoke.mjs",
+      "bytes": 20870,
+      "sha256": "69b39dab49d2a5ec1966164a2c6af2b46e81d74e40ae5686875aad26fdb3cbb3",
+      "normalizedSha256": "69b39dab49d2a5ec1966164a2c6af2b46e81d74e40ae5686875aad26fdb3cbb3"
+    },
+    {
+      "path": "scripts/inventory-recycle-smoke.mjs",
+      "bytes": 7195,
+      "sha256": "8272e037a2f8c1f4f770f637cc8fff80937fa29c78c23b06d6b12445e358cb0e",
+      "normalizedSha256": "8272e037a2f8c1f4f770f637cc8fff80937fa29c78c23b06d6b12445e358cb0e"
+    },
+    {
+      "path": "scripts/inventory-service-smoke.mjs",
+      "bytes": 3071,
+      "sha256": "45b03dbbc729a6c293abf0c37ebec024b3e0ea6fffea472cae8088283c76bdc7",
+      "normalizedSha256": "45b03dbbc729a6c293abf0c37ebec024b3e0ea6fffea472cae8088283c76bdc7"
+    },
+    {
+      "path": "scripts/inventory-unseen-smoke.mjs",
+      "bytes": 1161,
+      "sha256": "996d3a2a6496f80791afafa1bec1ef6ecdafa53d9b3d6033671888bac66497de",
+      "normalizedSha256": "996d3a2a6496f80791afafa1bec1ef6ecdafa53d9b3d6033671888bac66497de"
+    },
+    {
+      "path": "scripts/jade-auction-smoke.mjs",
+      "bytes": 10766,
+      "sha256": "b37885e6c7183614e5603794e499b00f7670d06f89d0c8c73850be5ff45ca40b",
+      "normalizedSha256": "70d80ed40e36158420872c3304108b532735d7d0f195a0bd7239e87e84cf8fa1"
+    },
+    {
+      "path": "scripts/jade-loop-smoke.mjs",
+      "bytes": 3669,
+      "sha256": "666256a77e7e42741063b59491a6d4b5781fa3cdf72af6d1b528e77f70624a5d",
+      "normalizedSha256": "cc6f97e3f5e1fe2c5add9e3cd9e22590f6e3d9757507ce20d935800633976858"
+    },
+    {
+      "path": "scripts/jade-opening-engine-smoke.mjs",
+      "bytes": 16728,
+      "sha256": "aaf4f0f8895f3b763389d924520d4a0e75acd6ea1ce6a027f0865f12b7c0961d",
+      "normalizedSha256": "71004cc11054fd59614908517b65ef64a4fd03a9dcd38aae1c428db19b4464f8"
+    },
+    {
+      "path": "scripts/jade-piece-browser-fixture.mjs",
+      "bytes": 2400,
+      "sha256": "416935b585705717c1b557f7ecd05e269c4fe5e82053a693add37f442bd73023",
+      "normalizedSha256": "416935b585705717c1b557f7ecd05e269c4fe5e82053a693add37f442bd73023"
+    },
+    {
+      "path": "scripts/jade-piece-smoke.mjs",
+      "bytes": 12256,
+      "sha256": "fc2b66024e5e12cce97e8af7f127b2d1e86b92296604dec21802dad2bae12f17",
+      "normalizedSha256": "fc2b66024e5e12cce97e8af7f127b2d1e86b92296604dec21802dad2bae12f17"
+    },
+    {
+      "path": "scripts/jade-renderer-smoke.mjs",
+      "bytes": 8026,
+      "sha256": "7b86b785cbd7f468fc643b4643b828992fca07732f526ba7ba95d1267ed8d72d",
+      "normalizedSha256": "3c0d069fe989eef01f507deb245e6fc60dd799ecd94b4a41d6cc07c42e306b01"
+    },
+    {
+      "path": "scripts/jade-rules-smoke.mjs",
+      "bytes": 5841,
+      "sha256": "cd6673c79c6d2fec090c6aa36273dac42a015c297f48239f192186ec6ea2713a",
+      "normalizedSha256": "2d3ab823f518c8cdd58998cc6b79daa04960638daaef9f198e4c9e5b43dd4b00"
+    },
+    {
+      "path": "scripts/jade-volume-smoke.mjs",
+      "bytes": 2175,
+      "sha256": "f8cce96184215faa16bdc6fadbfc9afbf83795ff99d11bad54831ffe6580f06b",
+      "normalizedSha256": "f8cce96184215faa16bdc6fadbfc9afbf83795ff99d11bad54831ffe6580f06b"
+    },
+    {
+      "path": "scripts/lazy-preview-smoke.mjs",
+      "bytes": 9245,
+      "sha256": "14471240d6d0bdd90e1375a6aef2c9edcef226a7556175b7082190c9796e09a0",
+      "normalizedSha256": "14471240d6d0bdd90e1375a6aef2c9edcef226a7556175b7082190c9796e09a0"
+    },
+    {
+      "path": "scripts/livestream-buy-flow-smoke.mjs",
+      "bytes": 4673,
+      "sha256": "f7298802d4f83316e995a0c2538ff5ab77eabc45f01c0d352297c4e29fc11b3b",
+      "normalizedSha256": "f7298802d4f83316e995a0c2538ff5ab77eabc45f01c0d352297c4e29fc11b3b"
+    },
+    {
+      "path": "scripts/livestream-buy-socket-e2e.mjs",
+      "bytes": 4961,
+      "sha256": "c7dc38a9cab0c04aa40ce369f1feb256769798e500a756d5bb26ca888ebd7bf6",
+      "normalizedSha256": "c7dc38a9cab0c04aa40ce369f1feb256769798e500a756d5bb26ca888ebd7bf6"
+    },
+    {
+      "path": "scripts/livestream-room-smoke.mjs",
+      "bytes": 14418,
+      "sha256": "2acbb89268f21ae2238dca69b2087ccc38ce1b6167ad94534fcd99fd4b833aa7",
+      "normalizedSha256": "2acbb89268f21ae2238dca69b2087ccc38ce1b6167ad94534fcd99fd4b833aa7"
+    },
+    {
+      "path": "scripts/livestream-service-smoke.mjs",
+      "bytes": 2624,
+      "sha256": "bab24cc1dc2187f049e88f69d0c364771970c58f90ab8fa3947106a33c4d6f92",
+      "normalizedSha256": "bab24cc1dc2187f049e88f69d0c364771970c58f90ab8fa3947106a33c4d6f92"
+    },
+    {
+      "path": "scripts/livestream-settle-modal-smoke.mjs",
+      "bytes": 6276,
+      "sha256": "2d6467df37f9b05b715da6c0ca001d493d076a8e9e4c03a2d68dc05639fed8a7",
+      "normalizedSha256": "2d6467df37f9b05b715da6c0ca001d493d076a8e9e4c03a2d68dc05639fed8a7"
+    },
+    {
+      "path": "scripts/livestream-ui-smoke.mjs",
+      "bytes": 15810,
+      "sha256": "ba60caaeae203f79d1c45e078cce04fc8391f515906d620b663315b4ac308c06",
+      "normalizedSha256": "ba60caaeae203f79d1c45e078cce04fc8391f515906d620b663315b4ac308c06"
+    },
+    {
+      "path": "scripts/load-client-shell.mjs",
+      "bytes": 1641,
+      "sha256": "56520e5a9bf3c71a20cc307674f796d8df56ab70961ed0ee1d3f68757d8a2e26",
+      "normalizedSha256": "56520e5a9bf3c71a20cc307674f796d8df56ab70961ed0ee1d3f68757d8a2e26"
+    },
+    {
+      "path": "scripts/load-styles.mjs",
+      "bytes": 1248,
+      "sha256": "204a257b2d9f5585490892a2c9b4d1e97ab302c423d23f99afb27310a0387b2f",
+      "normalizedSha256": "204a257b2d9f5585490892a2c9b4d1e97ab302c423d23f99afb27310a0387b2f"
+    },
+    {
+      "path": "scripts/load-trading-service-source.mjs",
+      "bytes": 583,
+      "sha256": "e58739a1e03e58688b43f8f16f0a82037d631bd87714584ac02829744a9660d0",
+      "normalizedSha256": "e58739a1e03e58688b43f8f16f0a82037d631bd87714584ac02829744a9660d0"
+    },
+    {
+      "path": "scripts/load-workshop-service-source.mjs",
+      "bytes": 565,
+      "sha256": "8570a799fdf1b0ed0704914c07ebc3f3b42f305d918c21a4ccb6c2566bfeb40f",
+      "normalizedSha256": "8570a799fdf1b0ed0704914c07ebc3f3b42f305d918c21a4ccb6c2566bfeb40f"
+    },
+    {
+      "path": "scripts/load-workshop-source.mjs",
+      "bytes": 687,
+      "sha256": "f60bb30b6bd8a7c6a3fdead425380f4221ac8ab7ef6f7b21ad7118ba7c5a998e",
+      "normalizedSha256": "f60bb30b6bd8a7c6a3fdead425380f4221ac8ab7ef6f7b21ad7118ba7c5a998e"
+    },
+    {
+      "path": "scripts/market-card-info-smoke.mjs",
+      "bytes": 7719,
+      "sha256": "6e4dcd372364e70ea6319ecabe2d6f13356476da6f3379971f82c59d74f8400b",
+      "normalizedSha256": "6e4dcd372364e70ea6319ecabe2d6f13356476da6f3379971f82c59d74f8400b"
+    },
+    {
+      "path": "scripts/market-equipment-browser.mjs",
+      "bytes": 9990,
+      "sha256": "f04037a1e2f0be9a63995112ae8487af69586107879b1a8388ad8e67b294dad0",
+      "normalizedSha256": "f04037a1e2f0be9a63995112ae8487af69586107879b1a8388ad8e67b294dad0"
+    },
+    {
+      "path": "scripts/market-equipment-smoke.mjs",
+      "bytes": 9265,
+      "sha256": "16a0f6353442b2aa7c7838f17db1ee34fab25e4b3322d131e0fd2b73d08b80ff",
+      "normalizedSha256": "16a0f6353442b2aa7c7838f17db1ee34fab25e4b3322d131e0fd2b73d08b80ff"
+    },
+    {
+      "path": "scripts/market-equipment-socket-e2e.mjs",
+      "bytes": 10435,
+      "sha256": "0341fd120bb35f74a844f12d24923de23fcc279566090351f814fd2d63ca7163",
+      "normalizedSha256": "0341fd120bb35f74a844f12d24923de23fcc279566090351f814fd2d63ca7163"
+    },
+    {
+      "path": "scripts/market-liquidity-service-smoke.mjs",
+      "bytes": 3026,
+      "sha256": "facc5754fe1252663ed1c28e0e317abab9b4cd5d78e24fa8357d5a1a235b952d",
+      "normalizedSha256": "facc5754fe1252663ed1c28e0e317abab9b4cd5d78e24fa8357d5a1a235b952d"
+    },
+    {
+      "path": "scripts/market-service-smoke.mjs",
+      "bytes": 9525,
+      "sha256": "1d3e39cb8b38736d542ac5806d19162886bcc23ad7fecd33456c4512e23bafd7",
+      "normalizedSha256": "1d3e39cb8b38736d542ac5806d19162886bcc23ad7fecd33456c4512e23bafd7"
+    },
+    {
+      "path": "scripts/market-want-smoke.mjs",
+      "bytes": 11113,
+      "sha256": "e6bfce1650d4b81b9322390fb5c7d76f94edf498651d48a178d9187a891c4146",
+      "normalizedSha256": "e6bfce1650d4b81b9322390fb5c7d76f94edf498651d48a178d9187a891c4146"
+    },
+    {
+      "path": "scripts/materials-service-smoke.mjs",
+      "bytes": 3506,
+      "sha256": "ac3f39fc1839a5954c285f1cb35c52f2e6e79131e391b0b836c2a649bc4eec8a",
+      "normalizedSha256": "ac3f39fc1839a5954c285f1cb35c52f2e6e79131e391b0b836c2a649bc4eec8a"
+    },
+    {
+      "path": "scripts/migrate-world-to-postgres.mjs",
+      "bytes": 2547,
+      "sha256": "805344315235876043f24371239c9a1b20bcbea922cc585a20eb108561ac7aaa",
+      "normalizedSha256": "805344315235876043f24371239c9a1b20bcbea922cc585a20eb108561ac7aaa"
+    },
+    {
+      "path": "scripts/mining-allocation-smoke.mjs",
+      "bytes": 8565,
+      "sha256": "db4b2ee952313f32150639398d955c2b7a0c9b17476b10f0b87ee0c6a1ba2867",
+      "normalizedSha256": "db4b2ee952313f32150639398d955c2b7a0c9b17476b10f0b87ee0c6a1ba2867"
+    },
+    {
+      "path": "scripts/mining-balance-smoke.mjs",
+      "bytes": 2624,
+      "sha256": "a44f0bee09ca22cd830d4d81cbd4351f62251d4adc8f34d3ff9c49a5ed3d95c5",
+      "normalizedSha256": "a44f0bee09ca22cd830d4d81cbd4351f62251d4adc8f34d3ff9c49a5ed3d95c5"
+    },
+    {
+      "path": "scripts/mining-basic-mode-smoke.mjs",
+      "bytes": 16615,
+      "sha256": "fff85e731e6e42d8eec390e42801a4fcf2c2e5dc78f11e5d08fbcd45e1274fe4",
+      "normalizedSha256": "fff85e731e6e42d8eec390e42801a4fcf2c2e5dc78f11e5d08fbcd45e1274fe4"
+    },
+    {
+      "path": "scripts/mining-competition-health-smoke.mjs",
+      "bytes": 3239,
+      "sha256": "d39664fe01471ae05b88923ba81f3c9c874305920cfc73d97e51b45a833052fa",
+      "normalizedSha256": "d39664fe01471ae05b88923ba81f3c9c874305920cfc73d97e51b45a833052fa"
+    },
+    {
+      "path": "scripts/mining-downtime-recovery-smoke.mjs",
+      "bytes": 5188,
+      "sha256": "291c050ba75880c9ddac5ba373e5640cac08bda6127c169e574b21d6a021a919",
+      "normalizedSha256": "291c050ba75880c9ddac5ba373e5640cac08bda6127c169e574b21d6a021a919"
+    },
+    {
+      "path": "scripts/mining-economy-insights-smoke.mjs",
+      "bytes": 3007,
+      "sha256": "bc9069350a298f9a2ab17b61554aa2f6f86d00b2cc9853b02ca7ccdf4e938f5f",
+      "normalizedSha256": "bc9069350a298f9a2ab17b61554aa2f6f86d00b2cc9853b02ca7ccdf4e938f5f"
+    },
+    {
+      "path": "scripts/mining-fairness-smoke.mjs",
+      "bytes": 3918,
+      "sha256": "e7e7151b04d6229ee017536d5a57e9e67318621bebc3f9d66c4bed8000705b2f",
+      "normalizedSha256": "e7e7151b04d6229ee017536d5a57e9e67318621bebc3f9d66c4bed8000705b2f"
+    },
+    {
+      "path": "scripts/mining-health-smoke.mjs",
+      "bytes": 4141,
+      "sha256": "be369901b71e1e5ca323cdc6c89e4d36f2febbf2c91c11a0367329eaf03b8df5",
+      "normalizedSha256": "be369901b71e1e5ca323cdc6c89e4d36f2febbf2c91c11a0367329eaf03b8df5"
+    },
+    {
+      "path": "scripts/mining-job-recovery-smoke.mjs",
+      "bytes": 12082,
+      "sha256": "a290c60006b979fcd99310e96ae6fb6bbe7f3eae5a8bf0296bf0459a0adbda82",
+      "normalizedSha256": "a290c60006b979fcd99310e96ae6fb6bbe7f3eae5a8bf0296bf0459a0adbda82"
+    },
+    {
+      "path": "scripts/mining-persistence-smoke.mjs",
+      "bytes": 7451,
+      "sha256": "334df64dc890757afc5bce3b778de96a371217ce6e2cea29ebebc64668d240fd",
+      "normalizedSha256": "334df64dc890757afc5bce3b778de96a371217ce6e2cea29ebebc64668d240fd"
+    },
+    {
+      "path": "scripts/mining-read-scope-regressions.mjs",
+      "bytes": 3599,
+      "sha256": "52fd0ca919c94dbcc4ec259919d7957c0d2faccbc29e110127e94fe4ddf1cda0",
+      "normalizedSha256": "52fd0ca919c94dbcc4ec259919d7957c0d2faccbc29e110127e94fe4ddf1cda0"
+    },
+    {
+      "path": "scripts/mining-roster-participation-smoke.mjs",
+      "bytes": 3700,
+      "sha256": "78baee1209aaf59eeaff279f25d835644fd5cdc94aa675d1589156ebd4c59525",
+      "normalizedSha256": "78baee1209aaf59eeaff279f25d835644fd5cdc94aa675d1589156ebd4c59525"
+    },
+    {
+      "path": "scripts/mining-runtime-soak-smoke.mjs",
+      "bytes": 4948,
+      "sha256": "0d7de34615e61bf06b9f069352940518554a8ec4d4f62dbe455f5ddfb4239eaa",
+      "normalizedSha256": "0d7de34615e61bf06b9f069352940518554a8ec4d4f62dbe455f5ddfb4239eaa"
+    },
+    {
+      "path": "scripts/mining-service-smoke.mjs",
+      "bytes": 52836,
+      "sha256": "f600be2d907126a988370620ccfe2a36dedd357e701d54d2ac6b7d4a9e1947a7",
+      "normalizedSha256": "f600be2d907126a988370620ccfe2a36dedd357e701d54d2ac6b7d4a9e1947a7"
+    },
+    {
+      "path": "scripts/mining-socket-e2e.mjs",
+      "bytes": 12131,
+      "sha256": "981c419a4a39169398fbe59aa3dae5b3331e2c9594b1ff9a1bfdc9d0a051f9cc",
+      "normalizedSha256": "981c419a4a39169398fbe59aa3dae5b3331e2c9594b1ff9a1bfdc9d0a051f9cc"
+    },
+    {
+      "path": "scripts/mining-socket-fault-e2e.mjs",
+      "bytes": 10206,
+      "sha256": "a88bcefaf74119960ae34177ac28d883529ddb500ded3389821f1962811df0e3",
+      "normalizedSha256": "a88bcefaf74119960ae34177ac28d883529ddb500ded3389821f1962811df0e3"
+    },
+    {
+      "path": "scripts/mining-socket-restart-e2e.mjs",
+      "bytes": 10134,
+      "sha256": "412cb9ded02b4cc029791596925796cf8c08a1bf2cdeb5f5b168a1b9fd2e9a53",
+      "normalizedSha256": "412cb9ded02b4cc029791596925796cf8c08a1bf2cdeb5f5b168a1b9fd2e9a53"
+    },
+    {
+      "path": "scripts/mining-tuning-governance-smoke.mjs",
+      "bytes": 10776,
+      "sha256": "e12ed4a66bf649b259129e32ac2e016d0ae92bf77e1dceac2d2f2319d49fa128",
+      "normalizedSha256": "e12ed4a66bf649b259129e32ac2e016d0ae92bf77e1dceac2d2f2319d49fa128"
+    },
+    {
+      "path": "scripts/mining-ui-smoke.mjs",
+      "bytes": 53320,
+      "sha256": "305fefde4d649c7b643cbc864f8c75f5aa3bd4569034bbe0c7261e854f662c40",
+      "normalizedSha256": "305fefde4d649c7b643cbc864f8c75f5aa3bd4569034bbe0c7261e854f662c40"
+    },
+    {
+      "path": "scripts/mining-world-economy-smoke.mjs",
+      "bytes": 17006,
+      "sha256": "b545885e0308a1b13b7fef8889edbf0b2a0442df1624a94de53d095446c2b104",
+      "normalizedSha256": "b545885e0308a1b13b7fef8889edbf0b2a0442df1624a94de53d095446c2b104"
+    },
+    {
+      "path": "scripts/modal-lifecycle-smoke.mjs",
+      "bytes": 10336,
+      "sha256": "dd83cd8e7e6473df562a3536f1e5f7abb2a81cbf2ec1d14ef019bb66c0607abb",
+      "normalizedSha256": "ba4f1fa0db1cf1e9f761a406d9a5b158090002596ce241d0007ec02d89d56bdb"
+    },
+    {
+      "path": "scripts/money-compact-smoke.mjs",
+      "bytes": 1517,
+      "sha256": "9f6a41607e4ee21882e0bd2ec5785c21001b7c5a32279d8a823b3d95ea140a6c",
+      "normalizedSha256": "9f6a41607e4ee21882e0bd2ec5785c21001b7c5a32279d8a823b3d95ea140a6c"
+    },
+    {
+      "path": "scripts/mutation-idempotency-socket-e2e.mjs",
+      "bytes": 4581,
+      "sha256": "86d61ab959383c9d1c96b738ac7b783eb3b9e464c23526e9007660656cb345e1",
+      "normalizedSha256": "86d61ab959383c9d1c96b738ac7b783eb3b9e464c23526e9007660656cb345e1"
+    },
+    {
+      "path": "scripts/mutation-socket-smoke.mjs",
+      "bytes": 2871,
+      "sha256": "d593ee506ba433c1ff44ff23392a61fc5df480778496fdcfd1cc2f2d8df67f92",
+      "normalizedSha256": "d593ee506ba433c1ff44ff23392a61fc5df480778496fdcfd1cc2f2d8df67f92"
+    },
+    {
+      "path": "scripts/night-theme-smoke.mjs",
+      "bytes": 20185,
+      "sha256": "e175ed3b77e4f54b989f82ee587f01428350cf4005f92fa8c3dc90d32891f262",
+      "normalizedSha256": "732e521ef9c1fbed4292982dfea1bb9e46e2af7d57e94bfe532e1084d72cf8c0"
+    },
+    {
+      "path": "scripts/offline-service-smoke.mjs",
+      "bytes": 2601,
+      "sha256": "3d40aee7b796038b2ac9098ad49400d8eb6b268d2cdeea2b14ea30d60cf40361",
+      "normalizedSha256": "3d40aee7b796038b2ac9098ad49400d8eb6b268d2cdeea2b14ea30d60cf40361"
+    },
+    {
+      "path": "scripts/opening-planner-drag-smoke.mjs",
+      "bytes": 5776,
+      "sha256": "5a9121314ed7bf50a39dbe26b05770ae32834cc9eb949efbe07af7a2e8a47bfd",
+      "normalizedSha256": "5a9121314ed7bf50a39dbe26b05770ae32834cc9eb949efbe07af7a2e8a47bfd"
+    },
+    {
+      "path": "scripts/opening-value-preview-smoke.mjs",
+      "bytes": 4499,
+      "sha256": "43b90c8086340d1c02fa3dd7c7d095664dd4a56c9d3e6930769370ca0ddadfe1",
+      "normalizedSha256": "43b90c8086340d1c02fa3dd7c7d095664dd4a56c9d3e6930769370ca0ddadfe1"
+    },
+    {
+      "path": "scripts/orders-service-smoke.mjs",
+      "bytes": 12842,
+      "sha256": "6adef0efd77994dd916de6a78ec85ff33cce0d9e3ef72af3ec135ebbddff0b76",
+      "normalizedSha256": "6adef0efd77994dd916de6a78ec85ff33cce0d9e3ef72af3ec135ebbddff0b76"
+    },
+    {
+      "path": "scripts/overview-turnover-smoke.mjs",
+      "bytes": 2888,
+      "sha256": "9a711f651510bb01b5d8ceaae5c2ede0a2256efc539f52e4807a9347d530a5c3",
+      "normalizedSha256": "9a711f651510bb01b5d8ceaae5c2ede0a2256efc539f52e4807a9347d530a5c3"
+    },
+    {
+      "path": "scripts/persistence-crash-recovery-smoke.mjs",
+      "bytes": 4301,
+      "sha256": "3a62d2dea445139039fc8f87d4ff8105b95ef0f87201919c87a6461ec1172eec",
+      "normalizedSha256": "3a62d2dea445139039fc8f87d4ff8105b95ef0f87201919c87a6461ec1172eec"
+    },
+    {
+      "path": "scripts/phase-metrics-smoke.mjs",
+      "bytes": 3888,
+      "sha256": "ac87a8dec85a62b30b8698785129c96e794f9c579d8a58ae89591f61c51f1338",
+      "normalizedSha256": "ac87a8dec85a62b30b8698785129c96e794f9c579d8a58ae89591f61c51f1338"
+    },
+    {
+      "path": "scripts/planner-drafts-smoke.mjs",
+      "bytes": 12019,
+      "sha256": "25c2542c0be2c57ce49142780a1df3f1de51c49d32eb94a598f5d1d153f8b180",
+      "normalizedSha256": "25c2542c0be2c57ce49142780a1df3f1de51c49d32eb94a598f5d1d153f8b180"
+    },
+    {
+      "path": "scripts/planning-authority-smoke.mjs",
+      "bytes": 6898,
+      "sha256": "829ab3b2f155e168a7d37e41339cc987a6171a73170ad8d22ef3bb1f985f9ba8",
+      "normalizedSha256": "829ab3b2f155e168a7d37e41339cc987a6171a73170ad8d22ef3bb1f985f9ba8"
+    },
+    {
+      "path": "scripts/planning-finance-browser.mjs",
+      "bytes": 13615,
+      "sha256": "295662bd18dcef1785ef3bce2cfe6fe6d470b7d271e7e5dad8ed9ebea00b3114",
+      "normalizedSha256": "295662bd18dcef1785ef3bce2cfe6fe6d470b7d271e7e5dad8ed9ebea00b3114"
+    },
+    {
+      "path": "scripts/player-exploration-regressions.mjs",
+      "bytes": 10262,
+      "sha256": "d6197b2d7168ef69e2e3e1fa0405658053991e5d9ee085bca1151db2e37b812b",
+      "normalizedSha256": "d6197b2d7168ef69e2e3e1fa0405658053991e5d9ee085bca1151db2e37b812b"
+    },
+    {
+      "path": "scripts/player-progression-smoke.mjs",
+      "bytes": 18607,
+      "sha256": "0047dbff480371b2a390289793c1bf0bfe605a5e1e366a205026d35eb78f278c",
+      "normalizedSha256": "0047dbff480371b2a390289793c1bf0bfe605a5e1e366a205026d35eb78f278c"
+    },
+    {
+      "path": "scripts/player-service-smoke.mjs",
+      "bytes": 3299,
+      "sha256": "1a61e0712c454f8c55685e0bd18f7f13b1ab4beed813ef9f4c70ae916c525330",
+      "normalizedSha256": "1a61e0712c454f8c55685e0bd18f7f13b1ab4beed813ef9f4c70ae916c525330"
+    },
+    {
+      "path": "scripts/player-session-service-smoke.mjs",
+      "bytes": 1624,
+      "sha256": "7866183bdb21a810ce25b7c6d6014d844956763663684903a0c58c4ba1326d75",
+      "normalizedSha256": "7866183bdb21a810ce25b7c6d6014d844956763663684903a0c58c4ba1326d75"
+    },
+    {
+      "path": "scripts/player-session-socket-e2e.mjs",
+      "bytes": 1790,
+      "sha256": "b9db91210062282c6ee9b39826861fc6046cb1e35eb6865089ce6001c6dc9472",
+      "normalizedSha256": "b9db91210062282c6ee9b39826861fc6046cb1e35eb6865089ce6001c6dc9472"
+    },
+    {
+      "path": "scripts/postgres-integration.mjs",
+      "bytes": 10441,
+      "sha256": "77eb6df53621e79ece66791a3705205008074f98e0f34b4fbb267db908154bb1",
+      "normalizedSha256": "77eb6df53621e79ece66791a3705205008074f98e0f34b4fbb267db908154bb1"
+    },
+    {
+      "path": "scripts/postgres-world-persist-smoke.mjs",
+      "bytes": 7717,
+      "sha256": "e865f0648fde04b99d5708cdc53b2521716e0a952c817911b2afad9e4015eb19",
+      "normalizedSha256": "e865f0648fde04b99d5708cdc53b2521716e0a952c817911b2afad9e4015eb19"
+    },
+    {
+      "path": "scripts/production-readiness-smoke.mjs",
+      "bytes": 4917,
+      "sha256": "b9b298da91f02a221fd429e1e5fdd613139072fbe2bbe08fffa91777f083adf3",
+      "normalizedSha256": "b9b298da91f02a221fd429e1e5fdd613139072fbe2bbe08fffa91777f083adf3"
+    },
+    {
+      "path": "scripts/public-workshop-economy-smoke.mjs",
+      "bytes": 9683,
+      "sha256": "15bdb93ab2df15ca244e9111219d7d7b3e19b4d5da9f9383cecabe73a3d9594b",
+      "normalizedSha256": "15bdb93ab2df15ca244e9111219d7d7b3e19b4d5da9f9383cecabe73a3d9594b"
+    },
+    {
+      "path": "scripts/recovery-service-smoke.mjs",
+      "bytes": 2520,
+      "sha256": "ce43c94cb721c11a0c2395ea075912f7612747da7e91f64f6ab8ca2cfe172a9c",
+      "normalizedSha256": "ce43c94cb721c11a0c2395ea075912f7612747da7e91f64f6ab8ca2cfe172a9c"
+    },
+    {
+      "path": "scripts/recruit-detail-controller-smoke.mjs",
+      "bytes": 4940,
+      "sha256": "50ad9069d96100d4764a0c233b3af1db6102ced5fa9b4f334c6056f898eb7bed",
+      "normalizedSha256": "067ef439aec5c877b0245ca29885a4e85caf035586dcc02a345a6fbfdd2d95a9"
+    },
+    {
+      "path": "scripts/refactor-contracts-smoke.mjs",
+      "bytes": 4390,
+      "sha256": "0e44fe56052d28c30921beafe83e31f2ea690025d74c2925a21c909c980bc285",
+      "normalizedSha256": "0e44fe56052d28c30921beafe83e31f2ea690025d74c2925a21c909c980bc285"
+    },
+    {
+      "path": "scripts/report-service-smoke.mjs",
+      "bytes": 1947,
+      "sha256": "54de0fb2c842caae20d8d967c294748858e8588789fe7ee90e39574522eb4133",
+      "normalizedSha256": "54de0fb2c842caae20d8d967c294748858e8588789fe7ee90e39574522eb4133"
+    },
+    {
+      "path": "scripts/responsive-layout-smoke.mjs",
+      "bytes": 4165,
+      "sha256": "faad6e8c40683d1a14be548ef966c88d1b7007ce52d886b68d30d524e47b9a53",
+      "normalizedSha256": "9dad090cc395cf396ebfad69e7d100a5367a07014276ab7aaa610453d31d172c"
+    },
+    {
+      "path": "scripts/rough-pool-service-smoke.mjs",
+      "bytes": 3406,
+      "sha256": "0900a73675bc07e4c1bb79d398ae0bb83f1a163531977e5a420957f97cfe7960",
+      "normalizedSha256": "0900a73675bc07e4c1bb79d398ae0bb83f1a163531977e5a420957f97cfe7960"
+    },
+    {
+      "path": "scripts/run-economy-regressions.mjs",
+      "bytes": 1945,
+      "sha256": "9b97a05cb6445f33b659ff61dfde3135b973b39823583e6b0bd057ac476dac96",
+      "normalizedSha256": "9b97a05cb6445f33b659ff61dfde3135b973b39823583e6b0bd057ac476dac96"
+    },
+    {
+      "path": "scripts/run-planning-finance-regressions.mjs",
+      "bytes": 2459,
+      "sha256": "621aa3f5d92519aa20e94732bc9a947f8730d7b34ba525d0f1ed17bd25fd05e2",
+      "normalizedSha256": "621aa3f5d92519aa20e94732bc9a947f8730d7b34ba525d0f1ed17bd25fd05e2"
+    },
+    {
+      "path": "scripts/run-workshop-browser.mjs",
+      "bytes": 1870,
+      "sha256": "611a7bd6d67d65925eb680f56c4b7df465a3ab689389b44d7785df8778f7bf3e",
+      "normalizedSha256": "611a7bd6d67d65925eb680f56c4b7df465a3ab689389b44d7785df8778f7bf3e"
+    },
+    {
+      "path": "scripts/run-workshop-regressions.mjs",
+      "bytes": 4008,
+      "sha256": "3599769c400a62afe0f66bd3876d3439e9376d3d44a86cabef376d012faaaf9f",
+      "normalizedSha256": "3599769c400a62afe0f66bd3876d3439e9376d3d44a86cabef376d012faaaf9f"
+    },
+    {
+      "path": "scripts/runtime-health-smoke.mjs",
+      "bytes": 1271,
+      "sha256": "9fc301404ceb9164008246f453fe54fbd9c5ee2d375a9d419e2cec0f7420860a",
+      "normalizedSha256": "9fc301404ceb9164008246f453fe54fbd9c5ee2d375a9d419e2cec0f7420860a"
+    },
+    {
+      "path": "scripts/runtime-soak-smoke.mjs",
+      "bytes": 5740,
+      "sha256": "bcaa4d28165981421028ee0b17d884344ec519ccafa3521a39f30a7ca3bf99ae",
+      "normalizedSha256": "bcaa4d28165981421028ee0b17d884344ec519ccafa3521a39f30a7ca3bf99ae"
+    },
+    {
+      "path": "scripts/runtime-ticks-smoke.mjs",
+      "bytes": 10135,
+      "sha256": "ffa79f31246dd6d5059f2c60397990e37481cc6f63ef24f0cb8fc0819a4a9721",
+      "normalizedSha256": "ffa79f31246dd6d5059f2c60397990e37481cc6f63ef24f0cb8fc0819a4a9721"
+    },
+    {
+      "path": "scripts/sales-finance-balance-smoke.mjs",
+      "bytes": 6161,
+      "sha256": "14af96ac0ac3395497dae9288c1cf289434443693feee1952dd99e925fdf84d0",
+      "normalizedSha256": "14af96ac0ac3395497dae9288c1cf289434443693feee1952dd99e925fdf84d0"
+    },
+    {
+      "path": "scripts/server-architecture-regressions.mjs",
+      "bytes": 5776,
+      "sha256": "4cccd069b4604b858754b6b0ee5cd4d5ba6e047e7567a750850c820b5d509b10",
+      "normalizedSha256": "4cccd069b4604b858754b6b0ee5cd4d5ba6e047e7567a750850c820b5d509b10"
+    },
+    {
+      "path": "scripts/server-capacity-regressions.mjs",
+      "bytes": 3049,
+      "sha256": "862bd817ed4ab5295b8a32248980a0bf182211421af92cdeaf3914fe1dfe7ce8",
+      "normalizedSha256": "862bd817ed4ab5295b8a32248980a0bf182211421af92cdeaf3914fe1dfe7ce8"
+    },
+    {
+      "path": "scripts/server-context-smoke.mjs",
+      "bytes": 2797,
+      "sha256": "66f30e4ad3b849d44329b78f66a1a625a4e14ee5643b52bf0157a537bb2e41b8",
+      "normalizedSha256": "66f30e4ad3b849d44329b78f66a1a625a4e14ee5643b52bf0157a537bb2e41b8"
+    },
+    {
+      "path": "scripts/server-idle-smoke.mjs",
+      "bytes": 58734,
+      "sha256": "d605edaf804a2c034287161e8d39c801148df4c7b414b6e5fc95f5c8b2285ef1",
+      "normalizedSha256": "fd3917d1d315398798f0ce9921c1a320daa0ac09e9fc6876eec74431dbd3d600"
+    },
+    {
+      "path": "scripts/server-optimization-regressions.mjs",
+      "bytes": 7808,
+      "sha256": "5ab4f110d276f8f2aeef95a48740c705832f9e6328b959f94fbb637b868efae4",
+      "normalizedSha256": "5ab4f110d276f8f2aeef95a48740c705832f9e6328b959f94fbb637b868efae4"
+    },
+    {
+      "path": "scripts/shared-domain-smoke.mjs",
+      "bytes": 4528,
+      "sha256": "a08338d8d9f1b7a4cd2e4ff759a0e5a4d294fe12d4e5afb2fb52101c73d421a8",
+      "normalizedSha256": "a08338d8d9f1b7a4cd2e4ff759a0e5a4d294fe12d4e5afb2fb52101c73d421a8"
+    },
+    {
+      "path": "scripts/shop-material-modal-smoke.mjs",
+      "bytes": 1688,
+      "sha256": "546113ae49ac17eb680d8952589751b635c28325d944e1acb8d806d1645cfbf5",
+      "normalizedSha256": "546113ae49ac17eb680d8952589751b635c28325d944e1acb8d806d1645cfbf5"
+    },
+    {
+      "path": "scripts/side-panel-progress-smoke.mjs",
+      "bytes": 6586,
+      "sha256": "dc0daa2eb5807cd4902af4173385b287cd2be83ffa5dcad1d3c5d928480e60fb",
+      "normalizedSha256": "dc0daa2eb5807cd4902af4173385b287cd2be83ffa5dcad1d3c5d928480e60fb"
+    },
+    {
+      "path": "scripts/simplified-flow-smoke.mjs",
+      "bytes": 74178,
+      "sha256": "0e78e4c90d8d360b495537ecda93e2cd053facbb175068784153e8fbf96df012",
+      "normalizedSha256": "05b434442b97cd55e3e2d97c4bc717fb983fa56ed15e1fbf74b255c915df1a94"
+    },
+    {
+      "path": "scripts/snapshot-service-smoke.mjs",
+      "bytes": 8770,
+      "sha256": "96751475b87c15b578076bc3f50000b4a0fd60307045b1164be80ad62b3cd343",
+      "normalizedSha256": "96751475b87c15b578076bc3f50000b4a0fd60307045b1164be80ad62b3cd343"
+    },
+    {
+      "path": "scripts/socket-event-schema-smoke.mjs",
+      "bytes": 1927,
+      "sha256": "8d0614e317f821f68849c9b5bfa3570b9aa487f834f2e8c81fdec1cec200bce5",
+      "normalizedSha256": "8d0614e317f821f68849c9b5bfa3570b9aa487f834f2e8c81fdec1cec200bce5"
+    },
+    {
+      "path": "scripts/socket-handlers-smoke.mjs",
+      "bytes": 4053,
+      "sha256": "5c0231be815215a82c88c0078f4777be4f5251487c9897176d629c93798d33f3",
+      "normalizedSha256": "5c0231be815215a82c88c0078f4777be4f5251487c9897176d629c93798d33f3"
+    },
+    {
+      "path": "scripts/socket-load-smoke.mjs",
+      "bytes": 4066,
+      "sha256": "7165e559ab961d32cea698bcb6d0f00f9ac7165aa1cfabc66040606e155e55cd",
+      "normalizedSha256": "7165e559ab961d32cea698bcb6d0f00f9ac7165aa1cfabc66040606e155e55cd"
+    },
+    {
+      "path": "scripts/socket-mixed-load.mjs",
+      "bytes": 18984,
+      "sha256": "71240f8cedcbf156fb8a180b7fb35357c5443460eda46cae42b3babdd7594c3e",
+      "normalizedSha256": "71240f8cedcbf156fb8a180b7fb35357c5443460eda46cae42b3babdd7594c3e"
+    },
+    {
+      "path": "scripts/socket-payload-hardening-e2e.mjs",
+      "bytes": 2876,
+      "sha256": "da3b316bdb30006d70b5b451fa09ffacfbea3cafb10cacd7c70b255f402b7dca",
+      "normalizedSha256": "da3b316bdb30006d70b5b451fa09ffacfbea3cafb10cacd7c70b255f402b7dca"
+    },
+    {
+      "path": "scripts/sqlite-socket-release-e2e.mjs",
+      "bytes": 2692,
+      "sha256": "d3658847afa2dc170a56d5160d645449958a8a5bdb3624f011b907801cbb7c54",
+      "normalizedSha256": "d3658847afa2dc170a56d5160d645449958a8a5bdb3624f011b907801cbb7c54"
+    },
+    {
+      "path": "scripts/sqlite-world-persist-smoke.mjs",
+      "bytes": 5481,
+      "sha256": "4e448b29d97421caac6a38eea9caaaacb770b53ff9aa8a3c32b1d2ed3102c2e4",
+      "normalizedSha256": "4e448b29d97421caac6a38eea9caaaacb770b53ff9aa8a3c32b1d2ed3102c2e4"
+    },
+    {
+      "path": "scripts/starter-economy-browser.mjs",
+      "bytes": 11562,
+      "sha256": "1952060c5f076884a8c1689dda6b2ff4d7f15aa4f46b66abe1e048248e5dbc07",
+      "normalizedSha256": "1952060c5f076884a8c1689dda6b2ff4d7f15aa4f46b66abe1e048248e5dbc07"
+    },
+    {
+      "path": "scripts/starter-economy-smoke.mjs",
+      "bytes": 10126,
+      "sha256": "80b7820e12e8bdc66b28a4bc43f01bd4494c8884e69c1baaf9d989b3a3c32a6f",
+      "normalizedSha256": "80b7820e12e8bdc66b28a4bc43f01bd4494c8884e69c1baaf9d989b3a3c32a6f"
+    },
+    {
+      "path": "scripts/state-patch-smoke.mjs",
+      "bytes": 2942,
+      "sha256": "c8618fc667cfc0481c8abbdef565dc239b914cba4ff495dc9a5ac804d8ef2f3c",
+      "normalizedSha256": "c8618fc667cfc0481c8abbdef565dc239b914cba4ff495dc9a5ac804d8ef2f3c"
+    },
+    {
+      "path": "scripts/styles-split-smoke.mjs",
+      "bytes": 2716,
+      "sha256": "7943d9466e3245ea7beac90bfc7a6980de837be87223a584ca565af9b16c454d",
+      "normalizedSha256": "7943d9466e3245ea7beac90bfc7a6980de837be87223a584ca565af9b16c454d"
+    },
+    {
+      "path": "scripts/task-smoke.mjs",
+      "bytes": 5212,
+      "sha256": "fdf140ba371bb5c92be9bf10b888deaf314ecbea2238f661efd584ddd49c886a",
+      "normalizedSha256": "8e6d1fdc8d46f7452314d8b150fe81310ca2956c9a11ac0a4967ee1a26b733e1"
+    },
+    {
+      "path": "scripts/test-hooks-smoke.mjs",
+      "bytes": 1573,
+      "sha256": "ac079011f8eaa0f2a07ab89e3cde9f9fc36743d13cfed4905e2bb9209946089b",
+      "normalizedSha256": "ac079011f8eaa0f2a07ab89e3cde9f9fc36743d13cfed4905e2bb9209946089b"
+    },
+    {
+      "path": "scripts/trading-boundary-smoke.mjs",
+      "bytes": 9679,
+      "sha256": "1592e3193d72fc3d828d4c5b33cfe88de7403fd02ae07e96fa7a1417743dde4a",
+      "normalizedSha256": "1592e3193d72fc3d828d4c5b33cfe88de7403fd02ae07e96fa7a1417743dde4a"
+    },
+    {
+      "path": "scripts/trading-current-rules-smoke.mjs",
+      "bytes": 242,
+      "sha256": "c6ef712765f923c43d6e89744f4d3d9974697a03ceda19917661e7bd159e293f",
+      "normalizedSha256": "c6ef712765f923c43d6e89744f4d3d9974697a03ceda19917661e7bd159e293f"
+    },
+    {
+      "path": "scripts/trading-equivalence-smoke.mjs",
+      "bytes": 19125,
+      "sha256": "e9e1446e629f23871a413c7bcdf30159834f229d6768b6e1f65cb78e0e6160eb",
+      "normalizedSha256": "e9e1446e629f23871a413c7bcdf30159834f229d6768b6e1f65cb78e0e6160eb"
+    },
+    {
+      "path": "scripts/trading-integration-smoke.mjs",
+      "bytes": 4176,
+      "sha256": "089b66be5d32e0485f20f2c80dbabbd3dd260cae9087e5cc2b2030ff7d45a518",
+      "normalizedSha256": "089b66be5d32e0485f20f2c80dbabbd3dd260cae9087e5cc2b2030ff7d45a518"
+    },
+    {
+      "path": "scripts/trading-source-parity-smoke.mjs",
+      "bytes": 2999,
+      "sha256": "919d7830899571d30b0c05b9c11d07b46d33ae6d630d4de90ebad2c265340f1d",
+      "normalizedSha256": "919d7830899571d30b0c05b9c11d07b46d33ae6d630d4de90ebad2c265340f1d"
+    },
+    {
+      "path": "scripts/ui-overlay-smoke.mjs",
+      "bytes": 3577,
+      "sha256": "b6f9322842e3d78a9a9472ace3c69f419fa742275c36efa82c407f9adedb670b",
+      "normalizedSha256": "23e3b2e503b00d2c3888f51759fc0fc4e36fc81186119768d84c33045495510a"
+    },
+    {
+      "path": "scripts/ui-stability-smoke.mjs",
+      "bytes": 12901,
+      "sha256": "6403d68165a157a91f71cdec09012629d8d30d5aabbd7e4610c1c81c36aae61c",
+      "normalizedSha256": "6f918abd1517b8f56a5e3d76196afd8c2d2031cacd315a5c7f7da45b6b754933"
+    },
+    {
+      "path": "scripts/worker-detail-view-smoke.mjs",
+      "bytes": 6260,
+      "sha256": "ed7ef9a88214553b052d3b11c0e269dce05e86a57b40493b63af6f99d3936793",
+      "normalizedSha256": "cca1ee35f7c53b3ac9c47f7a480d574ca71e1ae6d6c83be154617cc84a05e07b"
+    },
+    {
+      "path": "scripts/workshop-boundary-smoke.mjs",
+      "bytes": 3643,
+      "sha256": "14bc4e2262fa4a9bbe84efbe50f0655dd427dea16325c3a72f351429cd806195",
+      "normalizedSha256": "14bc4e2262fa4a9bbe84efbe50f0655dd427dea16325c3a72f351429cd806195"
+    },
+    {
+      "path": "scripts/workshop-craft-scoring-smoke.mjs",
+      "bytes": 4757,
+      "sha256": "0c23ed4b1570e97d8afbf159244116f3edcd9fdc37efee2d70fadf7ccc91348f",
+      "normalizedSha256": "0c23ed4b1570e97d8afbf159244116f3edcd9fdc37efee2d70fadf7ccc91348f"
+    },
+    {
+      "path": "scripts/workshop-delivery-browser-fixture.mjs",
+      "bytes": 688,
+      "sha256": "818960f13e50bfb733c1a16b916e5577c1de1180f6ace32c8df6e620c920561e",
+      "normalizedSha256": "818960f13e50bfb733c1a16b916e5577c1de1180f6ace32c8df6e620c920561e"
+    },
+    {
+      "path": "scripts/workshop-delivery-details-smoke.mjs",
+      "bytes": 2069,
+      "sha256": "58dd53d696468d9db25d9cdb554f449fcb5181d5fcbd1caf29a96ebc7b93a0a5",
+      "normalizedSha256": "58dd53d696468d9db25d9cdb554f449fcb5181d5fcbd1caf29a96ebc7b93a0a5"
+    },
+    {
+      "path": "scripts/workshop-delivery-fixtures.mjs",
+      "bytes": 2151,
+      "sha256": "dbe6ba9c778d904b38404e97830a4be8abd99ec75f583ca5cdd37112c2165ab0",
+      "normalizedSha256": "dbe6ba9c778d904b38404e97830a4be8abd99ec75f583ca5cdd37112c2165ab0"
+    },
+    {
+      "path": "scripts/workshop-delivery-smoke.mjs",
+      "bytes": 9435,
+      "sha256": "3f78321eb9207f60d168b977c4292aa79f047af3a6c52fff8ce2f6706e89d652",
+      "normalizedSha256": "3f78321eb9207f60d168b977c4292aa79f047af3a6c52fff8ce2f6706e89d652"
+    },
+    {
+      "path": "scripts/workshop-delivery-socket-e2e.mjs",
+      "bytes": 7567,
+      "sha256": "517f67a2f8e82b1154658812b1681e2f44943f5b2c30f33a65a8eabf2f744ec9",
+      "normalizedSha256": "517f67a2f8e82b1154658812b1681e2f44943f5b2c30f33a65a8eabf2f744ec9"
+    },
+    {
+      "path": "scripts/workshop-equivalence-smoke.mjs",
+      "bytes": 11001,
+      "sha256": "4ec6fa7c35c05d4990e2f56370542183814d76277373d3b3eea8ab3151834abd",
+      "normalizedSha256": "4ec6fa7c35c05d4990e2f56370542183814d76277373d3b3eea8ab3151834abd"
+    },
+    {
+      "path": "scripts/workshop-material-analysis-smoke.mjs",
+      "bytes": 3314,
+      "sha256": "e1f85482f428435d2a574c7682aa663c720da1c9e19e6694b5b12a35fc42dd10",
+      "normalizedSha256": "e1f85482f428435d2a574c7682aa663c720da1c9e19e6694b5b12a35fc42dd10"
+    },
+    {
+      "path": "scripts/workshop-planner-ui-smoke.mjs",
+      "bytes": 4608,
+      "sha256": "8ddc9a27b908be60890b2053922abd14ab2f8a126a544cfabff8c79971505d3b",
+      "normalizedSha256": "af1908305a3f40a9a4407c8e468277a2698714611a27ed39785c8ce2dec9829d"
+    },
+    {
+      "path": "scripts/workshop-scope-smoke.mjs",
+      "bytes": 2202,
+      "sha256": "c6db97041d1f94d6b40326129a560d16e7f903fa12e336a1d86aba001ce29b84",
+      "normalizedSha256": "c6db97041d1f94d6b40326129a560d16e7f903fa12e336a1d86aba001ce29b84"
+    },
+    {
+      "path": "scripts/workshop-scratch-smoke.mjs",
+      "bytes": 3329,
+      "sha256": "1b65a57c1f78d84b11d041ebe4723875a2f1d64282071c025e71af1b16a54523",
+      "normalizedSha256": "1b65a57c1f78d84b11d041ebe4723875a2f1d64282071c025e71af1b16a54523"
+    },
+    {
+      "path": "scripts/workshop-server-boundary-smoke.mjs",
+      "bytes": 3332,
+      "sha256": "3272d8729ae4925b2fc09b96e6f3a7a8d6b6c89f7a4fa2e9d93764015ec1083b",
+      "normalizedSha256": "3272d8729ae4925b2fc09b96e6f3a7a8d6b6c89f7a4fa2e9d93764015ec1083b"
+    },
+    {
+      "path": "scripts/workshop-server-equivalence-smoke.mjs",
+      "bytes": 17827,
+      "sha256": "b40baf9a5bef6dc51493ba398a1d979eef391a969b85581881813506618e8c25",
+      "normalizedSha256": "b40baf9a5bef6dc51493ba398a1d979eef391a969b85581881813506618e8c25"
+    },
+    {
+      "path": "scripts/workshop-server-parity-smoke.mjs",
+      "bytes": 3320,
+      "sha256": "8b9f30cf764ea0f06617f350530c04cfb2fc23b23c73d64310d78ef10c252e40",
+      "normalizedSha256": "8b9f30cf764ea0f06617f350530c04cfb2fc23b23c73d64310d78ef10c252e40"
+    },
+    {
+      "path": "scripts/workshop-service-smoke.mjs",
+      "bytes": 4010,
+      "sha256": "55285a568aa8b1362589e323f54bbd3057005b37a0446053a3d617fd07c9371f",
+      "normalizedSha256": "55285a568aa8b1362589e323f54bbd3057005b37a0446053a3d617fd07c9371f"
+    },
+    {
+      "path": "scripts/workshop-source-parity-smoke.mjs",
+      "bytes": 3592,
+      "sha256": "36eb67e1cb83fb98e06613c6679368d5730e71393679fff90c84a7f98809bd24",
+      "normalizedSha256": "36eb67e1cb83fb98e06613c6679368d5730e71393679fff90c84a7f98809bd24"
+    },
+    {
+      "path": "scripts/workshop-test-utils.mjs",
+      "bytes": 614,
+      "sha256": "b44bb3006b4647e602c7cbff4e6e97ee1df37c4258a511a4b71721882b307315",
+      "normalizedSha256": "b44bb3006b4647e602c7cbff4e6e97ee1df37c4258a511a4b71721882b307315"
+    },
+    {
+      "path": "scripts/workshop-visual-server.mjs",
+      "bytes": 1336,
+      "sha256": "1eaa500bec1d5357a017a8c0b29f572d16df7009a7ece98641e8f381dc9c78b0",
+      "normalizedSha256": "1eaa500bec1d5357a017a8c0b29f572d16df7009a7ece98641e8f381dc9c78b0"
+    },
+    {
+      "path": "scripts/world-persist-smoke.mjs",
+      "bytes": 5919,
+      "sha256": "6d1d859fc17e46980607561e2f32e3277345c22411ae7a827f3a213ed1ee4c9c",
+      "normalizedSha256": "6d1d859fc17e46980607561e2f32e3277345c22411ae7a827f3a213ed1ee4c9c"
+    },
+    {
+      "path": "scripts/world-store-smoke.mjs",
+      "bytes": 15224,
+      "sha256": "669d0b7f0a8190750b9152b6f96da3447670292dc0b23414b42044213b654eb4",
+      "normalizedSha256": "669d0b7f0a8190750b9152b6f96da3447670292dc0b23414b42044213b654eb4"
+    },
+    {
+      "path": "server.js",
+      "bytes": 2823,
+      "sha256": "2dcfdec1583c1028cd861d396e2ac6ad3863bedb18b1f6504ffa9538809ed5b3",
+      "normalizedSha256": "2dcfdec1583c1028cd861d396e2ac6ad3863bedb18b1f6504ffa9538809ed5b3"
+    },
+    {
+      "path": "server/boot/wire-server.js",
+      "bytes": 33691,
+      "sha256": "e8eb96b644d6c838cc903c825b2a32c5cb88c93086ac782a7c55cf1311fba7ad",
+      "normalizedSha256": "e8eb96b644d6c838cc903c825b2a32c5cb88c93086ac782a7c55cf1311fba7ad"
+    },
+    {
+      "path": "server/config/runtime-config.js",
+      "bytes": 5846,
+      "sha256": "f3b67ba338ed3724ae3d5096a393b259f08affcde6932de3c793423a7f792264",
+      "normalizedSha256": "f3b67ba338ed3724ae3d5096a393b259f08affcde6932de3c793423a7f792264"
+    },
+    {
+      "path": "server/gateway/account-routes.js",
+      "bytes": 7738,
+      "sha256": "e219e073182867c9491e6bc456bdd229dfb2b4c07f13bf392f2e648b2d4899fe",
+      "normalizedSha256": "e219e073182867c9491e6bc456bdd229dfb2b4c07f13bf392f2e648b2d4899fe"
+    },
+    {
+      "path": "server/gateway/admin-routes.js",
+      "bytes": 4323,
+      "sha256": "0f0027fe7fdc67da474cb2291227843db31aa74aada0cbb9e378107d68d9f729",
+      "normalizedSha256": "0f0027fe7fdc67da474cb2291227843db31aa74aada0cbb9e378107d68d9f729"
+    },
+    {
+      "path": "server/observability/logger.js",
+      "bytes": 621,
+      "sha256": "1b67a24af691c3a448d30068b18f39242448507b86c3c984d9ba1c35046666df",
+      "normalizedSha256": "1b67a24af691c3a448d30068b18f39242448507b86c3c984d9ba1c35046666df"
+    },
+    {
+      "path": "server/observability/metrics.js",
+      "bytes": 3420,
+      "sha256": "65dc9e377952e4f7b797530e968f2de0320e6c0740ca6e18647274621d86e1e6",
+      "normalizedSha256": "65dc9e377952e4f7b797530e968f2de0320e6c0740ca6e18647274621d86e1e6"
+    },
+    {
+      "path": "server/observability/runtime-health.js",
+      "bytes": 3469,
+      "sha256": "f7712f0730bc20e89bf599a8dd08dde2d8c35957c261ef35fc9e306d5ae52989",
+      "normalizedSha256": "f7712f0730bc20e89bf599a8dd08dde2d8c35957c261ef35fc9e306d5ae52989"
+    },
+    {
+      "path": "server/persistence/auction-snapshot-schema.js",
+      "bytes": 2328,
+      "sha256": "76d030b3eec34117175518b7837827852f2206329356c4837c082c4e4446ee8c",
+      "normalizedSha256": "76d030b3eec34117175518b7837827852f2206329356c4837c082c4e4446ee8c"
+    },
+    {
+      "path": "server/persistence/blackmarket-npc-schema.js",
+      "bytes": 3225,
+      "sha256": "578a2d27612623b32a28ddb099625f72ed359446c0cb1098a175247669a2082e",
+      "normalizedSha256": "578a2d27612623b32a28ddb099625f72ed359446c0cb1098a175247669a2082e"
+    },
+    {
+      "path": "server/persistence/economy-snapshot-schema.js",
+      "bytes": 3816,
+      "sha256": "a727da6cd546d06e09ae087a7cca3d3b0bc8f45ec6ae4fcde272f28808b7f138",
+      "normalizedSha256": "a727da6cd546d06e09ae087a7cca3d3b0bc8f45ec6ae4fcde272f28808b7f138"
+    },
+    {
+      "path": "server/persistence/finance-snapshot-schema.js",
+      "bytes": 2606,
+      "sha256": "92efd399de84520bbbcafd051bc49b2fc52d533c7e50bbe293bcf65644452846",
+      "normalizedSha256": "92efd399de84520bbbcafd051bc49b2fc52d533c7e50bbe293bcf65644452846"
+    },
+    {
+      "path": "server/persistence/migrations/001_world_snapshots.sql",
+      "bytes": 2383,
+      "sha256": "a2ecdb42a0702e0499ce8896fa4e0175e6e897914441a11b39b9d977041b2f40",
+      "normalizedSha256": "a2ecdb42a0702e0499ce8896fa4e0175e6e897914441a11b39b9d977041b2f40"
+    },
+    {
+      "path": "server/persistence/migrations/002_incremental_world_journal.sql",
+      "bytes": 753,
+      "sha256": "e3077966b7175e47f5938efa72289f6578b072f2ad59d09944041e6f420709d0",
+      "normalizedSha256": "e3077966b7175e47f5938efa72289f6578b072f2ad59d09944041e6f420709d0"
+    },
+    {
+      "path": "server/persistence/migrations/003_audit_retention.sql",
+      "bytes": 182,
+      "sha256": "acb8e2970ee4d6baa8745464a0a2798972d60384180a54b1abb5f82b94e681b4",
+      "normalizedSha256": "acb8e2970ee4d6baa8745464a0a2798972d60384180a54b1abb5f82b94e681b4"
+    },
+    {
+      "path": "server/persistence/migrations/004_request_journal_scope.sql",
+      "bytes": 627,
+      "sha256": "b197b55b43d74fbe889ccaa1af9a68708837d217906e93dae2a82deb33b87bc2",
+      "normalizedSha256": "b197b55b43d74fbe889ccaa1af9a68708837d217906e93dae2a82deb33b87bc2"
+    },
+    {
+      "path": "server/persistence/mining-snapshot-schema.js",
+      "bytes": 8936,
+      "sha256": "d31692f4b020db38fdcaea73fb084865b22e059b707c2ee2e47869f0ee30ce02",
+      "normalizedSha256": "d31692f4b020db38fdcaea73fb084865b22e059b707c2ee2e47869f0ee30ce02"
+    },
+    {
+      "path": "server/persistence/mutation-scope.js",
+      "bytes": 3892,
+      "sha256": "ccd7f5c7ce08d5d5b678a03fdc25b41549c4eb8838c5e79e98f36cee91fcd434",
+      "normalizedSha256": "ccd7f5c7ce08d5d5b678a03fdc25b41549c4eb8838c5e79e98f36cee91fcd434"
+    },
+    {
+      "path": "server/persistence/player-snapshot-schema.js",
+      "bytes": 46040,
+      "sha256": "c378526c8a973dbb432ae33e9b5e9156dfa75715133832e699dcc86df29c07c0",
+      "normalizedSha256": "c378526c8a973dbb432ae33e9b5e9156dfa75715133832e699dcc86df29c07c0"
+    },
+    {
+      "path": "server/persistence/postgres-migrations.js",
+      "bytes": 2541,
+      "sha256": "bd3d0bc63ee102d94ef688907d49763ab99ae6d379bdfdbb3e8d0b68eb1b1194",
+      "normalizedSha256": "bd3d0bc63ee102d94ef688907d49763ab99ae6d379bdfdbb3e8d0b68eb1b1194"
+    },
+    {
+      "path": "server/persistence/projection-delta.js",
+      "bytes": 3555,
+      "sha256": "625883aae7f0dc8a915222f270421d7c4396347a5f9ea41e81a95479f67aa9e8",
+      "normalizedSha256": "625883aae7f0dc8a915222f270421d7c4396347a5f9ea41e81a95479f67aa9e8"
+    },
+    {
+      "path": "server/persistence/world-delta.js",
+      "bytes": 3734,
+      "sha256": "29046eaff2cf5a09d82ddd949860f78b137bc73d5b2e1b92934c908b83119760",
+      "normalizedSha256": "29046eaff2cf5a09d82ddd949860f78b137bc73d5b2e1b92934c908b83119760"
+    },
+    {
+      "path": "server/persistence/world-schema-utils.js",
+      "bytes": 4980,
+      "sha256": "b3fab184685ad99d19f8f9f8939ee177329eb89eb14547baf830b3ca8156f86e",
+      "normalizedSha256": "b3fab184685ad99d19f8f9f8939ee177329eb89eb14547baf830b3ca8156f86e"
+    },
+    {
+      "path": "server/persistence/world-schema.js",
+      "bytes": 9999,
+      "sha256": "c476c8cffedde4b93f905df6d881fff74b4db326ec0a60bbf8921d29be297515",
+      "normalizedSha256": "c476c8cffedde4b93f905df6d881fff74b4db326ec0a60bbf8921d29be297515"
+    },
+    {
+      "path": "server/protocol/socket-event-schemas.js",
+      "bytes": 4270,
+      "sha256": "7dc4c8722094b8fdce4ee9f1787bdc9bfe0ff1aa211d4353fde1af5ad1026537",
+      "normalizedSha256": "7dc4c8722094b8fdce4ee9f1787bdc9bfe0ff1aa211d4353fde1af5ad1026537"
+    },
+    {
+      "path": "server/security/http-security.js",
+      "bytes": 2970,
+      "sha256": "929976e5c5df0598d4aaaed70dd1f84a3788710944246efac55b9d7732ef23f0",
+      "normalizedSha256": "929976e5c5df0598d4aaaed70dd1f84a3788710944246efac55b9d7732ef23f0"
+    },
+    {
+      "path": "server/security/socket-security.js",
+      "bytes": 4785,
+      "sha256": "4312ec05310f507808393efc5c5d197227591c153ec8aac84467c37fda206c34",
+      "normalizedSha256": "4312ec05310f507808393efc5c5d197227591c153ec8aac84467c37fda206c34"
+    },
+    {
+      "path": "server/services/account-service.js",
+      "bytes": 5020,
+      "sha256": "89e5b041513e313d42bd39a91868bed9041b756b329e53be5c9534771c74635e",
+      "normalizedSha256": "89e5b041513e313d42bd39a91868bed9041b756b329e53be5c9534771c74635e"
+    },
+    {
+      "path": "server/services/achievement-rewards-instance.js",
+      "bytes": 917,
+      "sha256": "b37fed5666f83e1812ba41ff02845b6d1bbeb69613de6c134329111fc6fa5bdd",
+      "normalizedSha256": "b37fed5666f83e1812ba41ff02845b6d1bbeb69613de6c134329111fc6fa5bdd"
+    },
+    {
+      "path": "server/services/achievement-rewards.js",
+      "bytes": 626,
+      "sha256": "3da1f3f5d778e002f1001f5539ed2b46b57f9a3f9b19db2d18da8f57a32a8fc3",
+      "normalizedSha256": "3da1f3f5d778e002f1001f5539ed2b46b57f9a3f9b19db2d18da8f57a32a8fc3"
+    },
+    {
+      "path": "server/services/assets-service.js",
+      "bytes": 2639,
+      "sha256": "3adc6255edf0f79c5c50213c553331b4376c40b523cf5ada8eba72c8b396aad6",
+      "normalizedSha256": "3adc6255edf0f79c5c50213c553331b4376c40b523cf5ada8eba72c8b396aad6"
+    },
+    {
+      "path": "server/services/atomic-mutation.js",
+      "bytes": 3974,
+      "sha256": "399c4b0bbf070aa521b69ff64281a771c89e4079a538b0f5936316ce899ccf8e",
+      "normalizedSha256": "399c4b0bbf070aa521b69ff64281a771c89e4079a538b0f5936316ce899ccf8e"
+    },
+    {
+      "path": "server/services/auction-instance.js",
+      "bytes": 29583,
+      "sha256": "dd010b563a627f64d4827e8ab3b6a0eeb7a0490bd561150964a1baf5a74b3097",
+      "normalizedSha256": "dd010b563a627f64d4827e8ab3b6a0eeb7a0490bd561150964a1baf5a74b3097"
+    },
+    {
+      "path": "server/services/auction-rounds.js",
+      "bytes": 1263,
+      "sha256": "a2fc93fa6c8d493da003dde79bd12a87f8c67c26d779b976dff29ed8b2c3f159",
+      "normalizedSha256": "a2fc93fa6c8d493da003dde79bd12a87f8c67c26d779b976dff29ed8b2c3f159"
+    },
+    {
+      "path": "server/services/auction-service.js",
+      "bytes": 3005,
+      "sha256": "cf1bfa03860b0c0b0611b72db275972c8914d0da82e18095ab2a6d6910e7c080",
+      "normalizedSha256": "cf1bfa03860b0c0b0611b72db275972c8914d0da82e18095ab2a6d6910e7c080"
+    },
+    {
+      "path": "server/services/blackmarket-service.js",
+      "bytes": 332,
+      "sha256": "2fa376b5b27324358ef1c9a830db69eaf30d09f074092007123ad3ff82a3c794",
+      "normalizedSha256": "2fa376b5b27324358ef1c9a830db69eaf30d09f074092007123ad3ff82a3c794"
+    },
+    {
+      "path": "server/services/blackmarket/blind.js",
+      "bytes": 1311,
+      "sha256": "a44b234f5c576b3a777ec06addcd89de91cbf112b26d89ddaf0de1299d0e869b",
+      "normalizedSha256": "a44b234f5c576b3a777ec06addcd89de91cbf112b26d89ddaf0de1299d0e869b"
+    },
+    {
+      "path": "server/services/blackmarket/context.js",
+      "bytes": 600,
+      "sha256": "b110572af625cd7340efbf94c5d95c09d219704e867c584c8f329f1e7be3de00",
+      "normalizedSha256": "b110572af625cd7340efbf94c5d95c09d219704e867c584c8f329f1e7be3de00"
+    },
+    {
+      "path": "server/services/blackmarket/create-service.js",
+      "bytes": 13537,
+      "sha256": "4d11368a3ee4e87babc74ea6e59485df0f4d17e6498733a744bfd625bbe78a0f",
+      "normalizedSha256": "4d11368a3ee4e87babc74ea6e59485df0f4d17e6498733a744bfd625bbe78a0f"
+    },
+    {
+      "path": "server/services/blackmarket/helpers.js",
+      "bytes": 3939,
+      "sha256": "6d76505de367c9b5fdff9bbf0da4fadad2e921dcb35cc499690412ec4bfec44d",
+      "normalizedSha256": "6d76505de367c9b5fdff9bbf0da4fadad2e921dcb35cc499690412ec4bfec44d"
+    },
+    {
+      "path": "server/services/blackmarket/index.js",
+      "bytes": 2544,
+      "sha256": "225d51adf1380ef186fcb3ed0229bac3f6beb2063eb7d76b057ce846e713a331",
+      "normalizedSha256": "225d51adf1380ef186fcb3ed0229bac3f6beb2063eb7d76b057ce846e713a331"
+    },
+    {
+      "path": "server/services/blackmarket/instances/blind.js",
+      "bytes": 19067,
+      "sha256": "9c770babac7982ff79cc590c42d07e5303f545f48da1b11659e4c9ead068764b",
+      "normalizedSha256": "9c770babac7982ff79cc590c42d07e5303f545f48da1b11659e4c9ead068764b"
+    },
+    {
+      "path": "server/services/blackmarket/instances/context.js",
+      "bytes": 1066,
+      "sha256": "6b6a83294ea199c6c693ed673d7111698f589b77bf831a209f9e6bed28bbcdd6",
+      "normalizedSha256": "6b6a83294ea199c6c693ed673d7111698f589b77bf831a209f9e6bed28bbcdd6"
+    },
+    {
+      "path": "server/services/blackmarket/instances/helpers.js",
+      "bytes": 30293,
+      "sha256": "5e426351d8f88aa2af0af134daa823265ef27b24839b9dea6949ada5653baff3",
+      "normalizedSha256": "5e426351d8f88aa2af0af134daa823265ef27b24839b9dea6949ada5653baff3"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-catalog.js",
+      "bytes": 11804,
+      "sha256": "96e7f0962211643d6699566659ab5d1ec73d7391a3ddb23ef952b4c9142122ce",
+      "normalizedSha256": "96e7f0962211643d6699566659ab5d1ec73d7391a3ddb23ef952b4c9142122ce"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-finish-plans.js",
+      "bytes": 5854,
+      "sha256": "658e7a6d592d51eb3cb0e26daf7b92d2dcd6008915592b234ed1bfb59942d8ee",
+      "normalizedSha256": "658e7a6d592d51eb3cb0e26daf7b92d2dcd6008915592b234ed1bfb59942d8ee"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-jade-finish.js",
+      "bytes": 3905,
+      "sha256": "959b3bd7a4c5f596390b9670daf5b7a7c76882d6bb8987aa06dd307ff3314287",
+      "normalizedSha256": "959b3bd7a4c5f596390b9670daf5b7a7c76882d6bb8987aa06dd307ff3314287"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc-offcut.js",
+      "bytes": 2520,
+      "sha256": "ed1c08aa912f3c66034529530f3869569cad54f5b0dd49a5abdf28fe74c0db94",
+      "normalizedSha256": "ed1c08aa912f3c66034529530f3869569cad54f5b0dd49a5abdf28fe74c0db94"
+    },
+    {
+      "path": "server/services/blackmarket/instances/npc.js",
+      "bytes": 12084,
+      "sha256": "e352fbee3a4816d57f0cc4e6c107b58bafb44ad2399cd9a667af935d12a28e84",
+      "normalizedSha256": "e352fbee3a4816d57f0cc4e6c107b58bafb44ad2399cd9a667af935d12a28e84"
+    },
+    {
+      "path": "server/services/blackmarket/instances/rating.js",
+      "bytes": 6527,
+      "sha256": "c9c3805f9a91bcbc4869b3b8ba45a240286e846990184c9a9364ed1cae62475d",
+      "normalizedSha256": "c9c3805f9a91bcbc4869b3b8ba45a240286e846990184c9a9364ed1cae62475d"
+    },
+    {
+      "path": "server/services/blackmarket/instances/recovery.js",
+      "bytes": 8078,
+      "sha256": "0e71661ff38a24d298c9ac05ca58bd42f187deb26a723587e4533461da33fdc0",
+      "normalizedSha256": "0e71661ff38a24d298c9ac05ca58bd42f187deb26a723587e4533461da33fdc0"
+    },
+    {
+      "path": "server/services/blackmarket/instances/resources.js",
+      "bytes": 6275,
+      "sha256": "2ba968280ae99d75fc9dd9c92ce2b1325496091ff7e9aaccdaaced50ae570757",
+      "normalizedSha256": "2ba968280ae99d75fc9dd9c92ce2b1325496091ff7e9aaccdaaced50ae570757"
+    },
+    {
+      "path": "server/services/blackmarket/instances/service.js",
+      "bytes": 45084,
+      "sha256": "5069acdb765a1be5e1b4c5c52fbe88d6a40e139bb12b76775b5d32683cd2c9fe",
+      "normalizedSha256": "5069acdb765a1be5e1b4c5c52fbe88d6a40e139bb12b76775b5d32683cd2c9fe"
+    },
+    {
+      "path": "server/services/blackmarket/instances/stall.js",
+      "bytes": 24613,
+      "sha256": "ec7af5a9cda2346e139a256ea96b33f67514250206fec642bfd82474aa2fbdfb",
+      "normalizedSha256": "ec7af5a9cda2346e139a256ea96b33f67514250206fec642bfd82474aa2fbdfb"
+    },
+    {
+      "path": "server/services/blackmarket/legacy.js",
+      "bytes": 478,
+      "sha256": "81d8bb9c7fba87142ca0a212e05d2d55e60821c2825005630f95ee2b1ff8eb72",
+      "normalizedSha256": "81d8bb9c7fba87142ca0a212e05d2d55e60821c2825005630f95ee2b1ff8eb72"
+    },
+    {
+      "path": "server/services/blackmarket/npc-catalog.js",
+      "bytes": 673,
+      "sha256": "87a04e89b227f85be6b98aa28fd27058a2de96fceb89ea47029b094b7cbf3016",
+      "normalizedSha256": "87a04e89b227f85be6b98aa28fd27058a2de96fceb89ea47029b094b7cbf3016"
+    },
+    {
+      "path": "server/services/blackmarket/npc-finish-plans.js",
+      "bytes": 620,
+      "sha256": "742c70af1775c5effe76e4dbe5e04620658f0470fdec827f8cdcac54d3b7e0d5",
+      "normalizedSha256": "742c70af1775c5effe76e4dbe5e04620658f0470fdec827f8cdcac54d3b7e0d5"
+    },
+    {
+      "path": "server/services/blackmarket/npc-jade-finish.js",
+      "bytes": 390,
+      "sha256": "14159d13405f35c218442d9a755e702427f8f938dea935cc432365d71f945b9b",
+      "normalizedSha256": "14159d13405f35c218442d9a755e702427f8f938dea935cc432365d71f945b9b"
+    },
+    {
+      "path": "server/services/blackmarket/npc-offcut.js",
+      "bytes": 336,
+      "sha256": "a37bcca35a2a6d323a6a4079e003d95e3d5f5468fdd4f754c448f3fff8736dd0",
+      "normalizedSha256": "a37bcca35a2a6d323a6a4079e003d95e3d5f5468fdd4f754c448f3fff8736dd0"
+    },
+    {
+      "path": "server/services/blackmarket/npc.js",
+      "bytes": 439,
+      "sha256": "da2bfd84b2e7695724274e49f74751e8e99bdeb80745d5d868d1bcb3f28b7458",
+      "normalizedSha256": "da2bfd84b2e7695724274e49f74751e8e99bdeb80745d5d868d1bcb3f28b7458"
+    },
+    {
+      "path": "server/services/blackmarket/rating.js",
+      "bytes": 1102,
+      "sha256": "2e7d8077011346107f2df3efbff30d8bd22e185b86221d5b9861fc7f5f8e5009",
+      "normalizedSha256": "2e7d8077011346107f2df3efbff30d8bd22e185b86221d5b9861fc7f5f8e5009"
+    },
+    {
+      "path": "server/services/blackmarket/recovery.js",
+      "bytes": 258,
+      "sha256": "816dc737f73e2ae7ecb160e6a744e68e4e381258d8306a94b17f9abc89ae1d8d",
+      "normalizedSha256": "816dc737f73e2ae7ecb160e6a744e68e4e381258d8306a94b17f9abc89ae1d8d"
+    },
+    {
+      "path": "server/services/blackmarket/resources.js",
+      "bytes": 941,
+      "sha256": "666bc2fa91cab00022fc354f92606fcaf9722a0e3916a233d2bd1391e74bbadd",
+      "normalizedSha256": "666bc2fa91cab00022fc354f92606fcaf9722a0e3916a233d2bd1391e74bbadd"
+    },
+    {
+      "path": "server/services/blackmarket/service.js",
+      "bytes": 3300,
+      "sha256": "6efa5a2a58b948fd77e950d269872b4961e5fde5b20e8f36c5c353063647c2ad",
+      "normalizedSha256": "6efa5a2a58b948fd77e950d269872b4961e5fde5b20e8f36c5c353063647c2ad"
+    },
+    {
+      "path": "server/services/blackmarket/stall.js",
+      "bytes": 2307,
+      "sha256": "feb7befaea1834d0961c3593f5c4af263927fa77ae0d12ec0a58dc493daa1d49",
+      "normalizedSha256": "feb7befaea1834d0961c3593f5c4af263927fa77ae0d12ec0a58dc493daa1d49"
+    },
+    {
+      "path": "server/services/chat-service.js",
+      "bytes": 3830,
+      "sha256": "0d78a7bee3da109a7a1fa31e0a9f4b712e8011c271da931fb9d4dc6a6b4e4f2e",
+      "normalizedSha256": "0d78a7bee3da109a7a1fa31e0a9f4b712e8011c271da931fb9d4dc6a6b4e4f2e"
+    },
+    {
+      "path": "server/services/collection-service.js",
+      "bytes": 5473,
+      "sha256": "33a5cb999e8288727539d1670353ec39d36770a5574e4f0ebbb80c74b9fdba20",
+      "normalizedSha256": "33a5cb999e8288727539d1670353ec39d36770a5574e4f0ebbb80c74b9fdba20"
+    },
+    {
+      "path": "server/services/commission-service.js",
+      "bytes": 5326,
+      "sha256": "95819ae34e038d95862788560ac3f4545242f5fbb89743bcf4de509e06321cd3",
+      "normalizedSha256": "95819ae34e038d95862788560ac3f4545242f5fbb89743bcf4de509e06321cd3"
+    },
+    {
+      "path": "server/services/debug-spawn-service.js",
+      "bytes": 9917,
+      "sha256": "00ba18a571d00e441d31d285c69825f1838d6b442b112c2d082ea57add4e011f",
+      "normalizedSha256": "00ba18a571d00e441d31d285c69825f1838d6b442b112c2d082ea57add4e011f"
+    },
+    {
+      "path": "server/services/durable-mutation-coordinator.js",
+      "bytes": 10059,
+      "sha256": "f965f36aa758a566c4b27e9fcd94c0b8bcecb91c690d48c669775b72f55e68af",
+      "normalizedSha256": "f965f36aa758a566c4b27e9fcd94c0b8bcecb91c690d48c669775b72f55e68af"
+    },
+    {
+      "path": "server/services/economy-service.js",
+      "bytes": 6728,
+      "sha256": "192833252a900519853b45dba0a2771860b9167dc9881deae2092393c8e8c24c",
+      "normalizedSha256": "192833252a900519853b45dba0a2771860b9167dc9881deae2092393c8e8c24c"
+    },
+    {
+      "path": "server/services/inventory-service.js",
+      "bytes": 10392,
+      "sha256": "0601292763bab8589214a6b3eaa3f917cda568bb35a16f876ac34e37cf363fba",
+      "normalizedSha256": "0601292763bab8589214a6b3eaa3f917cda568bb35a16f876ac34e37cf363fba"
+    },
+    {
+      "path": "server/services/livestream-service.js",
+      "bytes": 10440,
+      "sha256": "ec024aabc3cedbcc460fce8babb5eaddba4a95328f6fa9e7d65cc88d6925727e",
+      "normalizedSha256": "ec024aabc3cedbcc460fce8babb5eaddba4a95328f6fa9e7d65cc88d6925727e"
+    },
+    {
+      "path": "server/services/market-equipment.js",
+      "bytes": 1603,
+      "sha256": "41078251b8e2b8d503ac7d30c8e20ab34ab53163a4af3fd7365b8d2cfea0447c",
+      "normalizedSha256": "41078251b8e2b8d503ac7d30c8e20ab34ab53163a4af3fd7365b8d2cfea0447c"
+    },
+    {
+      "path": "server/services/market-instance.js",
+      "bytes": 28831,
+      "sha256": "31df1c0d01160b5afb9367fb81f3a5d993753972b604e24d10a63294ea3c5352",
+      "normalizedSha256": "31df1c0d01160b5afb9367fb81f3a5d993753972b604e24d10a63294ea3c5352"
+    },
+    {
+      "path": "server/services/market-liquidity-service.js",
+      "bytes": 4790,
+      "sha256": "23d074d8c6c0b06520097edaf419d86ca521d9a5b2cb78926682594d26837cde",
+      "normalizedSha256": "23d074d8c6c0b06520097edaf419d86ca521d9a5b2cb78926682594d26837cde"
+    },
+    {
+      "path": "server/services/market-service.js",
+      "bytes": 2892,
+      "sha256": "551b026c19000fc08d0380f4f7dfc891fa0d1a26cd383905b2042bc8087a074c",
+      "normalizedSha256": "551b026c19000fc08d0380f4f7dfc891fa0d1a26cd383905b2042bc8087a074c"
+    },
+    {
+      "path": "server/services/materials-service.js",
+      "bytes": 8168,
+      "sha256": "4ea2f89c68db9dcc7ad771e2d922574db7c672885f52c6d678b769c0c2d88c81",
+      "normalizedSha256": "4ea2f89c68db9dcc7ad771e2d922574db7c672885f52c6d678b769c0c2d88c81"
+    },
+    {
+      "path": "server/services/mining-service.js",
+      "bytes": 172009,
+      "sha256": "d742b1ebf138d5aba29fbfe8756cfbe320e18941e57a944ea0ec37bb88a9513c",
+      "normalizedSha256": "d742b1ebf138d5aba29fbfe8756cfbe320e18941e57a944ea0ec37bb88a9513c"
+    },
+    {
+      "path": "server/services/mining/mining-economy.js",
+      "bytes": 65535,
+      "sha256": "649e644a09a8d0130e974e75ec66057911ece50d82f979781e9f62d4f05ae57b",
+      "normalizedSha256": "649e644a09a8d0130e974e75ec66057911ece50d82f979781e9f62d4f05ae57b"
+    },
+    {
+      "path": "server/services/offline-service.js",
+      "bytes": 2897,
+      "sha256": "f2f267b4800d375a4b196089645cfac354fc6599df2f75c4d12175e61b8031df",
+      "normalizedSha256": "f2f267b4800d375a4b196089645cfac354fc6599df2f75c4d12175e61b8031df"
+    },
+    {
+      "path": "server/services/orders-service.js",
+      "bytes": 38055,
+      "sha256": "44586d795821467feb8e2cd5d9399111af59b679ae61dd5f6033e31bf6a4fe2c",
+      "normalizedSha256": "44586d795821467feb8e2cd5d9399111af59b679ae61dd5f6033e31bf6a4fe2c"
+    },
+    {
+      "path": "server/services/player-service.js",
+      "bytes": 9257,
+      "sha256": "b5643d6fa081d3c0b807575dab493625e1839c67c29f3ba82cab20e0c9373724",
+      "normalizedSha256": "b5643d6fa081d3c0b807575dab493625e1839c67c29f3ba82cab20e0c9373724"
+    },
+    {
+      "path": "server/services/player-session-service.js",
+      "bytes": 5323,
+      "sha256": "d3140d0776e6d8399f671b79b3ca50cb81f2e814e493912dedaaf9080e652dcf",
+      "normalizedSha256": "d3140d0776e6d8399f671b79b3ca50cb81f2e814e493912dedaaf9080e652dcf"
+    },
+    {
+      "path": "server/services/recovery-service.js",
+      "bytes": 7045,
+      "sha256": "6280b4a1e3632364acb694cd2bc9d029a916cfceca429c78675e7e274a88b63b",
+      "normalizedSha256": "6280b4a1e3632364acb694cd2bc9d029a916cfceca429c78675e7e274a88b63b"
+    },
+    {
+      "path": "server/services/report-service.js",
+      "bytes": 4524,
+      "sha256": "28bb714d49d0d09a59afae0575405fe0ae5931e9865cd1b8595d19d091d7f427",
+      "normalizedSha256": "28bb714d49d0d09a59afae0575405fe0ae5931e9865cd1b8595d19d091d7f427"
+    },
+    {
+      "path": "server/services/request-id-policy.js",
+      "bytes": 568,
+      "sha256": "657937db58e8f8974938ba4e3a9a31e09dd30d039bf431cce719c67b5257cbbf",
+      "normalizedSha256": "657937db58e8f8974938ba4e3a9a31e09dd30d039bf431cce719c67b5257cbbf"
+    },
+    {
+      "path": "server/services/rough-pool-service.js",
+      "bytes": 9742,
+      "sha256": "f60c8c7e4a571765945133ade5d3f2fca879c8320fe3035ba24e41f4d2b9e55e",
+      "normalizedSha256": "f60c8c7e4a571765945133ade5d3f2fca879c8320fe3035ba24e41f4d2b9e55e"
+    },
+    {
+      "path": "server/services/snapshot-public.js",
+      "bytes": 3584,
+      "sha256": "30fe9a0be5e0c29579691ca065d7816a3deaacb8a76b56931e196a280bd4e4d9",
+      "normalizedSha256": "30fe9a0be5e0c29579691ca065d7816a3deaacb8a76b56931e196a280bd4e4d9"
+    },
+    {
+      "path": "server/services/snapshot-service.js",
+      "bytes": 10737,
+      "sha256": "3445fa9f86bdade2ab63af3997827056d409fc41b48616a23cdb57333aab2c1a",
+      "normalizedSha256": "3445fa9f86bdade2ab63af3997827056d409fc41b48616a23cdb57333aab2c1a"
+    },
+    {
+      "path": "server/services/task-service.js",
+      "bytes": 9395,
+      "sha256": "9ce7e03247c577a01f00ec43caf3901d878014fc4221cda252f9fc15e2b689b8",
+      "normalizedSha256": "9ce7e03247c577a01f00ec43caf3901d878014fc4221cda252f9fc15e2b689b8"
+    },
+    {
+      "path": "server/services/workshop-delivery.js",
+      "bytes": 3718,
+      "sha256": "d87481a95bd5102747ede0872c6cc52b27fc7daff531964f26457fab284b6bcf",
+      "normalizedSha256": "d87481a95bd5102747ede0872c6cc52b27fc7daff531964f26457fab284b6bcf"
+    },
+    {
+      "path": "server/services/workshop-planning.js",
+      "bytes": 19384,
+      "sha256": "850002d0683aeda1543ea5db057232bc72c9e6df8cc22def013c3b87dd737aac",
+      "normalizedSha256": "850002d0683aeda1543ea5db057232bc72c9e6df8cc22def013c3b87dd737aac"
+    },
+    {
+      "path": "server/services/workshop-roster.js",
+      "bytes": 7752,
+      "sha256": "5b0b725492fab6d0f94f9ec996e1c62f2c2e8e0a1e34cc2ef21a2cdbf559588f",
+      "normalizedSha256": "5b0b725492fab6d0f94f9ec996e1c62f2c2e8e0a1e34cc2ef21a2cdbf559588f"
+    },
+    {
+      "path": "server/services/workshop-service.js",
+      "bytes": 5255,
+      "sha256": "8fdf793d14af0433f9ede9ba7b5bb8d805619404d8a6401fba3f955285217e43",
+      "normalizedSha256": "8fdf793d14af0433f9ede9ba7b5bb8d805619404d8a6401fba3f955285217e43"
+    },
+    {
+      "path": "server/services/workshop/commands.js",
+      "bytes": 12896,
+      "sha256": "be76a678f4a72be83415e5718a88ded6e2053f3bc4a0d72675cc29a8313d8484",
+      "normalizedSha256": "be76a678f4a72be83415e5718a88ded6e2053f3bc4a0d72675cc29a8313d8484"
+    },
+    {
+      "path": "server/services/workshop/completion.js",
+      "bytes": 12315,
+      "sha256": "e68052d2f47acff821cb8895658ccce0bd1f4d39e67bb3dca8bac63ad45e1494",
+      "normalizedSha256": "e68052d2f47acff821cb8895658ccce0bd1f4d39e67bb3dca8bac63ad45e1494"
+    },
+    {
+      "path": "server/services/workshop/inventory.js",
+      "bytes": 1289,
+      "sha256": "7da56f3c408fc016d51bba9dd651d98a56e5c4ce1eceb9d370458231a12cc405",
+      "normalizedSha256": "7da56f3c408fc016d51bba9dd651d98a56e5c4ce1eceb9d370458231a12cc405"
+    },
+    {
+      "path": "server/services/workshop/products.js",
+      "bytes": 5008,
+      "sha256": "a4624a139ad52833591565b325f6256578fbf1b9e8e31da889e865ccbe74b636",
+      "normalizedSha256": "a4624a139ad52833591565b325f6256578fbf1b9e8e31da889e865ccbe74b636"
+    },
+    {
+      "path": "server/services/workshop/queries.js",
+      "bytes": 2541,
+      "sha256": "8f859586f3f9eae191ac6decebf42e7602f9f10d727766f61ea42b5ecc3a3f56",
+      "normalizedSha256": "8f859586f3f9eae191ac6decebf42e7602f9f10d727766f61ea42b5ecc3a3f56"
+    },
+    {
+      "path": "server/services/workshop/runtime.js",
+      "bytes": 3022,
+      "sha256": "a6c7323e518b0a76beaac71d93fe56f0e5d20964342800952cfbe01cc659de1d",
+      "normalizedSha256": "a6c7323e518b0a76beaac71d93fe56f0e5d20964342800952cfbe01cc659de1d"
+    },
+    {
+      "path": "server/shell/broadcast-scheduler.js",
+      "bytes": 982,
+      "sha256": "503d47905bdafb0a7e57a0a6c79515df7eecebbaa8af81ab2e5d4abd8cdb6f87",
+      "normalizedSha256": "503d47905bdafb0a7e57a0a6c79515df7eecebbaa8af81ab2e5d4abd8cdb6f87"
+    },
+    {
+      "path": "server/shell/commands/blackmarket-commands.js",
+      "bytes": 15211,
+      "sha256": "20886eb8c621cdf7cbbd5749e8f0d0f54da138a6cbc7fc93fff62bac7e03f516",
+      "normalizedSha256": "20886eb8c621cdf7cbbd5749e8f0d0f54da138a6cbc7fc93fff62bac7e03f516"
+    },
+    {
+      "path": "server/shell/commands/commerce-commands.js",
+      "bytes": 12994,
+      "sha256": "77cdf21dfc4637bcf7928186c4fe9aca7be493a5b9375ac5eeb75a285a6edfc4",
+      "normalizedSha256": "77cdf21dfc4637bcf7928186c4fe9aca7be493a5b9375ac5eeb75a285a6edfc4"
+    },
+    {
+      "path": "server/shell/commands/commission-commands.js",
+      "bytes": 930,
+      "sha256": "db05122512bf39b8b3a87a1029a905d6841d70857e52cd683e3d980b58f7dbea",
+      "normalizedSha256": "db05122512bf39b8b3a87a1029a905d6841d70857e52cd683e3d980b58f7dbea"
+    },
+    {
+      "path": "server/shell/commands/debug-commands.js",
+      "bytes": 4167,
+      "sha256": "5d8b810d9258a90d986add78c4820c31a23632e2498fe53c1483542c1ea8cea0",
+      "normalizedSha256": "5d8b810d9258a90d986add78c4820c31a23632e2498fe53c1483542c1ea8cea0"
+    },
+    {
+      "path": "server/shell/commands/mining-commands.js",
+      "bytes": 17998,
+      "sha256": "28095b7d14a8e0e170e7ec159418d32e1d6f0a904d680bd5ecb3dbf2a822815d",
+      "normalizedSha256": "28095b7d14a8e0e170e7ec159418d32e1d6f0a904d680bd5ecb3dbf2a822815d"
+    },
+    {
+      "path": "server/shell/commands/payroll-commands.js",
+      "bytes": 1450,
+      "sha256": "2a1188be6d58887c1369c86c10d195f4d14a6f617031563cf582ff4c5a144011",
+      "normalizedSha256": "2a1188be6d58887c1369c86c10d195f4d14a6f617031563cf582ff4c5a144011"
+    },
+    {
+      "path": "server/shell/commands/progression-commands.js",
+      "bytes": 3917,
+      "sha256": "c1c8e2497fbac71c2fe075a665e015150c3cef0bd937c11ad337056d3285f95c",
+      "normalizedSha256": "c1c8e2497fbac71c2fe075a665e015150c3cef0bd937c11ad337056d3285f95c"
+    },
+    {
+      "path": "server/shell/commands/workshop-delivery-commands.js",
+      "bytes": 880,
+      "sha256": "8c9224b60a16dfbea4ab6b45dec5045f6537ed649a53c79ee5b065e6ea087a24",
+      "normalizedSha256": "8c9224b60a16dfbea4ab6b45dec5045f6537ed649a53c79ee5b065e6ea087a24"
+    },
+    {
+      "path": "server/shell/postgres-world-persist.js",
+      "bytes": 19074,
+      "sha256": "62106cfed5fdd365505e644d110162bda3ada974517055745268f6f21aba4904",
+      "normalizedSha256": "62106cfed5fdd365505e644d110162bda3ada974517055745268f6f21aba4904"
+    },
+    {
+      "path": "server/shell/runtime-ticks.js",
+      "bytes": 16205,
+      "sha256": "93a3a62786af7f17ebeb00a2895e593c2e864ef479947e5f8486a7c8fa230793",
+      "normalizedSha256": "93a3a62786af7f17ebeb00a2895e593c2e864ef479947e5f8486a7c8fa230793"
+    },
+    {
+      "path": "server/shell/server-context.js",
+      "bytes": 7716,
+      "sha256": "bdb8dc44774064f87bf638f062d6e906b077a5f1eb81331de977423510fa5599",
+      "normalizedSha256": "bdb8dc44774064f87bf638f062d6e906b077a5f1eb81331de977423510fa5599"
+    },
+    {
+      "path": "server/shell/socket-handlers.js",
+      "bytes": 36606,
+      "sha256": "6be22b1b25d2435bd07f25ed3591a0a2ad32c66b0733a84d96e7e477b368bc2f",
+      "normalizedSha256": "6be22b1b25d2435bd07f25ed3591a0a2ad32c66b0733a84d96e7e477b368bc2f"
+    },
+    {
+      "path": "server/shell/sqlite-world-persist.js",
+      "bytes": 8798,
+      "sha256": "7fa5276592c8dc7c20096ae9a744827f4f21b745bef8be5856bef6a276405d85",
+      "normalizedSha256": "7fa5276592c8dc7c20096ae9a744827f4f21b745bef8be5856bef6a276405d85"
+    },
+    {
+      "path": "server/shell/state-signatures.js",
+      "bytes": 1024,
+      "sha256": "7a93f13d079ebd638c65f97a8515629eb7cfdfda9a29642fc3346b553c01ed39",
+      "normalizedSha256": "7a93f13d079ebd638c65f97a8515629eb7cfdfda9a29642fc3346b553c01ed39"
+    },
+    {
+      "path": "server/shell/test-hooks.js",
+      "bytes": 5027,
+      "sha256": "7a779e284886544038bbfae260df37cf8cf3a6a8bcfe4745ffb6bd7258bc8c42",
+      "normalizedSha256": "7a779e284886544038bbfae260df37cf8cf3a6a8bcfe4745ffb6bd7258bc8c42"
+    },
+    {
+      "path": "server/shell/workshop-start-handler.js",
+      "bytes": 920,
+      "sha256": "8f9c6d0c4f5f6a194897cb2c73665a771c36f794369c378a7803e549d21b66e5",
+      "normalizedSha256": "8f9c6d0c4f5f6a194897cb2c73665a771c36f794369c378a7803e549d21b66e5"
+    },
+    {
+      "path": "server/shell/world-persist.js",
+      "bytes": 5180,
+      "sha256": "0b5cc20ca7e0b5e54591b754fb37d06aa88d492f5e8c35f5d71c62875ecc6c80",
+      "normalizedSha256": "0b5cc20ca7e0b5e54591b754fb37d06aa88d492f5e8c35f5d71c62875ecc6c80"
+    },
+    {
+      "path": "server/shell/world-persistence.js",
+      "bytes": 1714,
+      "sha256": "e04ef934154690bdce86eb84c3a236e1affc11cdb87f9eaead3aa45565cf6b55",
+      "normalizedSha256": "e04ef934154690bdce86eb84c3a236e1affc11cdb87f9eaead3aa45565cf6b55"
+    },
+    {
+      "path": "server/systems/employee-payroll.js",
+      "bytes": 10428,
+      "sha256": "52f19a91f5c973d894143c74344859cb9d1d688cda170e8af3fa4db0275d77ed",
+      "normalizedSha256": "52f19a91f5c973d894143c74344859cb9d1d688cda170e8af3fa4db0275d77ed"
+    },
+    {
+      "path": "server/systems/employee-system.js",
+      "bytes": 12769,
+      "sha256": "6f9e7b356365c2544e4efbe92abfd6d12b37acb836babdd6d3747d9fa23b0086",
+      "normalizedSha256": "6f9e7b356365c2544e4efbe92abfd6d12b37acb836babdd6d3747d9fa23b0086"
+    },
+    {
+      "path": "server/systems/equipment-system.js",
+      "bytes": 38855,
+      "sha256": "24abb1387c8028cec1aa3fdfb52bf5d150f463db1288d5afe157bfce8547179a",
+      "normalizedSha256": "24abb1387c8028cec1aa3fdfb52bf5d150f463db1288d5afe157bfce8547179a"
+    },
+    {
+      "path": "server/systems/inlay-system.js",
+      "bytes": 16765,
+      "sha256": "5833b0dbba20b9789121a247f2f0262b4ade4dfe0c5b6fd654e3d6562a319a45",
+      "normalizedSha256": "5833b0dbba20b9789121a247f2f0262b4ade4dfe0c5b6fd654e3d6562a319a45"
+    },
+    {
+      "path": "server/systems/livestream-room-system.js",
+      "bytes": 25084,
+      "sha256": "2d25634f1af93822013eb8eaaac131c07d4a4b4585f28d593d212a7904ac6c30",
+      "normalizedSha256": "2d25634f1af93822013eb8eaaac131c07d4a4b4585f28d593d212a7904ac6c30"
+    },
+    {
+      "path": "server/systems/miner-system.js",
+      "bytes": 49713,
+      "sha256": "be49c3470f6a4abad74e112e85a6db6266c5b8c20fc4cc7a2fecb28fa8b3e1aa",
+      "normalizedSha256": "be49c3470f6a4abad74e112e85a6db6266c5b8c20fc4cc7a2fecb28fa8b3e1aa"
+    },
+    {
+      "path": "server/world-store.js",
+      "bytes": 7683,
+      "sha256": "f54742c3137e1a72296cb1d4d2d2902847bcb0343d58bd6f13a0bc1b98d31fb1",
+      "normalizedSha256": "f54742c3137e1a72296cb1d4d2d2902847bcb0343d58bd6f13a0bc1b98d31fb1"
+    },
+    {
+      "path": "shared/domain/auction/jade-auction.js",
+      "bytes": 15998,
+      "sha256": "6a9cfe652266c43fbb11deaa4c12859801e9237872e7e42684ca0c279cbcf5bb",
+      "normalizedSha256": "6a9cfe652266c43fbb11deaa4c12859801e9237872e7e42684ca0c279cbcf5bb"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-constants.js",
+      "bytes": 1852,
+      "sha256": "b175035a1de87389bb8fe7d9e7c6dd327743d7916a087a2b02cef54301cec836",
+      "normalizedSha256": "b175035a1de87389bb8fe7d9e7c6dd327743d7916a087a2b02cef54301cec836"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-plan-pool.js",
+      "bytes": 10394,
+      "sha256": "341fb364fee6c16899a515c1ec8b3a4a0a3fbe8a07becaabb8efe895689eaf14",
+      "normalizedSha256": "341fb364fee6c16899a515c1ec8b3a4a0a3fbe8a07becaabb8efe895689eaf14"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-resources.js",
+      "bytes": 1957,
+      "sha256": "9155f6cf968d414586ab4503645661f9d44a80bd22212655b5c75b5c3d2df561",
+      "normalizedSha256": "9155f6cf968d414586ab4503645661f9d44a80bd22212655b5c75b5c3d2df561"
+    },
+    {
+      "path": "shared/domain/blackmarket/bm-service-templates.js",
+      "bytes": 1608,
+      "sha256": "98ee2155fa91a9b34ea759852436128ac8415f749b8b293b4621c7c88d646444",
+      "normalizedSha256": "98ee2155fa91a9b34ea759852436128ac8415f749b8b293b4621c7c88d646444"
+    },
+    {
+      "path": "shared/domain/blackmarket/npc-pricing.js",
+      "bytes": 2125,
+      "sha256": "71b6c5b609db1d9060f40b47c49f37f6ce446cd5b2d804e6d44cf33aa2c7a20d",
+      "normalizedSha256": "71b6c5b609db1d9060f40b47c49f37f6ce446cd5b2d804e6d44cf33aa2c7a20d"
+    },
+    {
+      "path": "shared/domain/blackmarket/npc-rules.js",
+      "bytes": 2214,
+      "sha256": "03d1354d8c93b2aeffe9c3a1568e0894f4f56c8d739d58ac3232111c280c812a",
+      "normalizedSha256": "03d1354d8c93b2aeffe9c3a1568e0894f4f56c8d739d58ac3232111c280c812a"
+    },
+    {
+      "path": "shared/domain/economy/commission-rules.js",
+      "bytes": 4711,
+      "sha256": "aa5a30977175b7f9df7558f40dfb387d9a86b5bc307c664a6209d7ccc6391279",
+      "normalizedSha256": "aa5a30977175b7f9df7558f40dfb387d9a86b5bc307c664a6209d7ccc6391279"
+    },
+    {
+      "path": "shared/domain/economy/equipment-maintenance.js",
+      "bytes": 540,
+      "sha256": "229d1459868f5108242c3b357803c41707131308809d39c9fafde6caba67e03f",
+      "normalizedSha256": "229d1459868f5108242c3b357803c41707131308809d39c9fafde6caba67e03f"
+    },
+    {
+      "path": "shared/domain/economy/equipment-trading.js",
+      "bytes": 1650,
+      "sha256": "f5eda7bf0cb75326d4f647dc581a272dc99bc3054ba9c15a6d6d90438046c40c",
+      "normalizedSha256": "f5eda7bf0cb75326d4f647dc581a272dc99bc3054ba9c15a6d6d90438046c40c"
+    },
+    {
+      "path": "shared/domain/economy/finance-book.js",
+      "bytes": 19453,
+      "sha256": "2803a42f293849eb39d118c4f22ebe2edadc7be93e9e9f957b5805ada5ba5ae5",
+      "normalizedSha256": "2803a42f293849eb39d118c4f22ebe2edadc7be93e9e9f957b5805ada5ba5ae5"
+    },
+    {
+      "path": "shared/domain/economy/inventory-recycle.js",
+      "bytes": 348,
+      "sha256": "8566f8aa28cfd0010fb59d6da70c4da10caf32022270e6e430c760f236fc266c",
+      "normalizedSha256": "8566f8aa28cfd0010fb59d6da70c4da10caf32022270e6e430c760f236fc266c"
+    },
+    {
+      "path": "shared/domain/economy/item-cost.js",
+      "bytes": 4769,
+      "sha256": "2f12a6ce07269e59b23ee1b9765eb9b31c1249424fa711305ce94f23afc28eef",
+      "normalizedSha256": "2f12a6ce07269e59b23ee1b9765eb9b31c1249424fa711305ce94f23afc28eef"
+    },
+    {
+      "path": "shared/domain/economy/jade-loop.js",
+      "bytes": 5283,
+      "sha256": "9c1650d744e5481793ba41c2da2883d64681bdde6e91aba13130fbfe8d52ca80",
+      "normalizedSha256": "9c1650d744e5481793ba41c2da2883d64681bdde6e91aba13130fbfe8d52ca80"
+    },
+    {
+      "path": "shared/domain/economy/market-rules.js",
+      "bytes": 342,
+      "sha256": "d4a2c78ca8f5f115adee313dd799fcd8aa2d5bba4a90e7b34ab4e9de1918c5c6",
+      "normalizedSha256": "d4a2c78ca8f5f115adee313dd799fcd8aa2d5bba4a90e7b34ab4e9de1918c5c6"
+    },
+    {
+      "path": "shared/domain/economy/material-pricing.js",
+      "bytes": 1556,
+      "sha256": "3494e1afbc63d71990e1dc75895de3ed825e986c386fa0adb2f7226b86e6d6c2",
+      "normalizedSha256": "3494e1afbc63d71990e1dc75895de3ed825e986c386fa0adb2f7226b86e6d6c2"
+    },
+    {
+      "path": "shared/domain/economy/metric-history.js",
+      "bytes": 29802,
+      "sha256": "57a375aeceda6b31c6728432789d7164571a39e1af5a6a94a4053567e73ca0d9",
+      "normalizedSha256": "57a375aeceda6b31c6728432789d7164571a39e1af5a6a94a4053567e73ca0d9"
+    },
+    {
+      "path": "shared/domain/economy/new-player-economy.js",
+      "bytes": 2237,
+      "sha256": "1c4ad0bdefb6415c5b38bf95b774ac35efb951f7526003eccf5ca7783371e4fe",
+      "normalizedSha256": "1c4ad0bdefb6415c5b38bf95b774ac35efb951f7526003eccf5ca7783371e4fe"
+    },
+    {
+      "path": "shared/domain/economy/operating-reserve.js",
+      "bytes": 1041,
+      "sha256": "41a5d03207532154b1d60210260db0608da7f6ebe256a5b7402ed6018986eefc",
+      "normalizedSha256": "41a5d03207532154b1d60210260db0608da7f6ebe256a5b7402ed6018986eefc"
+    },
+    {
+      "path": "shared/domain/economy/order-refresh.js",
+      "bytes": 814,
+      "sha256": "edfa3f113105c4f76d8bddd2e43d2f8fbf0a99e7b6a49c90916e799a29b6273a",
+      "normalizedSha256": "edfa3f113105c4f76d8bddd2e43d2f8fbf0a99e7b6a49c90916e799a29b6273a"
+    },
+    {
+      "path": "shared/domain/economy/public-workstations.js",
+      "bytes": 1778,
+      "sha256": "50c3e10e8e5abf355f3c2bb3754eadbe63110abf2b17abbb4993b1bfa707cdd6",
+      "normalizedSha256": "50c3e10e8e5abf355f3c2bb3754eadbe63110abf2b17abbb4993b1bfa707cdd6"
+    },
+    {
+      "path": "shared/domain/economy/system-demand.js",
+      "bytes": 5143,
+      "sha256": "ac7c1d6dc07b9bd0aa3969c30802ad0f8206339b15aab2c9dcfeaee3beb1143f",
+      "normalizedSha256": "ac7c1d6dc07b9bd0aa3969c30802ad0f8206339b15aab2c9dcfeaee3beb1143f"
+    },
+    {
+      "path": "shared/domain/economy/worker-economy.js",
+      "bytes": 4276,
+      "sha256": "e9de85c3e1f66fb83aed3c773b00db8377e00f5367968e9903f468e16b9a0a61",
+      "normalizedSha256": "e9de85c3e1f66fb83aed3c773b00db8377e00f5367968e9903f468e16b9a0a61"
+    },
+    {
+      "path": "shared/domain/feature-availability.js",
+      "bytes": 321,
+      "sha256": "42c160b7535d5ab909d449b902c96acadf45bf58f17b5335d1064bd4682d9622",
+      "normalizedSha256": "42c160b7535d5ab909d449b902c96acadf45bf58f17b5335d1064bd4682d9622"
+    },
+    {
+      "path": "shared/domain/jade/jade-categories.js",
+      "bytes": 6430,
+      "sha256": "78ec54d5ce855247029c72b98ed9be8c8fe8162038786851c550c2149ab74351",
+      "normalizedSha256": "78ec54d5ce855247029c72b98ed9be8c8fe8162038786851c550c2149ab74351"
+    },
+    {
+      "path": "shared/domain/jade/jade-opening-engine.js",
+      "bytes": 54091,
+      "sha256": "7a51edb722e6238105482ce7422e3353ee20d8091d5349b8a44dda1bf994ca6b",
+      "normalizedSha256": "7a51edb722e6238105482ce7422e3353ee20d8091d5349b8a44dda1bf994ca6b"
+    },
+    {
+      "path": "shared/domain/jade/jade-piece.js",
+      "bytes": 2832,
+      "sha256": "7d8ea7253ad874f3665b94fcdd7f441d3075704b0f9f9b8c9c3ceb144b9f455d",
+      "normalizedSha256": "7d8ea7253ad874f3665b94fcdd7f441d3075704b0f9f9b8c9c3ceb144b9f455d"
+    },
+    {
+      "path": "shared/domain/jade/jade-rules.js",
+      "bytes": 23249,
+      "sha256": "0d381cb4bd096c689a536955ce5b4a4863170f61ea01ebedad70dbe3d03981a8",
+      "normalizedSha256": "0d381cb4bd096c689a536955ce5b4a4863170f61ea01ebedad70dbe3d03981a8"
+    },
+    {
+      "path": "shared/domain/jade/jade-volume.js",
+      "bytes": 6688,
+      "sha256": "6c44443633030e9a27ab4256412078f6860dce9757e625b156bfd3047c145767",
+      "normalizedSha256": "6c44443633030e9a27ab4256412078f6860dce9757e625b156bfd3047c145767"
+    },
+    {
+      "path": "shared/domain/jade/offcut-layout.js",
+      "bytes": 5329,
+      "sha256": "6cecfd6a50807296c150832b139822bf71c5ab31155a25921e4be0eb7fe2a7df",
+      "normalizedSha256": "6cecfd6a50807296c150832b139822bf71c5ab31155a25921e4be0eb7fe2a7df"
+    },
+    {
+      "path": "shared/domain/jade/outline-geometry.js",
+      "bytes": 3268,
+      "sha256": "bf757e0fcf25f70bfddc78d833a5a1c64bc8bc2a5056d662927f0e0d8dde58f2",
+      "normalizedSha256": "bf757e0fcf25f70bfddc78d833a5a1c64bc8bc2a5056d662927f0e0d8dde58f2"
+    },
+    {
+      "path": "shared/domain/jade/product-meta.js",
+      "bytes": 2598,
+      "sha256": "03fe9b5c356eb3cd845347bb7293250d5d53c609fb82918593c4e1a3aed713b3",
+      "normalizedSha256": "03fe9b5c356eb3cd845347bb7293250d5d53c609fb82918593c4e1a3aed713b3"
+    },
+    {
+      "path": "shared/domain/livestream/livestream-host-bonuses.js",
+      "bytes": 5949,
+      "sha256": "4c51e50b325a0a680c32dad9f88573b405c8b8a02c3ffcaa81e02cec32680ef6",
+      "normalizedSha256": "4c51e50b325a0a680c32dad9f88573b405c8b8a02c3ffcaa81e02cec32680ef6"
+    },
+    {
+      "path": "shared/domain/livestream/livestream-rules.js",
+      "bytes": 915,
+      "sha256": "e36635ad0840acce044f3a4f65eb655b0bd7997936886f48c563a647b5c35e76",
+      "normalizedSha256": "e36635ad0840acce044f3a4f65eb655b0bd7997936886f48c563a647b5c35e76"
+    },
+    {
+      "path": "shared/domain/livestream/settle-modal.js",
+      "bytes": 2961,
+      "sha256": "c98fb5e148dad449616e3d8f33f21df6e5ec6ecda8eebec9d2a817f62dd11bd5",
+      "normalizedSha256": "c98fb5e148dad449616e3d8f33f21df6e5ec6ecda8eebec9d2a817f62dd11bd5"
+    },
+    {
+      "path": "shared/domain/mining/mining-rules.js",
+      "bytes": 67069,
+      "sha256": "5c117c86297c3325bd1a4d454885cc6eda8b24c3c29f648d768a368b153653bb",
+      "normalizedSha256": "5c117c86297c3325bd1a4d454885cc6eda8b24c3c29f648d768a368b153653bb"
+    },
+    {
+      "path": "shared/domain/progression/player-progression.js",
+      "bytes": 51074,
+      "sha256": "2ec1e00ceb109d37da26cad0df20fc77395019b22be07a0170276f122fae9377",
+      "normalizedSha256": "2ec1e00ceb109d37da26cad0df20fc77395019b22be07a0170276f122fae9377"
+    },
+    {
+      "path": "shared/domain/workshop/bangle-finish.js",
+      "bytes": 6467,
+      "sha256": "3e7d2521fc2732c377ff5ceb48a63c2bbb79b2a6710bca9b090abb4c7967894b",
+      "normalizedSha256": "3e7d2521fc2732c377ff5ceb48a63c2bbb79b2a6710bca9b090abb4c7967894b"
+    },
+    {
+      "path": "shared/domain/workshop/delivery-scratch.js",
+      "bytes": 1703,
+      "sha256": "b19fe74bc525cb784ac4a03f7290e8759272476e554ee8feddd877049858fc48",
+      "normalizedSha256": "b19fe74bc525cb784ac4a03f7290e8759272476e554ee8feddd877049858fc48"
+    },
+    {
+      "path": "shared/domain/workshop/finish-plan-model.js",
+      "bytes": 5858,
+      "sha256": "e6ef02ca53163ad5d37a74ec9f880f3d4fc62b3097fe95a88b331bb2d9a93d0d",
+      "normalizedSha256": "e6ef02ca53163ad5d37a74ec9f880f3d4fc62b3097fe95a88b331bb2d9a93d0d"
+    },
+    {
+      "path": "shared/domain/workshop/finished-product-design.js",
+      "bytes": 15444,
+      "sha256": "e3e0101abbacc1608cd69ed96a422fc65378842c7e7e89f678774edafe4f1d7a",
+      "normalizedSha256": "e3e0101abbacc1608cd69ed96a422fc65378842c7e7e89f678774edafe4f1d7a"
+    },
+    {
+      "path": "shared/domain/workshop/inlay-value.js",
+      "bytes": 1568,
+      "sha256": "72317d677c3912171188624b4c792cc989540283dcaa79cf0cc150e9e18c3aff",
+      "normalizedSha256": "72317d677c3912171188624b4c792cc989540283dcaa79cf0cc150e9e18c3aff"
+    },
+    {
+      "path": "shared/domain/workshop/material-value-pool.js",
+      "bytes": 3165,
+      "sha256": "0d54c434af382505fe1f65a8d6039c7f980c48c24d2f6e129eb04ae2fb342832",
+      "normalizedSha256": "0d54c434af382505fe1f65a8d6039c7f980c48c24d2f6e129eb04ae2fb342832"
+    },
+    {
+      "path": "shared/domain/workshop/workshop-craft-scoring.js",
+      "bytes": 10958,
+      "sha256": "53c64c77ab19c15b2828b3ccd0e1cff080820e6ea65f7071d823f2edbef83b7f",
+      "normalizedSha256": "53c64c77ab19c15b2828b3ccd0e1cff080820e6ea65f7071d823f2edbef83b7f"
+    },
+    {
+      "path": "shared/protocol/mutation-events.js",
+      "bytes": 2936,
+      "sha256": "40c0cd5cd676698acabd9536d0ec16c77aca7ea0b8a9da96bb6b24d797a94242",
+      "normalizedSha256": "40c0cd5cd676698acabd9536d0ec16c77aca7ea0b8a9da96bb6b24d797a94242"
+    },
+    {
+      "path": "workshop-start-handler.js",
+      "bytes": 196,
+      "sha256": "dd52c6a774c4e906cf805c68129954a47b1c776cc6e525a7b0d4906bc799f919",
+      "normalizedSha256": "dd52c6a774c4e906cf805c68129954a47b1c776cc6e525a7b0d4906bc799f919"
+    }
+  ]
+}

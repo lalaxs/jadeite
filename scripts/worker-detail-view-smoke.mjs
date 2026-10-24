@@ -1,5 +1,7 @@
+import { readWorkshopSource } from "./load-workshop-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { loadResolvedStyles } from "./load-styles.mjs";
 import {
   WORKER_SKILL_DEFS,
   renderWorkerDetailPanel,
@@ -56,7 +58,7 @@ assert.deepEqual(
 assert.equal((workshopHtml.match(/class="wsp-skill-card /g) || []).length, 9);
 assert.equal((recruitHtml.match(/class="wsp-skill-card /g) || []).length, 9);
 for (const definition of Object.values(WORKER_SKILL_DEFS)) {
-  const renderedAttribute = `${definition.attr} / ${definition.full}`;
+  const renderedAttribute = `${definition.attr}：${definition.full}`;
   assert.ok(
     workshopHtml.includes(`<span class="wsp-skill-attr">${renderedAttribute}</span>`),
     `workshop detail should visibly render ${renderedAttribute}`
@@ -127,29 +129,36 @@ assert.equal(detailWrites, 1, "same candidate refresh must retain detail DOM ide
 assert.equal(footerWrites, 2, "acknowledgement state should patch only the footer");
 assert.equal(detailScroller.scrollTop, 126, "failed acknowledgement should preserve detail scroll");
 
-const workshopSource = readFileSync("public/workshop-module.js", "utf8");
+const workshopSource = readWorkshopSource();
+const craftScoringSource = readFileSync("public/workshop-craft-scoring.js", "utf8");
+const sharedCraftScoringSource = readFileSync("shared/domain/workshop/workshop-craft-scoring.js", "utf8");
 assert.match(
   workshopSource,
-  /import\s*\{\s*WORKER_SKILL_DEFS,\s*renderWorkerDetailPanel\s*\}\s*from "\.\/worker-detail-view\.js"/
+  /import\s*\{[^}]*\brenderWorkerDetailPanel\b[^}]*\}\s*from "\.\.\/\.\.\/worker-detail-view\.js"/
+);
+assert.match(
+  craftScoringSource,
+  /export \* from '\.\.\/shared\/domain\/workshop\/workshop-craft-scoring\.js'/
 );
 assert.doesNotMatch(workshopSource, /const SKILL_DEFS\s*=/);
-assert.match(workshopSource, /WORKER_SKILL_DEFS\[key\]\.full\s*\*\s*skillK/);
+assert.match(sharedCraftScoringSource, /export const WORKER_SKILL_DEFS/);
+assert.match(sharedCraftScoringSource, /WORKER_SKILL_DEFS\[key\]\?\.full[\s\S]*skillK/);
 
-const extraSource = readFileSync("public/extra-module.js", "utf8");
-assert.match(extraSource, /data-action="openRecruitCandidateDetail"/);
-assert.match(extraSource, /if\s*\(!root\.querySelector\("\.recruit-detail-modal"\)\)/);
-assert.match(extraSource, /patchRecruitDetailView\(root,\s*\{/);
-assert.match(extraSource, /createRecruitDetailController\(\{/);
-assert.match(extraSource, /emit:\s*\(event, payload, acknowledge\) => socketRef\.emit\(event, payload, acknowledge\)/);
+const hireSource = readFileSync("public/features/hire/hire-module.js", "utf8");
+assert.match(hireSource, /data-action="openRecruitCandidateDetail"/);
+assert.match(hireSource, /if\s*\(!root\.querySelector\("\.recruit-detail-modal"\)\)/);
+assert.match(hireSource, /patchRecruitDetailView\(root,\s*\{/);
+assert.match(hireSource, /createRecruitDetailController\(\{/);
+assert.match(hireSource, /emit:\s*\(event, payload, acknowledge\) => socketRef\.emit\(event, payload, acknowledge\)/);
 
-const server = readFileSync("server.js", "utf8");
-assert.match(server, /socket\.on\("recruitWorker",\s*\(payload = \{\}, acknowledge\)/);
-assert.match(server, /typeof acknowledge === "function"/);
+const socketHandlers = readFileSync("server/shell/socket-handlers.js", "utf8");
+assert.match(socketHandlers, /socket\.on\("recruitWorker",\s*\(payload = \{\}, acknowledge\)/);
+assert.match(socketHandlers, /socket\.on\("dismissWorker",\s*\(payload = \{\}, acknowledge\)/);
+assert.match(socketHandlers, /typeof acknowledge === "function"/);
 
-const styles = readFileSync("public/styles.css", "utf8");
-assert.match(
+const styles = loadResolvedStyles();assert.match(
   styles,
-  /\.game-modal\.recruit-detail-modal\s*\{[^}]*width:\s*min\(720px,\s*100%\)[^}]*overflow:\s*hidden/
+  /\.game-modal\.recruit-detail-modal\s*\{[^}]*width:\s*min\(860px,\s*100%\)[^}]*overflow:\s*hidden/
 );
 assert.match(
   styles,

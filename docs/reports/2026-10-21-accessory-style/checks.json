@@ -1,0 +1,81 @@
+{
+  "jadeAppearanceUnchanged": true,
+  "settings": [
+    {
+      "accessoryFilters": 2,
+      "count": 1,
+      "drawn": 1,
+      "jadeFilter": null,
+      "setting": "claw"
+    },
+    {
+      "accessoryFilters": 2,
+      "count": 0,
+      "drawn": 0,
+      "jadeFilter": null,
+      "setting": "bezel"
+    },
+    {
+      "accessoryFilters": 2,
+      "count": 44,
+      "drawn": 44,
+      "jadeFilter": null,
+      "setting": "micro"
+    },
+    {
+      "accessoryFilters": 2,
+      "count": 6,
+      "drawn": 6,
+      "jadeFilter": null,
+      "setting": "channel"
+    },
+    {
+      "accessoryFilters": 2,
+      "count": 2,
+      "drawn": 2,
+      "jadeFilter": null,
+      "setting": "invisible"
+    },
+    {
+      "accessoryFilters": 2,
+      "count": 0,
+      "drawn": 0,
+      "jadeFilter": null,
+      "setting": "cord"
+    }
+  ],
+  "metals": [
+    {
+      "colors": [
+        "#b9a678",
+        "#aa935e",
+        "#91805d"
+      ],
+      "metal": "goldPure"
+    },
+    {
+      "colors": [
+        "#b7ad92",
+        "#a89b7e",
+        "#8e846e"
+      ],
+      "metal": "gold18k"
+    },
+    {
+      "colors": [
+        "#a7b3b3",
+        "#929fa1",
+        "#7c898e"
+      ],
+      "metal": "silver925"
+    },
+    {
+      "colors": [
+        "#c0c3b9",
+        "#adb4ac",
+        "#959f98"
+      ],
+      "metal": "platinum"
+    }
+  ]
+}

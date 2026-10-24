@@ -1,0 +1,51 @@
+{
+  "image": "inlay-gems-atlas-v1.png",
+  "width": 1536,
+  "height": 1024,
+  "cellWidth": 512,
+  "cellHeight": 512,
+  "frames": [
+    {
+      "name": "diamond-round",
+      "x": 0,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "ruby-round",
+      "x": 512,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "sapphire-round",
+      "x": 1024,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "diamond-square",
+      "x": 0,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "ruby-square",
+      "x": 512,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "sapphire-square",
+      "x": 1024,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    }
+  ]
+}

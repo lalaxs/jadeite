@@ -1,0 +1,157 @@
+{
+  "startedAt": "2026-10-23T10:02:06.337Z",
+  "results": [
+    {
+      "name": "value-pool",
+      "script": "scripts/economy-value-pool-smoke.mjs",
+      "chunk_id": "259927",
+      "wall_time_seconds": 0.7031638,
+      "exit_code": 0,
+      "original_token_count": 34,
+      "output": "{\"ok\":true,\"inputBase\":10000,\"outputBase\":10000,\"inputAppraisal\":12500,\"outputAppraisal\":12565,\"newCarvingValue\":65,\"costBasis\":10000}\n"
+    },
+    {
+      "name": "opening-value-preview",
+      "script": "scripts/opening-value-preview-smoke.mjs",
+      "chunk_id": "e0870b",
+      "wall_time_seconds": 0.7814216,
+      "exit_code": 0,
+      "original_token_count": 46,
+      "output": "{\"ok\":true,\"cases\":[{\"cuts\":2,\"historicalCuts\":0,\"displayedMaterialValues\":[583,88],\"leftover\":11829},{\"cuts\":1,\"historicalCuts\":2,\"displayedMaterialValues\":[352],\"leftover\":11477}]}\n"
+    },
+    {
+      "name": "blackmarket-offcut-1",
+      "script": "scripts/blackmarket-offcut-smoke.mjs",
+      "chunk_id": "2b244b",
+      "wall_time_seconds": 10.0109588,
+      "original_token_count": 0,
+      "output": "blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n",
+      "exit_code": 0
+    },
+    {
+      "name": "blackmarket-offcut-2",
+      "script": "scripts/blackmarket-offcut-smoke.mjs",
+      "chunk_id": "9fd14a",
+      "wall_time_seconds": 10.0109275,
+      "original_token_count": 0,
+      "output": "blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n",
+      "exit_code": 0
+    },
+    {
+      "name": "blackmarket-offcut-3",
+      "script": "scripts/blackmarket-offcut-smoke.mjs",
+      "chunk_id": "ba3b05",
+      "wall_time_seconds": 10.0109111,
+      "original_token_count": 0,
+      "output": "blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n",
+      "exit_code": 0
+    },
+    {
+      "name": "public-workshop",
+      "script": "scripts/public-workshop-economy-smoke.mjs",
+      "chunk_id": "588b30",
+      "wall_time_seconds": 0.8897782,
+      "exit_code": 0,
+      "original_token_count": 179,
+      "output": "{\n  \"ok\": true,\n  \"publicGiftCash\": 11975,\n  \"brokenRecoveryCash\": 180,\n  \"usedCommission\": {\n    \"id\": \"standard\",\n    \"offerId\": \"standard\",\n    \"name\": \"商户标准加工单\",\n    \"description\": \"完成一套开料、取件与精加工；NPC供料，费用在结算时扣除。\",\n    \"grossPay\": 355,\n    \"craftBonus\": 45,\n    \"maintenanceAllowance\": 0,\n    \"stationFee\": 0,\n    \"consumables\": 30,\n    \"maintenanceFee\": 36,\n    \"netPay\": 289,\n    \"durationMs\": 610500,\n    \"normalDurationMs\": 610500,\n    \"deviceIds\": [\n      \"used-opening\",\n      \"used-carving\",\n      \"used-finishing\"\n    ],\n    \"ownedStages\": [\n      \"opening\",\n      \"carving\",\n      \"finishing\"\n    ],\n    \"maintenanceIncluded\": true\n  }\n}\n"
+    },
+    {
+      "name": "commission-gift",
+      "script": "scripts/commission-gift-order-smoke.mjs",
+      "chunk_id": "fd0dc7",
+      "wall_time_seconds": 0.8601721,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": "commission-gift-order-smoke: labor before gifted-product tutorial still provides exactly one protected customer\n"
+    },
+    {
+      "name": "socket-schema",
+      "script": "scripts/socket-event-schema-smoke.mjs",
+      "chunk_id": "72e1b3",
+      "wall_time_seconds": 0.3597778,
+      "exit_code": 0,
+      "original_token_count": 17,
+      "output": "socket-event-schema-smoke: mutation envelopes + semantic fields ok\n"
+    },
+    {
+      "name": "equipment-system",
+      "script": "scripts/equipment-system-smoke.mjs",
+      "chunk_id": "5968ef",
+      "wall_time_seconds": 0.2731566,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "equipment-system-smoke: ok\n"
+    },
+    {
+      "name": "commission-socket-e2e",
+      "script": "scripts/commission-socket-e2e.mjs",
+      "chunk_id": "18e9fc",
+      "wall_time_seconds": 5.0847268,
+      "exit_code": 0,
+      "original_token_count": 150,
+      "output": "{\n  \"ok\": true,\n  \"restarts\": 2,\n  \"fresh\": {\n    \"initialCash\": 12000,\n    \"finalCash\": 12180,\n    \"netPay\": 180,\n    \"completed\": 1\n  },\n  \"equipped\": {\n    \"initialCash\": 100000,\n    \"finalCash\": 102539,\n    \"netPay\": 2539,\n    \"completed\": 1\n  },\n  \"verified\": [\n    \"zero owned machines and paid staff\",\n    \"strict reward/timer schemas\",\n    \"early and foreign claims rejected\",\n    \"persistent start/claim deduplication\",\n    \"exact active contract after restart\",\n    \"single settlement after second restart\",\n    \"equipment repair and sale lock\",\n    \"maintenance not charged twice\"\n  ]\n}\n"
+    }
+  ],
+  "manifest": {
+    "npcOffcutPolicyVersion": 3,
+    "ownerOperatorId": "owner-operator",
+    "economyVersion": 2,
+    "directPurchaseOwnerId": "owner-operator",
+    "sourceSha256": {
+      "shared/domain/workshop/material-value-pool.js": "0d54c434af382505fe1f65a8d6039c7f980c48c24d2f6e129eb04ae2fb342832",
+      "shared/domain/economy/commission-rules.js": "aa5a30977175b7f9df7558f40dfb387d9a86b5bc307c664a6209d7ccc6391279",
+      "shared/domain/jade/offcut-layout.js": "6cecfd6a50807296c150832b139822bf71c5ab31155a25921e4be0eb7fe2a7df",
+      "server/services/blackmarket/npc-offcut.js": "57dc9a8096b511c6e0882658304c5b7d55eb7b1e2d6eae7ebb0aa31ea95997c9",
+      "server/services/workshop-roster.js": "5b0b725492fab6d0f94f9ec996e1c62f2c2e8e0a1e34cc2ef21a2cdbf559588f",
+      "server/services/workshop-service.js": "882e97b07df0e993dc92ee083c4cb58d49dc43f0fb4f375294b9b03ffb971568",
+      "server/services/commission-service.js": "95819ae34e038d95862788560ac3f4545242f5fbb89743bcf4de509e06321cd3",
+      "server/systems/equipment-system.js": "24abb1387c8028cec1aa3fdfb52bf5d150f463db1288d5afe157bfce8547179a",
+      "public/features/opening/opening-render.js": "2702ab0477be7b1691f02faa781aa6051a04458939f4871688386472d3248905"
+    }
+  },
+  "finishedAt": "2026-10-23T10:04:17.544Z",
+  "allPassed": true,
+  "clientDate": "2026-10-23",
+  "scope": "Final targeted verification after fixed intrinsic material weights, NPC offcut policy v3, and direct equipment purchase owner assignment fix.",
+  "offcutCoverage": {
+    "runs": 3,
+    "deterministicLayoutsPerRun": 60,
+    "totalLayoutExecutions": 180,
+    "note": "The same 60 deterministic layouts were checked three times; each run also buys, processes, saves/restores, and migrates a current NPC offcut. This is not 180 distinct deterministic seeds."
+  },
+  "uiReview": {
+    "method": "Read-only source review; no additional browser session opened by this subagent.",
+    "positive": [
+      {
+        "file": "public/features/workshop/commission-ui.js",
+        "line": 11,
+        "finding": "NPC supplies materials and no upfront working capital are stated; fees and net payment are shown."
+      },
+      {
+        "file": "public/features/workshop/finish-controller.js",
+        "line": 122,
+        "finding": "Material cost, station/upkeep, incremental appraisal after costs, and actual-sale discount caveat are shown."
+      },
+      {
+        "file": "public/features/inventory/inventory-module.js",
+        "line": 599,
+        "finding": "Recycling confirmation shows 20% appraisal payout and irreversible inventory removal."
+      }
+    ],
+    "recommendations": [
+      {
+        "file": "public/features/market/market-module.js",
+        "line": 1478,
+        "finding": "Sealed-stone purchase currently states unknown quality/color, but does not explicitly say the purchase can lose principal or that appraisal is not guaranteed resale.",
+        "suggestion": "Add a concise notice on private rough/auction purchase: losses are possible; appraisal is not a guaranteed sale or breakeven price; normal processing failure may consume material."
+      },
+      {
+        "file": "public/features/market/market-module.js",
+        "line": 1733,
+        "finding": "Wholesale confirmation shows offered cash but not acquisition cost or the expected loss from urgent liquidation.",
+        "suggestion": "For complete costBasis records, show recorded item cost, actual cash payout, and their difference. At minimum clarify urgent liquidation is discounted and may not recover purchase cost."
+      }
+    ],
+    "codeChangedDuringReview": false
+  }
+}

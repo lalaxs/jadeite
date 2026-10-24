@@ -1,0 +1,299 @@
+{
+  "mode": "workshop",
+  "results": [
+    {
+      "script": "scripts/architecture-quality-gate.mjs",
+      "exitCode": 0,
+      "elapsedMs": 51,
+      "stdout": "architecture-quality-gate: 9 module budgets, 10 black-market modules, 17 assets ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/refactor-contracts-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 47,
+      "stdout": "refactor-contracts-smoke: 71 socket events + 14 views frozen\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/shared-domain-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 121,
+      "stdout": "shared-domain-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/planning-authority-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 483,
+      "stdout": "planning-authority-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/atomic-mutation-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 38,
+      "stdout": "atomic-mutation-smoke: rollback + post-commit effects ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/durable-mutation-coordinator-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "durable-mutation-coordinator-smoke: commit barrier + rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/state-patch-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 40,
+      "stdout": "state-patch-smoke: capability negotiation + top-level deltas ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/socket-event-schema-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 105,
+      "stdout": "socket-event-schema-smoke: mutation envelopes + semantic fields ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 413,
+      "stdout": "workshop-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-delivery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 477,
+      "stdout": "workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-scratch-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 107,
+      "stdout": "workshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-delivery-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2427,
+      "stdout": "workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-planner-ui-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 53,
+      "stdout": "workshop-planner-ui-smoke: independent planning step ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/opening-planner-drag-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 82,
+      "stdout": "opening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finish-plan-model-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 47,
+      "stdout": "finish-plan-model-smoke: progressive material selection ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finished-product-design-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 526,
+      "stdout": "finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-piece-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 560,
+      "stdout": "jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finish-plan-controller-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 93,
+      "stdout": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-preview-tester-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 61,
+      "stdout": "inlay-preview-tester-smoke: model ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-craft-scoring-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 42,
+      "stdout": "workshop-craft-scoring-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/worker-detail-view-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 49,
+      "stdout": "worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inventory-module-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 81,
+      "stdout": "inventory-module-smoke: normalization, filters, sorting and inventory view ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/styles-split-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "styles-split-smoke: 18 parts, resolved 738495 bytes ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/action-router-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 50,
+      "stdout": "action-router-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/simplified-flow-smoke.mjs",
+      "exitCode": 1,
+      "elapsedMs": 430,
+      "stdout": "",
+      "stderr": "file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/scripts/simplified-flow-smoke.mjs:428\r\n  throw new Error(\"workshop should track active device and selected material\");\r\n        ^\r\n\r\nError: workshop should track active device and selected material\r\n    at file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/scripts/simplified-flow-smoke.mjs:428:9\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\r\n\r\nNode.js v24.19.0\r\n"
+    },
+    {
+      "script": "scripts/ui-overlay-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 45,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/ui-stability-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 66,
+      "stdout": "ui-stability-smoke: stable overview guards ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/modal-lifecycle-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 46,
+      "stdout": "modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/responsive-layout-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 55,
+      "stdout": "responsive-layout-smoke: desktop guards ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bangle-finish-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 531,
+      "stdout": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bangle-finish-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2889,
+      "stdout": "bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-system-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 46,
+      "stdout": "inlay-system-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-artwork-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 106,
+      "stdout": "inlay-artwork-smoke: RGBA assets, crop bounds, all settings, exact stone counts, source preservation and bitmap capture embedding ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/world-store-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 56,
+      "stdout": "world-store-smoke: memory store + server wiring ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/world-persist-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 74,
+      "stdout": "world-persist-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/sqlite-world-persist-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 126,
+      "stdout": "sqlite-world-persist-smoke: transactions + migration + fallback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/persistence-crash-recovery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 245,
+      "stdout": "persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/starter-economy-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 682,
+      "stdout": "{\n  \"ok\": true,\n  \"qualityDraws\": {\n    \"glutinous\": 7000,\n    \"bean\": 3000\n  },\n  \"loops\": [\n    {\n      \"quality\": \"glutinous\",\n      \"initialCash\": 12000,\n      \"giftReference\": 4290,\n      \"productValue\": 1991,\n      \"sale\": 2230,\n      \"cashAfterSale\": 14230,\n      \"repurchase\": 2453,\n      \"finalCash\": 12577,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    },\n    {\n      \"quality\": \"bean\",\n      \"initialCash\": 12000,\n      \"giftReference\": 2383,\n      \"productValue\": 2046,\n      \"sale\": 2292,\n      \"cashAfterSale\": 14292,\n      \"repurchase\": 2453,\n      \"finalCash\": 12639,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-source-parity-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 138,
+      "stdout": "workshop-source-parity-smoke: 94 original functions and 18 UI initializers preserved; 2 lifecycle functions checked separately\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-equivalence-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 213,
+      "stdout": "workshop-equivalence-smoke: 12 scenarios, 49 legacy exports, exact templates/models/actions/requests, instance isolation and mount/dispose/remount ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-scope-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 38,
+      "stdout": "workshop-scope-smoke: action ownership, subscriptions, pending requests, late acknowledgements and idempotent cleanup ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-boundary-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 120,
+      "stdout": "workshop-boundary-smoke: protected production hashes, 19 acyclic modules, instance state and module budgets ok\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "applied": true,
+  "filePath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\world.json",
+  "backupPath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\world.json.blackmarket-refresh-2026-10-21T08-29-10-313Z.bak",
+  "removedStalls": 14,
+  "newStalls": 6,
+  "newItems": 34,
+  "returned": [
+    {
+      "ownerId": "e4e5d7c2-3a20-4949-8651-b763e523432a",
+      "itemId": "bbcdaa47-da54-4ffc-ab7a-99426bf77971",
+      "type": "rough"
+    },
+    {
+      "ownerId": "1dc81c8e-1fb0-44f1-b632-bf841185816a",
+      "itemId": "ec61545a-533c-41ff-a5bb-61a26d3ab939",
+      "type": "rough"
+    },
+    {
+      "ownerId": "b21d0899-e984-44af-9c3f-6e8fef6920b4",
+      "itemId": "376f1af9-69fe-4875-823f-9dadee414953",
+      "type": "rough"
+    },
+    {
+      "ownerId": "c992ae2a-e270-493f-a229-ec7790e36956",
+      "itemId": "59d14f9e-8d3e-421d-9421-197a2c2ea485",
+      "type": "rough"
+    }
+  ]
+}

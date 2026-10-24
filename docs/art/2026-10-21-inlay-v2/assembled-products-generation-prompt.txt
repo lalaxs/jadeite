@@ -1,0 +1,27 @@
+Generation mode: built-in image_gen
+Deliverable: inlay-assembled-products-v1.png
+Four finished combinations in one review image: gold ring with round rubies, silver ring with square sapphires, gold bezel oval pendant, silver Buddha pendant with diamond halo.
+References: inlay-all-parts-overview-v1.png and inlay-art-direction-v2.png.
+Art concept preview only, not implemented in application code. No runtime references changed.
+
+Final prompt:
+Use case: compositing.
+Asset type: ONE finished jewelry assembly preview sheet, landscape 1536x1024, for the same Chinese jade crafting game.
+Primary request: Show how the previously separated jade, mounts, bails, links, sockets and accent gemstones look FULLY ASSEMBLED into complete wearable jewelry. The user now wants the complete combined result in a single image.
+Input image roles:
+Image 1 = the modular component sheet to assemble. Preserve its exact material vocabulary, shapes, color relationships, jade texture and simple hand-painted outlines. These parts should now be fitted together as coherent finished objects, no loose parts.
+Image 2 = approved hand-painted visual style and finished-product proportion reference. Match this calm illustrated game style rather than realism.
+Output layout: single clean spacious presentation image, warm ivory background #f8f6ee, dark-sage modest Chinese header exactly "翡翠镶嵌 · 组合成品效果". Below header, a 2 x 2 arrangement of FOUR large complete jewelry items, each centered in a very soft pale mint rectangle, generous whitespace and a small elegant Chinese caption at the bottom of its tile. No inventory UI, no browser, no ingredient/component tiles, no exploded diagrams, no arrows, no disassembled parts. Only FOUR FINISHED products.
+TOP LEFT: caption exactly "金色戒托 · 圆形红宝石".
+The reference oval mint-green jade cabochon fitted snugly into the matte antique-gold four-prong ring mount. Ring band behind and below jade, four small main-jade prongs visibly holding its edge. Both shoulder sockets filled with one small ROUND dusty wine-red ruby each, two rubies total, physically seated in gold sockets. Ruby diameter about 12% of main jade width; jade remains dominant. Gentle frontal presentation with a slight understandable view of ring thickness; matching the original component proportions.
+TOP RIGHT: caption exactly "银色戒托 · 方形蓝宝石".
+Same reference oval jade in the muted silver ring mount, both shoulder accent sockets fitted with square silver sockets and one small SQUARE muted slate-blue sapphire each, two sapphires total, square stones aligned upright. Four subtle main-jade prongs, band behind/below. Same framing and optical size as the gold ring, jade remains dominant.
+BOTTOM LEFT: caption exactly "金色包镶吊坠".
+The reference oval jade surrounded snugly by its thin continuous matte gold bezel. Gold link ring at twelve o'clock joins bezel to the separate tapered gold bail. All hardware physically connected with believable overlap. The bail must have a small visible open slot. Upright finished pendant, no full necklace chain, no other stones, no loose hardware.
+BOTTOM RIGHT: caption exactly "银色微镶佛公 · 钻石".
+The reference softly illustrated jade smiling seated Buddha body fitted into the matching silver Buddha contour frame. Every small empty micro-pavé seat along outer frame now filled with a small ROUND muted ivory-grey diamond. Consistent tiny diamond size, one fine full perimeter, no duplicate halo. The Buddha's face, robe and rounded belly are simplified mint/dark-jade painted curves as in the references, calm friendly, not intricately carved realism. Top silver link ring joins the frame to its silver tapered bail with a clearly readable small opening, all connected. Jade is dominant, accent frame light.
+Art direction: Preserve the existing soft hand-painted 2D GAME ASSET aesthetic: restrained gouache-like grain, muted mint and sage jade with broad soft cloudy patches, delicate colored outlines, pale antique-gold and warm grey-silver with simple painted light and shadow. Very gentle small highlights. Red gems dusty rose/wine, blue gems smoky slate blue, diamonds soft ivory-grey; simple facet patches. Light from upper left, subtle soft grounding shadow on mint tile, no photoreal reflections.
+Assembly quality: main jade correctly fits each base with no gaps or floating; prongs and rim occlude the jade edge slightly; ring band behind jade, gemstone bodies inside their sockets, bails and jump rings physically link. Shapes and motifs remain consistent with the standalone source art. No pieces left floating beside finished jewelry.
+Constraints: No photorealism, no glossy 3D/PBR, no jewel-store advertising finish, no sparkle stars, no bright chrome, no gold fantasy ornament, no dramatic light, no magical glow. No empty mounts, loose gems or component overview in the output. Only these four complete finished items in one cohesive preview.
+Small footer exactly "玉件、底座、扣头与配石组合展示".
+

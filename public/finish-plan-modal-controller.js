@@ -35,7 +35,7 @@ export function createFinishPlanModalController({
   };
 
   const confirm = () => {
-    if (!activeModal || activeModal.submitting) return;
+    if (!activeModal || activeModal.submitting || activeModal.canStart === false) return;
     const modal = activeModal;
     const requestId = createRequestId();
     modal.submitting = true;

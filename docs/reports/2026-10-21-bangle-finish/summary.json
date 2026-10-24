@@ -1,0 +1,25 @@
+{
+  "total": 111,
+  "passed": 111,
+  "failed": 0,
+  "bangleWorkflows": 6,
+  "browser": "desktop 1280x720 / mobile 390x844; full workshop-to-listing workflow; no console warnings/errors",
+  "finalRegressionRechecks": [
+    "bangle-finish-smoke",
+    "finished-product-design-smoke",
+    "jade-piece-smoke",
+    "workshop-service-smoke",
+    "blackmarket-npc-finish-smoke",
+    "orders-service-smoke",
+    "jade-rules-smoke",
+    "inlay-preview-tester-smoke",
+    "workshop-craft-scoring-smoke",
+    "finish-plan-controller-smoke",
+    "workshop-planner-ui-smoke",
+    "market-card-info-smoke",
+    "inventory-module-smoke",
+    "lazy-preview-smoke",
+    "debug-spawn-smoke",
+    "workshop-delivery-smoke"
+  ]
+}

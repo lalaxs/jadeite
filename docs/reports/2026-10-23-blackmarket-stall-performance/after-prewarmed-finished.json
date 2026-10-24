@@ -1,0 +1,9 @@
+{
+  "stall": "finished",
+  "syncMs": 4.2,
+  "readyMs": 18.7,
+  "frames": 3,
+  "bitmaps": 6,
+  "svgNodes": 0,
+  "longTasks": []
+}

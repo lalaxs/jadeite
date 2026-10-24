@@ -1,3 +1,4 @@
+import { readWorkshopSource } from "./load-workshop-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
@@ -182,6 +183,11 @@ assert.strictEqual(fixture.ownerDocument.activeElement, fixture.select, "focus s
 assert.equal(fixture.body.scrollTop, 57, "body scroll should be restored after focus");
 assert.deepEqual(fixture.select.focusCalls.at(-1), { preventScroll: true });
 
+modal.canStart = false;
+controller.confirm();
+assert.equal(emittedPayload, undefined, "a blocked plan must not send an invalid start request");
+assert.equal(modal.submitting, false);
+modal.canStart = true;
 controller.confirm();
 assert.equal(modal.submitting, true);
 assert.equal(emittedPayload.requestId, "request-1");
@@ -287,19 +293,18 @@ const changedPreviewItem = { id: "carved-preview-changed", materialStage: "carve
 workshopModule.patchFinishPlanPreview(previewRoot, changedPreviewItem);
 assert.deepEqual(previewCalls, [
   { item: previewItem, size: "compact" },
-  { item: previewItem, size: "compact" },
   { item: changedPreviewItem, size: "compact" }
 ]);
 assert.equal(previewHtml, '<div data-browser-canonical="true" data-preview="carved-preview-changed:compact"></div>');
-assert.equal(previewWrites, 2, "canonicalized DOM should write once per distinct source markup");
+assert.equal(previewWrites, 2, "canonicalized DOM should write once per distinct preview source");
 
-const workshopSource = readFileSync("public/workshop-module.js", "utf8");
+const workshopSource = readWorkshopSource();
 assert.match(
   workshopSource,
-  /import\s*\{\s*patchFinishPlanSelectOptions,\s*preserveFinishPlanUiState\s*\}\s*from "\.\/finish-plan-dom\.js"/
+  /import\s*\{\s*patchFinishPlanSelectOptions,\s*preserveFinishPlanUiState\s*\}\s*from "\.\.\/\.\.\/finish-plan-dom\.js"/
 );
 assert.doesNotMatch(workshopSource, /function setSelectOptions\b/);
 assert.match(workshopSource, /data-finish-item-preview/);
-assert.match(workshopSource, /patchFinishPlanPreview\(root,\s*item\)/);
+assert.match(workshopSource, /patchFinishPlanPreview\(root,\s*item,\s*draft/);
 
 console.log("finish-plan-controller-smoke: stable lifecycle and acknowledgements ok");

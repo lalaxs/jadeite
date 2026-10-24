@@ -1,0 +1,172 @@
+{
+  "rootCause": {
+    "livePort": 3000,
+    "liveProcessId": 28004,
+    "liveStartedAt": "2026-10-21 18:29:52 +08:00",
+    "inlayRulesUpdatedAt": "2026-10-21 19:03:34 +08:00",
+    "reason": "The browser loaded the new bangle process while the long-running Node process still used the old handpiece validator."
+  },
+  "changes": [
+    "Block bangle submission against an old server catalog with a specific rules-not-loaded message.",
+    "Respect validation before submitting and disable incompatible starts.",
+    "Add default 52mm bangle Socket.IO workflow covering completion, claim and server restart."
+  ],
+  "backup": "data/backups/world-before-bangle-rule-fix-20261021-195543.json",
+  "liveRestart": {
+    "status": "completed",
+    "startedAt": "2026-10-21 19:59:18 +08:00",
+    "previousProcessId": 28004,
+    "newProcessId": 24020,
+    "backup": "data/backups/world-before-service-restart-20261021-195902.json",
+    "restoredPlayers": 103,
+    "ready": true,
+    "persistence": "ready",
+    "consecutivePersistenceFailures": 0,
+    "initialAttempt": "Initially blocked by automatic approval policy; completed after the user's explicit restart request."
+  },
+  "checks": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "bangle-finish-smoke",
+        "chunk_id": "75a2bc",
+        "wall_time_seconds": 1.0517179,
+        "exit_code": 0,
+        "original_token_count": 42,
+        "output": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "bangle-finish-socket-e2e",
+        "chunk_id": "01a15d",
+        "wall_time_seconds": 3.3775122,
+        "exit_code": 0,
+        "original_token_count": 33,
+        "output": "bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "finish-plan-model-smoke",
+        "chunk_id": "402351",
+        "wall_time_seconds": 0.5394701,
+        "exit_code": 0,
+        "original_token_count": 15,
+        "output": "finish-plan-model-smoke: progressive material selection ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "finish-plan-controller-smoke",
+        "chunk_id": "e77c73",
+        "wall_time_seconds": 0.5796587,
+        "exit_code": 0,
+        "original_token_count": 18,
+        "output": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "inlay-system-smoke",
+        "chunk_id": "7385aa",
+        "wall_time_seconds": 0.5319276,
+        "exit_code": 0,
+        "original_token_count": 6,
+        "output": "inlay-system-smoke: ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "inlay-preview-tester-smoke",
+        "chunk_id": "3198a6",
+        "wall_time_seconds": 0.6078167,
+        "exit_code": 0,
+        "original_token_count": 10,
+        "output": "inlay-preview-tester-smoke: model ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "workshop-service-smoke",
+        "chunk_id": "5ad542",
+        "wall_time_seconds": 1.0663729,
+        "exit_code": 0,
+        "original_token_count": 7,
+        "output": "workshop-service-smoke: ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "jade-piece-smoke",
+        "chunk_id": "38d912",
+        "wall_time_seconds": 1.211979,
+        "exit_code": 0,
+        "original_token_count": 43,
+        "output": "jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "finished-product-design-smoke",
+        "chunk_id": "f3835e",
+        "wall_time_seconds": 1.1576673,
+        "exit_code": 0,
+        "original_token_count": 36,
+        "output": "finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "server-idle-smoke",
+        "chunk_id": "ef4735",
+        "wall_time_seconds": 1.1705483,
+        "exit_code": 0,
+        "original_token_count": 9,
+        "output": "Server idle behavior checks passed\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "responsive-layout-smoke",
+        "chunk_id": "1da211",
+        "wall_time_seconds": 0.587724,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "responsive-layout-smoke: desktop guards ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "night-theme-smoke",
+        "chunk_id": "90f7c6",
+        "wall_time_seconds": 1.2414197,
+        "exit_code": 0,
+        "original_token_count": 14,
+        "output": "night-theme-smoke: effective low-luminance surfaces ok\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "architecture-quality-gate",
+        "chunk_id": "5ea2c5",
+        "wall_time_seconds": 0.5966274,
+        "exit_code": 0,
+        "original_token_count": 21,
+        "output": "architecture-quality-gate: 9 module budgets, 9 black-market modules, 14 assets ok\n"
+      }
+    }
+  ]
+}

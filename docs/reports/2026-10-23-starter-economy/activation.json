@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "verifiedAt": "2026-10-23T08:23:30.353Z",
+  "origin": "http://127.0.0.1:3000",
+  "oldPid": 34292,
+  "newPid": 16160,
+  "backup": "data\\world.json.before-starter-economy-2026-10-23T08-22-12-982Z.bak",
+  "stdout": "data\\starter-economy-2026-10-23T08-22-12-982Z.out.log",
+  "stderr": "data\\starter-economy-2026-10-23T08-22-12-982Z.err.log",
+  "ready": {
+    "ok": true,
+    "booting": false,
+    "serving": true,
+    "ready": true,
+    "shuttingDown": false,
+    "persistence": "ready",
+    "persistenceLatencyMs": 90,
+    "lastPersistenceSuccessAt": 1792743794165,
+    "consecutivePersistenceFailures": 0,
+    "lastError": null,
+    "startedAt": 1792743733841,
+    "now": 1792743810351
+  },
+  "probe": {
+    "pid": 16160,
+    "cwd": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype",
+    "players": 106,
+    "playersAfterProbe": 106,
+    "allOldPlayersRetained": true,
+    "cashChanges": 0,
+    "starterCash": 12000,
+    "starterRoughCount": 1,
+    "starterQuality": "glutinous",
+    "qualityAt069999": "glutinous",
+    "qualityAt070": "bean",
+    "timing": "normal"
+  },
+  "note": "Graceful shutdown drained writes. Original process environment retained. Probe player was created in memory only and never inserted into the saved world."
+}

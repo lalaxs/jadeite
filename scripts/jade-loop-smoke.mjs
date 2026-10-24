@@ -25,6 +25,8 @@ assert.equal(normalTiming.auction.registration, 0);
 assert.equal(normalTiming.auction.bidding, 10 * 60 * 1000);
 assert.equal(normalTiming.auction.settlement, 0);
 assert.equal(normalTiming.auction.cadence, 10 * 60 * 1000);
+assert.equal(normalTiming.livestream.min, 12 * 60 * 1000);
+assert.equal(normalTiming.livestream.max, 15 * 60 * 1000);
 
 const income = ledgerEntry("income", 18000, "直播成交", { source: "livestream", at: 1 });
 const spend = ledgerEntry("expense", 6200, "公盘保证金", { source: "auction", at: 2 });

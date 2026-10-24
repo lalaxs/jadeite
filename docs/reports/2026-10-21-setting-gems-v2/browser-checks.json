@@ -1,0 +1,53 @@
+{
+  "eggPendantM": [
+    {
+      "arrangement": "single",
+      "count": 1,
+      "disabled": false,
+      "drawn": 1,
+      "setting": "claw"
+    },
+    {
+      "arrangement": "none",
+      "count": 0,
+      "disabled": true,
+      "drawn": 0,
+      "setting": "bezel"
+    },
+    {
+      "arrangement": "halo",
+      "count": 44,
+      "disabled": false,
+      "drawn": 44,
+      "setting": "micro"
+    },
+    {
+      "arrangement": "channel",
+      "count": 6,
+      "disabled": false,
+      "drawn": 6,
+      "setting": "channel"
+    },
+    {
+      "arrangement": "squarePair",
+      "count": 2,
+      "disabled": false,
+      "drawn": 2,
+      "setting": "invisible"
+    },
+    {
+      "arrangement": "none",
+      "count": 0,
+      "disabled": true,
+      "drawn": 0,
+      "setting": "cord"
+    }
+  ],
+  "mobile": {
+    "width": 390,
+    "scrollWidth": 390,
+    "dialogWidth": 354,
+    "rendered": 2,
+    "shownCount": 2
+  }
+}

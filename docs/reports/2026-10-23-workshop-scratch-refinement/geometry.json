@@ -1,0 +1,177 @@
+[
+  {
+    "label": "1280x720",
+    "bodyScroll": false,
+    "dialog": {
+      "height": 662,
+      "width": 920,
+      "x": 180,
+      "y": 29
+    },
+    "mask": {
+      "height": 467.64068603515625,
+      "width": 467.6407165527344,
+      "x": 405.504638671875,
+      "y": 105.01644134521484
+    },
+    "outline": {
+      "height": 378,
+      "width": 361.7298278808594,
+      "x": 459.1351013183594,
+      "y": 164.6666717529297
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled",
+    "source": {
+      "height": 467.64068603515625,
+      "width": 467.6407165527344,
+      "x": 405.504638671875,
+      "y": 105.01644134521484
+    },
+    "visual": {
+      "height": 420,
+      "width": 420,
+      "x": 430,
+      "y": 143.6666717529297
+    }
+  },
+  {
+    "label": "large desktop 2559x1359",
+    "bodyScroll": false,
+    "dialog": {
+      "height": 802,
+      "width": 920,
+      "x": 819.6666870117188,
+      "y": 278.66668701171875
+    },
+    "mask": {
+      "height": 623.5208740234375,
+      "width": 623.5208740234375,
+      "x": 967.0062255859376,
+      "y": 341.7996826171875
+    },
+    "outline": {
+      "height": 504,
+      "width": 482.3063354492187,
+      "x": 1038.5135498046875,
+      "y": 421.3333435058594
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled",
+    "source": {
+      "height": 623.5208740234375,
+      "width": 623.5208740234375,
+      "x": 967.0062255859376,
+      "y": 341.7996826171875
+    },
+    "visual": {
+      "height": 560,
+      "width": 560,
+      "x": 999.6666870117188,
+      "y": 393.3333435058594
+    }
+  },
+  {
+    "label": "mobile 390x844",
+    "bodyScroll": false,
+    "dialog": {
+      "height": 582,
+      "width": 366,
+      "x": 12,
+      "y": 131
+    },
+    "mask": {
+      "height": 378.5662536621094,
+      "width": 378.5662536621094,
+      "x": 5.170430660247803,
+      "y": 219.37838745117188
+    },
+    "outline": {
+      "height": 306,
+      "width": 292.8288269042969,
+      "x": 48.5855712890625,
+      "y": 267.66668701171875
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled",
+    "source": {
+      "height": 378.5662536621094,
+      "width": 378.5662536621094,
+      "x": 5.170430660247803,
+      "y": 219.37838745117188
+    },
+    "visual": {
+      "height": 340,
+      "width": 340,
+      "x": 25,
+      "y": 250.6666717529297
+    }
+  },
+  {
+    "label": "landscape 844x390",
+    "bodyScroll": false,
+    "dialog": {
+      "height": 348,
+      "width": 804,
+      "x": 20,
+      "y": 21
+    },
+    "mask": {
+      "height": 167.0145263671875,
+      "width": 167.0145263671875,
+      "x": 338.2516784667969,
+      "y": 77.8630142211914
+    },
+    "outline": {
+      "height": 135,
+      "width": 129.189208984375,
+      "x": 357.4053955078125,
+      "y": 99.16667175292967
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled",
+    "source": {
+      "height": 167.0145263671875,
+      "width": 167.0145263671875,
+      "x": 338.2516784667969,
+      "y": 77.8630142211914
+    },
+    "visual": {
+      "height": 150,
+      "width": 150,
+      "x": 347,
+      "y": 91.66667175292967
+    }
+  },
+  {
+    "label": "small mobile 320x568",
+    "bodyScroll": false,
+    "dialog": {
+      "height": 512,
+      "width": 296,
+      "x": 12,
+      "y": 28
+    },
+    "mask": {
+      "height": 300.6261291503906,
+      "width": 300.62615966796875,
+      "x": 9.25299072265625,
+      "y": 122.8200912475586
+    },
+    "outline": {
+      "height": 243,
+      "width": 232.5405731201172,
+      "x": 43.72971725463867,
+      "y": 161.1666717529297
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-revealed is-scratch-enabled",
+    "source": {
+      "height": 300.6261291503906,
+      "width": 300.62615966796875,
+      "x": 9.25299072265625,
+      "y": 122.8200912475586
+    },
+    "visual": {
+      "height": 270,
+      "width": 270,
+      "x": 25,
+      "y": 147.6666717529297
+    }
+  }
+]

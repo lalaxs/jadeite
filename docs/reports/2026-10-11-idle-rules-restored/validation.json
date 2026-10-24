@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-11",
+  "preview": "http://127.0.0.1:3005",
+  "restored": [
+    "主页、工坊、订单、库存、直播的原有玩法指引",
+    "主播推荐、工坊员工智能推荐、订单匹配推荐",
+    "交易行建议价和默认参考价乘1.18",
+    "直播默认估值乘1.05、加价快捷按钮、成交难度提示",
+    "完整精加工工费与原有加工时长，撤回0.25倍系数",
+    "原有订单生成、现金报酬和声望奖励规则",
+    "原有声望获取与离线结算规则",
+    "原有50人矿区开放门槛与30座矿山"
+  ],
+  "retained": [
+    "题材识别与成品题材保留修复",
+    "真实成本记录和货品毛利统计",
+    "成交现金直接入账、主动接受批发商报价",
+    "加工完成后才计任务进度、未加工毛坯统计修复",
+    "手机布局修复",
+    "少量辅材不再阻断救助与未还预付款防重复领取"
+  ],
+  "verification": {
+    "fullNpmTest": "passed",
+    "quality": "passed",
+    "overviewTurnover": "passed",
+    "newRegression": "核验原值工费、放置时长、2000个订单奖励公式、原声望和矿区门槛，并覆盖保留的题材、成本、成交修复",
+    "baselineExactComparison": ["orders-service", "offline-service", "jade-loop", "finish-plan-model", "livestream-module"],
+    "previewRestarted": true,
+    "screenshot": "01-home-guidance.jpg"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "appliedAt": "2026-10-21T10:27:07.085Z",
+  "removedPlayerId": "6816e9ab-9406-4d28-84c9-a4a2b8682edb",
+  "removedPlayerName": "新手掌柜136",
+  "playersBefore": 103,
+  "playersAfter": 102,
+  "otherPlayersUnchanged": true,
+  "miningReferencesRemoved": true,
+  "backupPath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\world.json.before-remove-player-136-2026-10-21T10-27-06-992Z.bak",
+  "verifiedAfterRestart": true,
+  "newCharacters": [
+    {
+      "name": "新手掌柜232",
+      "reason": "unknown-id-recovery",
+      "bound": false,
+      "cash": 30000,
+      "level": 1
+    }
+  ]
+}

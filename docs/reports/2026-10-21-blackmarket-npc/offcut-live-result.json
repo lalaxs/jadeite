@@ -1,0 +1,23 @@
+{
+  "backupPath": "C:\\Users\\ZhuanZ\\Desktop\\yeyou\\jade-market-prototype\\data\\world.json.before-offcut-variety-20261021-170051.bak",
+  "appliedAt": "2026-10-21T17:00:51.4639883+08:00",
+  "previousPid": 19368,
+  "serverPid": 32480,
+  "verifiedAt": "2026-10-21T09:02:29.453Z",
+  "stalls": 6,
+  "offcuts": [
+    {
+      "id": "7a5d95b8-c21a-4c7d-88df-2fef8848faf9",
+      "cutCount": 1,
+      "profile": "leaf",
+      "remainingRatio": 0.6927939317319848
+    },
+    {
+      "id": "0b718d32-8e64-4c46-8254-9e9d96929632",
+      "cutCount": 3,
+      "profile": "drop+egg+rect",
+      "remainingRatio": 0.6420525657071339
+    }
+  ],
+  "geometryVerified": true
+}

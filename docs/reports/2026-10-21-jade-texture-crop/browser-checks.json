@@ -1,0 +1,20 @@
+{
+  "reportedItem": "6813a12e-8723-4794-9298-b0046da75309",
+  "sourceReadOnly": true,
+  "servedModules": "http://127.0.0.1:3000",
+  "desktop": {
+    "width": 870,
+    "materialTransforms": [
+      "scale(1.00000) rotate(0.0) translate(-300 -300)",
+      "scale(1.00000) rotate(0.0) translate(-300 -300)",
+      "scale(1.00000) rotate(0.0) translate(-300 -300)"
+    ],
+    "pixelIdenticalToCorrectCentre": true
+  },
+  "mobile": {
+    "width": 390,
+    "horizontalOverflow": false,
+    "hideMountControl": true
+  },
+  "browserErrors": []
+}

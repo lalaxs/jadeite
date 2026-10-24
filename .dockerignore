@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.production.example
+.DS_Store
+node_modules
+data
+backups
+coverage
+dist
+docs/reports/screenshots
+*.log
+public/*.bak
+public/styles.css.*bak
+

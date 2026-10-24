@@ -1,0 +1,29 @@
+{
+  "canvas": {
+    "bottom": 491.1666870117187,
+    "height": 175,
+    "left": 76,
+    "right": 314,
+    "top": 316.16668701171875,
+    "width": 238,
+    "x": 76,
+    "y": 316.16668701171875
+  },
+  "masked": true,
+  "pageOverflow": false,
+  "svg": {
+    "bottom": 491.1666870117187,
+    "height": 175,
+    "left": 76,
+    "right": 314,
+    "top": 316.16668701171875,
+    "width": 238,
+    "x": 76,
+    "y": 316.16668701171875
+  },
+  "touchAction": "none",
+  "viewport": {
+    "height": 844,
+    "width": 390
+  }
+}

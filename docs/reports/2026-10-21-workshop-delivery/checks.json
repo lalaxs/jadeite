@@ -1,0 +1,536 @@
+{
+  "passed": 106,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "test:feature-availability",
+      "file": "scripts/feature-availability-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:gameplay-rules",
+      "file": "scripts/gameplay-rules-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:contracts",
+      "file": "scripts/refactor-contracts-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:shared-domain",
+      "file": "scripts/shared-domain-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:planning-authority",
+      "file": "scripts/planning-authority-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:atomic-mutation",
+      "file": "scripts/atomic-mutation-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mutation-socket",
+      "file": "scripts/mutation-socket-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:player-session",
+      "file": "scripts/player-session-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:craft-scoring",
+      "file": "scripts/workshop-craft-scoring-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:auction-service",
+      "file": "scripts/auction-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:auction-settle-modal",
+      "file": "scripts/auction-settle-modal-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:market-service",
+      "file": "scripts/market-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:market-liquidity",
+      "file": "scripts/market-liquidity-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:market-card",
+      "file": "scripts/market-card-info-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:market-want",
+      "file": "scripts/market-want-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:materials-service",
+      "file": "scripts/materials-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:orders-service",
+      "file": "scripts/orders-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:rough-pool-service",
+      "file": "scripts/rough-pool-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:assets-service",
+      "file": "scripts/assets-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inventory-service",
+      "file": "scripts/inventory-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inventory-recycle",
+      "file": "scripts/inventory-recycle-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inventory-unseen",
+      "file": "scripts/inventory-unseen-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:economy-service",
+      "file": "scripts/economy-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:recovery-service",
+      "file": "scripts/recovery-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:report-service",
+      "file": "scripts/report-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:offline-service",
+      "file": "scripts/offline-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:snapshot-service",
+      "file": "scripts/snapshot-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:player-service",
+      "file": "scripts/player-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-basic-mode-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-allocation-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-fairness-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-persistence-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-downtime-recovery-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-job-recovery-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-runtime-soak-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-roster-participation-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-ui-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-balance-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-health-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-competition-health-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-economy-insights-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:mining",
+      "file": "scripts/mining-world-economy-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:chat-service",
+      "file": "scripts/chat-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:collection-service",
+      "file": "scripts/collection-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:blackmarket-service",
+      "file": "scripts/blackmarket-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:blackmarket-npc",
+      "file": "scripts/blackmarket-npc-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:blackmarket-npc",
+      "file": "scripts/blackmarket-npc-finish-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:bm-plan-pool",
+      "file": "scripts/bm-plan-pool-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:socket-handlers",
+      "file": "scripts/socket-handlers-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:runtime-ticks",
+      "file": "scripts/runtime-ticks-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:server-context",
+      "file": "scripts/server-context-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:test-hooks",
+      "file": "scripts/test-hooks-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:workshop-service",
+      "file": "scripts/workshop-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:workshop-service",
+      "file": "scripts/workshop-delivery-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:workshop-service",
+      "file": "scripts/workshop-delivery-socket-e2e.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:livestream-service",
+      "file": "scripts/livestream-service-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:world-store",
+      "file": "scripts/world-store-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:world-persist",
+      "file": "scripts/world-persist-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:sqlite-persist",
+      "file": "scripts/sqlite-world-persist-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:crash-recovery",
+      "file": "scripts/persistence-crash-recovery-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:runtime-soak",
+      "file": "scripts/runtime-soak-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:styles-split",
+      "file": "scripts/styles-split-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:action-router",
+      "file": "scripts/action-router-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:loop",
+      "file": "scripts/jade-loop-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:auction",
+      "file": "scripts/jade-auction-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:server-idle",
+      "file": "scripts/server-idle-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:tasks",
+      "file": "scripts/task-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:equipment",
+      "file": "scripts/equipment-system-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:workshop-planner-ui",
+      "file": "scripts/workshop-planner-ui-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:employee",
+      "file": "scripts/employee-system-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:worker-detail-view",
+      "file": "scripts/worker-detail-view-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:recruit-detail-controller",
+      "file": "scripts/recruit-detail-controller-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:hire-market-roster",
+      "file": "scripts/hire-market-roster-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:player-progression",
+      "file": "scripts/player-progression-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inlay",
+      "file": "scripts/inlay-system-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:finish-plan-model",
+      "file": "scripts/finish-plan-model-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:finish-plan-model",
+      "file": "scripts/finished-product-design-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:finish-plan-model",
+      "file": "scripts/jade-piece-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:finish-plan-controller",
+      "file": "scripts/finish-plan-controller-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inlay-preview-tester",
+      "file": "scripts/inlay-preview-tester-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:rules",
+      "file": "scripts/jade-rules-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:renderer",
+      "file": "scripts/jade-renderer-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:opening",
+      "file": "scripts/jade-opening-engine-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:volume",
+      "file": "scripts/jade-volume-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:canvas",
+      "file": "scripts/canvas-only-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:flow",
+      "file": "scripts/simplified-flow-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:ui",
+      "file": "scripts/ui-overlay-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:ui-stability",
+      "file": "scripts/ui-stability-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:modal-lifecycle",
+      "file": "scripts/modal-lifecycle-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:shop-material-modal",
+      "file": "scripts/shop-material-modal-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:night-theme",
+      "file": "scripts/night-theme-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:responsive",
+      "file": "scripts/responsive-layout-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:experience-regressions",
+      "file": "scripts/experience-regressions-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:money-compact",
+      "file": "scripts/money-compact-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:inventory",
+      "file": "scripts/inventory-module-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:bill",
+      "file": "scripts/bill-module-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:lazy-preview",
+      "file": "scripts/lazy-preview-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:livestream-room",
+      "file": "scripts/livestream-room-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:livestream-buy-flow",
+      "file": "scripts/livestream-buy-flow-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:livestream-ui",
+      "file": "scripts/livestream-ui-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:livestream-settle",
+      "file": "scripts/livestream-settle-modal-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:chatdock-compact",
+      "file": "scripts/chatdock-compact-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:debug-spawn",
+      "file": "scripts/debug-spawn-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:debug-tools",
+      "file": "scripts/debug-tools-smoke.mjs",
+      "passed": true
+    },
+    {
+      "name": "test:player-exploration",
+      "file": "scripts/player-exploration-regressions.mjs",
+      "passed": true
+    }
+  ]
+}

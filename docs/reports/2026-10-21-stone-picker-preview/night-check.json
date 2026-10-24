@@ -1,0 +1,40 @@
+{
+  "cards": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "contentFits": true,
+      "square": true
+    }
+  ],
+  "theme": "night"
+}

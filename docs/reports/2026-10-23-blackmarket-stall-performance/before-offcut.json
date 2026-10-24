@@ -1,0 +1,14 @@
+{
+  "stall": "offcut",
+  "syncMs": 19.5,
+  "readyMs": 258.1,
+  "frames": 11,
+  "bitmaps": 6,
+  "svgNodes": 0,
+  "longTasks": [
+    {
+      "start": 120660.30000001192,
+      "ms": 61
+    }
+  ]
+}

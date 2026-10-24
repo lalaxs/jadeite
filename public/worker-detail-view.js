@@ -1,19 +1,13 @@
-export const WORKER_SKILL_DEFS = {
-  jieliao:   { name: "解料", attr: "完整度", full: 18, dir: "cut" },
-  damo:      { name: "打磨", attr: "光泽度", full: 15, dir: "cut" },
-  qieliao:   { name: "切料", attr: "瑕疵控制", full: 12, dir: "set" },
-  xiuxing:   { name: "修形", attr: "造型精度", full: 14, dir: "set" },
-  diaozhuo:  { name: "雕琢", attr: "雕琢精细度", full: 22, dir: "finish" },
-  xiangqian: { name: "镶嵌", attr: "镶嵌贴合度", full: 16, dir: "finish" },
-  huashu:    { name: "话术", attr: "溢价力", full: 12, dir: "speak" },
-  kongchang: { name: "控场", attr: "控场流速", full: 10, dir: "speak" },
-  cuidan:    { name: "催单", attr: "逼单转化", full: 10, dir: "speak" }
-};
+export { WORKER_SKILL_DEFS } from "./workshop-craft-scoring.js";
+import { WORKER_SKILL_DEFS } from "./workshop-craft-scoring.js";
+import { renderResourceCard } from "./resource-card-view.js";
+import { employeeOutlineSvg } from "./workshop-resource-art.js";
 
 const STEP_SKILLS = {
   open: ["jieliao", "damo"],
   plan: ["qieliao", "xiuxing"],
   finish: ["diaozhuo", "xiangqian"],
+  bangleFinish: ["damo", "xiuxing"],
   speak: ["huashu", "kongchang", "cuidan"]
 };
 
@@ -71,7 +65,7 @@ function workerSkill(worker, key) {
   return worker.skills?.[direction]?.[key] || { level: 1, exp: 0 };
 }
 
-function skillCardsHtml(worker, step) {
+function skillCardsHtml(worker, step, relevantLabel = "本工序") {
   const relevant = new Set(STEP_SKILLS[step] || []);
   const keys = Object.keys(WORKER_SKILL_DEFS);
   const ordered = keys.slice().sort((a, b) => {
@@ -91,12 +85,12 @@ function skillCardsHtml(worker, step) {
     const isRelevant = relevant.has(key);
     return `<div class="wsp-skill-card ${isRelevant ? "is-step" : ""}">
       <div class="wsp-skill-card-head">
-        <strong class="wsp-skill-name">${escapeHtml(definition.name)}${isRelevant ? '<span class="wsp-skill-tag">本工序</span>' : ""}</strong>
+        <strong class="wsp-skill-name">${escapeHtml(definition.name)}${isRelevant ? `<span class="wsp-skill-tag">${escapeHtml(relevantLabel)}</span>` : ""}</strong>
         <span class="wsp-skill-lv">Lv.${level}</span>
       </div>
       <div class="wsp-skill-card-bar"><span class="wsp-bar"><i style="width:${pct}%"></i></span></div>
       <div class="wsp-skill-card-foot">
-        <span class="wsp-skill-attr">${escapeHtml(definition.attr)} / ${definition.full}</span>
+        <span class="wsp-skill-attr">${escapeHtml(definition.attr)}：${definition.full}</span>
         <span class="wsp-skill-exp">${current} / ${maximum}</span>
       </div>
     </div>`;
@@ -124,13 +118,38 @@ export function renderWorkerDetailPanel({
   summaryHtml = "",
   footerHtml = ""
 }) {
+  if (mode === "roster") {
+    return `<section class="wsp-pick-side worker-detail-panel mode-roster owned-worker-sheet">
+      <header class="owned-worker-heading">
+        <span class="owned-worker-avatar" aria-hidden="true">${employeeOutlineSvg()}</span>
+        <div class="owned-worker-identity">
+          <div class="owned-worker-name"><h3 id="ownedWorkerDetailTitle">${escapeHtml(worker.name)}</h3><span class="wsp-tier-badge" style="${tierBadgeStyle(worker.tier)}">${Number(worker.tier) || 1}阶</span></div>
+          <p>${escapeHtml(workerJobLabel(worker.job))}</p>
+        </div>
+        ${summaryHtml}
+      </header>
+      <div class="wsp-pick-side-body owned-worker-content" data-owned-worker-scroll>
+        <section class="owned-worker-traits" aria-label="员工天赋">
+          <h4>天赋</h4>
+          <div class="wsp-trait-rows">${traitRowsHtml(worker)}</div>
+        </section>
+        <section class="owned-worker-skills" aria-label="员工技能">
+          <h4>技能 <span>9 项</span></h4>
+          <div class="wsp-skill-cards">${skillCardsHtml(worker, step, "本职")}</div>
+        </section>
+      </div>
+      <footer class="owned-worker-footer">${footerHtml}</footer>
+    </section>`;
+  }
   return `<section class="wsp-pick-side worker-detail-panel mode-${escapeHtml(mode)}">
     <div class="wsp-pick-side-head">
-      <div class="wsp-pick-side-id">
-        <strong>${escapeHtml(worker.name)}</strong>
-        <em>${escapeHtml(workerJobLabel(worker.job))} · ${Number(worker.tier) || 1}阶</em>
-      </div>
-      <span class="wsp-tier-badge" style="${tierBadgeStyle(worker.tier)}">${Number(worker.tier) || 1}阶</span>
+      ${renderResourceCard({
+        type: "employee", name: worker.name,
+        badge: mode === "recruit" ? "待招募" : mode === "roster" ? "在册员工" : "员工详情",
+        className: "resource-card--compact worker-detail-identity",
+        summary: [worker.isOwner ? "掌柜自营 · 无工资" : workerJobLabel(worker.job)],
+        body: `<span class="wsp-tier-badge" style="${tierBadgeStyle(worker.tier)}">${Number(worker.tier) || 1}阶</span>`
+      })}
     </div>
     ${summaryHtml}
     <div class="wsp-pick-side-body">

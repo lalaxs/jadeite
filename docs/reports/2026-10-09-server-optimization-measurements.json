@@ -1,0 +1,130 @@
+{
+  "25_connections": {
+    "clientCount": 25,
+    "savedPlayerCount": 1000,
+    "stockCount": 100,
+    "sustainedMs": 45846,
+    "cycles": 23,
+    "counts": {
+      "purchases": 575,
+      "trades": 138,
+      "productions": 161,
+      "shattered": 5,
+      "shifts": 30,
+      "reconnects": 5,
+      "duplicates": 125
+    },
+    "sampledRss": 1795948544,
+    "peakSampledQueue": 25,
+    "percentiles": {
+      "connect": {
+        "count": 33,
+        "p95": 687.330750000001,
+        "p99": 693.9105410000011
+      },
+      "miningApply": {
+        "count": 6,
+        "p95": 94.67195899999933,
+        "p99": 94.67195899999933
+      },
+      "buyMaterialPack": {
+        "count": 575,
+        "p95": 437.97699999999895,
+        "p99": 454.8791660000061
+      },
+      "listItem": {
+        "count": 138,
+        "p95": 209.84608300000036,
+        "p99": 561.4621669999979
+      },
+      "startPolish": {
+        "count": 161,
+        "p95": 285.09587499999907,
+        "p99": 639.7647500000021
+      },
+      "buyListing": {
+        "count": 138,
+        "p95": 417.95045799999934,
+        "p99": 704.9089999999997
+      },
+      "miningStartShift": {
+        "count": 30,
+        "p95": 280.4622909999998,
+        "p99": 280.80791600000157
+      }
+    },
+    "violations": [],
+    "assetRecoveryChecksPassed": true
+  },
+  "50_connections": {
+    "clientCount": 50,
+    "savedPlayerCount": 1000,
+    "stockCount": 100,
+    "sustainedMs": 94961,
+    "cycles": 26,
+    "counts": {
+      "purchases": 1300,
+      "trades": 312,
+      "productions": 338,
+      "shattered": 8,
+      "shifts": 130,
+      "reconnects": 5,
+      "duplicates": 300
+    },
+    "sampledRss": 2152054784,
+    "peakSampledQueue": 104,
+    "percentiles": {
+      "connect": {
+        "count": 58,
+        "p95": 1018.0237500000003,
+        "p99": 1034.5625419999997
+      },
+      "miningApply": {
+        "count": 26,
+        "p95": 1539.3465419999993,
+        "p99": 2053.0709579999966
+      },
+      "buyMaterialPack": {
+        "count": 1300,
+        "p95": 2038.907625000007,
+        "p99": 2489.987374999997
+      },
+      "listItem": {
+        "count": 312,
+        "p95": 971.2968330000003,
+        "p99": 1577.7427080000052
+      },
+      "startPolish": {
+        "count": 338,
+        "p95": 1409.096875000003,
+        "p99": 2065.105374999999
+      },
+      "buyListing": {
+        "count": 312,
+        "p95": 1719.3124169999937,
+        "p99": 1916.723417000001
+      },
+      "miningStartShift": {
+        "count": 130,
+        "p95": 924.6872500000027,
+        "p99": 1366.0742909999972
+      }
+    },
+    "violations": [],
+    "assetRecoveryChecksPassed": true
+  },
+  "environment": {
+    "node": "24.14.0",
+    "postgres": "17.10",
+    "cpu": "Apple M1",
+    "architecture": "arm64",
+    "production_debug_tools": false,
+    "accelerated_test_clocks": true
+  },
+  "verification": {
+    "predeploy_check": "passed",
+    "predeploy_postgres": "passed",
+    "npm_audit_vulnerabilities": 0,
+    "architecture_budgets_unchanged": true
+  }
+}

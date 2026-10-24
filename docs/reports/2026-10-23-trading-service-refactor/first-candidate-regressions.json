@@ -1,0 +1,1157 @@
+{
+  "mode": "full",
+  "serverPhase": true,
+  "tradingPhase": true,
+  "baseline": false,
+  "release": true,
+  "results": [
+    {
+      "script": "scripts/public-workshop-economy-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 483,
+      "stdout": "{\n  \"ok\": true,\n  \"publicGiftCash\": 11975,\n  \"brokenRecoveryCash\": 180,\n  \"usedCommission\": {\n    \"id\": \"standard\",\n    \"offerId\": \"standard\",\n    \"name\": \"商户标准加工单\",\n    \"description\": \"完成一套开料、取件与精加工；NPC供料，费用在结算时扣除。\",\n    \"grossPay\": 355,\n    \"craftBonus\": 45,\n    \"maintenanceAllowance\": 0,\n    \"stationFee\": 0,\n    \"consumables\": 30,\n    \"maintenanceFee\": 36,\n    \"netPay\": 289,\n    \"durationMs\": 610500,\n    \"normalDurationMs\": 610500,\n    \"deviceIds\": [\n      \"used-opening\",\n      \"used-carving\",\n      \"used-finishing\"\n    ],\n    \"ownedStages\": [\n      \"opening\",\n      \"carving\",\n      \"finishing\"\n    ],\n    \"maintenanceIncluded\": true\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/economy-craft-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 57,
+      "stdout": "{\n  \"ok\": true,\n  \"comparisons\": [\n    {\n      \"baseValue\": 5000,\n      \"blank\": 6585,\n      \"successfulFinish\": 7254\n    },\n    {\n      \"baseValue\": 50000,\n      \"blank\": 65850,\n      \"successfulFinish\": 67791\n    },\n    {\n      \"baseValue\": 100000,\n      \"blank\": 131700,\n      \"successfulFinish\": 134208\n    },\n    {\n      \"baseValue\": 500000,\n      \"blank\": 658500,\n      \"successfulFinish\": 661674\n    }\n  ],\n  \"caps\": [\n    {\n      \"key\": \"cuijie-opening-1\",\n      \"price\": 6800,\n      \"maxEquipmentValuePerStep\": 136,\n      \"upkeep\": 34\n    },\n    {\n      \"key\": \"cuijie-opening-2\",\n      \"price\": 20400,\n      \"maxEquipmentValuePerStep\": 408,\n      \"upkeep\": 81.6\n    },\n    {\n      \"key\": \"cuijie-opening-3\",\n      \"price\": 54400,\n      \"maxEquipmentValuePerStep\": 1088,\n      \"upkeep\": 163.2\n    },\n    {\n      \"key\": \"jingong-finishing-3\",\n      \"price\": 218400,\n      \"maxEquipmentValuePerStep\": 4368,\n      \"upkeep\": 327.6\n    }\n  ],\n  \"inlayRows\": [\n    {\n      \"settingId\": \"claw\",\n      \"metalId\": \"gold18k\",\n      \"gemId\": null,\n      \"materials\": 570,\n      \"craft\": 105,\n      \"bonus\": 675\n    },\n    {\n      \"settingId\": \"bezel\",\n      \"metalId\": \"goldPure\",\n      \"gemId\": null,\n      \"materials\": 1400,\n      \"craft\": 135,\n      \"bonus\": 1535\n    },\n    {\n      \"settingId\": \"micro\",\n      \"metalId\": \"gold18k\",\n      \"gemId\": \"ruby\",\n      \"materials\": 1916,\n      \"craft\": 319,\n      \"bonus\": 2235\n    },\n    {\n      \"settingId\": \"micro\",\n      \"metalId\": \"platinum\",\n      \"gemId\": \"diamond\",\n      \"materials\": 2724,\n      \"craft\": 319,\n      \"bonus\": 3043\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/economy-value-pool-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 665,
+      "stdout": "{\"ok\":true,\"inputBase\":10000,\"outputBase\":10000,\"inputAppraisal\":12500,\"outputAppraisal\":12565,\"newCarvingValue\":65,\"costBasis\":10000}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/sales-finance-balance-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 93,
+      "stdout": "sales-finance-balance-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/opening-value-preview-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 707,
+      "stdout": "{\"ok\":true,\"cases\":[{\"cuts\":2,\"historicalCuts\":0,\"displayedMaterialValues\":[583,88],\"leftover\":11829},{\"cuts\":1,\"historicalCuts\":2,\"displayedMaterialValues\":[352],\"leftover\":11477}]}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/commission-gift-order-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 509,
+      "stdout": "commission-gift-order-smoke: labor before gifted-product tutorial still provides exactly one protected customer\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/starter-economy-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 807,
+      "stdout": "{\n  \"ok\": true,\n  \"qualityDraws\": {\n    \"glutinous\": 7000,\n    \"bean\": 3000\n  },\n  \"loops\": [\n    {\n      \"quality\": \"glutinous\",\n      \"initialCash\": 12000,\n      \"giftReference\": 4290,\n      \"productValue\": 239,\n      \"sale\": 268,\n      \"cashAfterSale\": 12268,\n      \"repurchase\": 2453,\n      \"finalCash\": 10615,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 24.2\n    },\n    {\n      \"quality\": \"bean\",\n      \"initialCash\": 12000,\n      \"giftReference\": 2383,\n      \"productValue\": 124,\n      \"sale\": 139,\n      \"cashAfterSale\": 12139,\n      \"repurchase\": 2453,\n      \"finalCash\": 10486,\n      \"introRewards\": 1000,\n      \"minutesIncludingForcedFailures\": 20\n    }\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/feature-availability-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 72,
+      "stdout": "feature-availability-smoke: hidden entrances/reminders, 20 rejected commands, debug closure and paused rentals ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/gameplay-rules-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 747,
+      "stdout": "gameplay-rules-smoke: zero-AP access, free processing, daily payroll and open/sealed privacy ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/refactor-contracts-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 68,
+      "stdout": "refactor-contracts-smoke: 71 socket events + 14 views frozen\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/shared-domain-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 133,
+      "stdout": "shared-domain-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/planning-authority-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 562,
+      "stdout": "planning-authority-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/atomic-mutation-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 56,
+      "stdout": "atomic-mutation-smoke: rollback + post-commit effects ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mutation-socket-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 45,
+      "stdout": "mutation-socket-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/player-session-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 44,
+      "stdout": "player-session-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-craft-scoring-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 50,
+      "stdout": "workshop-craft-scoring-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bangle-finish-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 567,
+      "stdout": "bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bangle-finish-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 3174,
+      "stdout": "bangle-finish-socket-e2e: default 52mm bangle plan starts without product selection, completes, claims and survives server restart\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/auction-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 518,
+      "stdout": "auction-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/auction-halls-unlock-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 555,
+      "stdout": "auction-halls-unlock-smoke: Lv.1-5 thresholds, immediate entry, independent bids/windows/settlement, escrow isolation, report queue, legacy migration, persistence and live-render cache ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/auction-clock-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 654,
+      "stdout": "auction-clock-smoke: synchronized halls, legacy repair, escrow retention, delayed rollover/restart, shared HUD/reminder rounding and hall switches ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/auction-halls-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2253,
+      "stdout": "auction-halls-socket-e2e: instant Lv.2 unlock, two paid halls/bids, level denial, SQLite restart and guarantee isolation ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/auction-settle-modal-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 514,
+      "stdout": "auction-settle-modal-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/market-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 476,
+      "stdout": "market-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/market-equipment-smoke.mjs",
+      "exitCode": 1,
+      "elapsedMs": 536,
+      "stdout": "",
+      "stderr": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\r\n+ actual - expected\r\n\r\n+ undefined\r\n- 'TRANSACTION_ABORTED'\r\n\r\n    at file:///C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/.refactor-test-results/trading/trading-candidate-2026-10-23-01/scripts/market-equipment-smoke.mjs:52:8\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\r\n  generatedMessage: true,\r\n  code: 'ERR_ASSERTION',\r\n  actual: undefined,\r\n  expected: 'TRANSACTION_ABORTED',\r\n  operator: 'strictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+    },
+    {
+      "script": "scripts/market-equipment-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 5487,
+      "stdout": "market-equipment-socket-e2e: list, SQLite restart, withdraw, replay protection, two-buyer race, tax, sell-out and empty-workshop restarts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/market-liquidity-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 45,
+      "stdout": "market-liquidity-service-smoke: low-population stocks, finished products, reserved quota and daily reset ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/market-card-info-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 105,
+      "stdout": "market-card-info-smoke: jade and equipment cards, purchase costs and broken-device disclosure ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/market-want-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 551,
+      "stdout": "Market want board checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/materials-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 501,
+      "stdout": "materials-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/orders-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 468,
+      "stdout": "orders-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/rough-pool-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 448,
+      "stdout": "rough-pool-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/assets-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 522,
+      "stdout": "assets-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inventory-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 442,
+      "stdout": "inventory-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inventory-recycle-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 83,
+      "stdout": "inventory-recycle-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inventory-unseen-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 498,
+      "stdout": "inventory-unseen-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/economy-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 447,
+      "stdout": "economy-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/recovery-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 49,
+      "stdout": "recovery-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/report-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 439,
+      "stdout": "report-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/offline-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 451,
+      "stdout": "offline-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/snapshot-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 453,
+      "stdout": "snapshot-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/player-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 455,
+      "stdout": "player-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 512,
+      "stdout": "mining service smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-basic-mode-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 486,
+      "stdout": "mining-basic-mode-smoke: starter miner, balanced rent, flexible crew and basic settlement ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-allocation-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 645,
+      "stdout": "mining-allocation-smoke: competition, priority, replacement and roster-exit feedback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-fairness-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 876,
+      "stdout": "mining-fairness-smoke: 20-round no-starvation, mine rotation and cash conservation ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-persistence-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 605,
+      "stdout": "mining-persistence-smoke: pending escrow and active shifts survive restart with idempotent settlement\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-downtime-recovery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 461,
+      "stdout": "mining-downtime-recovery-smoke: expired applications refunded, active shift settled, fresh round reopened\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-job-recovery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 490,
+      "stdout": "mining-job-recovery-smoke: invalid jobs refund once, remain recorded, and survive restart\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-runtime-soak-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 3781,
+      "stdout": "mining-runtime-soak-smoke: 50 players, 60 rounds, 1800 shifts and 6 restart cycles ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-roster-participation-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 478,
+      "stdout": "mining roster participation smoke ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-ui-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 72,
+      "stdout": "mining-ui-smoke: simplified 30-mine loop, four tabs, responsive UI and isolated miners ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-balance-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 48,
+      "stdout": "mining-balance-smoke: five rent bands, five-shift leases, capped crew bonus and <=5x expected-net spread ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-health-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 474,
+      "stdout": "mining-health-smoke: read-only audit detects roster, escrow, lease and overdue-job faults\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-competition-health-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 56,
+      "stdout": "mining-competition-health-smoke: four tuning warnings and thresholds ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-economy-insights-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 58,
+      "stdout": "mining-economy-insights-smoke: valuation, costs, spread and tuning alerts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-world-economy-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 69,
+      "stdout": "mining-world-economy-smoke: round persistence, sample gates, full rent and belt alerts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/chat-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 53,
+      "stdout": "chat-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/collection-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 55,
+      "stdout": "collection-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 581,
+      "stdout": "blackmarket-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-resources-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 728,
+      "stdout": "blackmarket-resources-smoke: NPC supply, resale, payroll, locking, capacity, repricing, rollback, withdrawal and save/restore ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-empty-roster-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 740,
+      "stdout": "blackmarket-empty-roster-smoke: initial resource transfers, local ID collisions, rollback, zero-roster save/restore and repurchase ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-pricing-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1795,
+      "stdout": "blackmarket-pricing-smoke: six price bands, repair-inclusive savings, wages, legacy quotes, stock quotas and confirmed purchases ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-price-display-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 125,
+      "stdout": "blackmarket-price-display-smoke: correct baselines, all-in repair savings, NPC labels and both detail flows ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-npc-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 9682,
+      "stdout": "blackmarket-npc-smoke: ok (240 purchases, pricing, inventory, batch limits, save/restore, rollback)\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-npc-schedule-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 3837,
+      "stdout": "blackmarket-npc-schedule-smoke: random ranges, delayed refills, age protection, stale retirement, quotas, migration, save/restart, downtime and checkout race ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-npc-finish-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1129,
+      "stdout": "blackmarket-npc-finish-smoke: seven motifs, finished/blank rendering, exact crop, existing-stock and purchased-item compatibility ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-npc-variety-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 4082,
+      "stdout": "blackmarket-npc-variety-smoke: reachable shapes/sizes, weighted styles, actual gem seats/quotes, scores, coverage, deduplication, immutable purchases and save/restore ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-offcut-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 10550,
+      "stdout": "blackmarket-offcut-smoke: 60 layouts, counts 1,2,3,4,5, 20 profiles; containment, clearance, usable reserve, purchase/carving/save consistency and migration ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bm-plan-pool-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 72,
+      "stdout": "bm-plan-pool-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/socket-handlers-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 45,
+      "stdout": "socket-handlers-smoke: ok 75 events\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/runtime-ticks-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 450,
+      "stdout": "runtime-ticks-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/server-context-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 436,
+      "stdout": "server-context-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/test-hooks-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 426,
+      "stdout": "test-hooks-smoke: ok 174 keys\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 463,
+      "stdout": "workshop-service-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-delivery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 508,
+      "stdout": "workshop-delivery-smoke: three stages, multi-output/offcuts, ownership, persistence, offline, idempotency, worker release and commission expiry ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-scratch-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 123,
+      "stdout": "workshop-scratch-smoke: effective area, unique coverage, threshold, saved strokes, opening-only eligibility and strict protocol ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-delivery-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2719,
+      "stdout": "workshop-delivery-socket-e2e: durable reveal/claim, owner isolation, forged payload rejection, reconnect, restart and exactly-once inventory handover ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/livestream-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 55,
+      "stdout": "livestream-service-smoke: room authority + legacy retirement ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/world-store-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 65,
+      "stdout": "world-store-smoke: memory store + server wiring ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/world-persist-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 71,
+      "stdout": "world-persist-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/sqlite-world-persist-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 129,
+      "stdout": "sqlite-world-persist-smoke: transactions + migration + fallback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/persistence-crash-recovery-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 252,
+      "stdout": "persistence-crash-recovery-smoke: committed + rollback + JSON recovery ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/runtime-soak-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 134221,
+      "stdout": "runtime-soak-smoke: 30 simulated days + repeated SQLite restarts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/styles-split-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 49,
+      "stdout": "styles-split-smoke: 19 parts, resolved 749513 bytes ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/action-router-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 54,
+      "stdout": "action-router-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-loop-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 40,
+      "stdout": "Jade idle loop rules checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-auction-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 40,
+      "stdout": "Jade 10-minute auction checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/server-idle-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 655,
+      "stdout": "Server idle behavior checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/task-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 428,
+      "stdout": "task-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/equipment-system-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "equipment-system-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-planner-ui-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 54,
+      "stdout": "workshop-planner-ui-smoke: independent planning step ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/opening-planner-drag-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 82,
+      "stdout": "opening-planner-drag-smoke: transparent overlap, frame coalescing, pointer isolation, final position and cancellation passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/employee-system-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "employee-system-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/employee-payroll-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 66,
+      "stdout": "employee-payroll-smoke: login dates, snapshots, same-day dedupe, dismissal, migration and UI ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/employee-payroll-policy-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 703,
+      "stdout": "employee-payroll-policy-smoke: business-day grace,reserve-protected 20%,offline exclusion,cross-day service entries,stop/resume and rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/employee-payroll-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 4150,
+      "stdout": "employee-payroll-socket-e2e: login-only bills, modal ack, dismissal,20%, migration, dedupe and SQLite restarts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/worker-detail-view-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 50,
+      "stdout": "worker-detail-view-smoke: shared nine-skill detail and recruit ack guard ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/recruit-detail-controller-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "recruit-detail-controller-smoke: real lifecycle keeps modal identity on failures\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/hire-market-roster-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 48,
+      "stdout": "hire-market-roster-smoke: employee roster tab shell ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/player-progression-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 77,
+      "stdout": "player-progression-smoke: exp / achievements / hall unlock ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-system-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 46,
+      "stdout": "inlay-system-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-artwork-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 113,
+      "stdout": "inlay-artwork-smoke: RGBA assets, crop bounds, all settings, exact stone counts, source preservation and bitmap capture embedding ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finish-plan-model-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 48,
+      "stdout": "finish-plan-model-smoke: progressive material selection ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finished-product-design-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 543,
+      "stdout": "finished-product-design-smoke: setting-specific seats, embedded stones, legacy layouts, quotes, reservations and real workshop completion ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-piece-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 590,
+      "stdout": "jade-piece-smoke: exact extraction field, independent cuts, immutable geometry, size-aware quotes, original comparison, legacy fallback and restored workshop completion ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/finish-plan-controller-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 101,
+      "stdout": "finish-plan-controller-smoke: stable lifecycle and acknowledgements ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inlay-preview-tester-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 65,
+      "stdout": "inlay-preview-tester-smoke: model ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-rules-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 46,
+      "stdout": "Jade expert rules checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-renderer-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 53,
+      "stdout": "jade renderer smoke test passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-opening-engine-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 100,
+      "stdout": "jade opening engine smoke test passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/jade-volume-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 42,
+      "stdout": "jade volume smoke test passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/canvas-only-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 47,
+      "stdout": "Canvas-only jade rendering checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/simplified-flow-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 488,
+      "stdout": "Simplified rough-to-bracelet flow checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/ui-overlay-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 48,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/ui-stability-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 59,
+      "stdout": "ui-stability-smoke: stable overview guards ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/side-panel-progress-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 47,
+      "stdout": "side-panel-progress-smoke: all three stages auto-claimable, missed updates recover, active jobs coexist and DOM stays stable\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/modal-lifecycle-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 47,
+      "stdout": "modal-lifecycle-smoke: stable planner and accessible modal lifecycle ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/shop-material-modal-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 41,
+      "stdout": "shop-material-modal-smoke: body-mounted material buy modal ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/night-theme-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 556,
+      "stdout": "night-theme-smoke: effective low-luminance surfaces ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/responsive-layout-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 55,
+      "stdout": "responsive-layout-smoke: desktop guards ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/experience-regressions-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 98,
+      "stdout": "experience-regressions-smoke: rollover, lot sort/bid chrome, wages, collection theme and cutouts ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/money-compact-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 55,
+      "stdout": "money-compact-smoke: HUD compact cash formatting ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/inventory-module-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 84,
+      "stdout": "inventory-module-smoke: normalization, filters, sorting and inventory view ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/bill-module-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 64,
+      "stdout": "bill-module-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/lazy-preview-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 156,
+      "stdout": "lazy-preview-smoke: bitmap cache + virtual grid ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-render-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 97,
+      "stdout": "blackmarket-render-smoke: retained shelf, cash, prices, sold stock and navigation ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/livestream-room-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 45,
+      "stdout": "Livestream room checks passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/livestream-buy-flow-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 449,
+      "stdout": "livestream-buy-flow-smoke: seller→buyer purchase ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/livestream-ui-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 78,
+      "stdout": "livestream-ui-smoke: wizard, shelf, owner dash and hall sort ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/livestream-settle-modal-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 81,
+      "stdout": "livestream-settle-modal-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/chatdock-compact-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 235,
+      "stdout": "chatdock-compact-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/debug-spawn-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 114,
+      "stdout": "debug-spawn-smoke: ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/debug-tools-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 63,
+      "stdout": "debug-tools-smoke: exp +100 and idempotent mining unlock ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/player-exploration-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 608,
+      "stdout": "player-exploration-regressions: free processing, idle duration, 2,000 order rewards, reputation and mining gate restored; cost, motif and payout fixes passed\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-scope-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 44,
+      "stdout": "workshop-scope-smoke: action ownership, subscriptions, pending requests, late acknowledgements and idempotent cleanup ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/architecture-quality-gate.mjs",
+      "exitCode": 0,
+      "elapsedMs": 49,
+      "stdout": "architecture-quality-gate: 9 module budgets, 10 black-market modules, 17 assets ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/durable-mutation-coordinator-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 42,
+      "stdout": "durable-mutation-coordinator-smoke: commit barrier + rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/account-service-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 292,
+      "stdout": "account-service-smoke: bind + secure login + duplicate guard ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/account-ui-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 39,
+      "stdout": "account-ui-smoke: account bind/login/logout modal contract ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/account-http-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1346,
+      "stdout": "account-http-e2e: guest bind + password login + HttpOnly cookie resume + live revocation + public-id denial + relogin ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/sqlite-socket-release-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 6646,
+      "stdout": "sqlite-socket-release-e2e: session + idempotency + payload hardening ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/blackmarket-npc-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1683,
+      "stdout": "blackmarket-npc-socket-e2e: SQLite restart, random deadlines, delayed replenishment, purchases, inventory and duplicate request protection ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/state-patch-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 43,
+      "stdout": "state-patch-smoke: capability negotiation + top-level deltas ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/postgres-world-persist-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 113,
+      "stdout": "postgres-world-persist-smoke: migrations + journal replay + incremental rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/runtime-health-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 40,
+      "stdout": "runtime-health-smoke: persistence failure + recovery readiness ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/socket-event-schema-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 103,
+      "stdout": "socket-event-schema-smoke: mutation envelopes + semantic fields ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/http-security-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2993,
+      "stdout": "http-security-smoke: local HTTP previews + production HTTPS policy + asset/API budgets ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/production-readiness-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1093,
+      "stdout": "production-readiness-smoke: origin + headers + debug lock + graceful shutdown ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/socket-load-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 6993,
+      "stdout": "socket-load-smoke: 25 clients, connect p95=606.4ms, mutation p95=524.9ms\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/server-architecture-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 129,
+      "stdout": "server-architecture-regressions: read/checkpoint isolation, disconnect rollback, queued roots, scoped copies, bounded queue, readiness and production authority ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-tuning-governance-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 908,
+      "stdout": "mining-tuning-governance-smoke: review, safe activation, audit history and rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/server-capacity-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 3313,
+      "stdout": "server-capacity-regressions: 1000 players, 1 copied participant, 100-row boards and real self rank; mutation average=1.33ms (no database/network)\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/server-optimization-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 928,
+      "stdout": "server-optimization-regressions: selective projections + transfer + immutable replay; 1000 players/500 items each, 50 deltas replayed in 543.7ms (no database)\nserver-optimization-regressions: shared signatures + ranking reuse/invalidation + transport isolation ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/phase-metrics-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 189,
+      "stdout": "phase-metrics-smoke: cumulative Prometheus histograms + queue isolation + failed-commit timing + broadcast phases ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/mining-read-scope-regressions.mjs",
+      "exitCode": 0,
+      "elapsedMs": 916,
+      "stdout": "mining-read-scope-regressions: healthy roster/leases copy zero players; history repair and refund retain rollback protection ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/commission-socket-e2e.mjs",
+      "exitCode": 0,
+      "elapsedMs": 5061,
+      "stdout": "{\n  \"ok\": true,\n  \"restarts\": 2,\n  \"fresh\": {\n    \"initialCash\": 12000,\n    \"finalCash\": 12180,\n    \"netPay\": 180,\n    \"completed\": 1\n  },\n  \"equipped\": {\n    \"initialCash\": 100000,\n    \"finalCash\": 102539,\n    \"netPay\": 2539,\n    \"completed\": 1\n  },\n  \"verified\": [\n    \"zero owned machines and paid staff\",\n    \"strict reward/timer schemas\",\n    \"early and foreign claims rejected\",\n    \"persistent start/claim deduplication\",\n    \"exact active contract after restart\",\n    \"single settlement after second restart\",\n    \"equipment repair and sale lock\",\n    \"maintenance not charged twice\"\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-material-analysis-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 2043,
+      "stdout": "workshop-material-analysis: visible outline, actual color map, single jade grade, crack/waste areas, 100% rounding and deterministic rendering parity ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-delivery-details-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 123,
+      "stdout": "workshop-delivery-details: inventory parity, raw/slices/blanks/finished, value, origin, escrow and read-only inspection ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-server-parity-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 123,
+      "stdout": "workshop-server-parity-smoke: 26 function bodies/defaults, 49 public methods and dynamic state access preserved\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/workshop-server-equivalence-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 357,
+      "stdout": "workshop-server-equivalence-smoke: 26 differential scenarios, 49 APIs, exact state/effect/RNG/id equivalence, isolated instances, dynamic worlds and transactional rollback ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/trading-source-parity-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 255,
+      "stdout": "trading-source-parity-smoke: 223 original function bodies/defaults and 28 constant initializers preserved across three services and reward hooks\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/trading-equivalence-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 1111,
+      "stdout": "trading-equivalence-smoke: 19 differential scenarios, three private services, owned reward hooks, legacy-rebind isolation, two-player rollback/retry and dynamic-world recovery ok\n",
+      "stderr": ""
+    },
+    {
+      "script": "scripts/trading-boundary-smoke.mjs",
+      "exitCode": 0,
+      "elapsedMs": 219,
+      "stdout": "trading-boundary-smoke: 346 protected production files, 18 additions, acyclic instance imports and exact declared boot transformation ok\n",
+      "stderr": ""
+    }
+  ]
+}

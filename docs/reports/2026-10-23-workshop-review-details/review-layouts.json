@@ -1,0 +1,118 @@
+[
+  {
+    "label": "390x844",
+    "continue": {
+      "height": 44,
+      "width": 243.33334350585935,
+      "x": 73.33333587646484,
+      "y": 729
+    },
+    "outline": {
+      "height": 314.9999694824219,
+      "width": 312.0223083496094,
+      "x": 38.98884201049805,
+      "y": 156.5
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-scratch-spotlight is-revealed is-scratch-review",
+    "summary": {
+      "height": 200,
+      "width": 360,
+      "x": 15,
+      "y": 505
+    },
+    "summaryScroll": false,
+    "visual": {
+      "height": 350,
+      "width": 350,
+      "x": 20,
+      "y": 139
+    }
+  },
+  {
+    "label": "320x568",
+    "continue": {
+      "height": 44,
+      "width": 243.33334350585935,
+      "x": 38.33333587646485,
+      "y": 500
+    },
+    "outline": {
+      "height": 151.1999969482422,
+      "width": 149.77072143554688,
+      "x": 85.1146469116211,
+      "y": 100.40000915527344
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-scratch-spotlight is-revealed is-scratch-review",
+    "summary": {
+      "height": 200,
+      "width": 296,
+      "x": 12,
+      "y": 276
+    },
+    "summaryScroll": false,
+    "visual": {
+      "height": 168,
+      "width": 168,
+      "x": 76,
+      "y": 92
+    }
+  },
+  {
+    "label": "844x390",
+    "continue": {
+      "height": 44,
+      "width": 243.33334350585935,
+      "x": 300.3333435058594,
+      "y": 324
+    },
+    "outline": {
+      "height": 171,
+      "width": 169.38351440429688,
+      "x": 181.3082275390625,
+      "y": 109.5
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-scratch-spotlight is-revealed is-scratch-review",
+    "summary": {
+      "height": 210,
+      "width": 280,
+      "x": 393,
+      "y": 90
+    },
+    "summaryScroll": true,
+    "visual": {
+      "height": 190,
+      "width": 190,
+      "x": 171,
+      "y": 100
+    }
+  },
+  {
+    "label": "1280x720",
+    "continue": {
+      "height": 44,
+      "width": 243.33334350585935,
+      "x": 518.3333740234375,
+      "y": 644
+    },
+    "outline": {
+      "height": 468,
+      "width": 463.5760192871094,
+      "x": 252.2120056152344,
+      "y": 126
+    },
+    "root": "workshop-delivery-root has-scratch-focus is-scratch-spotlight is-revealed is-scratch-review",
+    "summary": {
+      "height": 224.6666717529297,
+      "width": 280,
+      "x": 776,
+      "y": 247.6666717529297
+    },
+    "summaryScroll": false,
+    "visual": {
+      "height": 520,
+      "width": 520,
+      "x": 224,
+      "y": 100
+    }
+  }
+]
