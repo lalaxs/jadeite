@@ -1199,22 +1199,6 @@ function drawFlatSpeckles(ctx, rng, width, height, count) {
   }
 }
 
-function drawRoughBand(ctx, seed, width, height, vein, angle) {
-  ctx.save();
-  ctx.translate(width * 0.5, height * 0.5);
-  ctx.rotate((angle - 18) * Math.PI / 180);
-  ctx.translate(-width * 0.5, -height * 0.5);
-  flatBandSegments(seed, width, height).forEach((band, index) => {
-    ctx.beginPath();
-    ctx.moveTo(band.points[0].x, band.points[0].y);
-    band.points.slice(1).forEach((point) => ctx.lineTo(point.x, point.y));
-    ctx.closePath();
-    ctx.fillStyle = withAlpha(mixColor(vein, "#164f3e", index * 0.08), band.alpha);
-    ctx.fill();
-  });
-  ctx.restore();
-}
-
 function drawJadeWindow(ctx, rng, width, height, vein, translucency, cotton) {
   const cx = width * 0.36;
   const cy = height * 0.36;
@@ -1321,18 +1305,6 @@ function drawSliceGrain(ctx, rng, width, height, baseColor, angle) {
     ctx.stroke();
   }
   ctx.restore();
-}
-
-function drawColorZones(ctx, width, height, zones, baseColor) {
-  const seed = zones.reduce((sum, zone) => sum + Math.round((zone.cx || 0) * 13 + (zone.cy || 0) * 17 + (zone.rx || 0) * 19), 0);
-  flatSliceBandPolygons(seed || 37, width, height, zones).forEach((band) => {
-    ctx.beginPath();
-    ctx.moveTo(band.points[0].x, band.points[0].y);
-    band.points.slice(1).forEach((point) => ctx.lineTo(point.x, point.y));
-    ctx.closePath();
-    ctx.fillStyle = withAlpha(mixColor(baseColor, band.tone % 2 ? "#0e5b45" : "#dff7eb", band.tone % 2 ? 0.16 : 0.08), band.alpha);
-    ctx.fill();
-  });
 }
 
 function drawVolumeColorVeins(ctx, volume, board, width, height, baseColor) {

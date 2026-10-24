@@ -6,7 +6,7 @@
 
 游戏共用成品渲染已采用用户选定的第 1 款：简化笑脸、圆润手部、大面积平滑玉面和少量衣襟刻线。工坊镶嵌预览、成品详情及库存缩略图使用同一套新雕刻明暗层。
 
-- 直接复制已确认的图片，未重新生成或改动像素：[生产素材](../../../public/assets/inlay/buddha-rounded-minimal-v1.png)，1254×1254 RGBA，1,016,585 字节。素材来源为前一轮内置 imagegen；[生成提示词](../../art/2026-10-23-buddha-simple-concepts/generation-prompts.txt)保留。
+- 直接复制已确认的图片，未重新生成或改动像素：[美术稿](../../art/2026-10-23-buddha-simple-concepts/buddha-01-rounded-minimal-v1.png)，1254×1254 RGBA，1,016,585 字节。素材来源为前一轮内置 imagegen；[生成提示词](../../art/2026-10-23-buddha-simple-concepts/generation-prompts.txt)保留。
 - `public/inlay-artwork.js` 从新图片提取雕刻明暗，将原图约 0.60 的中间亮度归中。实际玉色、飘花和棉裂仍来自原玉料；原件尺寸与轮廓、金属包边和配石布局沿用现有数据。
 - 原貌对照不加载雕刻图片，仅看玉件保留新雕刻；蛋面及其他款式使用原有素材。
 - 普通 3000 端口服务无需重启，刷新页面即可加载前端更新。

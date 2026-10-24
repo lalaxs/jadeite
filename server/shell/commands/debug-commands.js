@@ -58,7 +58,7 @@ export function registerDebugCommands(socket, deps) {
       emitUiEvent(socket, {
         type: "float",
         tone: "profit",
-        text: `+${apResult.gained} AP`,
+        text: `+${apResult.gained} 成就积分`,
         x: 62,
         y: 58
       });

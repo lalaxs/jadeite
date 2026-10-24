@@ -149,10 +149,10 @@ function blankPlayer(overrides = {}) {
 {
   const windowTrack = ACHIEVEMENT_TRACKS.find((item) => item.id === "window");
   const windowStage = resolveAchievementStage(windowTrack, 1);
-  assert.match(achievementRewardText(windowStage), /AP 10（达成即发）/);
+  assert.match(achievementRewardText(windowStage), /成就积分 10（达成即发）/);
   assert.match(achievementRewardText(windowStage), /¥800/);
   const chips = achievementRewardChips(windowStage);
-  assert.ok(chips.some((chip) => chip.kind === "ap" && chip.label === "AP 10"));
+  assert.ok(chips.some((chip) => chip.kind === "ap" && chip.label === "成就积分 10"));
   assert.ok(chips.some((chip) => chip.kind === "cash" && /¥\s*800/.test(chip.label)));
   assert.ok(chips.some((chip) => chip.kind === "exp" && /经验 × /.test(chip.label)));
   assert.equal(achievementRewardsOf(resolveAchievementStage(ACHIEVEMENT_TRACKS.find((item) => item.id === "cash"), 1)).cash, 0);

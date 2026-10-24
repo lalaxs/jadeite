@@ -123,6 +123,16 @@ npm start
 
 `npm test` 会依次覆盖经营循环、公盘、服务端离线结算、任务、设备、员工、镶嵌、JSON/SQLite 存档、强制终止恢复、30 个模拟游戏日的长时间运行、规则、渲染、开料、体积、画布、简化流程、弹窗和响应式布局。
 
+## 清理本地产物
+
+本地生成的测试输出、临时快照、日志、CSS 备份和文档渲染缓存可统一清理：
+
+```bash
+npm run clean
+```
+
+清理范围包括 `.refactor-test-results/`、`.tmp/`、`.superpowers/brainstorm/`、`dist/`、`coverage/`、Playwright 输出、旧的临时测试入口 `test-task-e2e.mjs` 及 `.workbuddy/balance_doc_render_*`。存档 `data/`、备份 `backups/`、依赖 `node_modules/`、设计文档、美术源稿和测试夹具保留。
+
 ## 项目结构
 
 ```text

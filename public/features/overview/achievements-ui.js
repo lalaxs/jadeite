@@ -77,7 +77,7 @@ export function achievementRowHtml(g) {
     ? '<span class="achv-tag is-claimed">已领取</span>'
     : (g.claimable
       ? '<span class="achv-tag is-claimable">可领取</span>'
-      : `<span class="achv-tag">${escapeHtml(g.stageLabel || `+${g.ap} AP`)}</span>`);
+      : `<span class="achv-tag">${escapeHtml(g.stageLabel || `+${g.ap} 成就积分`)}</span>`);
   const action = g.claimable
     ? `<button class="achv-claim" type="button" data-action="claimAchievement" data-payload="${escapeHtml(g.id)}">领取</button>`
     : "";
@@ -243,7 +243,7 @@ export function notifyNewAchievements(me) {
     });
     showToast({
       text: newly.length === 1
-        ? `成就达成：${names[0]}，AP 已自动计入，可领取其他奖励`
+        ? `成就达成：${names[0]}，成就积分已自动计入，可领取其他奖励`
         : `${newly.length} 项成就达成：${names.slice(0, 2).join("、")}${newly.length > 2 ? "等" : ""}，奖励待领取`,
       tone: "great",
       dedupeKey: `achievement-batch:${names.join("|")}`

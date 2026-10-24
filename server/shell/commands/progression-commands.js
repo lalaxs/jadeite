@@ -51,7 +51,7 @@ export function registerProgressionCommands(socket, deps) {
     socket.emit("toast", `成就奖励已领取：${result.title}`);
     const ap = Number(result.granted?.ap) || 0;
     const floatBits = [];
-    if (ap) floatBits.push(`+${ap} AP`);
+    if (ap) floatBits.push(`+${ap} 成就积分`);
     emitUiEvent(socket, {
       type: "float",
       tone: "profit",

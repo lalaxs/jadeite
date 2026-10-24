@@ -1439,47 +1439,6 @@ function miningPreferenceQuote(mine, mining = stateMining()) {
   };
 }
 
-function mineCard(mine, mining) {
-  const lease = (mining.currentRound?.leases || []).find((entry) => entry.mineId === mine.id);
-  const selectedIndex = preferenceDraft.indexOf(mine.id);
-  const selected = selectedIndex >= 0;
-  const previousMine = mining.myLease?.mineId === mine.id;
-  const canChoose = mining.acceptingApplications && mining.playerQualified && !previousMine;
-  const preferenceQuote = miningPreferenceQuote(mine, mining);
-  const basicProfile = miningBasicMineProfile(mine);
-  const weights = mine.weights
-    .map((weight, index) => ({ weight, label: miningQualityLabel(["bean", "glutinous", "stickyIce", "ice", "highIce", "glass"][index]) }))
-    .sort((left, right) => right.weight - left.weight)
-    .slice(0, 2)
-    .map((entry) => entry.label)
-    .join("、");
-  const status = lease
-    ? `<span class="mine-lease-state busy">${esc(lease.playerName)} 承租</span>`
-    : `<span class="mine-lease-state">待租</span>`;
-  return `
-    <article class="mine-card ${selected ? "selected" : ""}">
-      <div class="mine-card-head">
-        <span class="mine-code">${esc(mine.id.toUpperCase())}</span>
-        ${status}
-      </div>
-      <h4>${esc(mine.name)}</h4>
-      <p>${esc(basicProfile.name)} · ${esc(mine.beltLabel)} · ${esc(mine.focus)}</p>
-      <dl>
-        <div><dt>主产</dt><dd>${esc(weights)}</dd></div>
-        <div><dt>租金</dt><dd>${money(mine.rent)}</dd></div>
-        <div><dt>基础产出</dt><dd>${basicProfile.yieldMin}–${basicProfile.yieldMax} 块</dd></div>
-        <div><dt>事故风险</dt><dd>${percent(basicProfile.risk)}</dd></div>
-        <div><dt>热度</dt><dd>${Number(mining.applicantCounts?.[mine.id]) || 0} 人意向</dd></div>
-      </dl>
-      ${previousMine && mining.acceptingApplications
-        ? `<button class="mine-pick disabled" disabled type="button">本轮承租，不可连租</button>`
-        : canChoose
-          ? `<button class="mine-pick ${selected ? "on" : ""}" data-action="miningTogglePreference" data-payload="${esc(mine.id)}" type="button" ${!selected && !preferenceQuote.affordable ? "disabled" : ""}>${selected ? `第 ${selectedIndex + 1} 志愿` : preferenceQuote.affordable ? "加入志愿" : `现金不足 · 需 ${money(preferenceQuote.nextEscrow)}`}</button>`
-          : ""}
-    </article>
-  `;
-}
-
 function applicationBar(mining) {
   if (!mining.acceptingApplications || !mining.playerQualified) return "";
   const priorityEligible = Boolean(mining.priorityEligible);

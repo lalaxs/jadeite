@@ -7,6 +7,8 @@ npm-debug.log*
 !.env.production.example
 dist/
 coverage/
+playwright-report/
+test-results/
 server.log
 data/
 backups/

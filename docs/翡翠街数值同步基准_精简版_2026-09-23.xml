@@ -68,7 +68,7 @@
         <cell index="1">1</cell>
         <cell index="2">初始资源与解锁</cell>
         <cell index="3">决定前 30 分钟节奏</cell>
-        <cell index="4">资产价格、AP 门槛、初始库存</cell>
+        <cell index="4">资产价格、成就积分门槛、初始库存</cell>
       </row>
       <row index="3" header="false">
         <cell index="1">2</cell>
@@ -210,7 +210,7 @@
         <cell index="4">等级 1</cell>
       </row>
       <row index="5" header="false">
-        <cell index="1">初始行动点 AP</cell>
+        <cell index="1">初始成就积分</cell>
         <cell index="2">0</cell>
         <cell index="3">点</cell>
         <cell index="4">通过玩法与成就获得</cell>
@@ -299,25 +299,25 @@
       </row>
       <row index="2" header="false">
         <cell index="1">交易行</cell>
-        <cell index="2">行动点 AP</cell>
+        <cell index="2">成就积分</cell>
         <cell index="3">80</cell>
         <cell index="4">公开交易入口</cell>
       </row>
       <row index="3" header="false">
         <cell index="1">黑市浏览</cell>
-        <cell index="2">行动点 AP</cell>
+        <cell index="2">成就积分</cell>
         <cell index="3">300</cell>
         <cell index="4">先开放查看</cell>
       </row>
       <row index="4" header="false">
         <cell index="1">黑市购买</cell>
-        <cell index="2">行动点 AP</cell>
+        <cell index="2">成就积分</cell>
         <cell index="3">420</cell>
         <cell index="4">开放消费</cell>
       </row>
       <row index="5" header="false">
         <cell index="1">黑市摆摊</cell>
-        <cell index="2">行动点 AP</cell>
+        <cell index="2">成就积分</cell>
         <cell index="3">600</cell>
         <cell index="4">开放经营</cell>
       </row>
@@ -2074,7 +2074,7 @@
       <row index="1" header="true">
         <cell index="1">11</cell>
         <cell index="2">成就完整表
-目标值、AP、现金、经验与材料奖励；无穷档增长规则单列</cell>
+目标值、成就积分、现金、经验与材料奖励；无穷档增长规则单列</cell>
       </row>
     </table>
     <paragraph id="p0068" style="Normal">材料缩写：银=925银（克）；18K=18K金（克）；足金=足金（克）；铂=铂金（克）；钻/红/蓝=对应宝石（颗）。空白表示无该项奖励。</paragraph>
@@ -2183,7 +2183,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2259,7 +2259,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2326,7 +2326,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2393,7 +2393,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2469,7 +2469,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2545,7 +2545,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2612,7 +2612,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2679,7 +2679,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2746,7 +2746,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2813,7 +2813,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2880,7 +2880,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -2947,7 +2947,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3023,7 +3023,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3099,7 +3099,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3184,7 +3184,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3224,7 +3224,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3246,7 +3246,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3268,7 +3268,7 @@
         <cell index="1">档</cell>
         <cell index="2">名称</cell>
         <cell index="3">目标</cell>
-        <cell index="4">AP</cell>
+        <cell index="4">成就积分</cell>
         <cell index="5">现金</cell>
         <cell index="6">经验</cell>
         <cell index="7">材料</cell>
@@ -3300,7 +3300,7 @@
       </row>
       <row index="2" header="false">
         <cell index="1">初始与成长</cell>
-        <cell index="2">现金、经验、AP、等级门槛、功能解锁</cell>
+        <cell index="2">现金、经验、成就积分、等级门槛、功能解锁</cell>
         <cell index="3">新档创建后逐项核对</cell>
       </row>
       <row index="3" header="false">

@@ -76,7 +76,7 @@ export function syncBmFeatureChrome() {
     }
     banner.hidden = false;
     banner.textContent = !buy.ok
-      ? `黑市浏览已开放；购买需 ${buy.required} AP（当前 ${buy.current}）。可先查看摊位与行情。`
+      ? `黑市浏览已开放；购买需 ${buy.required} 成就积分（当前 ${buy.current}）。可先查看摊位与行情。`
       : `成就积分未达标：摆摊 ${stall.current}/${stall.required}。可购买与逛摊，达标后解锁开设摊位。`;
   } else if (banner) {
     banner.hidden = true;

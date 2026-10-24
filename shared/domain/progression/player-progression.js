@@ -763,7 +763,7 @@ export function achievementRewardChips(def) {
   const ap = Math.max(0, Math.round(Number(def?.ap) || 0));
   const rewards = achievementRewardsOf(def);
   const chips = [];
-  if (ap) chips.push({ kind: "ap", label: `AP ${ap}`, title: `AP ${ap}（达成即发）` });
+  if (ap) chips.push({ kind: "ap", label: `成就积分 ${ap}`, title: `成就积分 ${ap}（达成即发）` });
   if (rewards.cash) {
     const cashNum = rewards.cash.toLocaleString("zh-CN");
     chips.push({ kind: "cash", label: `¥ ${cashNum}`, title: `¥${cashNum}` });
@@ -1238,7 +1238,7 @@ export function buildFeatureUnlockModalEvent(features, { currentAp } = {}) {
     subtitle: ap ? `成就积分 ${ap}` : "",
     body: [
       "恭喜！以下功能现已开放：",
-      ...list.map((feature) => `· ${feature.label}（需 ${feature.ap} AP）`)
+      ...list.map((feature) => `· ${feature.label}（需 ${feature.ap} 成就积分）`)
     ],
     actions: [
       ...goActions,

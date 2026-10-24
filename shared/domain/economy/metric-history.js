@@ -389,10 +389,6 @@ export const EXP_TYPE_LABELS = {
   achievement_unlock: "成就达成"
 };
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function dayKey(ts = Date.now()) {
   const d = new Date(Number(ts) || Date.now());
   const y = d.getFullYear();

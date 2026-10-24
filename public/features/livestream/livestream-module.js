@@ -479,16 +479,6 @@ function selectionSummary(products) {
   };
 }
 
-function selectionReady() {
-  const summary = selectionSummary(finishedProducts());
-  return summary.count >= MIN_ROOM_ITEMS
-    && summary.count <= MAX_ROOM_ITEMS
-    && [...selectedProductIds].every((id) => {
-      const price = Number(priceDrafts.get(id));
-      return Number.isInteger(price) && price >= LIVESTREAM_MIN_PRICE;
-    });
-}
-
 function sortHostsForPicker(hosts, recommendedId) {
   return [...hosts].sort((a, b) => {
     const busyA = a.busy ? 1 : 0;
