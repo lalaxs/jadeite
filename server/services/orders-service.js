@@ -1,11 +1,12 @@
+import { findInventoryItem } from "./inventory-items.js";
 /**
  * Customer orders — persona generation, negative-filter requirements,
  * mismatch bad-review dice, daily 05:00 pool replace, paid refresh.
  */
 import { randomUUID } from "node:crypto";
 import { recordFinanceSale } from "../../shared/domain/economy/finance-book.js";
-import { evaluateOrderFit, productMatchesOrder, finishedProductKind, ORDER_SIZE_BANDS } from "../../shared/domain/jade/jade-rules.js";
-import { orderPayoutCap, orderValueFloor } from "../../shared/domain/economy/new-player-economy.js";
+import { evaluateOrderFit, estimateOrderSettlement, productMatchesOrder, finishedProductKind, ORDER_SIZE_BANDS } from "../../shared/domain/jade/jade-rules.js";
+import { orderPayoutCap } from "../../shared/domain/economy/new-player-economy.js";
 import { bookSystemDemand, quoteSystemDemand, systemSalePriceCap } from "../../shared/domain/economy/system-demand.js";
 import { KIND_LABELS, PRODUCT_CATEGORIES } from "../../shared/domain/jade/jade-categories.js";
 import { normalizeBangleOrderRequirements } from "../../shared/domain/workshop/bangle-finish.js";
@@ -751,7 +752,6 @@ export function createOrdersService(deps) {
         label: title
       },
       hard: {
-        minValue: orderValueFloor({ pay: budget.pay }),
         budgetMax: budget.budgetMax,
         budgetUnlimited: budget.budgetUnlimited,
         sizeBand,
@@ -800,7 +800,7 @@ export function createOrdersService(deps) {
           id: randomUUID(), client: "街坊试单", starterOrder: true,
           persona: { motive: "喜欢", personality: "宽和", temper: 0.45 },
           hard: { kind, kindLabel: KIND_LABELS[kind] || "成品", itemId: product.id,
-            minValue: value, budgetMax: money(value * 1.25), budgetUnlimited: false },
+            budgetMax: money(value * 1.25), budgetUnlimited: false },
           requirements: [], quantity: 1, pay: money(value * 1.12), rep: 4,
           expiresAt: Date.now() + msUntilNextOrderDailyRefresh(Date.now()),
           urgency: "新手试单", taste: "宽和", minScore: 1, targetMid: value
@@ -844,7 +844,7 @@ export function createOrdersService(deps) {
     const order = (player.orders || []).find((item) => item.id === orderId);
     if (!order) return { ok: false, message: "订单不存在。" };
     const selectedIds = [...new Set(Array.isArray(braceletIds) ? braceletIds : [])].slice(0, order.quantity || 1);
-    const selected = selectedIds.map((id) => player.bracelets.find((bracelet) => bracelet.id === id)).filter(Boolean);
+    const selected = selectedIds.map((id) => findInventoryItem(player, "bracelet", id)).filter(Boolean);
     if (selected.length < (order.quantity || 1)) return { ok: false, message: "交付数量不够。" };
     if (selected.some((bracelet) => materialStageFor(bracelet) !== "finished")) {
       return { ok: false, message: "只有最终成品才能交付订单。" };
@@ -877,7 +877,7 @@ export function createOrdersService(deps) {
       badReview = Math.random() < badChance;
     }
 
-    const payMult = worst.tier === "full" ? 1 : worst.budgetSoftOver ? 0.65 : 0.6;
+    const payMult = estimateOrderSettlement(worst, order).payMult;
     const timePenalty = onTime ? 1 : 0.72;
     const craftTipBoost = Math.max(0, ...fits.map((fit) => Number(fit.craftTipBoost) || 0));
     let tipMult = 1;
@@ -899,11 +899,12 @@ export function createOrdersService(deps) {
       }
     }
     const priceCap = Math.min(orderPayoutCap(selected), systemSalePriceCap(player, selected));
-    let finalPay = Math.min(money(order.pay * payMult * timePenalty * tipMult), priceCap);
+    const basePay = Math.min(Number(order.pay || 0), priceCap);
+    let finalPay = Math.min(money(basePay * payMult * timePenalty * tipMult), priceCap);
     let demandQuote = quoteSystemDemand(player, selected, finalPay, now, { exempt: order.starterOrder === true });
     // A random tip must not invalidate an otherwise affordable customer order.
     if (!demandQuote.ok && tipped) {
-      finalPay = Math.min(money(order.pay * payMult * timePenalty), priceCap);
+      finalPay = money(basePay * payMult * timePenalty);
       demandQuote = quoteSystemDemand(player, selected, finalPay, now, { exempt: order.starterOrder === true });
       if (demandQuote.ok) { tipped = false; tipMult = 1; }
     }

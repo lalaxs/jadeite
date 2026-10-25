@@ -47,7 +47,7 @@ const session = { playerId: player.id, resumeToken: H.playerSessions.issueSessio
 const temporary = mkdtempSync(path.join(tmpdir(), "jade-planning-finance-"));
 const seedPath = path.join(temporary, "seed.json");
 writeFileSync(seedPath, JSON.stringify(H.world.exportSnapshot()));
-const directory = path.resolve("docs/reports/2026-10-23-planning-finance");
+const directory = path.resolve(".tmp/planner-ui");
 mkdirSync(directory, { recursive: true });
 const port = 48000 + process.pid % 1000;
 const origin = `http://127.0.0.1:${port}`;
@@ -117,6 +117,14 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('#ws-planner-root .kit:not(.extracted)').length === 1);
   const kitState = () => page.evaluate(async (id) => JSON.parse(JSON.stringify((await import("/features/opening/index.js")).kitsFor(id))), opened.id);
   const originalKits = await kitState();
+  assert.equal(await page.locator('#ws-planner-root .wsp-head-text p').innerText(), opened.name);
+  assert.match(await page.locator('.planner-draft-toolbar').innerText(), /^撤销\s+重做\s+已保存$/);
+  assert.equal(await page.locator('.planner-draft-note, .planner-draft-versions, [data-draft-action="confirmed"]').count(), 0);
+  const boardStyle = await page.locator('#ws-planner-root [data-opening-board]').evaluate(node => {
+    const style = getComputedStyle(node);
+    return { border: style.borderTopWidth, background: style.backgroundColor, image: style.backgroundImage, shadow: style.boxShadow };
+  });
+  assert.deepEqual(boardStyle, { border: "0px", background: "rgba(0, 0, 0, 0)", image: "none", shadow: "none" });
   await shot("01-planner-desktop");
   const hit = await page.locator('#ws-planner-root .kit:not(.extracted)').evaluate(node => {
     const box = node.getBoundingClientRect();
@@ -139,6 +147,21 @@ try {
   await page.keyboard.press("Control+Shift+z");
   assert.deepEqual(await kitState(), originalKits);
   checks.push("add/undo/redo through keyboard");
+  await page.locator('#ws-planner-root [data-opening-kit-choice="leaf"]').click();
+  const twoKits = await kitState();
+  assert.equal(twoKits.length, 2);
+  await page.locator(`[data-action="removeOpeningKit"][data-kit-id="${originalKits[0].id}"]`).click();
+  assert.deepEqual(await kitState(), [twoKits[1]], "removing one kit preserves the other kit");
+  assert.equal(await page.locator('#ws-planner-root .kit:not(.extracted)').count(), 1);
+  assert.equal(await page.locator('#ws-planner-root .analysis-row').count(), 1);
+  await page.keyboard.press("Control+z");
+  assert.deepEqual(await kitState(), twoKits, "removing a kit can be undone");
+  await page.keyboard.press("Control+Shift+z");
+  assert.deepEqual(await kitState(), [twoKits[1]]);
+  await page.keyboard.press("Control+z");
+  await page.keyboard.press("Control+z");
+  assert.deepEqual(await kitState(), originalKits);
+  checks.push("single-kit removal updates the board and analysis, with undo and redo");
   await page.keyboard.press("Escape");
   await openPlanner("planning-qa-material-b");
   await page.keyboard.press("Escape");
@@ -161,12 +184,10 @@ try {
   await other.locator('#mainNav [data-nav-view="workshop"]').waitFor();
   await openPlanner(opened.id, other);
   await other.locator('#ws-planner-root [data-opening-kit-choice="leaf"]').click();
-  await page.locator('.planner-draft-versions summary').waitFor();
+  await page.waitForFunction(async id => (await import('/features/opening/planner-drafts.js')).plannerDraftStatus(id).alternatives.length > 0, opened.id);
   assert.deepEqual(await kitState(), originalKits, "the other window must not replace the current layout");
-  await page.locator('.planner-draft-versions summary').click();
-  await page.locator('[data-draft-action="version"]').first().click();
-  assert.equal((await kitState()).length, 2);
-  checks.push("other window keeps an independent version and requires explicit loading");
+  assert.equal(await page.locator('.planner-draft-note, .planner-draft-versions, [data-draft-action="confirmed"]').count(), 0);
+  checks.push("other-window drafts remain independent without extra toolbar content");
   await other.close();
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 1440, height: 1000 });

@@ -39,11 +39,6 @@ export function bookRewardCash(player, amount, source, now = Date.now()) {
   return allowed;
 }
 
-export function orderValueFloor(order) {
-  const quantity = Math.max(1, Math.floor(Number(order?.quantity) || 1));
-  return Math.max(0, Math.ceil(Number(order?.pay || 0) / (ORDER_MAX_VALUE_MULTIPLIER * quantity)));
-}
-
 export function orderPayoutCap(products = []) {
   return Math.max(0, Math.floor(products.reduce((sum, item) => (
     sum + Math.max(0, Number(item?.value ?? item?.price) || 0)

@@ -1,3 +1,4 @@
+import { NPC_TARGET_STALLS } from "../shared/domain/blackmarket/npc-rules.js";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -13,10 +14,19 @@ const origin = `http://127.0.0.1:${port}`;
 let server;
 let output = "";
 const sockets = [];
-function once(socket, event) {
+function once(socket, event, predicate = () => true) {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`timeout: ${event}\n${output}`)), 10_000);
-    socket.once(event, (data) => { clearTimeout(timer); resolve(data); });
+    const listener = (data) => {
+      if (!predicate(data)) return;
+      clearTimeout(timer);
+      socket.off(event, listener);
+      resolve(data);
+    };
+    const timer = setTimeout(() => {
+      socket.off(event, listener);
+      reject(new Error(`timeout: ${event}\n${output}`));
+    }, 10_000);
+    socket.on(event, listener);
   });
 }
 async function start() {
@@ -48,8 +58,9 @@ async function connect(auth = {}) {
   return { socket, hello: await hello, state: await state };
 }
 async function buy(client, stall, row, requestId) {
-  const state = once(client.socket, "state");
-  client.socket.emit("bmBuyListing", { stallId: stall.id, listingId: row.id, requestId });
+  const state = once(client.socket, "state", snapshot => snapshot.me[BLACKMARKET_GOODS_BUCKETS[row.type]]
+    .some(item => item.id === row.item.id));
+  client.socket.emit("bmBuyListing", { stallId: stall.id, listingId: row.id, expectedPrice: row.price, requestId });
   return state;
 }
 
@@ -68,9 +79,9 @@ function savedSchedules() {
 try {
   await start();
   const first = await connect();
-  assert.equal(first.state.blackStalls.filter((stall) => stall.npc && !stall.roaming).length, 5);
-  assert.equal(first.state.blackStalls.filter((stall) => stall.npc).length, 6);
-  assert.ok(first.state.blackStalls.flatMap((stall) => stall.items).every((row) => isBlackmarketGoodsType(row.type)));
+  assert.equal(first.state.blackStalls.filter((stall) => stall.npc && !stall.roaming).length, NPC_TARGET_STALLS - 1);
+  assert.equal(first.state.blackStalls.filter((stall) => stall.npc).length, NPC_TARGET_STALLS);
+  assert.ok(first.state.blackStalls.flatMap((stall) => stall.items || []).every((row) => isBlackmarketGoodsType(row.type)));
   const stones = first.state.blackStalls.find((stall) => stall.npcRole === "stone");
   const discounted = stones.items.find((row) => row.npcDiscount);
   const afterStone = await buy(first, stones, discounted, "npc-stone-once");
@@ -85,7 +96,7 @@ try {
   const finishedStall = afterSlice.blackStalls.find((stall) => stall.npcRole === "finished");
   const finishedRow = [...finishedStall.items].sort((a, b) => a.price - b.price)[0];
   if (finishedRow.price > afterSlice.me.cash) {
-    const granted = once(first.socket, "state");
+    const granted = once(first.socket, "state", snapshot => snapshot.me.cash === afterSlice.me.cash + finishedRow.price);
     first.socket.emit("debugGrant", { cash: finishedRow.price });
     await granted;
   }
@@ -114,7 +125,7 @@ try {
   const restoredFinished = resumed.state.me.bracelets.find((item) => item.id === finishedItem.id);
   for (const key of ["jadePiece", "components", "inlay", "finish", "craftScores", "value", "name"]) assert.deepEqual(restoredFinished[key], finishedItem[key], `restart must preserve ${key}`);
   for (const [bucket, ids] of Object.entries(inventoryIds)) assert.deepEqual(resumed.state.me[bucket].map((item) => item.id), ids);
-  assert.ok(resumed.state.blackStalls.flatMap((stall) => stall.items).every((row) => isBlackmarketGoodsType(row.type)));
+  assert.ok(resumed.state.blackStalls.flatMap((stall) => stall.items || []).every((row) => isBlackmarketGoodsType(row.type)));
   assert.deepEqual(resumed.state.blackStalls.map((stall) => ({ id: stall.id, items: stall.items })), stockBefore, "restart must preserve stock IDs, quotes and depleted offers");
   assert.deepEqual(savedSchedules(), schedulesBefore, "SQLite restart must preserve random rotation/refill deadlines and batch quotas");
   const duplicate = once(resumed.socket, "toast");

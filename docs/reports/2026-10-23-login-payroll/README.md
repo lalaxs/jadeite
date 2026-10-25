@@ -22,7 +22,7 @@
 - 政策与真实服务测试：离线不扣薪、不消耗宽限；收入20%及排除收入；停工/复工；持续在线的工坊、开播、补货入口；支付异常原子回滚。
 - Socket + SQLite：两个窗口并发登录只结一次、未读回执重连保留、错误回执确认被忽略、正确确认持久保存、多次数据库重启、解雇去重、真实市场卖出收入补薪、手动补薪与复工、旧规则迁移。
 - 相关回归通过：员工系统、经营规则、工坊和直播服务、经济与纾困、离线服务、会话、Socket校验、事务持久化、状态增量、存档JSON/SQLite、员工详情、工坊规划、直播UI、弹窗生命周期、公盘/直播结算弹窗、响应式和夜间样式、界面稳定性及架构检查。
-- 独立无存档浏览器环境验收：正常扣款弹窗、资金不足弹窗、员工页新规则说明、关闭后刷新不重复弹账单且现金不变。截图为`settlement.png`、`insufficient-funds.png`。
+- 独立无存档浏览器环境验收：正常扣款弹窗、资金不足弹窗、员工页新规则说明、关闭后刷新不重复弹账单且现金不变。截图为[settlement.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-login-payroll/settlement.png)、[insufficient-funds.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-login-payroll/insufficient-funds.png)。
 
 ## 服务启用
 
@@ -32,3 +32,5 @@
 - `/health/ready`：ready=true，persistence=ready，连续持久化失败0。
 - 线上共享工资模块确认版本3；存档所有106名玩家升级至版本3/政策2，旧欠薪清理金额与备份完全一致。详细启用核对见`activation.json`。
 - 独立验收端口3019/3020已关闭。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-login-payroll)。

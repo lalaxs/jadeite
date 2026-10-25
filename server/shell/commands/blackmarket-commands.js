@@ -2,6 +2,9 @@
 export function registerBlackmarketCommands(socket, deps) {
   const {
     getPlayer,
+    getState,
+    publicBlackStall,
+    visitBlackStallForPlayer,
     acceptMutation,
     openBlackStallForPlayer,
     closeBlackStallForPlayer,
@@ -34,6 +37,15 @@ export function registerBlackmarketCommands(socket, deps) {
     collectBlackmarketPayoutForPlayer
   } = deps;
 
+  const stallState = (player) => ({ stall: publicBlackStall((getState().blackStalls || []).find((stall) => stall.ownerId === player.id), player.id, publicStone) });
+  const sendStallResult = (player, action, result) => socket.emit("bmStallResult", { ok: result.ok, action, ...stallState(player) });
+
+  socket.on("bmVisitStall", (payload = {}) => {
+    const player = getPlayer(socket);
+    if (!player || !acceptMutation(player, payload, "该浏览已记录。")) return;
+    if (visitBlackStallForPlayer(player, payload.stallId).ok) broadcast();
+  });
+
   socket.on("bmOpenStall", (payload = {}) => {
     const player = getPlayer(socket);
     if (!player) return;
@@ -45,7 +57,8 @@ export function registerBlackmarketCommands(socket, deps) {
       message: result.message,
       action: "open",
       stallType: result.stall?.type || payload.type || "",
-      status: result.stall?.status || ""
+      status: result.stall?.status || "",
+      ...stallState(player)
     });
     if (result.ok) broadcast();
   });
@@ -56,6 +69,7 @@ export function registerBlackmarketCommands(socket, deps) {
     if (!acceptMutation(player, payload, "该收摊请求已处理，请勿重复提交。")) return;
     const result = closeBlackStallForPlayer(player);
     socket.emit("toast", result.message);
+    sendStallResult(player, "close", result);
     if (result.ok) broadcast();
   });
 
@@ -66,6 +80,7 @@ export function registerBlackmarketCommands(socket, deps) {
     const paused = mutationValue(payload, "paused");
     const result = setBlackStallPausedForPlayer(player, paused !== false);
     socket.emit("toast", result.message);
+    sendStallResult(player, "pause", result);
     if (result.ok) broadcast();
   });
 
@@ -146,6 +161,7 @@ export function registerBlackmarketCommands(socket, deps) {
       });
       broadcast();
       reply(true, result.message || "上架成功：已摆上摊位货架", {
+        ...stallState(player),
         price: result.price,
         itemId: payload?.itemId || null,
         count: result.count,
@@ -295,6 +311,7 @@ export function registerBlackmarketCommands(socket, deps) {
     socket.emit("toast", result.message);
     if (result.ok) {
       socket.emit("bmWithdrawResult", {
+        ...stallState(player),
         ok: true,
         message: result.message,
         stallClosed: Boolean(result.stallClosed)

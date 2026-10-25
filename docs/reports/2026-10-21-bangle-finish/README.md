@@ -24,12 +24,14 @@
 
 浏览器记录见`browser-checks.json`。浏览器运行在独立3014端口、`JADE_WORLD_PERSIST=0`的测试世界，未修改实际玩家存档。实测桌面1280×720和手机390×844；从选择毛坯、精修、锦匣领取到库存详情、订单匹配与交易行实际挂牌。手机无横向溢出，开工按钮可见，浏览器无警告和错误。
 
-- [桌面精修](desktop.png)
-- [手机精修](mobile.png)
-- [锦匣交付](delivery-mobile.png)
-- [库存详情](inventory-mobile.png)
-- [订单匹配](orders-mobile.png)
-- [挂牌详情](market-detail-mobile.png)
-- [交易行挂单](market-mobile.png)
+- [桌面精修](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/desktop.png)
+- [手机精修](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/mobile.png)
+- [锦匣交付](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/delivery-mobile.png)
+- [库存详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/inventory-mobile.png)
+- [订单匹配](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/orders-mobile.png)
+- [挂牌详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/market-detail-mobile.png)
+- [交易行挂单](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish/market-mobile.png)
 
 视觉复现：PowerShell设置`$env:PORT='3014'`、`$env:JADE_WORLD_PERSIST='0'`，运行`node --import ./scripts/bangle-finish-browser-fixture.mjs server.js`。夹具仅允许该端口与禁用存档的组合；样本和加速任务仅存在于隔离世界。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-bangle-finish)。

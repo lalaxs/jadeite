@@ -1,26 +1,28 @@
-import { roughKits, setSelectedOpeningKitId } from "./opening-state.js";
 import { createPlannerDraftStore, plannerMaterialFingerprint, plannerKitsSignature, PLANNER_DRAFT_PREFIX } from "./planner-draft-store.js";
-
+import { defaultOpeningState } from "./opening-state.js";
+export function createPlannerDraftRuntime({ openingState = defaultOpeningState, ...deps } = {}) {
+  const { roughKits, setSelectedOpeningKitId } = openingState;
+const initialEventTarget = Object.hasOwn(deps, "eventTarget") ? deps.eventTarget : globalThis.window;
 const clone = (value) => structuredClone(value);
 const sessions = new Map();
 const listeners = new Set();
 const HISTORY_LIMIT = 50;
-let getState = () => null;
-let now = Date.now;
+let getState = deps.getState || (() => null);
+let now = deps.now || Date.now;
 let store;
 let ownerId = null;
 let stopEvents = null;
 const newWriterId = () => globalThis.crypto?.randomUUID?.() || `page-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 function browserStorage() { try { return globalThis.localStorage; } catch { return null; } }
 
-export function bindPlannerDraftDeps(deps = {}) {
+function bindPlannerDraftDeps(deps = {}) {
   if (typeof deps.getState === "function") getState = deps.getState;
   if (typeof deps.now === "function") now = deps.now;
   if (!store || Object.hasOwn(deps, "storage") || deps.writerId) {
     store = createPlannerDraftStore({ storage: Object.hasOwn(deps, "storage") ? deps.storage : browserStorage(), writerId: deps.writerId || newWriterId(), now });
   }
   if (stopEvents) return;
-  const target = deps.eventTarget || globalThis.window;
+  const target = Object.hasOwn(deps, "eventTarget") ? deps.eventTarget : initialEventTarget;
   if (!target?.addEventListener) return;
   const onStorage = (event) => {
     if (event.key && !event.key.startsWith(PLANNER_DRAFT_PREFIX)) return;
@@ -35,8 +37,10 @@ export function bindPlannerDraftDeps(deps = {}) {
   };
 }
 
+store = createPlannerDraftStore({ storage: Object.hasOwn(deps, "storage") ? deps.storage : browserStorage(), writerId: deps.writerId || newWriterId(), now });
+
 function notify(itemId) { for (const listener of listeners) listener(itemId); }
-export function subscribePlannerDrafts(listener) { listeners.add(listener); return () => listeners.delete(listener); }
+function subscribePlannerDrafts(listener) { listeners.add(listener); return () => listeners.delete(listener); }
 function identity() {
   const playerId = String(getState()?.me?.id || "");
   if (ownerId !== null && ownerId !== playerId) { sessions.clear(); roughKits.clear(); }
@@ -75,7 +79,7 @@ function save(session) {
   return result.ok;
 }
 
-export function ensurePlannerDraft(itemOrId) {
+function ensurePlannerDraft(itemOrId) {
   const playerId = identity();
   const item = typeof itemOrId === "object" ? itemOrId : materialFor(itemOrId);
   const itemId = String(item?.id || itemOrId || "");
@@ -107,7 +111,7 @@ function remember(session, before) {
   if (session.history.length > HISTORY_LIMIT) session.history.shift();
   session.future = [];
 }
-export function replacePlannerDraft(itemId, next, { transient = false } = {}) {
+function replacePlannerDraft(itemId, next, { transient = false } = {}) {
   const session = ensurePlannerDraft(itemId);
   if (session?.locked || session?.pending || session?.completed) return false;
   const before = roughKits.get(itemId) || [];
@@ -120,19 +124,19 @@ export function replacePlannerDraft(itemId, next, { transient = false } = {}) {
   }
   return true;
 }
-export function beginPlannerDraftGesture(itemId) {
+function beginPlannerDraftGesture(itemId) {
   const session = ensurePlannerDraft(itemId);
   if (session?.locked || session?.pending) return false;
   if (session && !session.gesture) session.gesture = clone(roughKits.get(itemId) || []);
   return true;
 }
-export function finishPlannerDraftGesture(itemId) {
+function finishPlannerDraftGesture(itemId) {
   const session = ensurePlannerDraft(itemId);
   if (!session?.gesture) return;
   if (plannerKitsSignature(session.gesture) !== plannerKitsSignature(roughKits.get(itemId) || [])) remember(session, session.gesture);
   session.gesture = null; save(session); notify(itemId);
 }
-export function undoPlannerDraft(itemId, redo = false) {
+function undoPlannerDraft(itemId, redo = false) {
   const session = ensurePlannerDraft(itemId);
   if (!session || session.locked || session.pending || session.gesture) return false;
   const from = redo ? session.future : session.history;
@@ -141,20 +145,16 @@ export function undoPlannerDraft(itemId, redo = false) {
   roughKits.set(itemId, from.pop()); setSelectedOpeningKitId(null);
   save(session); notify(itemId); return true;
 }
-export function confirmPlannerDraft(itemId) {
+function confirmPlannerDraft(itemId) {
   const session = ensurePlannerDraft(itemId);
   if (!session || session.locked || session.pending) return false;
   session.confirmed = clone(roughKits.get(itemId) || []); save(session); notify(itemId); return true;
 }
-export function persistPlannerDraft(itemId) {
+function persistPlannerDraft(itemId) {
   const session = ensurePlannerDraft(itemId);
   if (session) { save(session); notify(itemId); }
 }
-export function restoreConfirmedPlannerDraft(itemId) {
-  const session = ensurePlannerDraft(itemId);
-  return session ? replacePlannerDraft(itemId, session.confirmed) : false;
-}
-export function loadPlannerDraftVersion(itemId, key) {
+function loadPlannerDraftVersion(itemId, key) {
   const session = ensurePlannerDraft(itemId);
   if (!session || session.locked || session.pending) return false;
   refreshAlternatives(session);
@@ -162,18 +162,17 @@ export function loadPlannerDraftVersion(itemId, key) {
   if (!record || record.fingerprint !== session.fingerprint) return false;
   return replacePlannerDraft(itemId, record.current);
 }
-export function plannerDraftStatus(itemId) {
+function plannerDraftStatus(itemId) {
   const session = ensurePlannerDraft(itemId);
   if (!session) return { canUndo: false, canRedo: false, alternatives: [] };
   return { saved: session.saved, savedAt: session.savedAt, error: session.error,
     canUndo: !session.locked && !session.pending && session.history.length > 0, canRedo: !session.locked && !session.pending && session.future.length > 0,
     locked: session.locked || Boolean(session.pending), pending: Boolean(session.pending), restored: session.restored,
     staleCount: session.staleCount, invalidCount: session.invalidCount,
-    confirmedDiffers: plannerKitsSignature(session.confirmed) !== plannerKitsSignature(roughKits.get(itemId) || []),
     alternatives: session.alternatives.map(({ key, savedAt, current }) => ({ key, savedAt, count: current.length })) };
 }
 
-export function beginPlannerSubmission(itemId, requestId, request = null) {
+function beginPlannerSubmission(itemId, requestId, request = null) {
   const session = ensurePlannerDraft(itemId);
   if (!session || session.locked || (session.pending && session.pending.requestId !== requestId)) return false;
   if (session.pending?.request && request && JSON.stringify(session.pending.request) !== JSON.stringify(request)) return false;
@@ -181,12 +180,12 @@ export function beginPlannerSubmission(itemId, requestId, request = null) {
   session.pending ||= { requestId, submittedAt: now(), kitIds: (roughKits.get(itemId) || []).map((kit) => kit.id), request: request ? clone(request) : null };
   save(session); notify(itemId); return true;
 }
-export function plannerSubmissionRequestId(itemId) { return ensurePlannerDraft(itemId)?.pending?.requestId || null; }
-export function plannerSubmissionRequest(itemId) {
+function plannerSubmissionRequestId(itemId) { return ensurePlannerDraft(itemId)?.pending?.requestId || null; }
+function plannerSubmissionRequest(itemId) {
   const request = ensurePlannerDraft(itemId)?.pending?.request;
   return request ? clone(request) : null;
 }
-export function settlePlannerSubmission(itemId, result = {}, expectedRequestId = null) {
+function settlePlannerSubmission(itemId, result = {}, expectedRequestId = null) {
   const session = sessions.get(`${identity()}:${itemId}`) || ensurePlannerDraft(itemId);
   if (!session || (expectedRequestId && session.pending?.requestId !== expectedRequestId)) return false;
   session.locked = false;
@@ -200,7 +199,7 @@ export function settlePlannerSubmission(itemId, result = {}, expectedRequestId =
   return true;
 }
 
-export function reconcilePlannerDrafts() {
+function reconcilePlannerDrafts() {
   identity();
   const me = getState()?.me;
   if (!me) return;
@@ -215,7 +214,19 @@ export function reconcilePlannerDrafts() {
   }
 }
 
+function dispose() {
+  for (const session of sessions.values()) if (!session.completed) save(session);
+  stopEvents?.(); stopEvents = null; listeners.clear();
+}
+
 // Test seam: independent reloads and private-mode storage failures without a browser.
-export function resetPlannerDraftRuntime() {
+function resetPlannerDraftRuntime() {
   stopEvents?.(); stopEvents = null; sessions.clear(); listeners.clear(); ownerId = null; store = null; now = Date.now;
 }
+
+  return { dispose, bindPlannerDraftDeps, subscribePlannerDrafts, ensurePlannerDraft, replacePlannerDraft, beginPlannerDraftGesture, finishPlannerDraftGesture, undoPlannerDraft, confirmPlannerDraft, persistPlannerDraft, loadPlannerDraftVersion, plannerDraftStatus, beginPlannerSubmission, plannerSubmissionRequestId, plannerSubmissionRequest, settlePlannerSubmission, reconcilePlannerDrafts, resetPlannerDraftRuntime, get getState() { return getState; } };
+}
+
+export const defaultPlannerDraftRuntime = createPlannerDraftRuntime();
+export const { bindPlannerDraftDeps, subscribePlannerDrafts, ensurePlannerDraft, replacePlannerDraft, beginPlannerDraftGesture, finishPlannerDraftGesture, undoPlannerDraft, confirmPlannerDraft, persistPlannerDraft, loadPlannerDraftVersion, plannerDraftStatus, beginPlannerSubmission, plannerSubmissionRequestId, plannerSubmissionRequest, settlePlannerSubmission, reconcilePlannerDrafts, resetPlannerDraftRuntime } = defaultPlannerDraftRuntime;
+export const getState = (...args) => defaultPlannerDraftRuntime.getState(...args);

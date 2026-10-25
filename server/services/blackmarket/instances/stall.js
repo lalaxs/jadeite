@@ -6,7 +6,7 @@ import {
 } from "../../../../shared/domain/blackmarket/bm-constants.js";
 import { attemptAtomicMutation } from "../../atomic-mutation.js";
 import { isBlackmarketResource } from "../../../../shared/domain/blackmarket/bm-resources.js";
-import { isNpcGoodsRow } from "../../../../shared/domain/blackmarket/npc-rules.js";
+import { isNpcGoodsRow, npcRuleForStall } from "../../../../shared/domain/blackmarket/npc-rules.js";
 import { recordFinanceSale } from "../../../../shared/domain/economy/finance-book.js";
 
 export function createStall({
@@ -114,12 +114,13 @@ function publicBlackStall(stall, viewerId, publicStone) {
     summary,
     createdAt: stall.createdAt,
     updatedAt: stall.updatedAt,
+    views: Number(stall.views || 0),
     isMine
   };
   if (isNpcBlackStall(stall)) {
     base.npc = true;
     base.npcRole = stall.npcRole;
-    base.roaming = stall.npcRole === "traveler";
+    base.roaming = Boolean(npcRuleForStall(stall)?.roaming);
     base.ratingDisplay = { visible: false, label: "NPC 商贩" };
   }
   if (!anonymous || isMine) {
@@ -164,6 +165,13 @@ function publicBlackStall(stall, viewerId, publicStone) {
 
 function publicBlackListing() {
   return null;
+}
+
+function visitBlackStallForPlayer(player, stallId) {
+  const stall = findStallById(requireApi().getState(), stallId);
+  if (!player || !stall || stall.status !== "open" || stall.ownerId === player.id) return { ok: false };
+  stall.views = Number(stall.views || 0) + 1;
+  return { ok: true };
 }
 
 function signedStallListings(stallsOrListings, ownerId) {
@@ -575,6 +583,7 @@ function withdrawBlackListingForPlayer(player, listingId) {
   return {
     stallSummary,
     publicBlackStall,
+    visitBlackStallForPlayer,
     publicBlackListing,
     signedStallListings,
     sweepEmptyBlackGoodsStalls,

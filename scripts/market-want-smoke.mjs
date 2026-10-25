@@ -1,3 +1,4 @@
+import { readCommerceClientSource } from "./load-commerce-client-source.mjs";
 import { readTradingServiceSource } from "./load-trading-service-source.mjs";
 import assert from "node:assert/strict";
 import { readClientShellSource } from "./load-client-shell.mjs";
@@ -5,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { WANT_DURATIONS, wantMatchesItem } from "../public/jade-rules.js";
 import { __testHooks as H } from "../server.js";
 
-const market = readFileSync("public/features/market/market-module.js", "utf8");
+const market = readCommerceClientSource("market");
 const mainEntry = readFileSync("public/main.js", "utf8");
 const main = readClientShellSource();
 const server = readFileSync("server.js", "utf8");

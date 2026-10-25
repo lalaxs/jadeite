@@ -135,6 +135,8 @@ export const TEST_HOOK_KEYS = [
   "applyInlay",
   "equipmentCatalog",
   "buyEquipment",
+  "ensureEquipmentShop",
+  "buyShopEquipmentForPlayer",
   "repairEquipment",
   "repairQuote",
   "ensureRecruitCandidates",

@@ -5,7 +5,6 @@ import {
 } from "./jade-categories.js";
 import { collectRepFromValue } from "../progression/player-progression.js";
 import { bangleFinishRecord, normalizeBangleOrderRequirements } from "../workshop/bangle-finish.js";
-import { orderValueFloor } from "../economy/new-player-economy.js";
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -135,7 +134,7 @@ function isPersonaOrder(order = {}) {
  * 人设订单符合度：hard 为预算/尺寸/题材；requirements 为具体忌讳条款。
  * tier: full | partial | hard_fail
  * - 略超预算（≤110%）→ partial（议价）
- * - 明显超预算 / 尺寸题材不符 / 炫富装样子货价过低 → hard_fail（拒收）
+ * - 明显超预算 / 尺寸题材不符 → hard_fail（拒收）
  */
 export function evaluateOrderFit(product = {}, order = {}) {
   if (!isPersonaOrder(order)) {
@@ -161,9 +160,6 @@ export function evaluateOrderFit(product = {}, order = {}) {
   const softHits = [];
   let budgetSoftOver = false;
   const value = Number(product.value || product.price || 0);
-  const pay = Number(order.pay || 0);
-  const minValue = Math.max(orderValueFloor(order), Number(hard.minValue) || 0);
-  if (value < minValue) hardFails.push(`货值不足（至少 ${Math.round(minValue)}）`);
   if (hard.itemId && product.id !== hard.itemId) hardFails.push("请选择本单指定的新手成品");
 
   if (!hard.budgetUnlimited && hard.budgetMax != null) {
@@ -204,18 +200,8 @@ export function evaluateOrderFit(product = {}, order = {}) {
     if (hit) aversionHits.push(hit);
   }
 
-  let prestigePenalty = 0;
   const motive = order.persona?.motive;
   const personality = order.persona?.personality;
-  if ((motive === "装样子" || motive === "炫富") && pay > 0) {
-    if (value < pay * 0.12) {
-      prestigePenalty = 0.35;
-      hardFails.push("货价过低，客户认为不够体面，拒收");
-    } else if (value < pay * 0.25) {
-      prestigePenalty = 0.15;
-      softHits.push("货价相对报价偏低，显得不够体面");
-    }
-  }
 
   // 工分 soft：不计硬条件；高工分小费加成，极低工分抬差评风险
   let craftTipBoost = 0;
@@ -244,7 +230,6 @@ export function evaluateOrderFit(product = {}, order = {}) {
     (requirements.length ? aversionHits.length / aversionTotal : 0)
       + softHits.length * 0.12
       + hardFails.length * 0.35
-      + prestigePenalty
       + craftMismatch,
     0,
     1
@@ -252,7 +237,7 @@ export function evaluateOrderFit(product = {}, order = {}) {
 
   let tier = "full";
   if (hardFails.length) tier = "hard_fail";
-  else if (aversionHits.length || softHits.length || prestigePenalty > 0) tier = "partial";
+  else if (aversionHits.length || softHits.length) tier = "partial";
 
   return {
     hardOk: hardFails.length === 0,
@@ -447,7 +432,7 @@ export function finishedProductKind(product = {}) {
     || "bracelet";
 }
 
-/** 交单预检：预计结算档位与报价倍率（与服务端第 1/2 批规则对齐） */
+/** 交单预检：按要求符合程度计算报价倍率。 */
 export function estimateOrderSettlement(fit = {}, order = {}) {
   if (fit.tier === "hard_fail" || fit.rejected) {
     return {
@@ -461,15 +446,15 @@ export function estimateOrderSettlement(fit = {}, order = {}) {
     return {
       label: "完全符合",
       payMult: 1,
-      payHint: "全额报价（优质做工/客户评级可能有小费）",
+      payHint: "符合客人要求，小费另计",
       lateMult: 1
     };
   }
-  const payMult = fit.budgetSoftOver ? 0.65 : 0.6;
+  const payMult = 1 - clamp(Number(fit.mismatch) || 0, 0, 1) * 0.4;
   return {
     label: "部分符合",
     payMult,
-    payHint: `预计约 ${Math.round(payMult * 100)}% 报价，可能差评`,
+    payHint: `按符合程度折算为 ${Math.round(payMult * 100)}%，可能影响评价`,
     lateMult: 1
   };
 }

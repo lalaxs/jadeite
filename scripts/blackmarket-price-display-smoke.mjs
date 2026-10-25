@@ -1,22 +1,20 @@
 import assert from "node:assert/strict";
-import { goodsReferencePrice, goodsPriceComparison, goodsOfferNotes, npcGoodsInfo } from "../public/features/blackmarket/goods-display.js";
-import { bindBlackmarketDeps } from "../public/features/blackmarket/shared.js";
-import { initMarketModule } from "../public/market-module.js";
-import { openBmItemDetail, openBmBuy } from "../public/features/blackmarket/plaza.js";
+import { createBlackmarketFeature } from "../public/blackmarket-module.js";
 import { escapeHtml, formatMoney } from "../public/shell/format-utils.js";
 import { inventoryDetailStats } from "../public/features/inventory/item-detail-model.js";
-import { blackmarketItemDetailHtml } from "../public/features/blackmarket/item-detail-view.js";
+const { goodsReferencePrice, goodsPriceComparison, goodsOfferNotes, npcGoodsInfo } = createBlackmarketFeature({ helpers: { escapeHtml, formatMoney } });
 
 const machine = { id: "machine-row", type: "equipment", price: 4390, referencePrice: 4500,
   npcDiscount: true, npcPremium: true, item: { id: "machine", name: "测试旧机", basePrice: 6800,
     condition: 70, techLevel: 1, specs: "测试参数", stage: "opening" } };
 assert.equal(goodsReferencePrice(machine), 6800, "a resale appraisal must not replace the same-model new price");
 assert.deepEqual(goodsPriceComparison(machine), { referencePrice: 6800, price: 4390, repair: 510,
-  totalCost: 4900, referenceLabel: "同款新机价", savingsLabel: "修满后较新机省", savings: 1900 });
+  totalCost: 4900, referenceLabel: "同款新机价", savingsLabel: "修满后较新机省", hasReference: true, savings: 1900 });
 const worker = { id: "worker-row", type: "employee", price: 31500, referencePrice: 35000,
   item: { id: "worker", name: "测试师傅", tier: 8, job: "finisher" } };
 assert.equal(goodsPriceComparison(worker).savings, 3500);
 assert.equal(goodsPriceComparison(worker).referenceLabel, "同阶招聘基准");
+assert.equal(goodsPriceComparison(worker).hasReference, true);
 const jade = { id: "jade-row", type: "bracelet", price: 850, referencePrice: 1000,
   item: { id: "jade", name: "测试玉器", materialStage: "finished", value: 1000 } };
 assert.equal(goodsPriceComparison(jade).savingsLabel, "较参考估值省");
@@ -31,8 +29,7 @@ const state = { me: { id: "buyer", cash: 1_000_000, achievementPoints: 9999, wor
 const deps = { getState: () => state, els: { bmBuyBody: buyBody, bmBuyModal: buyModal }, helpers: {
   escapeHtml, formatMoney, openGameModal: (next) => { dialog = next; }, productCanvas: () => "<svg></svg>"
 } };
-initMarketModule(deps);
-bindBlackmarketDeps(deps);
+const { openBmItemDetail, openBmBuy, blackmarketItemDetailHtml } = createBlackmarketFeature(deps);
 function detailRegions(html) {
   const layoutStart = html.search(/class="inventory-detail-layout(?:\s|")/);
   const rightStart = html.search(/class="inventory-detail-content(?:\s|")/);
@@ -105,6 +102,12 @@ const hiddenRegions = detailRegions(dialog.previewHtml);
 assert.match(hiddenRegions.content, /重量<\/dt><dd>0\.70 kg/);
 assert.match(hiddenRegions.content, /白雾皮壳 · 轮廓饱满/);
 assert.match(hiddenRegions.summary, /售价<\/dt><dd[^>]*>¥150/);
+assert.doesNotMatch(dialog.previewHtml, /参考估值|较参考|便宜|jm-delta/);
+assert.equal(goodsPriceComparison(hidden).hasReference, false);
+assert.doesNotMatch(npcGoodsInfo(hidden, { npc: true, showSavings: true }), /参考估值|较参考|¥200|¥50/);
+openBmBuy(hidden.id, stall.id);
+assert.match(buyBody.innerHTML, /你需支付<\/span><span>¥150/);
+assert.doesNotMatch(buyBody.innerHTML, /参考估值|较参考|便宜|jm-delta|¥200|玻璃种|帝王绿/);
 assert.match(hiddenRegions.content, /分类<\/dt><dd>原石/);
 assert.match(hiddenRegions.content, /数量<\/dt><dd>1 件/);
 assert.match(hiddenRegions.content, /内部料质未揭露，开窗或开料后可查看。/);
@@ -113,6 +116,7 @@ hidden.item.windows = [{}];
 openBmItemDetail(hidden.id, stall.id);
 assert.match(dialog.previewHtml, /data-analysis-status="partial"/);
 assert.doesNotMatch(dialog.previewHtml, /玻璃种|帝王绿/);
+assert.doesNotMatch(dialog.previewHtml, /参考估值|较参考|便宜/);
 state.me.cash = 0;
 openBmItemDetail(machine.id, stall.id);
 assert.match(detailRegions(dialog.previewHtml).footer, /现金不足，购买需要 ¥4,390。/);

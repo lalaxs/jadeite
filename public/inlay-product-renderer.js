@@ -31,6 +31,13 @@ const CRAFT_GEMS = {
 
 export { CRAFT_METALS, CRAFT_GEMS };
 
+const METAL_ART = {
+  goldPure: { file: "gold-pure", frame: "120 367 1039 590" },
+  silver925: { file: "silver-925", frame: "138 403 1002 570" },
+  gold18k: { file: "gold-18k", frame: "106 323 1054 693" },
+  platinum: { file: "platinum-pt950", frame: "120 343 1032 637" }
+};
+
 /** 商铺/库存镶嵌材料图标：与工坊镶嵌预览同一套金属/配石色板 */
 export function materialSwatchHtml(material = {}, options = {}) {
   const key = material.key || material.id || "";
@@ -39,6 +46,8 @@ export function materialSwatchHtml(material = {}, options = {}) {
       ? (material.unit === "g" || material.unit === "克" ? "metal" : "gem")
       : (CRAFT_METALS[key] ? "metal" : "gem")));
   const sizeClass = options.sizeClass ? ` ${options.sizeClass}` : "";
+  const art = METAL_ART[key];
+  if (art) return `<div class="material-swatch material-swatch-metal shop-metal-swatch${sizeClass}" data-material-key="${escapeAttr(key)}" data-group="metal" aria-hidden="true"><svg viewBox="${art.frame}" preserveAspectRatio="xMidYMid meet" focusable="false"><image href="/assets/materials/${art.file}-handpainted-v1.png" width="1254" height="1254"/></svg></div>`;
   const gradId = `material-swatch-${safeIdPart(key || group)}-${++swatchInstance}`;
   if (group === "gem" || CRAFT_GEMS[key]) {
     const gem = CRAFT_GEMS[key] || CRAFT_GEMS.diamond;

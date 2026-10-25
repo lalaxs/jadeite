@@ -1,5 +1,5 @@
-import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
-import { cutoutPreviewSignature } from "../../preview-bitmap-cache.js";
+import { observeLazyPreviews } from "../../lazy-preview.js";
+import { inventoryPreviewHtml } from "../../inventory-preview.js";
 import { createVirtualGridController } from "../../virtual-grid.js";
 import { materialSwatchHtml } from "../../inlay-product-renderer.js";
 import { inlaySummary } from "../../product-meta.js";
@@ -12,7 +12,7 @@ import {
 
 export { inventoryRecyclePayout };
 
-const STAGE_ORDER = { rough: 0, opened: 1, slice: 2, planned: 3, carved: 4, polished: 5, finished: 6 };
+const STAGE_ORDER = { rough: 0, opened: 1, slice: 2, carved: 4, polished: 5, finished: 6 };
 const GRADE_SCORE = { S: 500, A: 400, B: 300, C: 200, D: 100 };
 const QUALITY_SCORE = {
   bean: 1,
@@ -59,8 +59,6 @@ let materialStageLabel;
 let productCanvas;
 let openingStoneSvg;
 let openingKitsForRender;
-let kitsFor;
-let openingKitProductLabel;
 
 const inventoryUi = { query: "", category: "all", sort: "backpack", recycleMode: false };
 let inventoryComposing = false;
@@ -88,18 +86,6 @@ function canRecycleInventoryEntry(entry) {
 
 function recyclePayloadForEntry(entry) {
   if (!entry || entry.isEscrow) return null;
-  if (entry.isPlanned || entry.source === "planned") {
-    const parentId = entry.plannedParentId || entry.item?._plannedParentId || "";
-    const kitId = String(entry.id || "").split(":").slice(2).join(":")
-      || entry.item?.sourceMaterial?.placement?.id
-      || "";
-    return {
-      kind: "planned",
-      itemId: entry.id,
-      parentId: String(parentId),
-      kitId: String(kitId)
-    };
-  }
   if (entry.category === "external" || entry.source === "externalMaterials") {
     const materialKey = entry.item?.key || String(entry.id || "").replace(/^external:/, "");
     return {
@@ -160,8 +146,7 @@ function inventoryRenderFingerprint(state, items) {
       Array.isArray(item.windows) ? item.windows.length : 0,
       entry.unseen ? 1 : 0,
       item.escrowOrderId ? 1 : 0,
-      entry.inJob ? 1 : 0,
-      entry.isPlanned ? 1 : 0
+      entry.inJob ? 1 : 0
     ].join(":");
   }).join("|");
   return [
@@ -181,11 +166,6 @@ function inventoryRenderFingerprint(state, items) {
         item.sourceRoughId || item.sourceMaterial?.roughId || ""
       ].join(":");
     }).join("|"),
-    typeof kitsFor === "function"
-      ? [...(me.rough || []), ...(me.materials || [])]
-        .map((item) => `${item.id}:${(kitsFor(item.id) || []).length}`)
-        .join("|")
-      : "",
     itemSig
   ].join("::");
 }
@@ -226,77 +206,6 @@ function rarityScore(item = {}) {
   return 0;
 }
 
-function plannedKitEntries(parent, source, helpers = {}) {
-  const listKits = helpers.kitsFor || kitsFor;
-  const labelFor = helpers.openingKitProductLabel || openingKitProductLabel;
-  if (typeof listKits !== "function") return [];
-  const kits = listKits(parent.id) || [];
-  return kits.map((kit, index) => {
-    const kitId = kit.uid || kit.id || `k${index}`;
-    const tpl = kit.tpl || kit.openingTpl || "";
-    const label = (typeof labelFor === "function" ? labelFor(tpl) : null) || "套件";
-    const parentName = parent.name || "明料";
-    const value = numericValue(parent);
-    const item = {
-      id: `planned:${parent.id}:${kitId}`,
-      type: "bracelet",
-      materialStage: "planned",
-      stage: "planned",
-      name: `${parentName} · ${label}`,
-      kind: kit.type || tpl,
-      value,
-      price: value,
-      quality: parent.quality,
-      qualityKey: parent.qualityKey,
-      color: parent.color,
-      sourceMaterial: {
-        roughId: parent.id,
-        roughName: parent.name,
-        visual: parent.visual,
-        openingSeed: parent.openingSeed || parent.visual?.openingSeed,
-        windows: parent.windows || [],
-        placement: {
-          id: kitId,
-          openingTpl: tpl,
-          kitType: kit.type,
-          x: Number(kit.x),
-          y: Number(kit.y),
-          rot: Number(kit.rot ?? kit.rotation ?? 0),
-          scale: Number(kit.scale || 1),
-          size: kit.size,
-          ringSize: kit.ringSize || (tpl === "bangle" ? (kit.size || 56) : undefined),
-          svgSpace: true
-        }
-      },
-      _planned: true,
-      _plannedParentId: parent.id,
-      seen: parent.seen !== false
-    };
-    return {
-      id: item.id,
-      source: "planned",
-      item,
-      name: item.name,
-      category: "stage",
-      categoryLabel: CATEGORY_LABELS.stage,
-      stage: "planned",
-      stageLabel: "规划产物",
-      typeLabel: label,
-      quantity: 1,
-      unitLabel: "件",
-      unitPrice: value,
-      totalValue: value,
-      rarityScore: rarityScore(parent),
-      groupOrder: STAGE_ORDER.planned,
-      isFinished: false,
-      isPlanned: true,
-      plannedParentId: parent.id,
-      unseen: parent.seen === false,
-      isEscrow: Boolean(parent.escrowOrderId)
-    };
-  });
-}
-
 export function buildInventoryItems(state = {}, helpers = {}) {
   const me = state.me || {};
   const stageFor = helpers.materialStageForClient || ((item) => item.materialStage || "unknown");
@@ -333,17 +242,9 @@ export function buildInventoryItems(state = {}, helpers = {}) {
 
   for (const item of me.rough || []) {
     pushItem(item, "rough", "rough");
-    for (const planned of plannedKitEntries(item, "rough", helpers)) {
-      planned.backpackIndex = backpackIndex++;
-      entries.push(planned);
-    }
   }
   for (const item of me.materials || []) {
     pushItem(item, "materials", "material", item.materialStage || "opened");
-    for (const planned of plannedKitEntries(item, "materials", helpers)) {
-      planned.backpackIndex = backpackIndex++;
-      entries.push(planned);
-    }
   }
   for (const item of me.slices || []) pushItem(item, "slices", "slice", item.materialStage || "opened");
   for (const item of me.bracelets || []) pushItem(item, "bracelets", "bracelet");
@@ -448,8 +349,6 @@ export function initInventoryModule(options) {
     productCanvas,
     openingStoneSvg,
     openingKitsForRender,
-    kitsFor,
-    openingKitProductLabel,
     openGameModal,
     closeGameModal,
     showToast,
@@ -570,9 +469,7 @@ function requestRecycleInventoryItem(entryId) {
   const entry = buildInventoryItems(state, {
     materialStageForClient,
     materialStageLabel,
-    typeName,
-    kitsFor,
-    openingKitProductLabel
+    typeName
   }).find((item) => String(item.id) === String(entryId || ""));
   if (!entry) {
     showToast?.({ text: "找不到该物品。", tone: "warn" });
@@ -586,7 +483,7 @@ function requestRecycleInventoryItem(entryId) {
   if (!payload) return;
   const value = Number(entry.totalValue || 0) || 0;
   const payout = inventoryRecyclePayout(value);
-  const cost = !entry.isPlanned && entry.source !== "externalMaterials" ? itemCost(entry.item) : { complete: false };
+  const cost = entry.source !== "externalMaterials" ? itemCost(entry.item) : { complete: false };
   const difference = payout - (cost.amount || 0);
   pendingRecyclePayload = payload;
   if (typeof openGameModal !== "function") {
@@ -666,48 +563,14 @@ function inventoryCategoryFilters(summary) {
   `;
 }
 
-function isRoughLikeInventoryItem(entry) {
-  const item = entry.item || {};
-  const stage = entry.stage || materialStageForClient?.(item);
-  return entry.category === "rough"
-    || entry.source === "materials"
-    || entry.source === "slices"
-    || item.type === "rough"
-    || item.type === "material"
-    || item.type === "slice"
-    || stage === "rough"
-    || stage === "opened";
-}
-
 export function externalMaterialArtHtml(material = {}, options = {}) {
   return materialSwatchHtml(material, options);
 }
 
-export function inventoryPreview(entry, { eager = false, size = "inventory" } = {}) {
-  if (entry.category === "external") {
-    return externalMaterialArtHtml(entry.item, { escapeHtml });
-  }
-  // 原石、明料与片料走开料 SVG；取件后的毛坯、成品使用成品轮廓。
-  let inner;
-  let revealed = false;
-  let kitsSig = 0;
-  if (entry.isPlanned) {
-    inner = productCanvas(entry.item, size);
-  } else if (isRoughLikeInventoryItem(entry)) {
-    revealed = (entry.stage || materialStageForClient?.(entry.item)) !== "rough";
-    const kits = typeof openingKitsForRender === "function"
-      ? openingKitsForRender(entry.item)
-      : [];
-    kitsSig = cutoutPreviewSignature(Array.isArray(kits) ? kits : []);
-    inner = `<div class="inventory-rough-art">${openingStoneSvg(entry.item, { revealed, kits })}</div>`;
-  } else {
-    inner = productCanvas(entry.item, size);
-  }
-  const windows = Array.isArray(entry.item?.windows) ? entry.item.windows.length : 0;
-  return lazyPreviewMarkup(inner, {
-    eager,
-    tint: entry.item?.visual?.skin || entry.item?.visual?.vein || "",
-    cacheKey: `inv:${entry.id}:${entry.stage || ""}:${revealed ? 1 : 0}:${windows}:${kitsSig}:${entry.isPlanned ? 1 : 0}:${entry.item?.jadePiece?.signature || ""}:${entry.item?.components?.length || 0}:${entry.item?.finish?.polishId || entry.item?.inlay?.polishId || ""}:${entry.item?.finish?.refinementId || ""}`
+export function inventoryPreview(entry, options = {}) {
+  return inventoryPreviewHtml(entry, {
+    productCanvas, materialStageForClient, openingStoneSvg, openingKitsForRender, escapeHtml,
+    ...options
   });
 }
 
@@ -717,7 +580,7 @@ function inventorySlot(entry) {
     : "";
   const collectionCount = (getState()?.me?.collection || []).length;
   const collectionFull = collectionCount >= MAX_COLLECTION_SIZE;
-  const action = entry.isFinished && !entry.isEscrow && !entry.isPlanned
+  const action = entry.isFinished && !entry.isEscrow
     ? (collectionFull
       ? `<button class="secondary small" type="button" disabled title="藏宝阁已满（上限 ${MAX_COLLECTION_SIZE} 件）">藏宝阁已满</button>`
       : `<button class="secondary small" data-action="collectBracelet" data-payload="${escapeHtml(entry.id)}" type="button" title="${escapeHtml(collectRepLabel(entry.totalValue ?? entry.item?.value, { alreadyGranted: Boolean(entry.item?.collectedRepGranted) }))}">收入藏宝阁</button>`)
@@ -728,9 +591,6 @@ function inventorySlot(entry) {
   const escrowBadge = entry.isEscrow
     ? `<span class="inventory-slot-escrow" title="黑市加工委托物，加工完成后需交还下单方">委托</span>`
     : "";
-  const plannedBadge = entry.isPlanned
-    ? `<span class="inventory-slot-planned" title="已在明料上规划，开工取件后转为精雕毛坯">已规划</span>`
-    : "";
   const recycleBtn = inventoryUi.recycleMode && canRecycleInventoryEntry(entry)
     ? `<button class="inventory-slot-recycle-btn" data-action="recycleInventoryItem" data-payload="${escapeHtml(entry.id)}" type="button" title="回收" aria-label="回收 ${escapeHtml(entry.name)}">×</button>`
     : "";
@@ -740,21 +600,18 @@ function inventorySlot(entry) {
     : ` data-action="inspectInventoryItem" data-payload="${escapeHtml(entry.id)}" role="button" tabindex="0"`;
   const title = inventoryUi.recycleMode
     ? (canRecycleInventoryEntry(entry) ? "点击右上角删除回收" : "委托物不可回收")
-    : entry.isPlanned
-      ? "规划产物 · 点击查看详情"
-      : entry.isEscrow
+    : entry.isEscrow
         ? "黑市委托物 · 点击查看详情"
         : entry.unseen
           ? "点击查看详情（将标记为已查看）"
           : "点击查看详情";
   return `
-    <article class="inventory-slot${entry.unseen ? " is-unseen" : ""}${entry.isEscrow ? " is-escrow" : ""}${entry.isPlanned ? " is-planned" : ""}${inventoryUi.recycleMode ? " is-recycle-mode" : ""}"${clickable} title="${title}">
+    <article class="inventory-slot${entry.unseen ? " is-unseen" : ""}${entry.isEscrow ? " is-escrow" : ""}${inventoryUi.recycleMode ? " is-recycle-mode" : ""}"${clickable} title="${title}">
       ${recycleBtn}
       ${unseenDot}
       ${escrowBadge}
-      ${plannedBadge}
       <div class="inventory-slot-visual">
-        <span class="inventory-slot-badge">${escapeHtml(entry.categoryLabel)}</span>
+        <span class="inventory-slot-badge">${escapeHtml(entry.stageLabel || entry.categoryLabel)}</span>
         ${inventoryPreview(entry)}
       </div>
       <div class="inventory-slot-copy">
@@ -762,12 +619,11 @@ function inventorySlot(entry) {
           <strong>${escapeHtml(entry.name)}</strong>
           ${quantity}
         </div>
-        <p>${entry.isEscrow ? (entry.inJob ? "委托加工中 · " : "委托加工 · ") : ""}${escapeHtml(entry.stageLabel || typeName(entry.item.type, entry.item))}</p>
         ${entry.isFinished && inlaySummary(entry.item) ? `<p class="inventory-finish-summary">${escapeHtml(inlaySummary(entry.item))}</p>` : ""}
-        <div class="inventory-slot-value">
+        ${entry.stage !== "rough" ? `<div class="inventory-slot-value">
           <span>${entry.category === "external" ? "总价值" : "估值"}</span>
           <strong>${formatMoney(entry.totalValue)}</strong>
-        </div>
+        </div>` : ""}
         ${inventoryUi.recycleMode ? "" : action}
       </div>
     </article>
@@ -901,9 +757,8 @@ function paintInventoryGrid(gridRoot, items, allItems) {
   if (items.length >= INVENTORY_VIRTUAL_THRESHOLD && typeof gridRoot.classList?.add === "function") {
     if (!inventoryVirtual) inventoryVirtual = createVirtualGridController({
       minItemWidth: 180,
-      gap: 12,
-      // 成品卡含操作按钮时实测约 420–430；过低会导致虚拟占位偏短、滚不到底。
-      estimateRowHeight: 440,
+      gap: 10,
+      estimateRowHeight: 260,
       overscanRows: 2
     });
     if (!gridRoot.classList.contains("virtual-grid-host")) inventoryVirtual.mount(gridRoot);
@@ -928,9 +783,7 @@ export function renderInventory() {
   const helpers = {
     typeName,
     materialStageForClient,
-    materialStageLabel,
-    kitsFor,
-    openingKitProductLabel
+    materialStageLabel
   };
   const allItems = buildInventoryItems(state, helpers);
   const items = filterAndSortInventory(allItems, inventoryUi);

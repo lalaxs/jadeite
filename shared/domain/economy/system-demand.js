@@ -85,7 +85,7 @@ export function quoteSystemDemand(player, products = [], payout, now = Date.now(
   if (exempt) return quote;
   const { remaining } = systemDemandSnapshot(player, now);
   if (amount > remaining.cash || quantity > remaining.count) {
-    return { ...quote, ok: false, code: 'SYSTEM_DEMAND_EXHAUSTED', message: '今日订单与直播客户的收购额度不足，明日恢复；仍可与其他玩家交易。' };
+    return { ...quote, ok: false, code: 'SYSTEM_DEMAND_EXHAUSTED', message: '今日订单、直播与黑市客户的收购额度不足，明日恢复；仍可与其他玩家交易。' };
   }
   if (quote.premiumCash > remaining.premiumCash || quote.rareCount > remaining.rareCount) {
     return { ...quote, ok: false, code: 'SYSTEM_PREMIUM_EXHAUSTED', message: '今日客户溢价需求已不足，可按参考估值报价，或明日再争取溢价。' };

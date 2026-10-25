@@ -2,9 +2,6 @@
 
 import { KIT_LIB as OPENING_KIT_LIB } from "../../jade-opening-engine.js";
 
-export const roughKits = new Map();
-export const openingStoneCache = new Map();
-
 export const OPENING_KIT_SERVER_TYPES = {
   egg: "cabochon",
   ping: "peacePendant",
@@ -24,48 +21,62 @@ export const PENDANT_SIZE_OPTIONS = [
   { id: "M", label: "中" },
   { id: "L", label: "大" }
 ];
-export let selectedBangleRingSize = 56;
-export let selectedPendantSize = "M";
-export let selectedOpeningKitTpl = "ping";
-export let selectedOpeningKitId = null;
-export let activeDragKit = null;
+export function createOpeningState(onChange = () => {}) {
+  const state = {
+    roughKits: new Map(), openingStoneCache: new Map(),
+    selectedBangleRingSize: 56, selectedPendantSize: "M", selectedOpeningKitTpl: "ping",
+    selectedOpeningKitId: null, activeDragKit: null
+  };
 
-export function setSelectedBangleRingSize(v) { selectedBangleRingSize = v; }
-export function setSelectedPendantSize(v) { selectedPendantSize = v; }
-export function setSelectedOpeningKitId(v) { selectedOpeningKitId = v; }
-export function setActiveDragKit(v) { activeDragKit = v; }
+function setSelectedBangleRingSize(v) { state.selectedBangleRingSize = v; onChange(state); }
+function setSelectedPendantSize(v) { state.selectedPendantSize = v; onChange(state); }
+function setSelectedOpeningKitId(v) { state.selectedOpeningKitId = v; onChange(state); }
+function setActiveDragKit(v) { state.activeDragKit = v; onChange(state); }
 
-export function normalizePendantSize(value) {
+function normalizePendantSize(value) {
   return PENDANT_SIZE_OPTIONS.some((option) => option.id === value) ? value : "M";
 }
 
-export function normalizeBangleRingSize(value) {
+function normalizeBangleRingSize(value) {
   const n = Math.round(Number(value) || 56);
   const clamped = Math.max(52, Math.min(62, n));
   return Math.round(clamped / 2) * 2;
 }
 
-export function setSelectedOpeningKitTpl(tplId) {
-  selectedOpeningKitTpl = OPENING_KIT_LIB.some((kit) => kit.id === tplId) ? tplId : "ping";
+function setSelectedOpeningKitTpl(tplId) {
+  state.selectedOpeningKitTpl = OPENING_KIT_LIB.some((kit) => kit.id === tplId) ? tplId : "ping"; onChange(state);
 }
 
-export function syncOpeningSizeDefaultsFromKit(kit) {
+function syncOpeningSizeDefaultsFromKit(kit) {
   if (!kit) return;
   const tpl = kit.tpl || "ping";
   setSelectedOpeningKitTpl(tpl);
   if (tpl === "bangle") {
-    selectedBangleRingSize = normalizeBangleRingSize(kit.ringSize || kit.size || 56);
+    state.selectedBangleRingSize = normalizeBangleRingSize(kit.ringSize || kit.size || 56); onChange(state);
   } else {
-    selectedPendantSize = normalizePendantSize(kit.size);
+    state.selectedPendantSize = normalizePendantSize(kit.size); onChange(state);
   }
 }
 
-export function openingKitSizeValue(tplId) {
-  return tplId === "bangle" ? selectedBangleRingSize : selectedPendantSize;
+function openingKitSizeValue(tplId) {
+  return tplId === "bangle" ? state.selectedBangleRingSize : state.selectedPendantSize;
 }
 
-export function openingKitSizeLabel(tplId, sizeVal = openingKitSizeValue(tplId)) {
+function openingKitSizeLabel(tplId, sizeVal = openingKitSizeValue(tplId)) {
   if (tplId === "bangle") return `${normalizeBangleRingSize(sizeVal)}圈口`;
   const hit = PENDANT_SIZE_OPTIONS.find((option) => option.id === sizeVal);
   return hit ? `${hit.label}号` : "中号";
 }
+
+  return Object.assign(state, { setSelectedBangleRingSize, setSelectedPendantSize, setSelectedOpeningKitId, setActiveDragKit, normalizePendantSize, normalizeBangleRingSize, setSelectedOpeningKitTpl, syncOpeningSizeDefaultsFromKit, openingKitSizeValue, openingKitSizeLabel });
+}
+
+export let selectedBangleRingSize = 56;
+export let selectedPendantSize = "M";
+export let selectedOpeningKitTpl = "ping";
+export let selectedOpeningKitId = null;
+export let activeDragKit = null;
+export const defaultOpeningState = createOpeningState((state) => {
+  ({ selectedBangleRingSize, selectedPendantSize, selectedOpeningKitTpl, selectedOpeningKitId, activeDragKit } = state);
+});
+export const { roughKits, openingStoneCache, setSelectedBangleRingSize, setSelectedPendantSize, setSelectedOpeningKitId, setActiveDragKit, normalizePendantSize, normalizeBangleRingSize, setSelectedOpeningKitTpl, syncOpeningSizeDefaultsFromKit, openingKitSizeValue, openingKitSizeLabel } = defaultOpeningState;

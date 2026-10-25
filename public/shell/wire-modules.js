@@ -15,6 +15,7 @@ export function wireFeatureModules(ctx) {
     initBillModule,
     initMiningModule,
     socket,
+    opening,
     getState,
     els,
     getActiveView,
@@ -38,7 +39,7 @@ export function wireFeatureModules(ctx) {
     helpers: helpers.blackmarket
   });
   initWorkshopModule({
-    socket, getState, els, getActiveView, registerAction,
+    socket, getState, els, getActiveView, registerAction, opening,
     helpers: helpers.workshop
   });
   initInventoryModule({

@@ -1,8 +1,1 @@
-.workshop-ownership-note { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin: 0 0 14px; font-size: 12px; color: var(--text-muted, #778c82); }
-.public-station-badge { margin-left: 8px; padding: 2px 6px; border: 1px solid rgba(65, 153, 115, .3); border-radius: 4px; color: var(--jade, #398d70); font-size: 10px; vertical-align: middle; }
-.public-station-hint,
-.public-station-terms { font-size: 11px; line-height: 1.6; color: var(--text-muted, #778c82); }
 .finish-cost-note { grid-column: 1 / -1; margin: 0; color: var(--text-muted, #778c82); font-size: 11px; line-height: 1.6; }
-@media (max-width: 850px) {
-  .workshop-ownership-note { align-items: flex-start; flex-wrap: wrap; }
-}

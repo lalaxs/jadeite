@@ -1,15 +1,5 @@
-// 黑市 blind-ui：盲盒备货 / 管理 / 抽选
-
 import { paintJadeCanvases } from "../../jade-renderer.js";
-import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
-import {
-  marketQualityMeta,
-  marketRefValue,
-  marketElapsed,
-  marketGemColor,
-  deriveMaterialProfile,
-  mlVisual
-} from "../../market-module.js";
+import { lazyPreviewMarkup } from "../../lazy-preview.js";
 import {
   bmSelectionConflicts,
   buildBmListEntry
@@ -20,59 +10,40 @@ import {
   BLACKMARKET_BLIND_MIN as BM_BLIND_MIN,
   BLACKMARKET_BLIND_CAP as BM_BLIND_CAP
 } from "../../bm-constants.js";
-import {
-  socketRef,
-  getState,
-  formatMoney,
-  escapeHtml,
-  empty,
-  showToast,
-  openGameModal,
-  closeGameModal,
-  typeName,
-  bmUi,
-  lastBlindSellableKey,
-  setLastBlindSellableKey,
-  bmSellables as allBmSellables,
-  clearBmPlanDrafts,
-  bmStalls,
-  bmMyStall,
-  bmStallInSetup,
-  bmSetupHint,
-  bmFeatureGate,
-  guardBmFeature,
-  bmAffordable
-} from "./shared.js";
-import { renderBlackmarket } from "./controller.js";
+
+export function createBlackmarketBlindUi({ document, scope, ui, observeLazyPreviews, socketRef, getState, bmUi, helpers, ports, productView }) {
+  const { formatMoney, escapeHtml, empty, showToast, openGameModal, closeGameModal, typeName } = helpers;
+  const { setLastBlindSellableKey, allBmSellables, clearBmPlanDrafts, bmStalls, bmMyStall, bmStallInSetup, bmSetupHint, bmFeatureGate, guardBmFeature, bmAffordable, renderBlackmarket } = ports;
+  const { productQualityMeta, itemReferenceValue, listingElapsed, productGemColor, deriveMaterialProfile, listingItemVisual } = productView;
+
 const bmSellables = () => allBmSellables().filter((item) => !["employee", "equipment"].includes(item._type));
 
-export function bmBlindPoolCount(mine = bmMyStall()) {
+function bmBlindPoolCount(mine = bmMyStall()) {
   if (!mine || mine.type !== "blindbox") return 0;
   return Number(mine.poolCount ?? mine.pool?.length ?? 0) || 0;
 }
 
-export function bmBlindSelection() {
+function bmBlindSelection() {
   const selected = [...bmUi.blindSelected]
     .map((id) => bmSellables().find((i) => String(i.id) === String(id)))
     .filter(Boolean);
   return { count: selected.length, selected };
 }
 
-/** 进度「n/50」中的 n：未达开卖下限时标红，提示还需继续挑选 */
-export function bmBlindCountHtml(n) {
+function bmBlindCountHtml(n) {
   const low = Number(n) < BM_BLIND_MIN;
   return `<b class="bm-blind-count${low ? " is-low" : ""}">${Number(n) || 0}</b>`;
 }
 
-export function bmBlindFracHtml(n) {
+function bmBlindFracHtml(n) {
   return `${bmBlindCountHtml(n)}/${BM_BLIND_CAP}`;
 }
 
-export function isBmBlindStockModalOpen() {
+function isBmBlindStockModalOpen() {
   return isBmBlindManageModalOpen() && bmUi.blindManageTab === "stock";
 }
 
-export function pruneBmBlindSelection() {
+function pruneBmBlindSelection() {
   const valid = new Set(bmSellables().map((item) => String(item.id)));
   for (const id of [...bmUi.blindSelected]) {
     if (!valid.has(String(id))) bmUi.blindSelected.delete(id);
@@ -82,11 +53,11 @@ export function pruneBmBlindSelection() {
   }
 }
 
-export function syncBmBlindStockModalIfOpen({ force = false } = {}) {
+function syncBmBlindStockModalIfOpen({ force = false } = {}) {
   if (!isBmBlindStockModalOpen()) return;
   const items = bmSellables();
   const key = `${bmBlindPoolCount()}|${items.map((item) => String(item.id)).join(",")}`;
-  if (!force && key === lastBlindSellableKey) {
+  if (!force && key === ui.lastBlindSellableKey) {
     updateBmBlindConfirmBtn();
     return;
   }
@@ -98,12 +69,12 @@ export function syncBmBlindStockModalIfOpen({ force = false } = {}) {
   syncBmBlindStockPriceInput();
 }
 
-export function bmBlindSuggestedPrice(mine = bmMyStall()) {
+function bmBlindSuggestedPrice(mine = bmMyStall()) {
   const { selected } = bmBlindSelection();
   const poolValues = bmBlindPoolRows(mine)
     .filter((row) => row?.item)
-    .map((row) => marketRefValue(row.item));
-  const selectedValues = selected.map((item) => marketRefValue(item));
+    .map((row) => itemReferenceValue(row.item));
+  const selectedValues = selected.map((item) => itemReferenceValue(item));
   // 已开摊补货：建议价 = 池内货 + 本次新选中的均价（忽略无参考价）
   const values = [...poolValues, ...selectedValues]
     .map((value) => Number(value))
@@ -113,12 +84,11 @@ export function bmBlindSuggestedPrice(mine = bmMyStall()) {
   return Math.max(BM_MIN_PRICE, Math.round(sum / values.length));
 }
 
-export function bmBlindSavedStallPrice(mine = bmMyStall()) {
+function bmBlindSavedStallPrice(mine = bmMyStall()) {
   return Math.max(BM_MIN_PRICE, Math.round(Number(mine?.blindPrice) || BM_MIN_PRICE));
 }
 
-/** 展示用定价：有效摊位价优先，否则池内建议均价（避免刷新后仍显示占位 ¥1） */
-export function bmBlindDisplayPrice(mine = bmMyStall()) {
+function bmBlindDisplayPrice(mine = bmMyStall()) {
   const stallPrice = bmBlindSavedStallPrice(mine);
   if (stallPrice > BM_MIN_PRICE) return stallPrice;
   const suggested = bmBlindSuggestedPrice(mine);
@@ -126,7 +96,7 @@ export function bmBlindDisplayPrice(mine = bmMyStall()) {
   return stallPrice;
 }
 
-export function syncBmBlindStockPriceInput({ force = false } = {}) {
+function syncBmBlindStockPriceInput({ force = false } = {}) {
   const mine = bmMyStall();
   const suggested = bmBlindSuggestedPrice(mine);
   const stallPrice = bmBlindSavedStallPrice(mine);
@@ -156,10 +126,7 @@ export function syncBmBlindStockPriceInput({ force = false } = {}) {
   }
 }
 
-/**
- * 刷新后若服务端仍停在占位 ¥1，但池内已有参考价，则回填并写回摊位，避免「价格设置一直是 1」。
- */
-export function reconcileBmBlindPlaceholderPrice(mine = bmMyStall()) {
+function reconcileBmBlindPlaceholderPrice(mine = bmMyStall()) {
   if (!mine || mine.type !== "blindbox" || !socketRef) return null;
   if (bmUi.blindPriceTouched) return null;
   const stallPrice = bmBlindSavedStallPrice(mine);
@@ -176,7 +143,7 @@ export function reconcileBmBlindPlaceholderPrice(mine = bmMyStall()) {
   return suggested;
 }
 
-export function applyBmBlindSuggestedPrice() {
+function applyBmBlindSuggestedPrice() {
   const suggested = bmBlindSuggestedPrice();
   const { count } = bmBlindSelection();
   const poolCount = bmBlindPoolCount();
@@ -199,13 +166,12 @@ export function applyBmBlindSuggestedPrice() {
   });
 }
 
-export function readBmBlindStockPrice() {
+function readBmBlindStockPrice() {
   const input = document.getElementById("bmBlindStockPrice");
   return Math.max(BM_MIN_PRICE, Math.round(Number(input?.value) || BM_MIN_PRICE));
 }
 
-/** 放入/保存统一定价：输入框有效价 > 已保存摊位价 > 建议均价；占位 1 不覆盖已有定价 */
-export function resolveBmBlindUnifiedPrice() {
+function resolveBmBlindUnifiedPrice() {
   const suggested = bmBlindSuggestedPrice();
   const input = document.getElementById("bmBlindStockPrice");
   const typedRaw = Math.round(Number(input?.value) || 0);
@@ -230,11 +196,11 @@ export function resolveBmBlindUnifiedPrice() {
   return typed;
 }
 
-export function confirmBmBlindStockPrice() {
+function confirmBmBlindStockPrice() {
   confirmBmBlindManageMeta({ priceOnly: true });
 }
 
-export function confirmBmBlindManageMeta({ priceOnly = false } = {}) {
+function confirmBmBlindManageMeta({ priceOnly = false } = {}) {
   const mine = bmMyStall();
   if (!mine || mine.type !== "blindbox") return;
   if (mine.drawing) {
@@ -260,11 +226,11 @@ export function confirmBmBlindManageMeta({ priceOnly = false } = {}) {
   });
 }
 
-export function openBmBlindStockModal() {
+function openBmBlindStockModal() {
   openBmBlindManageModal({ tab: "stock" });
 }
 
-export function toggleBmBlindItem(rawId) {
+function toggleBmBlindItem(rawId) {
   if (bmUi.blindSubmitting) return;
   const id = String(rawId || "");
   if (!id) return;
@@ -304,7 +270,7 @@ export function toggleBmBlindItem(rawId) {
   syncBmBlindStockPriceInput();
 }
 
-export function renderBmBlindStockGrid() {
+function renderBmBlindStockGrid() {
   const grid = document.getElementById("bmBlindStockGrid");
   if (!grid) return;
   const items = bmSellables();
@@ -324,20 +290,20 @@ export function renderBmBlindStockGrid() {
     return `
     <button class="ml-slot bm-ml-slot${selected ? " selected" : ""}" data-action="bmToggleBlindItem" data-payload="${escapeHtml(id)}" type="button">
       <span class="bm-ml-check${selected ? " on" : ""}" aria-hidden="true"></span>
-      <div class="ml-slot-visual">${lazyPreviewMarkup(mlVisual(item), {
+      <div class="ml-slot-visual">${lazyPreviewMarkup(listingItemVisual(item), {
         tint: item?.visual?.skin || item?.visual?.vein || "",
         cacheKey: `bm-blind:${id}:${stage}:${windows}:${kitsSig}`
       })}</div>
       <div class="ml-slot-copy">
         <div class="ml-slot-name"><strong>${escapeHtml(item.name)}</strong></div>
-        <div class="ml-slot-meta">${escapeHtml(typeName(item._type, item))} · 参考 ${formatMoney(marketRefValue(item))}</div>
+        <div class="ml-slot-meta">${escapeHtml(typeName(item._type, item))} · 参考 ${formatMoney(itemReferenceValue(item))}</div>
       </div>
     </button>`;
   }).join("");
   observeLazyPreviews(grid);
 }
 
-export function renderBmBlindStockDetail() {
+function renderBmBlindStockDetail() {
   const detail = document.getElementById("bmBlindStockDetail");
   if (!detail) return;
   const { count, selected } = bmBlindSelection();
@@ -351,9 +317,9 @@ export function renderBmBlindStockDetail() {
     detail.innerHTML = `<div class="ml-detail-empty">点选左侧物料放入盲盒池（至少凑满 ${BM_BLIND_MIN} 件才可开卖，最多 ${BM_BLIND_CAP} 件）</div>`;
     return;
   }
-  const q = marketQualityMeta(item);
-  const gem = marketGemColor(item);
-  const ref = marketRefValue(item);
+  const q = productQualityMeta(item);
+  const gem = productGemColor(item);
+  const ref = itemReferenceValue(item);
   const profile = deriveMaterialProfile(item);
   const summary = inlaySummary(item);
   const stage = item.materialStage || item.stage || "rough";
@@ -381,15 +347,15 @@ export function renderBmBlindStockDetail() {
   detail.innerHTML = `
     <div class="ml-detail-panels">
       <div class="ml-detail-info">
-        <div class="ml-info-visual ${gem}">${mlVisual(item)}</div>
+        <div class="ml-info-visual ${gem}">${listingItemVisual(item)}</div>
         <div class="ml-info-copy">
           <b class="ml-info-name">${escapeHtml(item.name)}</b>
           <div class="ml-info-chips">
             ${stateChip}
-            <span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>
-            ${item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
+            ${!isSealed ? `<span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>` : ""}
+            ${!isSealed && item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
           </div>
-          <div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>
+          ${profile.hasReference ? `<div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>` : ""}
           ${planEvalHtml}
         </div>
       </div>
@@ -401,7 +367,7 @@ export function renderBmBlindStockDetail() {
   paintJadeCanvases(detail);
 }
 
-export function updateBmBlindConfirmBtn() {
+function updateBmBlindConfirmBtn() {
   const btn = document.getElementById("bmConfirmBlindStockBtn");
   const n = bmUi.blindSelected.size;
   const poolNow = bmBlindPoolCount();
@@ -426,7 +392,7 @@ export function updateBmBlindConfirmBtn() {
   }
 }
 
-export function confirmBmBlindStock() {
+function confirmBmBlindStock() {
   if (bmUi.blindSubmitting) return;
   const entries = [...bmUi.blindSelected]
     .map((id) => {
@@ -470,7 +436,7 @@ export function confirmBmBlindStock() {
   socketRef.emit("bmAddBlindItems", { entries, blindPrice });
 }
 
-export function finishBlindStock(res = {}) {
+function finishBlindStock(res = {}) {
   bmUi.blindSubmitting = false;
   if (!res.ok) {
     showToast({ text: res.message || "补货失败。", tone: "warn" });
@@ -495,29 +461,29 @@ export function finishBlindStock(res = {}) {
     showToast({ text: res.message || "盲盒已可开卖。", tone: "success" });
     return;
   }
-  queueMicrotask(() => {
+  queueMicrotask(scope.guard(() => {
     if (!isBmBlindManageModalOpen()) openBmBlindManageModal({ tab: "stock" });
     else setBmBlindManageTab("stock");
     syncBmBlindStockModalIfOpen({ force: true });
     syncBmBlindManageModalIfOpen({ force: true });
-  });
+  }));
 }
 
-export function bmPoolEntryId(row) {
+function bmPoolEntryId(row) {
   return String(row?.id || row?.item?.id || "");
 }
 
-export function bmBlindPoolRows(mine = bmMyStall()) {
+function bmBlindPoolRows(mine = bmMyStall()) {
   if (!mine || mine.type !== "blindbox") return [];
   return [...(mine.pool || [])].reverse();
 }
 
-export function isBmBlindManageModalOpen() {
+function isBmBlindManageModalOpen() {
   const modal = document.getElementById("bmBlindManageModal");
   return Boolean(modal && !modal.hidden);
 }
 
-export function syncBmBlindManageModalIfOpen({ force = false } = {}) {
+function syncBmBlindManageModalIfOpen({ force = false } = {}) {
   if (!isBmBlindManageModalOpen() && !force) return;
   if (!isBmBlindManageModalOpen()) return;
   const mine = bmMyStall();
@@ -540,7 +506,7 @@ export function syncBmBlindManageModalIfOpen({ force = false } = {}) {
   }
 }
 
-export function fillBmBlindManageSettings(mine = bmMyStall()) {
+function fillBmBlindManageSettings(mine = bmMyStall()) {
   const desc = document.getElementById("bmBlindManageDesc");
   if (desc && document.activeElement !== desc) {
     desc.value = mine?.blindDescription || "";
@@ -548,7 +514,7 @@ export function fillBmBlindManageSettings(mine = bmMyStall()) {
   syncBmBlindStockPriceInput({ force: document.activeElement?.id !== "bmBlindStockPrice" });
 }
 
-export function setBmBlindManageTab(tab = "pool") {
+function setBmBlindManageTab(tab = "pool") {
   bmUi.blindManageTab = tab === "stock" ? "stock" : "pool";
   if (bmUi.blindManageTab === "stock") {
     bmUi.blindSubmitting = false;
@@ -566,7 +532,7 @@ export function setBmBlindManageTab(tab = "pool") {
   fillBmBlindManageSettings();
 }
 
-export function applyBmBlindManageTabUi() {
+function applyBmBlindManageTabUi() {
   const tab = bmUi.blindManageTab === "stock" ? "stock" : "pool";
   document.querySelectorAll("#bmBlindManageModal .bm-blind-manage-tab").forEach((btn) => {
     const on = btn.dataset.bmBlindTab === tab;
@@ -586,7 +552,7 @@ export function applyBmBlindManageTabUi() {
   if (confirmBtn) confirmBtn.hidden = tab !== "stock";
 }
 
-export function openBmBlindManageModal({ tab } = {}) {
+function openBmBlindManageModal({ tab } = {}) {
   const mine = bmMyStall();
   if (!mine || mine.type !== "blindbox") return;
   bmUi.blindWithdrawing = false;
@@ -612,7 +578,7 @@ export function openBmBlindManageModal({ tab } = {}) {
   syncBmBlindManageModalIfOpen({ force: true });
 }
 
-export function closeBmBlindManageModal({ skipSetupGuard = false } = {}) {
+function closeBmBlindManageModal({ skipSetupGuard = false } = {}) {
   const mine = bmMyStall();
   const wasOpen = isBmBlindManageModalOpen();
   const modal = document.getElementById("bmBlindManageModal");
@@ -630,7 +596,7 @@ export function closeBmBlindManageModal({ skipSetupGuard = false } = {}) {
   socketRef.emit("bmCloseStall");
 }
 
-export function renderBmBlindManageChrome(mine = bmMyStall()) {
+function renderBmBlindManageChrome(mine = bmMyStall()) {
   const n = bmBlindPoolCount(mine);
   const hint = document.getElementById("bmBlindManageHint");
   if (hint) {
@@ -688,7 +654,7 @@ export function renderBmBlindManageChrome(mine = bmMyStall()) {
   updateBmBlindConfirmBtn();
 }
 
-export function renderBmBlindManageGrid(mine = bmMyStall()) {
+function renderBmBlindManageGrid(mine = bmMyStall()) {
   const grid = document.getElementById("bmBlindManageGrid");
   if (!grid) return;
   const rows = bmBlindPoolRows(mine);
@@ -710,20 +676,20 @@ export function renderBmBlindManageGrid(mine = bmMyStall()) {
     const selected = String(bmUi.blindManageFocusId) === id;
     return `
     <button class="ml-slot bm-ml-slot${selected ? " selected" : ""}" data-action="bmSelectBlindManageItem" data-payload="${escapeHtml(id)}" type="button">
-      <div class="ml-slot-visual">${lazyPreviewMarkup(mlVisual({ ...item, _type: row.type }), {
+      <div class="ml-slot-visual">${lazyPreviewMarkup(listingItemVisual({ ...item, _type: row.type }), {
         tint: item?.visual?.skin || item?.visual?.vein || "",
         cacheKey: `bm-pool:${id}:${stage}:${windows}:${kitsSig}`
       })}</div>
       <div class="ml-slot-copy">
         <div class="ml-slot-name"><strong>${escapeHtml(item.name || "物品")}</strong></div>
-        <div class="ml-slot-meta">${escapeHtml(typeName(row.type, item))} · 参考 ${formatMoney(marketRefValue(item))}</div>
+        <div class="ml-slot-meta">${escapeHtml(typeName(row.type, item))} · 参考 ${formatMoney(itemReferenceValue(item))}</div>
       </div>
     </button>`;
   }).join("");
   observeLazyPreviews(grid);
 }
 
-export function renderBmBlindManageDetail(mine = bmMyStall()) {
+function renderBmBlindManageDetail(mine = bmMyStall()) {
   const detail = document.getElementById("bmBlindManageDetail");
   if (!detail) return;
   const rows = bmBlindPoolRows(mine);
@@ -733,9 +699,9 @@ export function renderBmBlindManageDetail(mine = bmMyStall()) {
     return;
   }
   const item = row.item;
-  const q = marketQualityMeta(item);
-  const gem = marketGemColor(item);
-  const ref = marketRefValue(item);
+  const q = productQualityMeta(item);
+  const gem = productGemColor(item);
+  const ref = itemReferenceValue(item);
   const profile = deriveMaterialProfile(item);
   const summary = inlaySummary(item);
   const stage = item.materialStage || item.stage || "rough";
@@ -749,20 +715,20 @@ export function renderBmBlindManageDetail(mine = bmMyStall()) {
   const willPause = poolAfter < BM_BLIND_MIN;
   const drawing = Boolean(mine?.drawing);
   const created = row.createdAt
-    ? `<div class="ml-info-ref">放入池内 ${escapeHtml(marketElapsed(row.createdAt))}</div>`
+    ? `<div class="ml-info-ref">放入池内 ${escapeHtml(listingElapsed(row.createdAt))}</div>`
     : "";
   detail.innerHTML = `
     <div class="ml-detail-panels">
       <div class="ml-detail-info">
-        <div class="ml-info-visual ${gem}">${mlVisual({ ...item, _type: row.type })}</div>
+        <div class="ml-info-visual ${gem}">${listingItemVisual({ ...item, _type: row.type })}</div>
         <div class="ml-info-copy">
           <b class="ml-info-name">${escapeHtml(item.name || "物品")}</b>
           <div class="ml-info-chips">
             ${stateChip}
-            <span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>
-            ${item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
+            ${!isSealed ? `<span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>` : ""}
+            ${!isSealed && item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
           </div>
-          <div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>
+          ${profile.hasReference ? `<div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>` : ""}
           ${created}
           ${summary ? `<p class="ml-info-summary">${escapeHtml(summary)}</p>` : ""}
         </div>
@@ -781,7 +747,7 @@ export function renderBmBlindManageDetail(mine = bmMyStall()) {
   paintJadeCanvases(detail);
 }
 
-export function selectBmBlindManageItem(rawId) {
+function selectBmBlindManageItem(rawId) {
   const id = String(rawId || "");
   if (!id) return;
   bmUi.blindManageFocusId = id;
@@ -789,7 +755,7 @@ export function selectBmBlindManageItem(rawId) {
   renderBmBlindManageDetail();
 }
 
-export function openBmBlindStockFromManage() {
+function openBmBlindStockFromManage() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "blindbox") return;
   if (mine.drawing) {
@@ -804,15 +770,15 @@ export function openBmBlindStockFromManage() {
   else setBmBlindManageTab("stock");
 }
 
-export function openBmBlindMetaModal() {
+function openBmBlindMetaModal() {
   openBmBlindManageModal({ tab: bmUi.blindManageTab || "pool" });
 }
 
-export function confirmBmBlindMeta() {
+function confirmBmBlindMeta() {
   confirmBmBlindManageMeta();
 }
 
-export function promptBmToggleAnonymous() {
+function promptBmToggleAnonymous() {
   const mine = bmMyStall();
   if (!mine) {
     showToast({ text: "你还没有摊位。", tone: "warn" });
@@ -851,7 +817,7 @@ export function promptBmToggleAnonymous() {
   });
 }
 
-export function confirmBmToggleAnonymous() {
+function confirmBmToggleAnonymous() {
   const mine = bmMyStall();
   if (!mine || !socketRef) return;
   const next = bmUi.pendingAnonymous == null
@@ -863,7 +829,7 @@ export function confirmBmToggleAnonymous() {
   socketRef.emit("bmSetStallAnonymous", { anonymous: next });
 }
 
-export function bmBlindManageBuyerPreview() {
+function bmBlindManageBuyerPreview() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "blindbox") return;
   const n = bmBlindPoolCount(mine);
@@ -884,7 +850,7 @@ export function bmBlindManageBuyerPreview() {
   });
 }
 
-export function requestBmBlindManageWithdraw(poolEntryId) {
+function requestBmBlindManageWithdraw(poolEntryId) {
   const mine = bmMyStall();
   if (!mine || mine.type !== "blindbox" || bmUi.blindWithdrawing) return;
   if (mine.drawing) {
@@ -914,7 +880,7 @@ export function requestBmBlindManageWithdraw(poolEntryId) {
   });
 }
 
-export function finishBmBlindManageWithdraw(res = {}) {
+function finishBmBlindManageWithdraw(res = {}) {
   bmUi.blindWithdrawing = false;
   if (!res.ok) {
     showToast({ text: res.message || "下架失败。", tone: "warn" });
@@ -923,17 +889,17 @@ export function finishBmBlindManageWithdraw(res = {}) {
   }
   bmUi.section = "mine";
   renderBlackmarket();
-  queueMicrotask(() => syncBmBlindManageModalIfOpen({ force: true }));
+  queueMicrotask(scope.guard(() => syncBmBlindManageModalIfOpen({ force: true })));
 }
 
-export function clearBmBlindDrawTimer() {
+function clearBmBlindDrawTimer() {
   if (bmUi.blindDrawTimer) {
-    clearTimeout(bmUi.blindDrawTimer);
+    scope.clearTimeout(bmUi.blindDrawTimer);
     bmUi.blindDrawTimer = null;
   }
 }
 
-export function bmBlindDrawExtraCost(count) {
+function bmBlindDrawExtraCost(count) {
   const draw = bmUi.blindDraw;
   if (!draw || count <= 1) return 0;
   const second = Number(draw.extraSecond || 0);
@@ -942,7 +908,7 @@ export function bmBlindDrawExtraCost(count) {
   return second + third;
 }
 
-export function openBmBlindDrawModal(draw, { skipAnim = false } = {}) {
+function openBmBlindDrawModal(draw, { skipAnim = false } = {}) {
   if (!draw?.candidates?.length) return;
   clearBmBlindDrawTimer();
   const firstId = String(draw.candidates[0]?.itemId || draw.candidates[0]?.item?.id || "");
@@ -965,18 +931,18 @@ export function openBmBlindDrawModal(draw, { skipAnim = false } = {}) {
   if (!skipAnim) playBmBlindDrawReveal();
 }
 
-export function playBmBlindDrawReveal() {
+function playBmBlindDrawReveal() {
   const stage = document.getElementById("bmBlindDrawStage");
   if (!stage || !bmUi.blindDraw) return;
   stage.classList.remove("is-revealed", "is-cracking");
   stage.classList.add("is-shaking");
   clearBmBlindDrawTimer();
-  bmUi.blindDrawTimer = setTimeout(() => {
+  bmUi.blindDrawTimer = scope.setTimeout(() => {
     if (!bmUi.blindDraw) return;
     stage.classList.remove("is-shaking");
     stage.classList.add("is-cracking");
     bmUi.blindDraw.phase = "crack";
-    bmUi.blindDrawTimer = setTimeout(() => {
+    bmUi.blindDrawTimer = scope.setTimeout(() => {
       if (!bmUi.blindDraw) return;
       stage.classList.remove("is-cracking");
       stage.classList.add("is-revealed");
@@ -986,7 +952,7 @@ export function playBmBlindDrawReveal() {
   }, 650);
 }
 
-export function skipBmBlindDrawAnim() {
+function skipBmBlindDrawAnim() {
   if (!bmUi.blindDraw || bmUi.blindDraw.settling) return;
   clearBmBlindDrawTimer();
   bmUi.blindDraw.phase = "pick";
@@ -996,7 +962,7 @@ export function skipBmBlindDrawAnim() {
   renderBmBlindDrawModal();
 }
 
-export function toggleBmBlindDrawPick(itemId) {
+function toggleBmBlindDrawPick(itemId) {
   const draw = bmUi.blindDraw;
   if (!draw || draw.phase !== "pick" || draw.settling) return;
   const id = String(itemId || "");
@@ -1020,7 +986,7 @@ export function toggleBmBlindDrawPick(itemId) {
   renderBmBlindDrawModal();
 }
 
-export function renderBmBlindDrawModal() {
+function renderBmBlindDrawModal() {
   const draw = bmUi.blindDraw;
   const cards = document.getElementById("bmBlindDrawCards");
   const summary = document.getElementById("bmBlindDrawSummary");
@@ -1043,14 +1009,14 @@ export function renderBmBlindDrawModal() {
     const item = row.item || {};
     const id = String(row.itemId || item.id || "");
     const selected = draw.selectedIds.has(id);
-    const q = marketQualityMeta(item);
-    const gem = marketGemColor(item);
-    const ref = marketRefValue(item);
+    const q = productQualityMeta(item);
+    const gem = productGemColor(item);
+    const ref = itemReferenceValue(item);
     const order = index + 1;
     return `
       <button class="bm-blind-card${selected ? " is-selected" : ""}${picking ? "" : " is-locked"}" data-action="bmBlindDrawToggle" data-payload="${escapeHtml(id)}" type="button" ${picking && !draw.settling ? "" : "disabled"}>
         <span class="bm-blind-card-slot">候选 ${order}</span>
-        <div class="bm-blind-card-visual ${gem}">${mlVisual(item)}</div>
+        <div class="bm-blind-card-visual ${gem}">${listingItemVisual(item)}</div>
         <strong class="bm-blind-card-name">${escapeHtml(item.name || "未知货品")}</strong>
         <span class="bm-blind-card-meta">${escapeHtml(item.quality || q.name || typeName(row.type || item._type, item))} · 参考 ${formatMoney(ref)}</span>
         <span class="bm-blind-card-check" aria-hidden="true"></span>
@@ -1087,7 +1053,7 @@ export function renderBmBlindDrawModal() {
   }
 }
 
-export function settleBmBlindDraw() {
+function settleBmBlindDraw() {
   const draw = bmUi.blindDraw;
   if (!draw || draw.settling) return;
   if (!draw.selectedIds.size && draw.candidates[0]) {
@@ -1106,7 +1072,7 @@ export function settleBmBlindDraw() {
   });
 }
 
-export function bmBlindDrawSelectedNames(draw = bmUi.blindDraw) {
+function bmBlindDrawSelectedNames(draw = bmUi.blindDraw) {
   if (!draw) return [];
   return [...draw.selectedIds]
     .map((id) => {
@@ -1118,8 +1084,7 @@ export function bmBlindDrawSelectedNames(draw = bmUi.blindDraw) {
     .filter(Boolean);
 }
 
-/** 右上角关闭：先确认将带走当前勾选，再结算关闭 */
-export function requestBmBlindDrawClose() {
+function requestBmBlindDrawClose() {
   const draw = bmUi.blindDraw;
   if (!draw || draw.settling) return;
   if (draw.phase !== "pick") {
@@ -1155,19 +1120,19 @@ export function requestBmBlindDrawClose() {
   });
 }
 
-export function confirmBmBlindDrawClose() {
+function confirmBmBlindDrawClose() {
   if (typeof closeGameModal === "function") closeGameModal();
   settleBmBlindDraw();
 }
 
-export function finishBmBlindDrawUi() {
+function finishBmBlindDrawUi() {
   clearBmBlindDrawTimer();
   bmUi.blindDraw = null;
   const modal = document.getElementById("bmBlindDrawModal");
   if (modal) modal.hidden = true;
 }
 
-export function resumeBmBlindDrawFromState() {
+function resumeBmBlindDrawFromState() {
   if (bmUi.blindDraw || bmUi.suppressBlindDrawResume) return;
   const stalls = bmStalls();
   const mineDraw = stalls.find((s) => s.activeBlindDraw)?.activeBlindDraw;
@@ -1176,4 +1141,7 @@ export function resumeBmBlindDrawFromState() {
     return;
   }
   openBmBlindDrawModal(mineDraw, { skipAnim: true });
+}
+
+  return { bmBlindPoolCount, bmBlindSelection, bmBlindCountHtml, bmBlindFracHtml, isBmBlindStockModalOpen, pruneBmBlindSelection, syncBmBlindStockModalIfOpen, bmBlindSuggestedPrice, bmBlindSavedStallPrice, bmBlindDisplayPrice, syncBmBlindStockPriceInput, reconcileBmBlindPlaceholderPrice, applyBmBlindSuggestedPrice, readBmBlindStockPrice, resolveBmBlindUnifiedPrice, confirmBmBlindStockPrice, confirmBmBlindManageMeta, openBmBlindStockModal, toggleBmBlindItem, renderBmBlindStockGrid, renderBmBlindStockDetail, updateBmBlindConfirmBtn, confirmBmBlindStock, finishBlindStock, bmPoolEntryId, bmBlindPoolRows, isBmBlindManageModalOpen, syncBmBlindManageModalIfOpen, fillBmBlindManageSettings, setBmBlindManageTab, applyBmBlindManageTabUi, openBmBlindManageModal, closeBmBlindManageModal, renderBmBlindManageChrome, renderBmBlindManageGrid, renderBmBlindManageDetail, selectBmBlindManageItem, openBmBlindStockFromManage, openBmBlindMetaModal, confirmBmBlindMeta, promptBmToggleAnonymous, confirmBmToggleAnonymous, bmBlindManageBuyerPreview, requestBmBlindManageWithdraw, finishBmBlindManageWithdraw, clearBmBlindDrawTimer, bmBlindDrawExtraCost, openBmBlindDrawModal, playBmBlindDrawReveal, skipBmBlindDrawAnim, toggleBmBlindDrawPick, renderBmBlindDrawModal, settleBmBlindDraw, bmBlindDrawSelectedNames, requestBmBlindDrawClose, confirmBmBlindDrawClose, finishBmBlindDrawUi, resumeBmBlindDrawFromState };
 }

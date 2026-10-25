@@ -1,5 +1,6 @@
+import { inventoryEntries } from "../inventory-items.js";
 // Device/worker lookup, reservations and processable items.
-import { OWNER_OPERATOR_ID, publicWorkshopStations } from "../../../shared/domain/economy/public-workstations.js";
+import { OWNER_OPERATOR_ID } from "../../../shared/domain/economy/public-workstations.js";
 
 export function createWorkshopQueries({
   normalizePlayer,
@@ -8,7 +9,7 @@ export function createWorkshopQueries({
 }) {
 function workshopDevicesForPlayer(player) {
   normalizeWorkshop(player);
-  return [...player.workshop.devices, ...publicWorkshopStations()];
+  return player.workshop.devices;
 }
 
 function workshopDeviceForPlayer(player, deviceId) {
@@ -45,7 +46,8 @@ function workshopProcessableItems(player, deviceId) {
   normalizePlayer(player);
   const device = workshopDeviceForPlayer(player, deviceId);
   if (!device) return [];
-  const bucket = device.inputType === "rough" ? [...player.rough, ...player.materials, ...player.slices] : player.bracelets;
+  const types = device.inputType === "rough" ? ["rough", "material", "slice"] : ["bracelet"];
+  const bucket = inventoryEntries(player, types).map(({ item }) => item);
   return bucket.filter((item) => materialStageFor(item) === device.inputStage);
 }
 
@@ -55,7 +57,8 @@ function playerOwnsWorkshop(player) {
 }
 
 function findWorkshopItem(player, device, itemId) {
-  const bucket = device.inputType === "rough" ? [...player.rough, ...player.materials, ...player.slices] : player.bracelets;
+  const types = device.inputType === "rough" ? ["rough", "material", "slice"] : ["bracelet"];
+  const bucket = inventoryEntries(player, types).map(({ item }) => item);
   return bucket.find((item) => item.id === itemId) || null;
 }
 

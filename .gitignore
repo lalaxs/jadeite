@@ -20,3 +20,9 @@ test-task-e2e.mjs
 /.workbuddy/
 /.codex-*-results.json
 /.codex-*-tests.log
+/docs/reports/**/*.png
+/docs/reports/**/*.jpg
+/docs/reports/**/*.jpeg
+/docs/reports/**/*.log
+/docs/reports/**/*.html
+/docs/reports/2026-10-23-economy-implementation/simulation.json

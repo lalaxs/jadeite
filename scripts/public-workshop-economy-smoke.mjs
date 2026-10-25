@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { createCommissionService } from "../server/services/commission-service.js";
 import { quoteCommission } from "../shared/domain/economy/commission-rules.js";
-import { publicStationFee } from "../shared/domain/economy/public-workstations.js";
-import { createDeviceInstance } from "../server/systems/equipment-system.js";
+import { createDeviceInstance, buyEquipment } from "../server/systems/equipment-system.js";
 import { WORKSHOP_WORKER_DEFS } from "../server/services/workshop-roster.js";
 import { materialEvaluationWeight, partitionMaterialValue } from "../shared/domain/workshop/material-value-pool.js";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
@@ -42,25 +41,38 @@ try {
   assert.ok(positivePool.pieces[0].value > 0, "a real jade cell must transfer value even when the leftover's global defect appraisal rises");
   assert.equal(positivePool.pieces[0].value + positivePool.leftover.value, 10_000);
   H.world.clear();
-  const p = H.makePlayer("public-workshop-new");
+  const p = H.makePlayer("owned-workshop-new");
   H.state.players.set(p.id, p);
   assert.equal(p.cash, 12_000);
   assert.equal(p.workshop.devices.length, 0);
   assert.equal(p.workshop.workers.length, 0);
   assert.equal(p.workshop.owner.isOwner, true);
-  assert.equal(H.workshopDevicesForPlayer(p).filter((d) => d.publicStation).length, 3);
+  assert.deepEqual(H.workshopDevicesForPlayer(p), []);
   H.normalizePlayer(p);
-  assert.equal(p.workshop.devices.length, 0, "virtual public stations must never become owned assets");
+  assert.equal(p.workshop.devices.length, 0);
   assert.equal(p.workshop.workers.length, 0, "normalization must not regrant the old four employees");
+  assert.equal(Object.hasOwn(H.snapshotFor(p, 1).me.workshop, "publicStations"), false);
+  for (const stage of ["opening", "carving", "finishing"]) {
+    const before = structuredClone({ cash: p.cash, rough: p.rough });
+    assert.equal(H.startWorkshopJobForPlayer(p, `public-${stage}`, { itemId: p.rough[0].id }).ok, false);
+    assert.deepEqual({ cash: p.cash, rough: p.rough }, before, "unowned stations cannot start or consume resources");
+  }
+  // Established-business bankroll covers all three real catalog purchases.
+  p.cash = 20_000;
+  for (const stage of ["opening", "carving", "finishing"]) {
+    const bought = buyEquipment(p, `used-${stage}-1`, { spendCash: H.spendCash, makeId: () => `owned-${stage}` });
+    assert.equal(bought.ok, true, bought.message);
+    assert.equal(bought.device.workerId, "owner-operator");
+  }
+  assert.equal(p.cash, 6000);
 
   const raw = p.rough[0];
-  assert.equal(publicStationFee(H.workshopDevicesForPlayer(p)[0], raw, p.id), 0);
-  finish(p, H.startWorkshopJobForPlayer(p, "public-opening", { itemId: raw.id }));
+  finish(p, H.startWorkshopJobForPlayer(p, "owned-opening", { itemId: raw.id }));
   const opened = p.materials[0];
   assert.ok(opened.value > 0);
   const beforePool = opened.baseValue;
   const beforeValue = opened.value;
-  finish(p, H.startWorkshopJobForPlayer(p, "public-carving", { itemId: opened.id,
+  finish(p, H.startWorkshopJobForPlayer(p, "owned-carving", { itemId: opened.id,
     kits: [{ type: "peacePendant", x: 30, y: 50, rot: 0, size: "M" }, { type: "peacePendant", x: 70, y: 50, rot: 0, size: "M" }] }));
   const leftover = p.materials[0];
   const blanks = [...p.bracelets];
@@ -70,21 +82,21 @@ try {
   assert.ok(Math.abs(blanks.reduce((sum, item) => sum + item.value, leftover.value) - beforeValue - newWorkmanship) <= 1, "only the new step may add appraisal value");
   const blank = blanks[0];
   const beforeFinish = blank.value;
-  finish(p, H.startWorkshopJobForPlayer(p, "public-finishing", { itemId: blank.id, finishPlan: {
+  finish(p, H.startWorkshopJobForPlayer(p, "owned-finishing", { itemId: blank.id, finishPlan: {
     productType: "pendant", settingId: "cord", metalId: null, gemId: null, gemCount: 0, polishId: "bright", backingId: null
   } }));
   const product = p.bracelets.find((item) => item.id === blank.id);
   assert.equal(product.craftedByPlayerId, p.id);
   assert.ok(product.value >= beforeFinish, "successful finishing must preserve existing workmanship");
-  assert.equal(p.cash, 12_000, "gifted material must complete the shared-station tutorial without cash charges");
+  assert.equal(p.cash, 6000, "self-operated machines charge no station rental");
 
   const privateRaw = { ...structuredClone(raw), id: "ordinary-station-input", starterProtection: false, starterOriginId: undefined, costBasis: { amount: 1234, complete: true } };
   p.rough.push(privateRaw);
-  const paidStart = H.startWorkshopJobForPlayer(p, "public-opening", { itemId: privateRaw.id });
+  const paidStart = H.startWorkshopJobForPlayer(p, "owned-opening", { itemId: privateRaw.id });
   assert.equal(paidStart.ok, true, paidStart.message);
-  assert.equal(paidStart.fee, 25);
-  assert.equal(p.cash, 11_975);
-  assert.equal(paidStart.job.item.costBasis.amount, 1259);
+  assert.equal(paidStart.fee, 0);
+  assert.equal(p.cash, 6000);
+  assert.equal(paidStart.job.item.costBasis.amount, 1234);
   assert.equal(commissions.startCommissionForPlayer(p, { offerId: "standard" }, clock).code, "WORKER_BUSY");
   finish(p, paidStart);
 
@@ -99,7 +111,8 @@ try {
   assert.equal(broken.cash, 0);
   assert.equal(commissions.startCommissionForPlayer(broken, { offerId: "cord" }, clock).code, "BUSY");
   assert.equal(commissions.claimCommissionForPlayer(broken, { commissionId: start.commission.id }, clock).code, "NOT_READY");
-  assert.equal(H.startWorkshopJobForPlayer(broken, "public-opening", { itemId: broken.rough[0].id }).code, "WORKER_BUSY");
+  broken.workshop.devices = [createDeviceInstance("opening", "used-opening-1", "busy-opening")];
+  assert.equal(H.startWorkshopJobForPlayer(broken, "busy-opening", { itemId: broken.rough[0].id }).code, "WORKER_BUSY");
   clock = start.commission.readyAt + 1;
   const claimed = commissions.claimCommissionForPlayer(broken, { commissionId: start.commission.id }, clock);
   assert.equal(claimed.ok, true, claimed.message);
@@ -145,7 +158,7 @@ try {
   selfRun.workshop.devices = [createDeviceInstance("opening", "cuijie-opening-1", "new-machine")];
   H.normalizePlayer(selfRun);
   assert.equal(selfRun.workshop.devices[0].workerId, "owner-operator", "unowned legacy default worker ids must fall back to the proprietor");
-  console.log(JSON.stringify({ ok: true, publicGiftCash: p.cash, brokenRecoveryCash: broken.cash, usedCommission: quote }, null, 2));
+  console.log(JSON.stringify({ ok: true, ownedWorkshopCash: p.cash, brokenRecoveryCash: broken.cash, usedCommission: quote }, null, 2));
 } finally {
   Date.now = realNow;
   Math.random = realRandom;

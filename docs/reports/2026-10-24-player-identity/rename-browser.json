@@ -1,0 +1,10 @@
+{
+  "version": "2026.10.24-test4",
+  "guestRename": true,
+  "boundRename": true,
+  "loginNameUnchanged": true,
+  "rankingBroadcast": true,
+  "reloadPersistsName": true,
+  "mobileDialogFits": true,
+  "browserErrors": []
+}

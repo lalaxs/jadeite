@@ -1,5 +1,5 @@
 // Instance-owned implementation; legacy entry points remain one directory above.
-import { wantBucketName } from "../../market-instance.js";
+import { findInventoryItem, inventoryEntries, restoreInventoryItem, takeInventoryItem } from "../../inventory-items.js";
 import {
   BLACKMARKET_MIN_PRICE,
   BLACKMARKET_GOODS_TYPES,
@@ -134,8 +134,9 @@ function paySellerNow(
   const { earnCash, notifyPlayerToast } = requireApi();
   if (!seller) return 0;
   const paid = earnCash(seller, amount, label, { source, financeCategory });
+  requireApi().queueOfflineEvent?.(seller, { type: "blackmarket", text: `${label}，成交金额 ${requireApi().uiMoney(amount)}，货款已结算。`, income: amount });
   if (typeof notifyPlayerToast === "function") {
-    const notify = () => notifyPlayerToast(seller, "黑市交易已结算。");
+    const notify = () => notifyPlayerToast(seller, `${label}，成交金额 ${requireApi().uiMoney(amount)}，货款已结算。`);
     if (typeof afterCommit === "function") afterCommit(notify);
     else notify();
   }
@@ -170,9 +171,7 @@ function closeGoodsStallIfEmpty(state, stall, { force = false, afterCommit } = {
 
 function returnItemToPlayer(player, type, item) {
   if (isBlackmarketResource(type)) return unlockResource(player, type, item.id);
-  const bucket = wantBucketName(type);
-  player[bucket] = player[bucket] || [];
-  player[bucket].push(item);
+  restoreInventoryItem(player, type, item);
 }
 
 function clampBm(value, min, max) {
@@ -183,10 +182,8 @@ function findParentInPlayer(player, parentId) {
   const id = String(parentId || "");
   if (!id) return null;
   for (const type of ["material", "rough"]) {
-    const bucket = wantBucketName(type);
-    const list = player[bucket] || [];
-    const index = list.findIndex((row) => String(row?.id) === id);
-    if (index >= 0) return { type, bucket, index, item: list[index] };
+    const item = findInventoryItem(player, type, id);
+    if (item) return { type, item };
   }
   return null;
 }
@@ -509,7 +506,7 @@ function takeBmListEntries(player, entries) {
       rollbackBmTaken(player, taken, returned);
       return { ok: false, code: "INVALID_PLANNING", message: "套件位置互相重叠，不能拆分上架。" };
     }
-    player[parentHit.bucket].splice(parentHit.index, 1);
+    takeInventoryItem(player, parentHit.type, parentHit.item.id);
     const restoreParent = () => returnItemToPlayer(player, parentHit.type, parent);
 
     const listedKitIds = new Set(group.planned.map((row) => row.kit.id));
@@ -587,12 +584,7 @@ function desensitizePlayerName(name) {
 }
 
 function inventoryItemEntries(player) {
-  return [
-    ...(player.rough || []).map((item) => ({ type: "rough", item })),
-    ...(player.materials || []).map((item) => ({ type: "material", item })),
-    ...(player.slices || []).map((item) => ({ type: "slice", item })),
-    ...(player.bracelets || []).map((item) => ({ type: "bracelet", item }))
-  ];
+  return inventoryEntries(player);
 }
 
 function findEscrowItemForOrder(seller, orderId) {
@@ -632,12 +624,8 @@ function attachEscrowItemToSeller(seller, orderId, buyerId, type, item) {
   item.escrowOrderId = orderId;
   item.escrowFromBuyerId = buyerId;
   addItem(seller, item, { asNew: true });
-  const bucket = wantBucketName(type);
-  const landed = (seller[bucket] || []).some((row) => row?.id === item.id);
-  if (!landed) {
-    seller[bucket] = seller[bucket] || [];
-    seller[bucket].push(item);
-  }
+  const landed = findInventoryItem(seller, type, item.id);
+  if (!landed) restoreInventoryItem(seller, type, item);
 }
 
 function removeEscrowItemFromSeller(seller, type, item) {

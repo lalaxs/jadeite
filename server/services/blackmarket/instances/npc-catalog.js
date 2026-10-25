@@ -3,7 +3,6 @@ import { PRODUCT_CATEGORIES, productMetaForKind, templateSizeForKind } from "../
 import { buildOpeningStone, evaluateOpeningKit, computeGrade } from "../../../../shared/domain/jade/jade-opening-engine.js";
 import { OPENING_KIT_BY_SERVER_TYPE, canonicalizeExtractionKitIntents } from "../../workshop-planning.js";
 import { finishCapabilities } from "../../../systems/inlay-system.js";
-import { NPC_STALLS } from "../../../../shared/domain/blackmarket/npc-rules.js";
 import { isBlackmarketGoodsType } from "../../../../shared/domain/blackmarket/bm-constants.js";
 import { makeCandidate } from "../../../systems/employee-system.js";
 import { equipmentCatalog, createDeviceInstance } from "../../../systems/equipment-system.js";
@@ -68,7 +67,7 @@ function repriceNpcGoodsRow(rule, row) {
     const model = equipmentCatalog().find((entry) => entry.modelKey === row.item.modelKey && entry.stage === row.item.stage);
     if (model) row.item.basePrice = model.price;
   }
-  const quote = quoteNpcGoods(rule.role, row.type, row.item, {
+  const quote = quoteNpcGoods(row.npcSupplyRole || rule.role, row.type, row.item, {
     discount: row.npcDiscount === true,
     roll: npcRandom(`npc-price:${NPC_PRICING_VERSION}:${rule.role}:${row.id}`)()
   });
@@ -146,8 +145,8 @@ function jadeItem(role, sequence, rng, deps, avoidOffcutProfile, avoidOffcutCoun
   return item;
 }
 
-function createNpcGoodsRow(rule, stall, now, { discount = false, premium = false, excludeKinds = [], preferredStyles = [] } = {}, deps) {
-  if (!NPC_STALLS.some((entry) => entry.role === rule.role)) throw new Error("Unsupported NPC black-market category");
+function createNpcSingleRoleGoodsRow(rule, stall, now, { discount = false, premium = false, excludeKinds = [], preferredStyles = [] } = {}, deps) {
+  if (!NPC_PRICE_RANGES[rule.role]) throw new Error("Unsupported NPC black-market category");
   if (["employee", "equipment"].includes(rule.role)) return createResourceRow(rule, stall, now, { discount, premium }, deps);
   let sequence = stall.npcSequence++;
   let rng = npcRandom(`${stall.id}:${sequence}:${stall.npcBatch}`);
@@ -170,6 +169,13 @@ function createNpcGoodsRow(rule, stall, now, { discount = false, premium = false
   if (!isBlackmarketGoodsType(item.type)) throw new Error("NPC stock must use player-tradable goods categories");
   const row = { id: deps.randomUUID(), type: item.type, item, npcDiscount: discount, npcPremium: premium, createdAt: now };
   repriceNpcGoodsRow(rule, row);
+  return row;
+}
+
+function createNpcGoodsRow(rule, stall, now, flags, deps) {
+  const role = rule.assortment?.[stall.npcSequence % rule.assortment.length] || rule.role;
+  const row = createNpcSingleRoleGoodsRow({ ...rule, role }, stall, now, flags, deps);
+  row.npcSupplyRole = role;
   return row;
 }
 

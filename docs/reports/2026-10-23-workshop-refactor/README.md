@@ -69,13 +69,13 @@
 | 验证 | 证据 |
 | --- | --- |
 | 初始基线完整回归：128/128 | [完整结果](phase0-final-regression.json) |
-| 初始基线浏览器同源对照：8/8 | [日志](phase0-final-browser.log) |
-| 最新交付 UI 的原件同源对照：8/8，包含实际入库 | [日志](phase0-reconciled-browser.log) |
-| 最新交付 UI 的基线专项：37 项直接通过，缺少测试原图的 1 项补齐后复测通过 | [首次结果](phase0-reconciled-regression.json)、[单项复测](phase0-artwork-retest.log) |
-| final-03 基线专项：48 项直接通过，1 项因详情模型搬移而更新定位断言后复测通过 | [49 项结果](phase0-final03-regression.json)、[手镯复测](phase0-final03-bangle-retest.log) |
-| final-03 浏览器同源对照：8/8 | [日志](phase0-final03-browser.log) |
-| 拆分后完整回归：134/134，含 1 项修正定位断言后的复测 | [原始结果及复测记录](phase1-final-regression.json)、[复测日志](phase1-mining-ui-retest.log) |
-| 拆分后浏览器对照：8/8，共 160 个画面状态 | [执行日志](phase1-final-browser.log)、[汇总与逐屏像素结果](verification-summary.json) |
+| 初始基线浏览器同源对照：8/8 | [日志](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase0-final-browser.log) |
+| 最新交付 UI 的原件同源对照：8/8，包含实际入库 | [日志](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase0-reconciled-browser.log) |
+| 最新交付 UI 的基线专项：37 项直接通过，缺少测试原图的 1 项补齐后复测通过 | [首次结果](phase0-reconciled-regression.json)、[单项复测](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase0-artwork-retest.log) |
+| final-03 基线专项：48 项直接通过，1 项因详情模型搬移而更新定位断言后复测通过 | [49 项结果](phase0-final03-regression.json)、[手镯复测](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase0-final03-bangle-retest.log) |
+| final-03 浏览器同源对照：8/8 | [日志](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase0-final03-browser.log) |
+| 拆分后完整回归：134/134，含 1 项修正定位断言后的复测 | [原始结果及复测记录](phase1-final-regression.json)、[复测日志](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase1-mining-ui-retest.log) |
+| 拆分后浏览器对照：8/8，共 160 个画面状态 | [执行日志](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/phase1-final-browser.log)、[汇总与逐屏像素结果](verification-summary.json) |
 
 首轮拆分专项的一个旧断言只接受 `let` 全局变量；已改为同时识别实例字段的初始状态。独立语法树校验与行为等价校验继续验证状态值，未放宽玩法或数值断言。隔离快照缺少佛公测试原图导致的单项失败也已补齐测试资源并复测；生产素材没有变化。
 
@@ -83,7 +83,7 @@
 
 同一次详情模型搬移也影响了矿工详情字段的源码定位断言。已同时读取入口与共享模型，保留班组、班长、分工和专精等全部原断言，复测通过。完整回归原始失败记录仍保留在 `results` 中，复测在 `retests` 中，最终有效结果在 `effectiveSummary` 中，未删除历史失败。
 
-已人工检查桌面工坊与手机物品详情截图。对照图：[桌面原件](screenshots/before-desktop.png)、[桌面拆分后](screenshots/after-desktop.png)、[手机原件](screenshots/before-mobile-delivery-details.png)、[手机拆分后](screenshots/after-mobile-delivery-details.png)。8 组对照的节点几何与请求载荷完全一致，逐屏像素最大单通道差异为 3/255，符合已验证的同源合成舍入范围。
+已人工检查桌面工坊与手机物品详情截图。对照图：[桌面原件](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/screenshots/before-desktop.png)、[桌面拆分后](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/screenshots/after-desktop.png)、[手机原件](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/screenshots/before-mobile-delivery-details.png)、[手机拆分后](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor/screenshots/after-mobile-delivery-details.png)。8 组对照的节点几何与请求载荷完全一致，逐屏像素最大单通道差异为 3/255，符合已验证的同源合成舍入范围。
 
 ## 复测与回退
 
@@ -104,3 +104,5 @@ node scripts/run-workshop-browser.mjs
 ## 后续阶段
 
 当前阶段完成后，再按照原计划处理服务端工坊应用服务、仓库与交易等模块。每次继续拆分前，先确认本阶段回归通过，并保留可回退的来源快照；任何新玩法、数值或界面调整应另立变更范围。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-refactor)。

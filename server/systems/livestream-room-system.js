@@ -1,3 +1,4 @@
+import { takeInventoryItems, initializeInventory, restoreInventoryItems } from "../services/inventory-items.js";
 import { recordFinanceSale } from "../../shared/domain/economy/finance-book.js";
 import {
   applyHostPurchaseBonuses,
@@ -196,7 +197,7 @@ function validateListings(player, listings, options = {}) {
 function moveListingsIntoRoom(player, resolved, room, options = {}) {
   const now = numericNow(options);
   const productIds = new Set(resolved.map(({ product }) => product.id));
-  player.bracelets = player.bracelets.filter((item) => !productIds.has(item.id));
+  takeInventoryItems(player, "bracelet", productIds);
   const roomItems = resolved.map(({ product, price }) => ({
     id: makeId(options),
     product,
@@ -345,7 +346,7 @@ export function closeLivestreamRoom(player, options = {}) {
   const hostName = room.hostSnapshot?.name;
   const endedAt = numericNow(options);
   const reason = options.reason === "timeout" ? "timeout" : "manual";
-  player.bracelets ||= [];
+  initializeInventory(player, "bracelet");
   const returned = room.items.map((item) => item.product).filter(Boolean);
   const settleReport = buildLivestreamSettleReport(room, {
     playerId: player.id,
@@ -354,7 +355,7 @@ export function closeLivestreamRoom(player, options = {}) {
     returnedCount: returned.length,
     hostName
   });
-  player.bracelets.push(...returned);
+  restoreInventoryItems(player, "bracelet", returned);
   player.livestreamRoom = null;
   const sessionXp = grantHostExperience(player, hostWorkerId, "livestreamSession", options);
   if (reason === "timeout" && typeof options.onRoomAutoClosed === "function") {

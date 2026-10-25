@@ -24,7 +24,7 @@ const VIEW_STATE_KEYS = Object.freeze({
   inventory: ["me"],
   market: ["me", "marketPlayers", "listings", "wants", "assetListings", "materialCatalog"],
   blackmarket: ["me", "blackStalls", "blackServiceOrders"],
-  shop: ["me", "assetListings", "materialCatalog"],
+  shop: ["me", "assetListings", "materialCatalog", "equipmentShop"],
   rankings: ["me", "players", "rankings", "rankingSelf", "rankingPlayerCount"],
   livestream: ["me", "livestreamRooms"],
   orders: ["me"],

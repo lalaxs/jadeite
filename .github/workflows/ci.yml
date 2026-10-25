@@ -33,6 +33,7 @@ jobs:
           node-version: 24.20.0
           cache: npm
       - run: npm ci
+      - run: npm run test:instance-isolation
       - run: npm run test:quality
       - run: npm run predeploy:check
       - run: npm run predeploy:postgres

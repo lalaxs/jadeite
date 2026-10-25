@@ -29,11 +29,13 @@
 
 实际截图：
 
-- [蓝宝石双侧槽镶](channel-sapphire-desktop.png)
-- [红宝石戒肩对石](claw-ruby-desktop.png)
-- [红宝石隐托对石](invisible-ruby-desktop.png)
-- [佛公满圈微镶](micro-buddha-desktop.png)
-- [手机预览](mobile.png)
+- [蓝宝石双侧槽镶](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2/channel-sapphire-desktop.png)
+- [红宝石戒肩对石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2/claw-ruby-desktop.png)
+- [红宝石隐托对石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2/invisible-ruby-desktop.png)
+- [佛公满圈微镶](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2/micro-buddha-desktop.png)
+- [手机预览](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2/mobile.png)
 - [浏览器数量记录](browser-checks.json)
 
 运行中的本地服务已更新，重启前自动存档备份位于 `backups/before-setting-slots-v2-20261021-151505.json`。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-setting-gems-v2)。

@@ -51,3 +51,5 @@ node scripts/planning-finance-browser.mjs
 ## 后续界面调整
 
 应用户截图要求，移除物品详情顶部「比较卖法」「查看同料账本」两个入口，以及账单页的现金流水说明和「经营收益与同料账本」按钮。现有成本和账本数据保留；前端刷新后生效。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-planning-finance)。

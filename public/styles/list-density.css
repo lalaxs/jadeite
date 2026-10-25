@@ -1,0 +1,84 @@
+.view :is(.resource-card-grid, .owned-worker-list, .recruit-candidate-list, .workshop-recipe-grid, .workshop-worker-grid, .inventory-grid, .jm-grid, .treasure-grid, .mat-list) {
+  --grid-card-min: 170px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-card-min)), 1fr));
+  gap: 10px;
+}
+.view .resource-card:not(.resource-card--compact) > .resource-card-visual { height: 96px; min-height: 96px; }
+.view .resource-card:not(.resource-card--compact) .resource-card-art { padding: 6px; }
+.view .resource-card:not(.resource-card--compact) .workshop-resource-outline { width: 100%; height: 72px; }
+.view .resource-card:not(.resource-card--compact) > .resource-card-copy { gap: 4px; padding: 8px; }
+.view .resource-card:not(.resource-card--compact) .resource-card-details { margin-top: 2px; }
+.view .resource-card:not(.resource-card--compact) .resource-card-footer { gap: 5px; padding-top: 4px; }
+.view :is(.inventory-slot-name strong, .resource-card .inventory-slot-name strong, .jm-card .jm-nm) { font-size: 14px; line-height: 1.4; }
+.view .resource-card .equipment-param-pills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.view .resource-card .equipment-param-pill { display: flex; justify-content: center; gap: 3px; min-width: 0; min-height: 28px; margin: 0; padding: 4px; font-size: 11px; white-space: nowrap; }
+.view .resource-card .equipment-param-pill strong { font-size: 12px; }
+.view :is(.resource-card-footer > button, .bm-goods-card .jm-buy, .jm-card .jm-buy) { min-height: 34px; padding: 6px 8px; font-size: 13px; }
+.view .equipment-stock-badge { top: 6px; right: 6px; padding: 2px 5px; }
+.view .inventory-slot:not(.resource-card) > .inventory-slot-visual { height: 104px; min-height: 104px; }
+.view .inventory-slot:not(.resource-card) > .inventory-slot-copy { padding: 8px; gap: 4px; }
+.view .inventory-rough-art { width: 100%; height: 96px; }
+.view .inventory-slot-visual :is(.jm-visual, .component-jewelry-product, .jade-canvas.inventory, .jade-opening-product.inventory) { width: 96px; height: 96px; max-width: 100%; }
+.view .inventory-slot-visual .material-swatch { min-height: 0; height: 88px; }
+.view .bm-goods-card .bm-resource-art { min-height: 0; height: 96px; padding: 4px; }
+.view .bm-goods-card .workshop-resource-outline { height: 72px; max-width: 100%; }
+.view .inventory-slot-badge { top: 6px; left: 6px; padding: 2px 6px; }
+.view :is(.inventory-grid, .jm-grid).virtual-grid-host .virtual-grid-window { gap: 10px; }
+.view .jm-card .jm-art { height: 104px; min-height: 104px; }
+.view .jm-card .jm-art .jm-visual { width: 96px; height: 96px; }
+.view .jm-card .jm-body { padding: 8px; gap: 5px; }
+.view .jm-card .jm-price { font-size: 17px; }
+.view .bm-stall-card .jm-art.bm-stall-art { height: 84px; min-height: 84px; flex-basis: 84px; }
+.view .bm-stall-mark { top: 12px; font-size: 20px; letter-spacing: 2px; }
+.view .bm-stall-card .bm-stall-who { margin-top: 0; }
+.view .bm-stall-card .bm-stall-blurb { margin: 0; font-size: 12px; line-height: 1.4; }
+.view :is(.bm-stall-blurb, .inventory-finish-summary, .treasure-card .inlay-summary) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.view .treasure-card { min-height: 0; }
+.view .treasure-card-visual { height: 104px; min-height: 104px; }
+.view .treasure-card-visual :is(.component-jewelry-product, .jade-opening-product, .jade-canvas) { width: 96px; height: 96px; }
+.view .treasure-card-body { gap: 6px; padding: 8px; }
+.view .treasure-card-head { flex-wrap: wrap; gap: 4px; }
+.view .treasure-card-head h3 { margin: 0; font-size: 14px; }
+.view .treasure-card-rep { padding: 2px 6px; font-size: 11px; }
+.view .treasure-card-meta { gap: 4px; }
+.view .treasure-card-meta span { padding: 1px 5px; font-size: 12px; }
+.view .treasure-card-value { padding-top: 0; }
+.view .treasure-card-value strong { font-size: 16px; }
+.view .treasure-card-return { min-height: 34px; margin-top: auto; padding: 6px; font-size: 12px; }
+.view .mat-art { min-height: 88px; height: 88px; }
+.view .mat-art .material-swatch { width: 68px; height: 68px; }
+.view .mat-art .shop-metal-swatch { width: 86px; height: 60px; }
+.view .mat-info { padding: 8px; gap: 6px; }
+.view .mat-title-row { margin: 0; }
+.view .mat-name { font-size: 14px; }
+.view .mat-prices { display: grid; gap: 4px; margin: 0 0 2px; }
+.view .mat-price { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 6px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.view .mat-price strong { font-size: 14px; }
+.view .mat-buy-btn { min-height: 34px; padding: 6px 8px; }
+#ordersList { grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr)); gap: 10px; }
+#ordersList .order-card { padding: 10px; font-size: 13px; }
+#ordersList .order-hero-main { font-size: 16px; gap: 5px; }
+#ordersList .order-quantity { font-size: 12px; }
+#ordersList .order-demand-row { padding: 2px 0; gap: 6px; }
+#ordersList .order-card-meta { padding-top: 6px; }
+#ordersList .order-persona { flex-basis: 130px; }
+#ordersList .order-card-actions { margin-top: 6px; }
+@media (max-width: 767px) {
+  .view :is(.resource-card-grid, .owned-worker-list, .recruit-candidate-list, .workshop-recipe-grid, .workshop-worker-grid, .inventory-grid, .jm-grid, .treasure-grid, .mat-list) { --grid-card-min: 128px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .view .resource-card:not(.resource-card--compact) > .resource-card-visual { height: 80px; min-height: 80px; }
+  .view .resource-card:not(.resource-card--compact) .workshop-resource-outline { height: 58px; }
+  .view .resource-card:not(.resource-card--compact) > .resource-card-copy { padding: 6px; }
+  .view .resource-card .equipment-param-pill { gap: 2px; }
+  .view .resource-card .equipment-param-pill strong { font-size: 11px; }
+  .view .bm-stall-card .jm-art.bm-stall-art { height: 76px; min-height: 76px; flex-basis: 76px; }
+  .view .bm-stall-mark { top: 10px; font-size: 18px; }
+  #ordersList { grid-template-columns: minmax(0, 1fr); }
+}
+@media (pointer: coarse) {
+  .view :is(.resource-card-footer > button, .resource-card .equipment-param-pill, .bm-goods-card .jm-buy, .jm-card .jm-buy, .treasure-card-return) { min-height: 44px; }
+  #ordersList .order-card-actions :is(button, .order-picker-btn) { min-height: 44px; }
+  .view .mat-buy-btn { min-height: 44px; }
+}
+@media (max-width: 359px) {
+  .view :is(.resource-card-grid, .owned-worker-list, .recruit-candidate-list, .workshop-recipe-grid, .workshop-worker-grid, .inventory-grid, .jm-grid, .treasure-grid, .mat-list) { grid-template-columns: minmax(0, 1fr); }
+}

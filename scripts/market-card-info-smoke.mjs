@@ -113,10 +113,10 @@ const fractionalMassHtml = marketCardHtml({
 assert.match(fractionalMassHtml, /1\.30 kg/);
 assert.doesNotMatch(fractionalMassHtml, /1\.299999/);
 assert.doesNotMatch(sealedHtml, /jm-unknown/);
-assert.match(sealedHtml, /参考 ¥/);
-assert.match(sealedHtml, /含税约/);
+assert.doesNotMatch(sealedHtml, /参考 ¥/);
+assert.doesNotMatch(sealedHtml, /含税约/);
 assert.match(sealedHtml, /买入 · ¥4,565/);
-assert.match(sealedHtml, /jm-delta/);
+assert.doesNotMatch(sealedHtml, /jm-delta/);
 assert.match(sealedHtml, /新手掌柜245/);
 assert.doesNotMatch(sealedHtml, /声望 12/);
 assert.doesNotMatch(sealedHtml, /Lv\.2/);
@@ -167,7 +167,7 @@ assert.equal(confirmBtn.textContent, "支付 ¥2,856");
 
 openMarketBuy("L1");
 assert.match(buyBody.innerHTML, /种水与颜色未揭露/);
-assert.match(buyBody.innerHTML, /按皮壳与估值议价/);
+assert.doesNotMatch(buyBody.innerHTML, /按皮壳与估值议价|参考估值|jm-delta/);
 assert.match(buyBody.innerHTML, /声望 12/);
 assert.doesNotMatch(buyBody.innerHTML, /种水分布/);
 

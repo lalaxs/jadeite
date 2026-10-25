@@ -14,7 +14,7 @@ export function inventoryDetailStats(entry, { formatMoney = money, formatNumber 
     { label: "阶段", value: entry.stageLabel || typeName(item.type, item) },
     { label: entry.category === "external" ? "持有" : "数量", value: entry.category === "external" ? `${formatNumber(entry.quantity)}${entry.unitLabel || ""}` : "1 件" }
   ];
-  if (includeValue) stats.push({ label: entry.category === "external" ? "总价值" : "估值", value: formatMoney(entry.totalValue) });
+  if (includeValue && entry.stage !== "rough") stats.push({ label: entry.category === "external" ? "总价值" : "估值", value: formatMoney(entry.totalValue) });
   if (includeCost && entry.category !== "external" && !entry.isPlanned) {
     const cost = itemCost(item);
     stats.push({ label: "已记货品成本", value: cost.complete ? formatMoney(cost.amount)

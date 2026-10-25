@@ -18,7 +18,7 @@
 
 通过现有检查：employee-payroll-smoke、employee-payroll-policy-smoke、employee-payroll-socket-e2e、auction-settle-modal-smoke、livestream-settle-modal-smoke、modal-lifecycle-smoke、styles-split-smoke、responsive-layout-smoke、night-theme-smoke、architecture-quality-gate、action-router-smoke、ui-stability-smoke。
 
-浏览器在无存档的3019/3020端口验收正常结算、资金不足、规则展开/折叠、跳转员工补薪页、关闭后刷新不重复扣款，以及夜间模式。截图为`paid.png`、`grace.png`、`night.png`。验收服务和页面已关闭。
+浏览器在无存档的3019/3020端口验收正常结算、资金不足、规则展开/折叠、跳转员工补薪页、关闭后刷新不重复扣款，以及夜间模式。截图为[paid.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-24-payroll-compact/paid.png)、[grace.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-24-payroll-compact/grace.png)、[night.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-24-payroll-compact/night.png)。验收服务和页面已关闭。
 
 ## 上线与存档
 
@@ -28,3 +28,5 @@
 - 健康检查ready=true、persistence=ready、连续持久化失败0；错误日志为空。
 - 正式服务已验证提供新弹窗模板及样式。启用核对见`activation.json`。
 - 日志：`data/payroll-compact-service-20261024.out.log`、`data/payroll-compact-service-20261024.err.log`。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-24-payroll-compact)。

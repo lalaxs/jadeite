@@ -21,8 +21,10 @@
 
 这说明“取少量件后把大块余料低价处理”的急售策略不适合当保本路线；它不是所有套件、继续取余料、订单和直播组合的最优利润，也不能据此宣称所有赌石必亏。当前通过验证的稳定收益结论适用于NPC来料加工主线，自购暗料仍须承担选料、规划与销售风险。
 
-数据：[simulation.json](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/simulation.json)。
+数据：[simulation.json](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-economy-implementation/simulation.json)。
 
 复验：`node scripts/economy-progression-simulation.mjs --accounts=10000 --days=14 --raw=1000`。
 
-仅复验风险段并保留主组：`node scripts/economy-progression-simulation.mjs --risk-only --raw=1000`。此模式会核对佣金规则hash，拒绝在佣金规则已变更时沿用旧主组。
+仅复验风险段并保留主组：先执行完整模拟生成 [simulation.json](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-economy-implementation/simulation.json)，再运行 `node scripts/economy-progression-simulation.mjs --risk-only --raw=1000`。此模式会核对佣金规则hash，拒绝在佣金规则已变更时沿用旧主组。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-economy-implementation)。

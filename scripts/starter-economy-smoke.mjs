@@ -9,6 +9,7 @@ import { auctionEntryFee, auctionHallForId } from "../shared/domain/auction/jade
 import { aiPurchaseChance } from "../server/systems/livestream-room-system.js";
 import { hostBonusesFromLevels } from "../shared/domain/livestream/livestream-host-bonuses.js";
 import { WORKSHOP_WORKER_DEFS } from "../server/services/workshop-roster.js";
+import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
 
 assert.equal(INITIAL_PLAYER_CASH, 12_000);
 assert.equal(auctionEntryFee(auctionHallForId("novice")), 200);
@@ -71,7 +72,7 @@ try {
     assert.equal(p.cash, 12_000);
     assert.equal(p.workshop.devices.length, 0);
     assert.equal(p.workshop.workers.length, 0);
-    assert.equal(H.workshopDevicesForPlayer(p).filter((device) => device.publicStation).length, 3);
+    assert.deepEqual(H.workshopDevicesForPlayer(p), []);
     assert.equal(p.rough.length, 1);
     const gift = structuredClone(p.rough[0]);
     assert.equal(gift.trueQualityKey, key);
@@ -79,6 +80,9 @@ try {
     assert.ok(gift.price >= 1900 && gift.price <= 4700);
     H.normalizePlayer(p);
     assert.deepEqual(p.rough[0], gift, "normalization must preserve the random draw");
+    installOwnedWorkshopFixture(p);
+    p.workshop.workers = [];
+    H.normalizePlayer(p);
     const startedAt = clock;
 
     // Real failure branches must return material, release workers and charge wear once.
@@ -88,8 +92,8 @@ try {
     complete(p, failedOpening, 0);
     assert.equal(p.rough.length, 1);
     assert.equal(p.materials.length, 0);
-    assert.equal(H.workshopDevicesForPlayer(p).find((d) => d.stage === "opening").condition, 100,
-      "shared stations are maintained by the workshop rather than consuming a free owned machine");
+    assert.ok(H.workshopDevicesForPlayer(p).find((d) => d.stage === "opening").condition < 100,
+      "failed processing consumes owned machine durability");
     complete(p, start(p, "opening", { itemId: gift.id }));
     const material = p.materials.find((item) => item.id === gift.id);
     assert.equal(material.qualityKey, key);
@@ -152,9 +156,9 @@ try {
       minutesIncludingForcedFailures: Math.round((clock - startedAt) / 6000) / 10 });
   }
 
-  const exploit = { type: "bracelet", kind: "cabochon", materialStage: "finished", value: 659 };
-  assert.equal(evaluateOrderFit(exploit, { persona: { motive: "撑场面" },
-    hard: { kind: "cabochon", budgetUnlimited: true }, requirements: [], pay: 52000 }).tier, "hard_fail");
+  const inexpensiveProduct = { type: "bracelet", kind: "cabochon", materialStage: "finished", value: 659 };
+  assert.equal(evaluateOrderFit(inexpensiveProduct, { persona: { motive: "撑场面" },
+    hard: { kind: "cabochon", budgetUnlimited: true }, requirements: [], pay: 52000 }).tier, "full");
   const fresh = H.makePlayer("starter-no-recovery");
   fresh.cash = 0; fresh.rough = [];
   assert.equal(H.recoverPlayerIfNeeded(fresh, clock, { requested: true }).applied, false);

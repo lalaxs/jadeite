@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { TEST_HOOK_KEYS, createTestHooks } from "../server/shell/test-hooks.js";
 import { __testHooks as H } from "../server.js";
 
-assert.equal(TEST_HOOK_KEYS.length, 174);
+assert.equal(TEST_HOOK_KEYS.length, 176);
 assert.equal(Object.isFrozen(H), true);
 
 for (const key of TEST_HOOK_KEYS) {
@@ -18,6 +18,8 @@ assert.equal(typeof H.BLACKMARKET_MIN_PRICE, "number");
 assert.equal(typeof H.reconcileAuctionEscrows, "function");
 assert.equal(typeof H.reconcileMarketReferences, "function");
 assert.equal(typeof H.reconcileBlackmarketReferences, "function");
+assert.equal(typeof H.ensureEquipmentShop, "function");
+assert.equal(typeof H.buyShopEquipmentForPlayer, "function");
 
 assert.throws(
   () => createTestHooks({ world: H.world }),

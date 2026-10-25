@@ -5,7 +5,7 @@ import {
   npcPriceReference,
   quoteNpcGoods
 } from "../shared/domain/blackmarket/npc-pricing.js";
-import { NPC_STALLS } from "../shared/domain/blackmarket/npc-rules.js";
+import { NPC_STALLS, NPC_TARGET_STALLS, npcRuleForStall } from "../shared/domain/blackmarket/npc-rules.js";
 import { equipmentCatalog, createDeviceInstance } from "../server/systems/equipment-system.js";
 import { equipmentRepairQuote } from "../shared/domain/economy/equipment-maintenance.js";
 import { recruitPrice, workerDailyWage } from "../shared/domain/economy/worker-economy.js";
@@ -111,13 +111,18 @@ Date.now = () => now;
 bindBlackmarketApi({ ...originalApi, randomUUID: () => `npc-price-test-${sequence++}` });
 
 function assertStockPrices() {
-  for (const rule of NPC_STALLS) {
-    const stall = H.state.blackStalls.find((entry) => entry.npcRole === rule.role);
-    assert.ok(stall);
-    assert.equal(stall.items.length, rule.stock);
-    assert.ok(stall.items.filter((row) => row.npcDiscount).length <= 1, "one clearance offer per shelf and batch");
-    for (const row of stall.items) {
-      const [min, max] = ranges[rule.role][row.npcDiscount ? "discount" : "ordinary"];
+  const stalls = H.state.blackStalls.filter(stall => stall.npc);
+  assert.equal(stalls.length, NPC_TARGET_STALLS);
+  assert.equal(new Set(stalls.map(stall => stall.id)).size, NPC_TARGET_STALLS);
+  for (const stall of stalls) {
+    const rule = npcRuleForStall(stall);
+    assert.ok(rule, `known NPC stock rule for ${stall.id}`);
+    const stock = stall.type === "blindbox" ? stall.pool : stall.items;
+    assert.equal(stock.length, rule.stock);
+    assert.ok(stock.filter((row) => row.npcDiscount).length <= rule.discount, "clearance offers stay within the shelf's batch quota");
+    if (stall.type === "blindbox") assert.equal(stall.blindPrice, Math.max(100, Math.round(stock.reduce((sum, row) => sum + row.price, 0) / stock.length)));
+    for (const row of stock) {
+      const [min, max] = ranges[row.npcSupplyRole || rule.role][row.npcDiscount ? "discount" : "ordinary"];
       const repair = row.type === "equipment" ? equipmentRepairQuote(row.item) : 0;
       const total = row.price + repair;
       const reference = npcPriceReference(row.type, row.item);
@@ -141,11 +146,15 @@ try {
   H.state.players.set(buyer.id, buyer);
   maintainNpcBlackmarket(now);
   assertStockPrices();
-  for (const stall of H.state.blackStalls) assert.equal(stall.items.filter((row) => row.npcDiscount).length, 1);
+  for (const stall of H.state.blackStalls) assert.equal(stall.items.filter((row) => row.npcDiscount).length, npcRuleForStall(stall).discount);
 
-  for (const rule of NPC_STALLS) {
-    const stall = H.state.blackStalls.find((entry) => entry.npcRole === rule.role);
-    for (const original of [stall.items.find((row) => row.npcDiscount), stall.items.find((row) => !row.npcDiscount)]) {
+  for (const stall of H.state.blackStalls) {
+    const rule = npcRuleForStall(stall);
+    const stock = stall.type === "blindbox" ? stall.pool : stall.items;
+    const samples = [stock.find((row) => !row.npcDiscount)];
+    if (rule.discount) samples.push(stock.find((row) => row.npcDiscount));
+    for (const original of samples) {
+      assert.ok(original);
       const row = structuredClone(original);
       const item = row.item;
       const preserved = { id: row.id, createdAt: row.createdAt, npcDiscount: row.npcDiscount, npcPremium: row.npcPremium, item: structuredClone(item) };
@@ -199,21 +208,40 @@ try {
   assert.equal(buyGoodsFromStallForPlayer(buyer, stone.id, stale.id, newPrice).ok, false, "stock cannot be purchased twice");
   assert.equal(buyer.cash, oldCash - newPrice);
 
-  for (const rule of NPC_STALLS) {
-    const stall = H.state.blackStalls.find((entry) => entry.npcRole === rule.role);
+  const depletedBatches = new Map();
+  for (const stall of H.state.blackStalls.filter(entry => entry.npc && npcRuleForStall(entry).discount > 0)) {
     const clearance = stall.items.find((row) => row.npcDiscount);
-    assert.equal(buyGoodsFromStallForPlayer(buyer, stall.id, clearance.id, clearance.price).ok, true);
+    assert.ok(clearance);
+    const clearanceBuyer = H.makePlayer(`clearance-buyer-${stall.id}`);
+    clearanceBuyer.cash = 100_000_000;
+    H.state.players.set(clearanceBuyer.id, clearanceBuyer);
+    const sale = buyGoodsFromStallForPlayer(clearanceBuyer, stall.id, clearance.id, clearance.price);
+    assert.equal(sale.ok, true, sale.message);
+    depletedBatches.set(stall.id, stall.npcBatch);
+    assert.equal(clearanceBuyer.cash, 100_000_000 - clearance.price);
+    if (clearance.type === "employee") {
+      const salary = clearanceBuyer.employeePayroll.currentBill.entries.find(entry => entry.workerId === clearance.item.id);
+      assert.ok(salary, "the joining employee is included in today's payroll");
+      assert.equal(salary.amount, workerDailyWage(clearance.item));
+      assert.equal(salary.booked, false, "joining-day salary is settled on the next login day");
+    }
   }
-  now = Math.max(...H.state.blackStalls.filter((stall) => stall.npc).map((stall) => stall.npcRefillAt)) + 1;
+  const refillDeadlines = H.state.blackStalls.filter(stall => stall.npc && stall.npcRefillAt != null).map(stall => stall.npcRefillAt);
+  assert.ok(refillDeadlines.length > 0);
+  now = Math.max(...refillDeadlines) + 1;
   maintainNpcBlackmarket(now);
   assertStockPrices();
-  for (const stall of H.state.blackStalls.filter((entry) => entry.npc)) assert.equal(stall.items.filter((row) => row.npcDiscount).length, 0, "ordinary replenishment cannot revive a sold clearance slot");
+  for (const stall of H.state.blackStalls.filter((entry) => entry.npc)) {
+    const depleted = depletedBatches.get(stall.id) === stall.npcBatch;
+    assert.equal(stall.items.filter((row) => row.npcDiscount).length, depleted ? 0 : npcRuleForStall(stall).discount,
+      "ordinary replenishment preserves spent quotas; incoming batches receive their own quota");
+  }
 
   for (let round = 0; round < 8; round++) {
     now = Math.max(...H.state.blackStalls.filter((stall) => stall.npc).map((stall) => stall.npcRotateAt)) + 1;
     maintainNpcBlackmarket(now);
     assertStockPrices();
-    for (const stall of H.state.blackStalls.filter((entry) => entry.npc)) assert.equal(stall.items.filter((row) => row.npcDiscount).length, 1);
+    for (const stall of H.state.blackStalls.filter((entry) => entry.npc)) assert.equal(stall.items.filter((row) => row.npcDiscount).length, npcRuleForStall(stall).discount);
     const stable = structuredClone(H.state.blackStalls);
     assert.equal(maintainNpcBlackmarket(now).changed, false);
     assert.deepEqual(H.state.blackStalls, stable, "refreshing the screen does not reroll prices or offers");

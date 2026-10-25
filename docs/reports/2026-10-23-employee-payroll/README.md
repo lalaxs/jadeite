@@ -31,7 +31,9 @@
 
 实际浏览器验证在独立的无存档服务（3019）进行，确认员工页、展开明细、解雇确认及成功结果。截图为调整日薪之前的测试数据，仅供查看提示布局；最新日薪以本文的规则和测试为准。未操作主服务中的玩家存档。
 
-- `payroll-roster.png`：预计工资、缺口和员工明细。
-- `dismiss-confirm.png`：解雇当天整日工资与扣款确认。
+- [payroll-roster.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-employee-payroll/payroll-roster.png)：预计工资、缺口和员工明细。
+- [dismiss-confirm.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-employee-payroll/dismiss-confirm.png)：解雇当天整日工资与扣款确认。
 
 本次修改包含服务端逻辑，已运行的主服务需要重启后生效。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-employee-payroll)。

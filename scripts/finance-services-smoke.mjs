@@ -8,6 +8,7 @@ import { createMemoryWorldStore } from "../server/world-store.js";
 import { createSqliteWorldPersister } from "../server/shell/sqlite-world-persist.js";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
 import { claimAchievement } from "../shared/domain/progression/player-progression.js";
+import { buyEquipment } from "../server/systems/equipment-system.js";
 
 // The imported server is never started and cannot touch the user's real save.
 process.env.JADE_WORLD_PERSIST = "0";
@@ -17,7 +18,7 @@ const market = await import("../server/services/market-service.js");
 H.world.clear();
 assert.equal(H.persister, null, "test import must have persistence disabled");
 const results = [];
-function make(id) {
+function make(id, workshopStages = []) {
   const player = H.makePlayer(id);
   H.normalizePlayer(player);
   player.cash = 200_000; player.level = 9; player.rep = 20;
@@ -26,6 +27,11 @@ function make(id) {
   player.assets.livestreamPermitOwned = true;
   player.recovery.debt = 0; player.employeePayroll.debt = 0;
   H.state.players.set(player.id, player);
+  for (const stage of workshopStages) {
+    const purchase = buyEquipment(player, `used-${stage}-1`, { spendCash: H.spendCash, makeId: () => `${id}-${stage}` });
+    assert.equal(purchase.ok, true, purchase.message);
+    assert.equal(purchase.device.workerId, player.workshop.owner.id);
+  }
   return player;
 }
 const finished = (id, value = 2000) => ({ id, name: `验收成品 ${id}`, type: "bracelet", kind: "bracelet", productType: "bracelet",
@@ -149,7 +155,7 @@ assert.equal(H.buyGoodsFromStallForPlayer(buyer, stall.id, blackRowId).ok, false
 assert.deepEqual(snapshot(blackSeller).summary, before);
 
 // Real carving partitions one paid material's cost into multiple pieces and offcut.
-const maker = make("finance-craft-seller");
+const maker = make("finance-craft-seller", ["carving"]);
 const material = acquire(maker, { id: "finance-craft-material", type: "material", materialStage: "opened", stage: "material",
   name: "财务验收明料", qualityKey: "glutinous", quality: "糯种", color: "青白", score: 2, rep: 4,
   mass: 1.5, price: 12500, value: 12500, baseValue: 10000, visual: { seed: 1968 }, craftScores: { open: 85 } }, 9000);
@@ -159,13 +165,14 @@ const carving = H.startWorkshopJobForPlayer(maker, carvingDevice.id, { itemId: m
   { type: "peacePendant", x: 35, y: 40, size: "M", rot: 0 }, { type: "cabochon", x: 70, y: 65, size: "M", rot: 0 }
 ] });
 assert.equal(carving.ok, true, carving.message);
+assert.equal(carving.fee, 0, "self-operated owned equipment charges no station rental");
 const rng = Math.random;
 try { Math.random = () => .999; H.processProductionJobs(carving.job.readyAt + 1, { onlineOnly: false, broadcast: false }); }
 finally { Math.random = rng; }
 claimWorkshopOutputs(H, maker);
 assert.equal(maker.bracelets.length, 2);
 const outputs = [...maker.bracelets, ...maker.materials];
-assert.equal(outputs.reduce((sum, item) => sum + itemCost(item).amount, 0), 9035, "procurement plus real public carving fee is partitioned once");
+assert.equal(outputs.reduce((sum, item) => sum + itemCost(item).amount, 0), 9000, "self-operated extraction preserves the procurement cost");
 assert.equal(new Set(outputs.map(item => item.financeBatchId)).size, 1);
 assert.equal(outputs[0].financeBatchId, sourceBatchId);
 const pieceA = maker.bracelets[0], pieceB = maker.bracelets[1];
@@ -190,8 +197,8 @@ assert.equal(batch.directCost, batch.soldCost + batch.lossCost);
 assert.equal(batch.finalProfit, batch.revenue - batch.directCost - batch.salesFees);
 results.push("carving-batch-cost-conservation");
 
-// Technical-service fees follow the customer's material; provider inputs remain operating expenses.
-const provider = make("finance-service-provider"), customer = make("finance-service-customer");
+// Technical-service fees follow the customer's material; self-operated machines charge no rental.
+const provider = make("finance-service-provider", ["opening", "carving"]), customer = make("finance-service-customer");
 assert.equal(H.openBlackStallForPlayer(provider, { type: "service", title: "真实代工验收" }).ok, true);
 const openingOffer = H.addServiceOfferForPlayer(provider, { templateId: "open-window", title: "代开料", price: 200, etaMinutes: 20 });
 assert.equal(openingOffer.ok, true, openingOffer.message);
@@ -219,8 +226,9 @@ const opening = H.startWorkshopJobForPlayer(provider, openingStation.id, { itemI
 assert.equal(opening.ok, true, opening.message);
 H.linkWorkshopJobToServiceOrder(ordered.order.id, provider, opening.job.id);
 assertEscrowCostPrivacy(H.snapshotFor(provider).me.jobs.find(job => job.id === opening.job.id)?.item);
-assert.equal(itemCost(opening.job.item).amount, 4000, "the provider's public station cannot become customer acquisition cost");
-assert.equal(snapshot(provider).summary.operatingExpenses - providerBefore.operatingExpenses, 25);
+assert.equal(opening.fee, 0);
+assert.equal(itemCost(opening.job.item).amount, 4000, "self-operated equipment must not add an acquisition fee to customer material");
+assert.equal(snapshot(provider).summary.operatingExpenses - providerBefore.operatingExpenses, 0);
 try { Math.random = () => .999; H.processProductionJobs(opening.job.readyAt + 1, { onlineOnly: false, broadcast: false }); }
 finally { Math.random = rng; }
 assertEscrowCostPrivacy(H.snapshotFor(provider).me.workshopDeliveries.flatMap(delivery => delivery.items).find(item => item.id === rough.id));
@@ -238,9 +246,9 @@ const deliveredListingId = H.state.listings.find(row => row.item.id === delivere
 assert.equal(H.buyListingForPlayer(buyer, deliveredListingId).ok, true);
 verifySale(customer, before, 5000, 4200, "service-delivery-resold-before-confirmation");
 assert.equal(H.confirmBlackServiceForPlayer(customer, ordered.order.id).ok, true);
-assert.equal(provider.cash - providerCashBefore, 175);
+assert.equal(provider.cash - providerCashBefore, 200);
 assert.equal(snapshot(provider).summary.serviceNet - providerBefore.serviceNet, 200);
-assert.equal(snapshot(provider).summary.operatingNetKnown - providerBefore.operatingNetKnown, 175);
+assert.equal(snapshot(provider).summary.operatingNetKnown - providerBefore.operatingNetKnown, 200);
 before = snapshot(provider).summary;
 assert.equal(H.confirmBlackServiceForPlayer(customer, ordered.order.id).ok, false);
 assert.deepEqual(snapshot(provider).summary, before, "duplicate service confirmation cannot repeat the fee or operating income");
@@ -281,7 +289,7 @@ results.push("technical-service-costs-and-offcut-transfer");
 // Exceptional recovery after delivery refunds the already-capitalized fee.
 // It adjusts the original customer's held/sold costs, never a later buyer's cost.
 for (const sold of [false, true]) {
-  const refundProvider = make(`refund-provider-${sold}`), refundCustomer = make(`refund-customer-${sold}`);
+  const refundProvider = make(`refund-provider-${sold}`, ["opening"]), refundCustomer = make(`refund-customer-${sold}`);
   assert.equal(H.openBlackStallForPlayer(refundProvider, { type: "service", title: "退款代工" }).ok, true);
   const offer = H.addServiceOfferForPlayer(refundProvider, { templateId: "open-window", title: "代开料", price: 200, etaMinutes: 20 });
   assert.equal(offer.ok, true);

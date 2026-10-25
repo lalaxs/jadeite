@@ -31,6 +31,7 @@ export function registerSocketHandlers(io, deps) {
     durableMutations = null,
     randomUUID,
     world,
+    getState,
     playerSessions,
     makePlayer,
     refillOrders,
@@ -91,7 +92,7 @@ export function registerSocketHandlers(io, deps) {
     debugUnlockMining,
     normalizePlayer,
     playerOwnsWorkshop,
-    buyEquipment,
+    buyShopEquipmentForPlayer,
     workshopJobsForDevice,
     repairEquipment,
     startWorkshopJobForPlayer,
@@ -117,6 +118,7 @@ export function registerSocketHandlers(io, deps) {
     withdrawListingForPlayer,
     collectMarketPayoutForPlayer,
     openBlackStallForPlayer,
+    visitBlackStallForPlayer,
     closeBlackStallForPlayer,
     setBlackStallPausedForPlayer,
     updateBlackStallMetaForPlayer,
@@ -127,6 +129,7 @@ export function registerSocketHandlers(io, deps) {
     buyGoodsFromStallForPlayer,
     buyBlackListingForPlayer,
     publicStone,
+    publicBlackStall,
     buyBlindboxFromStallForPlayer,
     startBlindboxDrawForPlayer,
     settleBlindboxDrawForPlayer,
@@ -331,15 +334,17 @@ export function registerSocketHandlers(io, deps) {
   registerWorkshopDeliveryCommands(socket, { ...deps, getPlayer, acceptMutation, broadcast });
   registerCommissionCommands(socket, { ...deps, getPlayer, acceptMutation, broadcast });
 
-  socket.on("setName", (payload) => {
+  socket.on("setName", (payload, acknowledge) => {
     const player = getPlayer(socket);
     if (!player) return;
-    if (!acceptMutation(player, payload, "该改名请求已处理，请勿重复提交。")) return;
+    if (!acceptMutation(player, payload, "该改名请求已处理，请勿重复提交。", acknowledge)) return;
     const cleanName = String(mutationValue(payload, "name") || "").trim().slice(0, 10);
-    if (!cleanName || cleanName === player.name) return;
+    if (!cleanName) return acknowledge?.({ ok: false, message: "请输入角色名。" });
+    if (cleanName === player.name) return acknowledge?.({ ok: true, name: player.name });
     player.name = cleanName;
     addNews(`${player.name} 换上了新招牌。`);
     broadcast();
+    acknowledge?.({ ok: true, name: player.name });
   });
 
   socket.on("sendWorldChat", (payload = {}, acknowledge) => {
@@ -589,10 +594,7 @@ export function registerSocketHandlers(io, deps) {
     }
     normalizePlayer(player);
     if (!playerOwnsWorkshop(player)) return socket.emit("toast", "先购买街角小工坊，再添置设备。");
-    const result = buyEquipment(player, payload.modelKey, {
-      spendCash,
-      makeId: randomUUID
-    });
+    const result = buyShopEquipmentForPlayer(player, payload.modelKey);
     if (!result.ok) {
       return socket.emit("toast", {
         text: result.message,
@@ -968,8 +970,11 @@ export function registerSocketHandlers(io, deps) {
 
   registerBlackmarketCommands(socket, {
     getPlayer,
+    getState,
+    publicBlackStall,
     acceptMutation,
     openBlackStallForPlayer,
+    visitBlackStallForPlayer,
     closeBlackStallForPlayer,
     setBlackStallPausedForPlayer,
     mutationValue,

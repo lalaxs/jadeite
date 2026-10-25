@@ -18,12 +18,14 @@
 浏览器使用 `PORT=3012 JADE_WORLD_PERSIST=0` 的独立样本世界，未读写玩家存档。Chrome 检查日夜主题、1440×1000 桌面、390×844 手机、爪镶/包镶/微镶/编绳、亮光/柔光/哑光、60 颗钻石、库存 256 像素位图缓存及库存详情。无页面脚本错误、素材或页面加载失败；手机页面宽度与视口一致。访客会话探测返回的预期 401 单独计数。
 
 - [浏览器检查结果](browser-checks.json)
-- [改动前](before-detail.png)
-- [改动后（日间）](after-jade-day.png)
-- [改动后（夜间）](after-desktop.png)
-- [满圈钻石](after-diamond-desktop.png)
-- [手机](after-mobile.png)
-- [库存缓存](inventory-cached-buddha.png)
-- [库存详情](inventory-detail.png)
+- [改动前](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/before-detail.png)
+- [改动后（日间）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/after-jade-day.png)
+- [改动后（夜间）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/after-desktop.png)
+- [满圈钻石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/after-diamond-desktop.png)
+- [手机](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/after-mobile.png)
+- [库存缓存](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/inventory-cached-buddha.png)
+- [库存详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/inventory-detail.png)
 
 复验：启动 `scripts/inlay-art-browser-fixture.mjs` 样本服务，再运行 `node docs/reports/2026-10-23-buddha-rounded-minimal/browser-qa.mjs`。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal)。

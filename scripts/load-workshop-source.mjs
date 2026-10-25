@@ -8,5 +8,5 @@ const PARTS = ["catalog.js", "state.js", "selectors.js", "worker-view.js", "item
   "actions.js", "create-workshop-feature.js", "workshop-module.js"];
 
 export function readWorkshopSource() {
-  return PARTS.filter(file => existsSync(ROOT + file)).map(file => readFileSync(ROOT + file, "utf8")).join("\n");
+  return PARTS.filter(file => existsSync(ROOT + file)).map(file => readFileSync(ROOT + file, "utf8")).join("\n").replace(/\r\n/g, "\n");
 }

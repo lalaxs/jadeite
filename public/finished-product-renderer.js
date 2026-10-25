@@ -222,7 +222,9 @@ export function renderFinishedProduct(item, size, palettes, options = {}) {
     })) };
   }
   const setting = settingMarkup(mount, g, mount ? halo : null, id);
-  const zoom = Math.min(1.6, 83 / (type === "ring" && !bare ? g.width * 2.15 + 4 : g.width + 10), 78 / (g.height + 6));
+  const zoom = Math.min(size === "finished" ? Infinity : 1.6,
+    83 / (type === "ring" && !bare ? g.width * 2.15 + 4 : g.width + 10),
+    78 / (g.height + (!bare && type === "pendant" ? 24 : 6)));
   // Centre the original outline, including asymmetric cuts, in the preview.
   // Keep source material coordinates intact; only the display frame moves.
   const centerX = bare ? 60 - (g.nativeBounds.minX + g.nativeBounds.maxX) * g.unit * zoom / 2 : 60;

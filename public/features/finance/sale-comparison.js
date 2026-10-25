@@ -45,8 +45,8 @@ export function buildSaleComparison(state, product, { targetPrice, now = Date.no
         bundlePay: amount(order.pay), quantity, label: "整单报价", note: `需要 ${quantity} 件；整单报价不能当成本件收入。请到订单选齐后查看结算。`, destination: "orders" });
       continue;
     }
-    const revenue = Math.min(amount(Number(order.pay || 0) * estimate.payMult * (late ? 0.72 : 1)),
-      orderPayoutCap([product]), systemSalePriceCap(player, [product]));
+    const basePay = Math.min(Number(order.pay || 0), orderPayoutCap([product]), systemSalePriceCap(player, [product]));
+    const revenue = amount(basePay * estimate.payMult * (late ? 0.72 : 1));
     const demand = quoteSystemDemand(player, [product], revenue, now, { exempt: order.starterOrder === true });
     rows.push({ id: `order:${order.id}`, channel: `订单 · ${order.client || "客人"}`, kind: "quote", label: "当前结算预估",
       available: !block && demand.ok, ...saleResult(player, product, revenue, "order"), destination: "orders",

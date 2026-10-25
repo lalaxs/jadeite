@@ -10,12 +10,14 @@ import { preparePostgresTestEnvironment } from "./fixtures/postgres-test-environ
 import { createPostgresWorldPersister } from "../server/shell/postgres-world-persist.js";
 import { createMemoryWorldStore } from "../server/world-store.js";
 import { createProjectionDelta } from "../server/persistence/projection-delta.js";
+import { isFeatureAvailable } from "../shared/domain/feature-availability.js";
 
 if (!process.env.TEST_DATABASE_URL) throw new Error("socket-mixed-load: TEST_DATABASE_URL is required; use a disposable test database");
 const clientCount = Math.max(8, Math.min(100, Math.floor(Number(process.env.LOAD_CLIENTS) || 25)));
 const savedPlayerCount = Math.max(clientCount, Math.min(5000, Math.floor(Number(process.env.LOAD_SAVED_PLAYERS) || 1000)));
 const stockCount = Math.max(10, Math.min(500, Math.floor(Number(process.env.LOAD_INVENTORY_ITEMS) || 100)));
 const durationMs = Math.max(35_000, Math.min(900_000, Number(process.env.LOAD_DURATION_MS) || 45_000));
+const miningAvailable = isFeatureAvailable("mining");
 const databaseTest = await preparePostgresTestEnvironment("mixed_load");
 const connectionString = databaseTest.env.DATABASE_URL;
 const port = 36000 + (process.pid % 1000);
@@ -156,7 +158,7 @@ try {
       id: `mixed-stock-${i}-${index}`, type: "bracelet", name: "库存成品", value: 500, estimatedValue: 500, qualityKey: "bean"
     }));
     if (i < clientCount) {
-      const template = player.rough[0];
+      const { starter, starterProtection, starterOwnerId, starterOriginId, ...template } = player.rough[0];
       player.rough = Array.from({ length: 30 }, (_, index) => ({ ...structuredClone(template), id: `mixed-rough-${i}-${index}` }));
       sessions.push({ playerId: player.id, resumeToken: H.playerSessions.issueSession(player, "mixed-load-fixture") });
     }
@@ -169,8 +171,15 @@ try {
   await startServer();
   clients.push(...await Promise.all(sessions.map(connect)));
   const pairCount = Math.max(1, Math.floor(clientCount / 4));
-  const productionIndices = Array.from({ length: clientCount - pairCount * 2 }, (_, i) => pairCount * 2 + i).filter((_, i) => i % 2 === 0);
-  const miningIndices = Array.from({ length: clientCount - pairCount * 2 }, (_, i) => pairCount * 2 + i).filter((_, i) => i % 2 === 1);
+  const productionIndices = Array.from({ length: clientCount - pairCount * 2 }, (_, i) => pairCount * 2 + i).filter((_, i) => !miningAvailable || i % 2 === 0);
+  const miningIndices = miningAvailable
+    ? Array.from({ length: clientCount - pairCount * 2 }, (_, i) => pairCount * 2 + i).filter((_, i) => i % 2 === 1)
+    : [];
+  if (!miningAvailable) {
+    const result = await acknowledged(clients.at(-1), "miningApply", { preferences: ["core-06"], allowFallback: true });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, "FEATURE_UNAVAILABLE");
+  }
   await Promise.all(miningIndices.map(async (index) => {
     const result = await acknowledged(clients[index], "miningApply", { preferences: ["core-06", "core-05", "core-04"], allowFallback: true });
     assert.equal(result.ok, true, result.message);
@@ -222,6 +231,20 @@ try {
         // arrive after settlement. Accept the committed active or completed state.
         await mutate(client, "startPolish", { roughId: rough.id }, (state) => state.me.jobs.some((job) => job.item.id === rough.id) || state.me.stats.cutCount === cutCount + 1);
         await waitState(client, (state) => !state.me.jobs.some((job) => job.item.id === rough.id) && state.me.stats.cutCount === cutCount + 1, 15_000, "production settlement");
+        const delivery = client.state.me.workshopDeliveries.find((entry) => entry.items.some((item) => item.id === rough.id));
+        if (delivery) {
+          const revealed = await acknowledged(client, "revealWorkshopDelivery", { deliveryId: delivery.id });
+          assert.equal(revealed.ok, true, revealed.message);
+          if (revealed.scratchReveal?.itemIds.length) {
+            const scratched = await acknowledged(client, "revealWorkshopDelivery", {
+              deliveryId: delivery.id, itemIds: revealed.scratchReveal.itemIds
+            });
+            assert.equal(scratched.ok, true, scratched.message);
+          }
+          const claimed = await acknowledged(client, "claimWorkshopDelivery", { deliveryId: delivery.id });
+          assert.equal(claimed.ok, true, claimed.message);
+          await waitState(client, (state) => state.me.materials.some((item) => item.id === rough.id), 15_000, "production handover");
+        }
         const outputCount = client.state.me.materials.filter((item) => item.id === rough.id).length;
         assert.ok(outputCount <= 1, "production may legitimately shatter, but must never duplicate its output");
         if (!outputCount) { assert.equal(client.state.me.stats.badCutCount, badCutCount + 1); counts.shattered++; }
@@ -267,7 +290,9 @@ try {
   await pendingSample;
   assert.equal(sampleError, null);
   assert.ok(counts.purchases >= clientCount * 5 && counts.trades >= pairCount * 5);
-  assert.ok(counts.productions > 0 && counts.shifts > 0 && counts.reconnects > 0 && counts.duplicates > 0);
+  assert.ok(counts.productions > 0 && counts.reconnects > 0 && counts.duplicates > 0);
+  if (miningAvailable) assert.ok(counts.shifts > 0);
+  else assert.equal(counts.shifts, 0);
   for (const phase of ["queue", "compute", "commit"]) assert.ok(metricsText.includes(
     `jade_operation_phase_milliseconds_count{event="buyMaterialPack",phase="${phase}"}`
   ), `live server must expose ${phase} histogram observations`);

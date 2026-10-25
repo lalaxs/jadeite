@@ -22,4 +22,6 @@
 
 浏览器从本地 3000 端口加载实际前端模块，在独立页面只读展示截图中同一物品。黑市卡片、买入详情、库存、挂牌选择、共用预览均使用原料 SVG，轮廓与工坊规划一致，已开窗外皮隐藏。390px 手机视口无横向溢出，浏览器无脚本错误；详见 `browser-checks.json`。
 
-截图：`before.png`、`after-mobile.png`、`after-desktop.png`、`inventory-after.png`。
+截图：[before.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-opened-slice-preview/before.png)、[after-mobile.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-opened-slice-preview/after-mobile.png)、[after-desktop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-opened-slice-preview/after-desktop.png)、[inventory-after.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-opened-slice-preview/inventory-after.png)。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-opened-slice-preview)。

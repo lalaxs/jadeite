@@ -1,3 +1,4 @@
+import { restoreInventoryItems } from "./inventory-items.js";
 import { distributeItemCost } from "../../shared/domain/economy/item-cost.js";
 import { playersMatching, playersForRead, peekPlayer } from "../persistence/mutation-scope.js";
 import {
@@ -2443,7 +2444,7 @@ export function createMiningService(deps) {
       amount: Math.max(0, Math.round(Number(job.cost) || 0)),
       complete: job.cost != null && Number.isFinite(Number(job.cost))
     } }, roughs);
-    player.rough.push(...roughs);
+    restoreInventoryItems(player, "rough", roughs);
     for (const miner of miners) {
       miner.shiftsWorked = Math.max(0, Math.round(Number(miner.shiftsWorked) || 0)) + 1;
     }
@@ -2632,7 +2633,7 @@ export function createMiningService(deps) {
       amount: Math.max(0, Math.round(Number(job.cost) || 0)),
       complete: job.cost != null && Number.isFinite(Number(job.cost))
     } }, roughs);
-    player.rough.push(...roughs);
+    restoreInventoryItems(player, "rough", roughs);
     const injuredMiner = accident && miners.length
       ? miners[Math.min(miners.length - 1, Math.floor(unitHash(`${job.id}:injury`) * miners.length))]
       : null;

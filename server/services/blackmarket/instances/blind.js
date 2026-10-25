@@ -1,3 +1,4 @@
+import { isNpcBlackStall } from "../../../../shared/domain/blackmarket/npc-rules.js";
 // Instance-owned implementation; legacy entry points remain one directory above.
 import {
   BLACKMARKET_MIN_PRICE,
@@ -256,7 +257,7 @@ function startBlindboxDrawForPlayer(player, stallId) {
     return { ok: false, message: "有人正在抽取盲盒，稍后再试。" };
   }
   const seller = state.players.get(stall.ownerId);
-  if (!seller) {
+  if (!seller && !isNpcBlackStall(stall)) {
     removeStallFromState(state, stall);
     return { ok: false, code: "STALE_STALL", message: "摊主已失效，盲盒摊已自动下架。" };
   }
@@ -297,7 +298,7 @@ function startBlindboxDrawForPlayer(player, stallId) {
         entryPaid: true,
         sellerPaidEntry: false
       };
-      paySellerNow(seller, price, `黑市盲盒进场${stall.title}`, {
+      if (seller) paySellerNow(seller, price, `黑市盲盒进场${stall.title}`, {
         source: "blackmarket-blind-sale",
         afterCommit
       });

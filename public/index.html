@@ -243,15 +243,6 @@
           </div>
           <div class="jm-shop" id="bmShop">
             <div class="jm-main">
-              <div class="jm-toolbar">
-                <div class="jm-search"><input id="bmSearch" type="search" placeholder="搜摊名 / 商品 / 掌柜…" aria-label="搜索黑市摊位与商品" /></div>
-                <span class="jm-result-status" id="bmResultStatus" aria-live="polite"></span>
-                <select class="jm-sort" id="bmSort" aria-label="黑市摊位排序">
-                  <option value="latest">最近活跃</option>
-                  <option value="rating">客户评级高</option>
-                  <option value="type">按类型</option>
-                </select>
-              </div>
               <div class="jm-grid" id="bmGrid"></div>
             </div>
           </div>
@@ -265,14 +256,14 @@
             </div>
           </div>
           <div class="shop-tabs" role="tablist" aria-label="商铺分类">
-            <button class="shop-tab active" id="shopTabBuilding" data-tab="building" data-action="shopSelectTab" data-payload="building" type="button" role="tab" aria-controls="shopPanelBuilding" aria-selected="true">建筑与许可</button>
-            <button class="shop-tab" id="shopTabEquipment" data-tab="equipment" data-action="shopSelectTab" data-payload="equipment" type="button" role="tab" aria-controls="shopPanelEquipment" aria-selected="false" tabindex="-1">加工设备</button>
+            <button class="shop-tab active" id="shopTabEquipment" data-tab="equipment" data-action="shopSelectTab" data-payload="equipment" type="button" role="tab" aria-controls="shopPanelEquipment" aria-selected="true">加工设备</button>
             <button class="shop-tab" id="shopTabMaterial" data-tab="material" data-action="shopSelectTab" data-payload="material" type="button" role="tab" aria-controls="shopPanelMaterial" aria-selected="false" tabindex="-1">镶嵌材料</button>
+            <button class="shop-tab" id="shopTabBuilding" data-tab="building" data-action="shopSelectTab" data-payload="building" type="button" role="tab" aria-controls="shopPanelBuilding" aria-selected="false" tabindex="-1">建筑许可</button>
           </div>
-          <section class="panel shop-panel tab-panel" id="shopPanelBuilding" data-tab-panel="building" role="tabpanel" aria-labelledby="shopTabBuilding">
+          <section class="panel shop-panel tab-panel" id="shopPanelBuilding" data-tab-panel="building" role="tabpanel" aria-labelledby="shopTabBuilding" hidden>
             <div id="shopListings" class="item-list"></div>
           </section>
-          <section class="panel shop-panel tab-panel is-hidden" id="shopPanelEquipment" data-tab-panel="equipment" role="tabpanel" aria-labelledby="shopTabEquipment" hidden>
+          <section class="panel shop-panel tab-panel" id="shopPanelEquipment" data-tab-panel="equipment" role="tabpanel" aria-labelledby="shopTabEquipment">
             <div id="equipmentShop" class="equipment-shop-list"></div>
           </section>
           <section class="panel material-panel tab-panel is-hidden" id="shopPanelMaterial" data-tab-panel="material" role="tabpanel" aria-labelledby="shopTabMaterial" hidden>
@@ -845,6 +836,10 @@
         </div>
         <div class="jm-modal-body">
           <p class="account-status" id="accountStatus" role="status" aria-live="polite" hidden></p>
+          <form class="account-form account-rename-form" id="accountRenameForm">
+            <label>角色名<input name="name" type="text" maxlength="10" autocomplete="nickname" required /></label>
+            <button class="jm-btn-ghost" type="submit">保存名字</button>
+          </form>
           <div id="accountGuestView">
             <div class="account-tabs" role="tablist" aria-label="账号操作">
               <button type="button" role="tab" aria-selected="true" aria-controls="accountBindPanel" data-account-tab="bind">绑定当前角色</button>

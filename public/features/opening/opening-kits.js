@@ -1,54 +1,42 @@
-// Opening kits CRUD / clamp / server payload (moved from main.js)
-
 import {
   KIT_LIB as OPENING_KIT_LIB,
   computeOverlaps as computeOpeningOverlaps,
   scaleForOpeningKit
 } from "../../jade-opening-engine.js";
 import { clampClient } from "../../shell/format-utils.js";
-import { ensurePlannerDraft, replacePlannerDraft } from "./planner-drafts.js";
-import {
-  roughKits,
-  selectedBangleRingSize,
-  selectedOpeningKitId,
-  selectedOpeningKitTpl,
-  selectedPendantSize,
-  setSelectedOpeningKitId,
-  setSelectedOpeningKitTpl,
-  syncOpeningSizeDefaultsFromKit,
-  normalizeBangleRingSize,
-  normalizePendantSize,
-  openingKitSizeValue
-} from "./opening-state.js";
-
+import { defaultOpeningState } from "./opening-state.js";
+import { defaultPlannerDraftRuntime } from "./planner-drafts.js";
+export function createOpeningKits({ openingState = defaultOpeningState, drafts = defaultPlannerDraftRuntime, document = globalThis.document } = {}) {
+  const { roughKits, setSelectedOpeningKitId, setSelectedOpeningKitTpl, syncOpeningSizeDefaultsFromKit, normalizeBangleRingSize, normalizePendantSize, openingKitSizeValue } = openingState;
+  const { ensurePlannerDraft, replacePlannerDraft } = drafts;
 // Late-bound render helpers (filled by bindOpeningKitsRenderDeps)
-export let openingKitTemplate = (tplId) => ({ id: tplId, r: 40, name: tplId });
-export let openingKitFromStored = (kit) => kit;
-export let serverTypeForOpeningKit = (tplId) => tplId;
+let openingKitTemplate = (tplId) => ({ id: tplId, r: 40, name: tplId });
+let openingKitFromStored = (kit) => kit;
+let serverTypeForOpeningKit = (tplId) => tplId;
 
-export let workshopRefreshPlanner = () => {};
-export let renderWorkshop = () => {};
-export let paintJades = () => {};
+let workshopRefreshPlanner = () => {};
+let renderWorkshop = () => {};
+let paintJades = () => {};
 
-export function bindOpeningKitsRenderDeps(deps = {}) {
+function bindOpeningKitsRenderDeps(deps = {}) {
   if (typeof deps.openingKitTemplate === "function") openingKitTemplate = deps.openingKitTemplate;
   if (typeof deps.openingKitFromStored === "function") openingKitFromStored = deps.openingKitFromStored;
   if (typeof deps.serverTypeForOpeningKit === "function") serverTypeForOpeningKit = deps.serverTypeForOpeningKit;
 }
 
-export function bindOpeningKitsUiDeps(deps = {}) {
+function bindOpeningKitsUiDeps(deps = {}) {
   if (typeof deps.workshopRefreshPlanner === "function") workshopRefreshPlanner = deps.workshopRefreshPlanner;
   if (typeof deps.renderWorkshop === "function") renderWorkshop = deps.renderWorkshop;
   if (typeof deps.paintJades === "function") paintJades = deps.paintJades;
 }
 
-export function kitsFor(roughId) {
+function kitsFor(roughId) {
   ensurePlannerDraft(roughId);
   if (!roughKits.has(roughId)) roughKits.set(roughId, []);
   return roughKits.get(roughId);
 }
 
-export function selectOpeningDraftKit(roughId, kitId) {
+function selectOpeningDraftKit(roughId, kitId) {
   const kit = kitsFor(roughId).find((entry) => entry.id === kitId);
   if (!kit) {
     setSelectedOpeningKitId(null);
@@ -59,7 +47,7 @@ export function selectOpeningDraftKit(roughId, kitId) {
   return kit;
 }
 
-export function clampOpeningKitPosition(tplId, x, y, scale = 1) {
+function clampOpeningKitPosition(tplId, x, y, scale = 1) {
   const template = openingKitTemplate(tplId);
   // The server's product placement uses 12%–88% centers. Keep the visual
   // drafts inside that same range instead of silently moving small cuts later.
@@ -70,11 +58,11 @@ export function clampOpeningKitPosition(tplId, x, y, scale = 1) {
   };
 }
 
-export function openingKitsOverlapAt(current, nextKit) {
+function openingKitsOverlapAt(current, nextKit) {
   return computeOpeningOverlaps([...current.map((kit) => openingKitFromStored(kit)), nextKit]).has(nextKit.uid);
 }
 
-export function findSafeOpeningPosition(tplId, preferX, preferY, current, sizeVal = openingKitSizeValue(tplId)) {
+function findSafeOpeningPosition(tplId, preferX, preferY, current, sizeVal = openingKitSizeValue(tplId)) {
   const scale = scaleForOpeningKit(tplId, sizeVal);
   const base = { uid: "candidate", tpl: tplId, x: preferX, y: preferY, rot: 0, scale, size: sizeVal };
   const first = { ...base, ...clampOpeningKitPosition(tplId, preferX, preferY, scale) };
@@ -93,18 +81,18 @@ export function findSafeOpeningPosition(tplId, preferX, preferY, current, sizeVa
   return first;
 }
 
-export function refreshOpeningPlanUi(roughId, options = {}) {
+function refreshOpeningPlanUi(roughId, options = {}) {
   workshopRefreshPlanner(roughId, options);
   if (options.dragging) return;
-  if (!document.getElementById("ws-planner-root")) renderWorkshop();
+  if (!(document || globalThis.document).getElementById("ws-planner-root")) renderWorkshop();
   paintJades();
 }
 
-export function applyOpeningKitSizeToSelected(roughId, kind) {
-  const sizeVal = kind === "bangle" ? selectedBangleRingSize : selectedPendantSize;
+function applyOpeningKitSizeToSelected(roughId, kind) {
+  const sizeVal = kind === "bangle" ? openingState.selectedBangleRingSize : openingState.selectedPendantSize;
   const drafts = kitsFor(roughId);
-  const target = selectedOpeningKitId
-    ? drafts.find((kit) => kit.id === selectedOpeningKitId)
+  const target = openingState.selectedOpeningKitId
+    ? drafts.find((kit) => kit.id === openingState.selectedOpeningKitId)
     : null;
   if (!target) return;
   const isBangle = (target.tpl || "bangle") === "bangle";
@@ -123,7 +111,7 @@ export function applyOpeningKitSizeToSelected(roughId, kind) {
   }));
 }
 
-export function addRoughKit(roughId, tplId) {
+function addRoughKit(roughId, tplId) {
   const current = kitsFor(roughId);
   const safeTpl = OPENING_KIT_LIB.some((kit) => kit.id === tplId) ? tplId : "bangle";
   setSelectedOpeningKitTpl(safeTpl);
@@ -154,26 +142,26 @@ export function addRoughKit(roughId, tplId) {
   refreshOpeningPlanUi(roughId);
 }
 
-export function clearRoughKits(roughId) {
+function clearRoughKits(roughId) {
   replacePlannerDraft(roughId, []);
   setSelectedOpeningKitId(null);
   refreshOpeningPlanUi(roughId);
 }
 
-export function removeOpeningKit(roughId, kitId) {
+function removeOpeningKit(roughId, kitId) {
   const id = String(kitId || "");
   if (!roughId || !id) return false;
   const next = kitsFor(roughId).filter((kit) => String(kit.id || kit.uid || "") !== id);
   if (next.length === kitsFor(roughId).length) return false;
   if (!replacePlannerDraft(roughId, next)) return false;
-  if (selectedOpeningKitId && String(selectedOpeningKitId) === id) {
+  if (openingState.selectedOpeningKitId && String(openingState.selectedOpeningKitId) === id) {
     setSelectedOpeningKitId(null);
   }
   refreshOpeningPlanUi(roughId);
   return true;
 }
 
-export function moveRoughKit(roughId, kitId, x, y, options = {}) {
+function moveRoughKit(roughId, kitId, x, y, options = {}) {
   const current = kitsFor(roughId);
   const kit = current.find((entry) => entry.id === kitId);
   if (!kit) return null;
@@ -187,7 +175,7 @@ export function moveRoughKit(roughId, kitId, x, y, options = {}) {
   return moved;
 }
 
-export function openingKitsForServer(roughId) {
+function openingKitsForServer(roughId) {
   return kitsFor(roughId).map((kit) => ({
     id: kit.id,
     type: kit.type || serverTypeForOpeningKit(kit.tpl),
@@ -200,3 +188,15 @@ export function openingKitsForServer(roughId) {
     ringSize: kit.tpl === "bangle" ? normalizeBangleRingSize(kit.ringSize || kit.size || 56) : undefined
   }));
 }
+
+  return { get openingKitTemplate() { return openingKitTemplate; }, get openingKitFromStored() { return openingKitFromStored; }, get serverTypeForOpeningKit() { return serverTypeForOpeningKit; }, get workshopRefreshPlanner() { return workshopRefreshPlanner; }, get renderWorkshop() { return renderWorkshop; }, get paintJades() { return paintJades; }, bindOpeningKitsRenderDeps, bindOpeningKitsUiDeps, kitsFor, selectOpeningDraftKit, clampOpeningKitPosition, openingKitsOverlapAt, findSafeOpeningPosition, refreshOpeningPlanUi, applyOpeningKitSizeToSelected, addRoughKit, clearRoughKits, removeOpeningKit, moveRoughKit, openingKitsForServer };
+}
+
+export const defaultOpeningKits = createOpeningKits();
+export const { bindOpeningKitsRenderDeps, bindOpeningKitsUiDeps, kitsFor, selectOpeningDraftKit, clampOpeningKitPosition, openingKitsOverlapAt, findSafeOpeningPosition, refreshOpeningPlanUi, applyOpeningKitSizeToSelected, addRoughKit, clearRoughKits, removeOpeningKit, moveRoughKit, openingKitsForServer } = defaultOpeningKits;
+export const openingKitTemplate = (...args) => defaultOpeningKits.openingKitTemplate(...args);
+export const openingKitFromStored = (...args) => defaultOpeningKits.openingKitFromStored(...args);
+export const serverTypeForOpeningKit = (...args) => defaultOpeningKits.serverTypeForOpeningKit(...args);
+export const workshopRefreshPlanner = (...args) => defaultOpeningKits.workshopRefreshPlanner(...args);
+export const renderWorkshop = (...args) => defaultOpeningKits.renderWorkshop(...args);
+export const paintJades = (...args) => defaultOpeningKits.paintJades(...args);

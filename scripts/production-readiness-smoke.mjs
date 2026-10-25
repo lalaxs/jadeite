@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { request as httpRequest } from "node:http";
 import { io } from "socket.io-client";
 import { loadRuntimeConfig, originAllowed } from "../server/config/runtime-config.js";
 import { serverProcessArgs, serverProcessStdio, stopTestServer } from "./fixtures/test-server-process.mjs";
@@ -78,6 +79,28 @@ async function waitReady() {
 try {
   const ready = await waitReady();
   assert.equal(ready.headers.has("content-security-policy"), true);
+  assert.equal((await fetch(`${origin}/main.js`)).status, 404, "production static files belong to the web service");
+  const pollingUrl = `${origin}/socket.io/?EIO=4&transport=polling`;
+  const polling = await fetch(pollingUrl, { headers: { "Sec-Fetch-Site": "same-origin" } });
+  assert.equal(polling.status, 200, "same-origin browser polling does not send an Origin header");
+  const handshake = JSON.parse((await polling.text()).slice(1));
+  await fetch(`${pollingUrl}&sid=${handshake.sid}`, {
+    method: "POST", headers: { Origin: origin, "Content-Type": "text/plain" }, body: "1"
+  });
+  for (const headers of [{}, { "Sec-Fetch-Site": "cross-site" }]) {
+    const denied = await fetch(pollingUrl, { headers });
+    assert.notEqual(denied.status, 200, "polling still requires an allowed browser origin");
+    await denied.text();
+  }
+  const hostDenied = await new Promise((resolve, reject) => {
+    const request = httpRequest(pollingUrl, { headers: { Host: "other.example", "Sec-Fetch-Site": "same-origin" } }, (response) => {
+      response.resume();
+      response.on("end", () => resolve(response.statusCode));
+    });
+    request.on("error", reject);
+    request.end();
+  });
+  assert.notEqual(hostDenied, 200, "polling cannot infer an origin outside the whitelist");
   assert.equal((await fetch(`${origin}/metrics`)).status, 404);
   assert.equal((await fetch(`${origin}/metrics`, {
     headers: { Authorization: `Bearer ${adminToken}` }

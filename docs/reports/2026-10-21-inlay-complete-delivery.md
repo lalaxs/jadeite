@@ -36,12 +36,12 @@
 
 ## 实际截图
 
-- [佛公完整效果](2026-10-21-inlay-complete/buddha-complete-desktop.jpg)
-- [蛋面戒指完整效果](2026-10-21-inlay-complete/ring-complete-desktop.jpg)
-- [槽镶蓝宝石实际效果](2026-10-21-inlay-complete/channel-complete-desktop.jpg)
-- [库存列表](2026-10-21-inlay-complete/inventory-complete-desktop.jpg)
-- [库存缓存、原料裂纹与编绳](2026-10-21-inlay-complete/inventory-cached-buddha.jpg)
-- [390 宽手机](2026-10-21-inlay-complete/buddha-complete-mobile.jpg)
+- [佛公完整效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/buddha-complete-desktop.jpg)
+- [蛋面戒指完整效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/ring-complete-desktop.jpg)
+- [槽镶蓝宝石实际效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/channel-complete-desktop.jpg)
+- [库存列表](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/inventory-complete-desktop.jpg)
+- [库存缓存、原料裂纹与编绳](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/inventory-cached-buddha.jpg)
+- [390 宽手机](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-complete/buddha-complete-mobile.jpg)
 
 前端直接使用静态模块与版本化图片，无需重启正常游戏服务，刷新页面即可看到新版。
 

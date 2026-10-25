@@ -1,21 +1,15 @@
-// Opening board pointer / drag (moved from main.js)
-
 import { clampClient } from "../../shell/format-utils.js";
 import { computeOverlaps } from "../../jade-opening-engine.js";
-import { beginPlannerDraftGesture, finishPlannerDraftGesture } from "./planner-drafts.js";
-import { getState, openingKitFromStored, openingKitsForRender } from "./opening-render.js";
-import {
-  activeDragKit,
-  selectedOpeningKitId,
-  setActiveDragKit
-} from "./opening-state.js";
-import {
-  moveRoughKit,
-  kitsFor,
-  refreshOpeningPlanUi,
-  selectOpeningDraftKit
-} from "./opening-kits.js";
-
+import { defaultOpeningState } from "./opening-state.js";
+import { defaultPlannerDraftRuntime } from "./planner-drafts.js";
+import { defaultOpeningKits } from "./opening-kits.js";
+import { defaultOpeningRender } from "./opening-render.js";
+export function createOpeningPointer({ openingState = defaultOpeningState, drafts = defaultPlannerDraftRuntime, kits = defaultOpeningKits, render = defaultOpeningRender, document = globalThis.document } = {}) {
+  const { setActiveDragKit } = openingState;
+  const { beginPlannerDraftGesture, finishPlannerDraftGesture } = drafts;
+  const getState = () => render.getState();
+  const { openingKitFromStored, openingKitsForRender, openingPlanValidation } = render;
+  const { moveRoughKit, kitsFor, refreshOpeningPlanUi, selectOpeningDraftKit } = kits;
 const DRAG_FEEDBACK_INTERVAL = 100;
 let dragFrame = null;
 let pendingPoint = null;
@@ -28,12 +22,13 @@ function refreshDragFeedback(drag) {
     .find((item) => item.id === drag.roughId);
   const kits = rough ? openingKitsForRender(rough) : kitsFor(drag.roughId).map((kit) => openingKitFromStored(kit));
   const overlaps = computeOverlaps(kits);
+  const invalid = rough ? openingPlanValidation(rough).invalid : overlaps;
   for (const node of drag.board.querySelectorAll(".kit:not(.extracted)")) {
-    const selected = node.dataset.uid === selectedOpeningKitId;
-    const overlapping = overlaps.has(node.dataset.uid);
+    const selected = node.dataset.uid === openingState.selectedOpeningKitId;
+    const overlapping = invalid.has(node.dataset.uid);
     node.classList.toggle("sel", selected);
     for (const outline of node.querySelectorAll(".kit-wire > *")) {
-      outline.setAttribute("stroke", selected ? "#d4af37" : overlapping ? "#ff4636" : "rgba(255,255,255,.58)");
+      outline.setAttribute("stroke", overlapping ? "#ff4636" : selected ? "#d4af37" : "rgba(255,255,255,.58)");
       outline.setAttribute("stroke-width", selected || overlapping ? "3" : "2");
     }
   }
@@ -41,7 +36,7 @@ function refreshDragFeedback(drag) {
 }
 
 function applyPendingDragPoint() {
-  const drag = activeDragKit;
+  const drag = openingState.activeDragKit;
   const point = pendingPoint;
   pendingPoint = null;
   if (!drag?.board.isConnected || !point) return;
@@ -52,7 +47,7 @@ function applyPendingDragPoint() {
 }
 
 function finishOpeningDrag(event) {
-  const drag = activeDragKit;
+  const drag = openingState.activeDragKit;
   if (!drag || event.pointerId !== drag.pointerId) return;
   if (dragFrame !== null) cancelAnimationFrame(dragFrame);
   dragFrame = null;
@@ -64,7 +59,7 @@ function finishOpeningDrag(event) {
   if (drag.board.isConnected) refreshOpeningPlanUi(drag.roughId);
 }
 
-export function boardPointFromEvent(board, event, kitType = null) {
+function boardPointFromEvent(board, event, kitType = null) {
   const rect = board.getBoundingClientRect();
   const point = {
     x: (event.clientX - rect.left) / rect.width * 100,
@@ -77,7 +72,7 @@ export function boardPointFromEvent(board, event, kitType = null) {
   };
 }
 
-export function openingBoardPointFromEvent(board, event) {
+function openingBoardPointFromEvent(board, event) {
   const rect = board.getBoundingClientRect();
   return {
     x: clampClient((event.clientX - rect.left) / rect.width * 600, 0, 600),
@@ -85,10 +80,16 @@ export function openingBoardPointFromEvent(board, event) {
   };
 }
 
-export function registerOpeningPointerListeners() {
-  document.body.addEventListener("pointerdown", (event) => {
-    if (activeDragKit && !activeDragKit.board.isConnected) finishOpeningDrag({ pointerId: activeDragKit.pointerId });
-    if (activeDragKit || event.button > 0 || event.isPrimary === false) return;
+function registerOpeningPointerListeners(root = (document || globalThis.document).body) {
+  const cleanups = [];
+  const on = (name, handler) => {
+    const listener = (event) => { handler(event); if (root !== (document || globalThis.document).body) event.stopPropagation?.(); };
+    root.addEventListener(name, listener);
+    cleanups.push(() => root.removeEventListener(name, listener));
+  };
+  on("pointerdown", (event) => {
+    if (openingState.activeDragKit && !openingState.activeDragKit.board.isConnected) finishOpeningDrag({ pointerId: openingState.activeDragKit.pointerId });
+    if (openingState.activeDragKit || event.button > 0 || event.isPrimary === false) return;
     const openingKit = event.target.closest(".jade-opening-board .kit[data-uid]");
     if (openingKit && !openingKit.classList.contains("extracted")) {
       const board = openingKit.closest("[data-opening-board]");
@@ -107,21 +108,21 @@ export function registerOpeningPointerListeners() {
       });
       board.setPointerCapture?.(event.pointerId);
       lastFeedbackAt = performance.now();
-      refreshDragFeedback(activeDragKit);
+      refreshDragFeedback(openingState.activeDragKit);
       event.preventDefault();
       return;
     }
   });
 
-  document.body.addEventListener("pointermove", (event) => {
-    if (!activeDragKit || event.pointerId !== activeDragKit.pointerId) return;
+  on("pointermove", (event) => {
+    if (!openingState.activeDragKit || event.pointerId !== openingState.activeDragKit.pointerId) return;
     pendingPoint = { clientX: event.clientX, clientY: event.clientY };
     if (dragFrame === null) {
       dragFrame = requestAnimationFrame((now) => {
         dragFrame = null;
         applyPendingDragPoint();
-        if (activeDragKit?.board.isConnected && now - lastFeedbackAt >= DRAG_FEEDBACK_INTERVAL) {
-          refreshDragFeedback(activeDragKit);
+        if (openingState.activeDragKit?.board.isConnected && now - lastFeedbackAt >= DRAG_FEEDBACK_INTERVAL) {
+          refreshDragFeedback(openingState.activeDragKit);
           lastFeedbackAt = now;
         }
       });
@@ -129,7 +130,17 @@ export function registerOpeningPointerListeners() {
     event.preventDefault();
   });
 
-  document.body.addEventListener("pointerup", finishOpeningDrag);
-  document.body.addEventListener("pointercancel", finishOpeningDrag);
-  document.body.addEventListener("lostpointercapture", finishOpeningDrag);
+  on("pointerup", finishOpeningDrag);
+  on("pointercancel", finishOpeningDrag);
+  on("lostpointercapture", finishOpeningDrag);
+  return () => {
+    if (openingState.activeDragKit) finishOpeningDrag({ pointerId: openingState.activeDragKit.pointerId });
+    for (const cleanup of cleanups) cleanup();
+  };
 }
+
+  return { boardPointFromEvent, openingBoardPointFromEvent, registerOpeningPointerListeners };
+}
+
+export const defaultOpeningPointer = createOpeningPointer();
+export const { boardPointFromEvent, openingBoardPointFromEvent, registerOpeningPointerListeners } = defaultOpeningPointer;

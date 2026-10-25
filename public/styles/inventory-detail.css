@@ -60,7 +60,7 @@
 
 .inventory-detail-modal .inventory-detail-preview {
   width: 100%;
-  height: 190px;
+  height: 280px;
   min-height: 0;
   margin: 0;
   padding: 8px;
@@ -74,6 +74,7 @@
 }
 .inventory-detail-modal .inventory-detail-preview svg,
 .inventory-detail-modal .inventory-detail-preview canvas { object-fit: contain; }
+.inventory-detail-modal .inventory-detail-preview .material-swatch { width: 80%; height: 80%; }
 
 .inventory-detail-facts,
 .inventory-detail-comparison,
@@ -314,7 +315,7 @@
   .inventory-detail-modal .game-modal-head { padding: 16px 18px 14px; }
   .inventory-detail-modal .game-modal-title h3 { font-size: 20px; }
   .inventory-detail-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 18px; }
-  .inventory-detail-modal .inventory-detail-preview { height: 170px; }
+  .inventory-detail-modal .inventory-detail-preview { height: 250px; }
   .inventory-detail-content { border-left: 0; border-top: 1px solid var(--line); padding: 16px 0 0; }
   .inventory-detail-summary { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 15px 18px; }
   .inventory-detail-price { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }

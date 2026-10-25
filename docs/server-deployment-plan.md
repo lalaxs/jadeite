@@ -1,51 +1,56 @@
-# 154.222.30.247 服务器部署计划
+# 38.76.197.136 内测部署
 
-## 边界
+服务器为 Ubuntu 24.04 x64、4 核、4GB 内存。单个 Node.js 权威游戏进程处理所有玩家，PostgreSQL 保存世界，Caddy 分发静态资源并代理账号和实时连接。
 
-目标为 Ubuntu 24.04.1 x64、4 核 CPU、8 GB 内存的单机首发环境。服务器将运行一个权威 Node.js 游戏进程、一个 PostgreSQL 实例、Caddy 入口和独立备份容器。PostgreSQL 与 Node.js 端口不向公网暴露，公网只开放 22、80、443。
+| 服务 | 内存上限 | CPU 上限 |
+| --- | --- | --- |
+| 游戏 | 2GB，V8 堆上限 1280MB | 2 核 |
+| PostgreSQL | 768MB | 1 核 |
+| Caddy | 128MB | 0.5 核 |
+| 备份 | 128MB | 0.5 核 |
 
-本计划暂不执行远程操作。服务器密码不写入聊天、源码、命令历史或环境文件；部署时通过本地交互式 SSH 密码提示完成第一次登录。
+首轮验收范围为 5～10 名同时在线玩家，承载能力以目标服务器实测为准。
 
-## 容量分配
+## 发布布局
 
-| 组件 | CPU 上限 | 内存上限 | 说明 |
-| --- | ---: | ---: | --- |
-| Node.js 游戏服务 | 2.0 核 | 3 GB | 单权威世界和 Socket 连接 |
-| PostgreSQL | 1.5 核 | 3 GB | 事务检查点、投影和审计 |
-| Caddy | 0.25 核 | 256 MB | TLS、HTTP/2/3、压缩和反向代理 |
-| 备份容器 | 0.25 核 | 256 MB | 每日 `pg_dump` 和校验 |
+- `/opt/jade-market/releases/<APP_VERSION>`：发布源码和容器配置。
+- `/opt/jade-market/current`：当前版本目录。
+- `/opt/jade-market/.env.production`：仅运维账号和 root 可读的生产凭据。
+- `/opt/jade-market/static/releases/<APP_VERSION>`：按版本保留的静态资源。
+- `/opt/jade-market/backups`：PostgreSQL 自动备份。
+- `jade-market_postgres-data`：数据库持久卷，跨发布保留。
 
-余下约 1.5 GB 留给 Ubuntu、Docker、文件缓存和突发峰值。各容器日志已限制为最多 5 个、每个 20 MB。
+`Dockerfile` 的 `runtime` 目标生成游戏镜像，`web` 目标生成静态资源及 Caddy 镜像。发布时先从 web 镜像提取新版本资源到静态目录，再替换入口 HTML。已有版本资源保留，供已打开的页面继续加载。
 
-## 部署前置
+生产 Node.js 不提供静态文件。Caddy 直接提供入口及版本资源；`/api/*`、`/socket.io/*`、`/health/*`、`/version` 和 `/metrics` 进入游戏进程。入口 HTML 使用 `no-cache`，版本资源使用一年期 `immutable` 缓存，业务响应使用 `no-store`。
 
-1. 准备一个域名，将 A 记录指向 `154.222.30.247`，等待公网 DNS 解析稳定。
-2. 在云服务商控制台建立服务器快照，记录重置和救援入口。
-3. 生成三组不同的高强度凭据：日常运维账号、PostgreSQL 密码、管理 API 令牌。后两者至少使用 32 字节随机值。
-4. 生成运维 SSH 密钥对，私钥只保留在管理者设备和受保护的备份中。
-5. 确认本地发布门槛 `npm run predeploy:check` 全绿，并用临时真实 PostgreSQL 执行 `npm run predeploy:postgres`，保留发布候选快照的 SHA-256。
+## 公网 IP HTTPS
 
-## 首次引导
+`PUBLIC_DOMAIN=38.76.197.136`，`PUBLIC_ORIGIN=https://38.76.197.136`。证书由 Certbot 5.4 以上版本申请 Let’s Encrypt `shortlived` IP 证书，HTTP 验证目录为 `/var/www/acme`。首次签发时先运行只提供验证目录的 HTTP 服务。
 
-1. 用 `root` 和现有密码交互登录一次。
-2. 更新系统安全补丁，启用时钟同步，安装 Docker Engine 与 Compose 插件。
-3. 建立非 root 的 sudo 运维账号，安装 SSH 公钥。
-4. 保留 root 会话，另开第二个终端验证新账号与密钥可登录。只有验证成功后，才禁止 root 远程登录和 SSH 密码认证。
-5. 启用主机防火墙，只允许 22/TCP、80/TCP、443/TCP 和 443/UDP；启用 SSH 暴力登录防护。
-6. 为 Docker 和数据库目录预留足够磁盘，配置磁盘 80% 与 90% 告警。
+证书申请：
 
-## 应用发布
+```sh
+/opt/certbot/bin/certbot certonly --non-interactive --agree-tos \
+  --register-unsafely-without-email --preferred-profile shortlived \
+  --webroot --webroot-path /var/www/acme --ip-address 38.76.197.136 \
+  --cert-name 38.76.197.136
+```
 
-1. 将通过验收的源码快照传入版本目录，不直接在服务器上改生产代码。
-2. 从 `.env.production.example` 生成 `.env.production`，替换全部占位值并将权限设为仅所有者可读。
-3. 先用唯一 `APP_VERSION` 构建不变的应用镜像；基础服务使用固定补丁版本，再启动 PostgreSQL。数据库健康后启动应用，应用健康后启动 Caddy。
-4. 如需携带旧 JSON/SQLite 存档，在开放流量前执行一次迁移；迁移必须报告完整世界摘要一致。
-5. 在防火墙尚未开放公网流量时检查存活、就绪、版本、账号续登、Socket 写操作、幂等重放和管理接口。
-6. 完成 PostgreSQL 备份，校验 SHA-256，并在临时数据库执行一次恢复演练。
-7. 配置异地备份后再开放 80/443，从外部网络重复健康检查和一次完整玩家流程。
+Caddy 读取 `/etc/letsencrypt/live/38.76.197.136/` 中的证书。安装 `ops/renew-ip-certificate.service` 和 `.timer` 到 `/etc/systemd/system/`，并将 `ops/reload-certificate.sh` 安装到 `/etc/letsencrypt/renewal-hooks/deploy/jade-market`。计时器每天检查两次；续期后自动让 Caddy 加载证书。
 
-## 上线观察与回滚
+首次部署后运行一次 `certbot renew --dry-run --run-deploy-hooks`，确认生产 Caddy 的验证目录和证书加载正常。
 
-- 首次开放后连续观察错误率、持久化回滚、Socket 拒绝、CPU、内存、磁盘和 PostgreSQL 延迟。
-- 任何负数余额、重复结算、物品丢失、检查点不可读或恢复演练失败都是停止发布条件。
-- 回滚使用上一个不变镜像标签；不盲目回退数据库。先停止新交易、保全当前数据和日志，再按迁移兼容性决定代码回滚或数据修复。
+## 发布门槛
+
+发布源码保留独立归档。执行 `npm ci`、`npm run predeploy:check`，并在独立测试数据库运行 `npm run predeploy:postgres`。首轮持续业务验收使用 10 个连接、100 名存档玩家、每人 30 件库存；不把这个规模视为服务器上限。
+
+数据库、游戏进程和 Caddy 启动后，验证可信 HTTPS、页面及资源加载、账号绑定和登录、实时状态、重复请求、存档及重启恢复。浏览器检查桌面和移动端入口、工坊和交易页面。
+
+数据库只在 Docker 内部网络访问，主机开放 2222/TCP、80/TCP、443/TCP、443/UDP。运维使用 `jadeops`、2222 端口和 SSH 密钥。
+
+## 备份与恢复
+
+备份容器每天生成 PostgreSQL 备份，保留 14 天。备份另复制到运维电脑；定期复制任务依赖该电脑在线。首次开放前在独立数据库完成一次恢复演练。
+
+发布更新保留上一版应用和静态资源。回滚前核对数据库迁移兼容性，使用运行手册中的停服、保存和回滚流程。

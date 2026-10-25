@@ -38,7 +38,8 @@ function emptyWorld(seed = {}) {
       ? [...seed.latestAuctionResults]
       : [],
     auctionHistory: Array.isArray(seed.auctionHistory) ? [...seed.auctionHistory] : [],
-    mining: seed.mining && typeof seed.mining === "object" ? structuredClone(seed.mining) : null
+    mining: seed.mining && typeof seed.mining === "object" ? structuredClone(seed.mining) : null,
+    equipmentShop: structuredClone(seed.equipmentShop || null)
   };
 }
 
@@ -137,6 +138,7 @@ export function createMemoryWorldStore(seed = {}) {
       refillArray(raw.latestAuctionResults, []);
       refillArray(raw.auctionHistory, []);
       raw.mining = null;
+      raw.equipmentShop = null;
       if (!keepStartedAt) raw.startedAt = Date.now();
     },
 
@@ -169,7 +171,8 @@ export function createMemoryWorldStore(seed = {}) {
         auctionRounds: structuredClone(raw.auctionRounds),
         latestAuctionResults: structuredClone(raw.latestAuctionResults),
         auctionHistory: structuredClone(raw.auctionHistory),
-        mining: structuredClone(raw.mining)
+        mining: structuredClone(raw.mining),
+        equipmentShop: structuredClone(raw.equipmentShop)
       };
       return validateSnapshotShape(snapshot);
     },
@@ -198,6 +201,7 @@ export function createMemoryWorldStore(seed = {}) {
       refillArray(raw.latestAuctionResults, snapshot.latestAuctionResults);
       refillArray(raw.auctionHistory, snapshot.auctionHistory);
       raw.mining = snapshot.mining ? structuredClone(snapshot.mining) : null;
+      raw.equipmentShop = structuredClone(snapshot.equipmentShop || null);
       return store;
     }
   };

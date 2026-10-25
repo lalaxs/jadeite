@@ -46,5 +46,5 @@ export function listClientShellPaths({
 export function readClientShellSource(options = {}) {
   return listClientShellPaths(options)
     .map((p) => readFileSync(p, "utf8"))
-    .join("\n");
+    .join("\n").replace(/\r\n/g, "\n");
 }

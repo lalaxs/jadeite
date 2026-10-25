@@ -87,7 +87,8 @@ export function createVirtualGridController(options = {}) {
 
   function syncColumns() {
     const width = host?.clientWidth || scrollRoot?.clientWidth || 360;
-    const nextCols = measureColumns(width, minItemWidth, gap);
+    const responsiveWidth = Number.parseFloat(globalThis.getComputedStyle?.(host)?.getPropertyValue?.("--grid-card-min"));
+    const nextCols = measureColumns(width, responsiveWidth || minItemWidth, gap);
     if (nextCols !== cols) {
       cols = nextCols;
       // 列数变化后旧行距失效，回到估算值再实测。

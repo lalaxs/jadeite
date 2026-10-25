@@ -1,3 +1,4 @@
+import { restoreInventoryItem, restoreInventoryItems } from "./inventory-items.js";
 /**
  * Player factory + normalize (legacy field migration, bucket defaults).
  * Wire via createPlayerService after assets/task/workshop deps exist.
@@ -131,7 +132,7 @@ export function createPlayerService(deps) {
       }
       return true;
     });
-    if (openedInRough.length) player.materials.push(...openedInRough);
+    if (openedInRough.length) restoreInventoryItems(player, "material", openedInRough);
     player.rough = player.rough.map((rough) => ({
       ...rough,
       type: "rough",
@@ -185,7 +186,7 @@ export function createPlayerService(deps) {
     player.livestreamJobs ||= [];
     // Drain retired countdown-job path; room model is the sole live authority.
     for (const job of player.livestreamJobs) {
-      if (job?.product) player.bracelets.push(job.product);
+      if (job?.product) restoreInventoryItem(player, "bracelet", job.product);
     }
     player.livestreamJobs = [];
     player.livestreamHistory ||= [];

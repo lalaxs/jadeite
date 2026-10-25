@@ -12,3 +12,5 @@
 - `workshop-delivery-details-smoke`、`workshop-scratch-smoke`、`jade-opening-engine-smoke`、`styles-split-smoke`、`responsive-layout-smoke`、`workshop-delivery-smoke`、`inventory-module-smoke` 通过；新增/编辑 JS 语法检查通过。
 - 浏览器：3013 无存档隔离世界，真实开料批次领取→开盒→一键揭晓，右侧出现实际种水与色区、裂纹/废料比例；390×844 手机信息卡可滚动看完分析，返回按钮完整可见；点击后恢复原领取弹窗，物品详情与最终入包正常。测试结束后关闭隔离服务和标签页，恢复视口。
 - 主要截图：desktop-analysis.jpg、mobile-analysis.jpg、mobile-analysis-defects.jpg。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-material-analysis)。

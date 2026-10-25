@@ -68,6 +68,7 @@ export const MUTATION_SOCKET_EVENTS = new Set([
   "refreshOrderSlot",
   "collectPayout",
   "bmOpenStall",
+  "bmVisitStall",
   "bmCloseStall",
   "bmPauseStall",
   "bmUpdateStallMeta",

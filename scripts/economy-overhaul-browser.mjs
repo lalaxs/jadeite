@@ -70,7 +70,7 @@ try {
   assert.equal(initial.rough.length, 1);
   assert.equal(initial.workshop.devices.length, 0);
   assert.equal(initial.workshop.workers.length, 0);
-  assert.equal(initial.workshop.publicStations.length, 3);
+  assert.equal(Object.hasOwn(initial.workshop, "publicStations"), false);
   assert.ok(initial.workshop.owner.isOwner);
   const giftId = initial.rough[0].id;
   milestones.push({ stage: "initial", cash: initial.cash, rough: initial.rough.length });
@@ -79,7 +79,7 @@ try {
   // The removed board must never offer new contracts. An already accepted
   // legacy contract still settles from the side panel after reconnecting.
   await page.locator('#mainNav [data-nav-view="workshop"]').click();
-  await shot("02-public-workshop");
+  await shot("02-empty-workshop");
   assert.equal(await page.locator('.commission-board, [data-action="startCommission"]').count(), 0);
   const quote = initial.commissions.offers.find((offer) => offer.id === "standard");
   // Seed the legacy state through this disposable server's existing command;
@@ -108,6 +108,19 @@ try {
   assert.equal((await state()).me.cash, operatingCash);
   milestones.push({ stage: "commission-claimed-once", net: quote.netPay, cash: operatingCash });
 
+  // Capitalize the owned-production fixture, then pay real catalog prices.
+  await page.evaluate(() => window.__starterQa.socket.emit('debugGrant', { cash: 14_000 }));
+  await page.waitForFunction((cash) => window.__starterQa.state.me.cash === cash + 14_000, operatingCash);
+  await page.locator('#mainNav [data-nav-view="shop"]').click();
+  for (const stage of ["opening", "carving", "finishing"]) {
+    await page.locator('[data-action="shopSelectTab"][data-payload="equipment"]').click();
+    await page.locator(`[data-eq-stage="${stage}"]`).click();
+    await page.locator(`[data-action="buyWorkshopDevice"][data-model-key="used-${stage}-1"]`).click();
+    await page.locator('[data-action="confirmShopPurchase"]').click();
+    await page.waitForFunction((stage) => window.__starterQa.state.me.workshop.devices.some(device => device.stage === stage), stage);
+  }
+  assert.equal((await state()).me.cash, operatingCash);
+
   async function workshop(stage, itemId, ownedDeviceId = null) {
     await page.locator('#mainNav [data-nav-view="workshop"]').click();
     const back = page.locator('[data-action="backWorkshopDevices"]');
@@ -117,7 +130,7 @@ try {
     const workshopState = (await state()).me.workshop;
     const device = ownedDeviceId
       ? workshopState.devices.find((row) => row.id === ownedDeviceId)
-      : workshopState.publicStations.find((row) => row.stage === stage);
+      : workshopState.devices.find((row) => row.stage === stage);
     assert.ok(device);
     await page.locator(`[data-action="openWorkshopDevice"][data-payload="${device.id}"]`).click();
     await page.locator('.ws-big-material[data-action="openWorkshopPicker"]').click();

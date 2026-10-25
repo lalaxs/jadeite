@@ -22,13 +22,13 @@
 
 ## 截图
 
-- [桌面设备挂牌](list-desktop.png)
-- [桌面我的设备挂单](mine-desktop.png)
-- [手机设备筛选](market-mobile.png)
-- [手机购买费用确认](buy-mobile.png)
-- [买入后工坊设备](purchased-mobile.png)
-- [手机可出售全部设备](all-devices-mobile.png)
-- [全部挂牌后刷新仍为空工坊](empty-workshop-mobile.png)
+- [桌面设备挂牌](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/list-desktop.png)
+- [桌面我的设备挂单](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/mine-desktop.png)
+- [手机设备筛选](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/market-mobile.png)
+- [手机购买费用确认](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/buy-mobile.png)
+- [买入后工坊设备](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/purchased-mobile.png)
+- [手机可出售全部设备](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/all-devices-mobile.png)
+- [全部挂牌后刷新仍为空工坊](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment/empty-workshop-mobile.png)
 - [浏览器验收结果](browser-result.json)
 
 ## 复验
@@ -39,3 +39,5 @@ node scripts/market-equipment-socket-e2e.mjs
 node scripts/market-card-info-smoke.mjs
 node scripts/market-equipment-browser.mjs
 ```
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-market-equipment)。

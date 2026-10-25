@@ -80,7 +80,7 @@
 
 这会直接阻断交易行回款：玩家的货离开了库存和挂单，钱却留在待收款状态。应在交易行和主页待处理事项中恢复明确的“领取货款”入口，显示金额与成交明细，领取后立即反映到现金及账单。也可以统一改成成交自动到账，但要同步修改所有提示、账单和待收款规则。
 
-证据：[待结算货款截图](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/12-market-pending-payout.jpg)、[未被当前主页调用的旧领取按钮](/Users/jar/Documents/翡翠/jade-market-prototype/public/features/overview/overview-render.js:118)、[当前主页渲染位置](/Users/jar/Documents/翡翠/jade-market-prototype/public/features/overview/overview-render.js:527)、[服务端领取实现](/Users/jar/Documents/翡翠/jade-market-prototype/server/services/market-service.js:494)。
+证据：[待结算货款截图](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/12-market-pending-payout.jpg)、[未被当前主页调用的旧领取按钮](/Users/jar/Documents/翡翠/jade-market-prototype/public/features/overview/overview-render.js:118)、[当前主页渲染位置](/Users/jar/Documents/翡翠/jade-market-prototype/public/features/overview/overview-render.js:527)、[服务端领取实现](/Users/jar/Documents/翡翠/jade-market-prototype/server/services/market-service.js:494)。
 
 ### P1 手机顶部控件遮住核心操作
 
@@ -88,7 +88,7 @@
 
 账号与主题操作应放入菜单或完整容纳在顶部；内容起点必须依据真实头部高度。手机规划页应独占可用宽度，让选套件、调尺寸、查看结果和确认动作围绕画布组织。桌面 1280×720 的规划石头底部也需要内滚动，应优先缩放画布以完整展示当前料子。
 
-证据：[手机遮挡截图](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/04-mobile-workshop-overlap.jpg)、[手机规划截图](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/05-planner-mobile.jpg)。
+证据：[手机遮挡截图](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/04-mobile-workshop-overlap.jpg)、[手机规划截图](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/05-planner-mobile.jpg)。
 
 ### P2 默认精加工方案缺少经济判断
 
@@ -110,7 +110,7 @@
 
 在成本尚未跟踪完整时，应改名为“售价相对估值的差额”。要显示经营利润，需要追踪原料成本、各工序人工、材料消耗和合理的多件成本分摊；许可等长期投入另列资产投资。矿区已经标明“估算净收益”，可继续保留估算，但最好同时展示本轮累计实际现金支出。
 
-证据：[把成品估值记入成本](/Users/jar/Documents/翡翠/jade-market-prototype/server/systems/livestream-room-system.js:445)、[利润计算](/Users/jar/Documents/翡翠/jade-market-prototype/server/systems/livestream-room-system.js:290)、[本场结算截图](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/10-live-settlement.jpg)。
+证据：[把成品估值记入成本](/Users/jar/Documents/翡翠/jade-market-prototype/server/systems/livestream-room-system.js:445)、[利润计算](/Users/jar/Documents/翡翠/jade-market-prototype/server/systems/livestream-room-system.js:290)、[本场结算截图](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/10-live-settlement.jpg)。
 
 ### P2 多条成长线缺少清晰分工
 
@@ -179,13 +179,13 @@
 
 ## 截图与证据
 
-- [规划摆位改善后的结果](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/06-planner-drag-improved.jpg)
-- [低价料的精加工费用与预计增值](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/08-finish-marginal-cost.jpg)
-- [首次成品的订单拒收预检](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/07-first-product-rejected.jpg)
-- [直播首笔成交](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/09-live-first-sale.jpg)
-- [完整直播结算](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/10-live-settlement.jpg)
-- [普通环境的矿区门槛](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/02-mining-locked.jpg)
-- [调整门槛和时长后的采矿记录](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/11-mining-records-accelerated.jpg)
-- [自动折价后的货款仍待结算](/Users/jar/Documents/翡翠/jade-market-prototype/docs/reports/2026-10-09-player-audit/12-market-pending-payout.jpg)
+- [规划摆位改善后的结果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/06-planner-drag-improved.jpg)
+- [低价料的精加工费用与预计增值](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/08-finish-marginal-cost.jpg)
+- [首次成品的订单拒收预检](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/07-first-product-rejected.jpg)
+- [直播首笔成交](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/09-live-first-sale.jpg)
+- [完整直播结算](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/10-live-settlement.jpg)
+- [普通环境的矿区门槛](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/02-mining-locked.jpg)
+- [调整门槛和时长后的采矿记录](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/11-mining-records-accelerated.jpg)
+- [自动折价后的货款仍待结算](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-09-player-audit/12-market-pending-payout.jpg)
 
 未验证多日留存、真实五十席位竞争、真人市场价格形成及真实手机触控手感。这些结论不能由一次浏览器试玩或现有自动化检查替代。

@@ -19,15 +19,17 @@
 
 ## 截图
 
-- [桌面多件产物](desktop.png)
-- [390px 手机多件产物](mobile.png)
-- [手机镶嵌成品](finished-mobile.png)
-- [320px 小屏](mobile-320.png)
-- [白天主题](day.png)
-- [领取完成](collected.png)
+- [桌面多件产物](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/desktop.png)
+- [390px 手机多件产物](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/mobile.png)
+- [手机镶嵌成品](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/finished-mobile.png)
+- [320px 小屏](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/mobile-320.png)
+- [白天主题](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/day.png)
+- [领取完成](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery/collected.png)
 
 ## 本地运行状态
 
 正常存档已备份并验证 JSON 可读取：`backups/before-workshop-delivery-20261021-164515.json`。
 
 自动审批拒绝了停止并重启 3000 端口本地游戏服务的操作，仅返回 `blocked by policy`。该操作未执行，需手动重启当前游戏服务以完整加载后端改动，再刷新游戏页面。隔离试玩服务已停止。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-workshop-delivery)。

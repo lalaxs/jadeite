@@ -21,8 +21,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    mem_limit: 3g
-    cpus: 1.5
+    mem_limit: 768m
+    cpus: 1.0
     pids_limit: 256
     stop_grace_period: 60s
     logging: *default-logging
@@ -34,6 +34,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runtime
     restart: unless-stopped
     init: true
     env_file:
@@ -45,12 +46,13 @@ services:
       JADE_WORLD_PERSIST: "1"
       JADE_WORLD_PERSIST_DRIVER: postgres
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+      NODE_OPTIONS: --max-old-space-size=1280
     depends_on:
       database:
         condition: service_healthy
     expose:
       - "3000"
-    mem_limit: 3g
+    mem_limit: 2g
     cpus: 2.0
     pids_limit: 256
     stop_grace_period: 30s
@@ -64,7 +66,13 @@ services:
       - /tmp:size=128m,mode=1777
 
   caddy:
-    image: caddy:2.11.4-alpine
+    image: jade-market-web:${APP_VERSION:?APP_VERSION must be set}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        APP_VERSION: ${APP_VERSION}
     restart: unless-stopped
     environment:
       PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
@@ -73,14 +81,16 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./ops/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/jade-market/static:/srv:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/acme:/var/www/acme:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
       app:
         condition: service_healthy
-    mem_limit: 256m
-    cpus: 0.25
+    mem_limit: 128m
+    cpus: 0.5
     pids_limit: 128
     logging: *default-logging
     security_opt:
@@ -88,6 +98,7 @@ services:
 
   backup:
     image: postgres:17.11-alpine3.24
+    user: "1000:1000"
     restart: unless-stopped
     environment:
       PGHOST: database
@@ -95,17 +106,20 @@ services:
       PGDATABASE: ${POSTGRES_DB}
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGCONNECT_TIMEOUT: "10"
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
     volumes:
       - ./ops/backup-postgres.sh:/usr/local/bin/backup-postgres:ro
-      - ./backups:/backups
+      - /opt/jade-market/backups:/backups
     entrypoint: ["/bin/sh", "-c"]
-    command: ["while true; do /usr/local/bin/backup-postgres; sleep 86400; done"]
+    command: ["while true; do if /bin/sh /usr/local/bin/backup-postgres; then sleep 86400; else sleep 300; fi; done"]
     depends_on:
       database:
         condition: service_healthy
-    mem_limit: 256m
-    cpus: 0.25
+      app:
+        condition: service_healthy
+    mem_limit: 128m
+    cpus: 0.5
     pids_limit: 64
     logging: *default-logging
     security_opt:

@@ -26,7 +26,7 @@ const order = { id: "picker-order", client: "体面长辈", pay: 5625, rep: 11, 
 const state = { me: { id: "picker-test", cash: 20000, rep: 8, rough: [], materials: [], slices: [], bracelets: products,
   collection: [], orders: [order, { ...order, id: "bundle-order", quantity: 2 }], satisfaction: 80, ledger: [] } };
 const fixture = `<!doctype html><html lang="zh-CN" data-theme="day"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:,"><link rel="stylesheet" href="/styles.css"><style>body{height:auto;overflow:auto}.shell{display:block;height:auto;min-height:100dvh;overflow:visible;padding:24px}.fixture-open{margin-bottom:18px}#ordersList{max-width:1344px}@media(max-width:600px){.shell{padding:12px}}</style></head><body>
-  <main class="shell"><button class="fixture-open" data-action="openOrderProductPicker" data-payload="picker-order" data-slot="0">选择交付成品</button><div id="ordersList" class="card-grid"></div></main><div id="modalRoot" class="modal-root" hidden></div>
+  <main class="shell"><button class="fixture-open" data-action="openOrderProductPicker" data-payload="picker-order" data-slot="0">选择交付成品</button><div id="ordersList" class="card-grid"></div><section id="affairsFixture" hidden style="width:300px;max-width:100%;margin-top:20px"><div class="panel-tabs" id="panelTabs"><button data-ptab="order">订单</button></div><div class="panel-body" id="sidePanelBody"></div></section></main><div id="modalRoot" class="modal-root" hidden></div>
   <script type="module">
     import * as helpers from '/features/inventory-helpers.js';
     import * as opening from '/features/opening/opening-render.js';
@@ -35,19 +35,24 @@ const fixture = `<!doctype html><html lang="zh-CN" data-theme="day"><head><meta 
     import * as modal from '/shell/game-modal.js';
     import {initInventoryModule} from '/inventory-module.js';
     import {initOrdersModule,renderOrders,focusOrdersForProduct} from '/orders-module.js';
+    import {bindSidePanelDeps,renderSidePanel,setSidePanelFilter} from '/features/hud/side-panel.js';
     const state=${JSON.stringify(state)};
     const actions=new Map(),events=[];
     const socket={emit(...args){events.push(args)}};
     const getState=()=>state;
-    const els={orders:document.getElementById('ordersList'),modalRoot:document.getElementById('modalRoot'),shell:document.querySelector('.shell')};
+    const els={orders:document.getElementById('ordersList'),modalRoot:document.getElementById('modalRoot'),shell:document.querySelector('.shell'),sidePanelBody:document.getElementById('sidePanelBody'),panelTabs:document.getElementById('panelTabs')};
     helpers.bindInventoryHelperDeps({getState,getSocket:()=>socket,kitsFor:()=>[]});
     opening.bindOpeningRenderDeps({getState,materialStageForClient:helpers.materialStageForClient});
     modal.bindGameModalDeps({getEls:()=>els,getState,getSocket:()=>socket});
-    initInventoryModule({getState,els,socket,helpers:{...format,...helpers,...opening,...modal,kitsFor:()=>[]}});
     initOrdersModule({getState,els,socket,getActiveView:()=> 'orders',registerAction:(name,handler)=>actions.set(name,handler),helpers:{...format,...helpers,...opening,...modal,...rules,button:()=>'',viewButton:()=>'',empty:()=>'',routeRecommendation:()=>'',liveSaleRange:()=>'',showToast:(message)=>events.push(['toast',message])}});
+    bindSidePanelDeps({getState,getEls:()=>els,matchingBracelets:helpers.matchingBracelets});
+    setSidePanelFilter('order');
     document.addEventListener('click',event=>{const target=event.target.closest('[data-action]');if(target)actions.get(target.dataset.action)?.({target,payload:target.dataset.payload});if(event.target.closest('[data-modal-close]'))modal.closeGameModal()});
     renderOrders();
-    window.pickerFixture={state,events,renderOrders,focusOrdersForProduct,inspect:helpers.inspectInventoryItem,open(id='picker-order',slot='0'){actions.get('openOrderProductPicker')({payload:id,target:{dataset:{slot}}})}};
+    window.pickerFixture={state,events,renderOrders,renderSidePanel,focusOrdersForProduct,inspect(id){
+      initInventoryModule({getState,els,socket,helpers:{...format,...helpers,...opening,...modal,kitsFor:()=>[]}});
+      helpers.inspectInventoryItem(id);
+    },open(id='picker-order',slot='0'){actions.get('openOrderProductPicker')({payload:id,target:{dataset:{slot}}})}};
   </script></body></html>`;
 const app = express();
 app.get("/order-picker-fixture", (_request, response) => response.type("html").send(fixture));
@@ -204,10 +209,11 @@ try {
   await page.setViewportSize({ width: 1600, height: 1100 });
   await page.evaluate(orders => { const f = window.pickerFixture; f.state.me.orders = orders; f.state.me.bracelets = []; document.documentElement.dataset.theme = 'day'; f.renderOrders(); }, demandOrders);
   const mainCard = page.locator('[data-order-card="demand-main"]');
-  assert.equal(await mainCard.locator('.order-demand-row').count(), 4);
+  assert.equal(await mainCard.locator('.order-demand-row').count(), 2);
   assert.equal((await mainCard.locator('.order-hero-main').innerText()).replace(/\s+/g, ' '), '水滴挂件 × 1 件');
   assert.equal(await mainCard.locator('.order-demand-row').nth(0).locator('dd').innerText(), '糯种及以上');
-  assert.equal(await page.locator('[data-order-card="demand-unlimited"] .order-demand-row').nth(3).locator('dd').innerText(), '不设上限');
+  assert.equal(await page.locator('[data-order-card="demand-unlimited"] .order-budget strong').innerText(), '不限');
+  assert.doesNotMatch(await page.locator('#ordersList').innerText(), /最低货值|单件货值|满额报价|库存匹配/);
   const extraValues = await page.locator('[data-order-card="demand-unlimited"] .order-demand-target').allTextContents();
   assert.ok(extraValues.includes('18K金') && extraValues.includes('包镶'));
   const colorValues = await page.locator('[data-order-card="demand-color"] .order-demand-target').allTextContents();
@@ -233,7 +239,14 @@ try {
             const a = luminance(foreground), b = luminance(s.backgroundColor);
             return { text: button.innerText, contrast: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };
           }),
-          typography: [...new Set([card, ...card.querySelectorAll('*')].filter(el => el.getClientRects().length).map(el => { const s = getComputedStyle(el); return s.fontSize + '/' + s.fontWeight; }))].sort() };
+          typography: [...card.querySelectorAll('*')]
+            .filter(el => el.getClientRects().length && [...el.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim()))
+            .map(el => ({
+              text: el.textContent.trim(),
+              fontSize: parseFloat(getComputedStyle(el).fontSize),
+              // list-density.css defines 16px titles, 12px quantities and 13px body text.
+              minFontSize: el.matches('.order-quantity') ? 12 : el.matches('.order-hero-main') ? 16 : 13
+            })) };
       })
     }));
     assert.equal(report.overflow, false, `${name}: order grid fits`);
@@ -241,7 +254,10 @@ try {
     for (const card of report.cards) {
       assert.equal(card.titleFirst, true, `${name}: product title precedes requirements and customer`);
       assert.equal(card.overflow, false, `${name}: card fits`);
-      assert.deepEqual(card.typography, ['14px/400', '20px/500'], `${name}: two type styles`);
+      assert.ok(card.typography.length > 0, `${name}: order text is present`);
+      for (const text of card.typography) {
+        assert.ok(text.fontSize >= text.minFontSize, `${name}: readable order text ${JSON.stringify(text)}`);
+      }
       for (const action of card.actions) assert.ok(action.text.trim() && action.contrast >= 4.5, `${name}: readable button label ${JSON.stringify(action)}`);
     }
     const heights = report.cards.map(card => card.height);
@@ -261,20 +277,15 @@ try {
   }
   await page.setViewportSize({ width: 1600, height: 1100 });
   await page.evaluate(products => { const f = window.pickerFixture; f.state.me.bracelets = products; document.documentElement.dataset.theme = 'day'; f.renderOrders(); }, products);
-  assert.equal(await mainCard.locator('.order-demand-actual.is-pass').count(), 4);
+  assert.equal(await mainCard.locator('.order-demand-actual.is-pass').count(), 2);
   assert.equal(await mainCard.locator('.order-persona summary, .order-persona-chevron, [data-order-notes]').count(), 0);
-  const careText = await mainCard.locator('.order-care').innerText();
-  assert.ok(careText.trim());
-  assert.ok(await mainCard.locator('.order-care').isVisible(), 'Customer preference is visible without expanding');
-  await page.evaluate(() => window.pickerFixture.renderOrders());
-  assert.equal(await mainCard.locator('.order-care').innerText(), careText, 'Customer preference survives rerender');
-  assert.ok(await mainCard.locator('.order-care').isVisible());
+  assert.equal(await mainCard.locator('.order-care').count(), 0);
   await inspectOrderCards('selected');
   await open('demand-main');
   await picker.locator('[data-order-pick-tier]').selectOption('partial');
   await select('partial').click();
   await confirm().click();
-  assert.equal(await mainCard.locator('.order-demand-actual.is-warn').count(), 1);
+  assert.match(await mainCard.locator('.order-fit-feedback').innerText(), /略超预算/);
   assert.equal(await mainCard.locator('[data-action="completeOrder"]').innerText(), '折价交付');
   await mainCard.screenshot({ path: path.join(output, 'order-partial.png') });
   await mainCard.locator('[data-action="completeOrder"]').click();
@@ -284,7 +295,7 @@ try {
   await picker.locator('[data-order-pick-tier]').selectOption('hard_fail');
   await select('rejected').click();
   await confirm().click();
-  assert.equal(await mainCard.locator('.order-demand-actual.is-fail').count(), 3);
+  assert.equal(await mainCard.locator('.order-demand-actual.is-fail').count(), 2);
   assert.equal(await mainCard.locator('[data-action="completeOrder"]').count(), 0);
   assert.equal(await mainCard.getByRole('button', { name: '重新选择成品', exact: true }).count(), 1);
   for (const [name, width, theme] of [['rejected', 1600, 'day'], ['rejected-narrow', 320, 'night']]) {
@@ -309,8 +320,17 @@ try {
   assert.equal(await bundle.locator('.order-quantity').innerText(), '× 2 件');
   assert.equal(await bundle.locator('.order-selects .order-picker').count(), 2);
   assert.equal(await bundle.locator('.order-demand-actual').count(), 0, 'Multiple products are not mislabeled as a single product comparison');
-  assert.ok((await bundle.innerText()).includes('单件货值') && (await bundle.innerText()).includes('单件预算'));
+  assert.match(await bundle.innerText(), /单件预算/);
+  assert.doesNotMatch(await bundle.innerText(), /单件货值/);
   await inspectOrderCards('multi-item');
+  await page.evaluate(() => {
+    window.pickerFixture.renderSidePanel();
+    document.getElementById('affairsFixture').hidden = false;
+  });
+  assert.ok(await page.locator('[data-side-npc-order="demand-main"]').isVisible());
+  assert.match(await page.locator('#panelTabs').innerText(), /订单\s*2/);
+  assert.match(await page.locator('#sidePanelBody').innerText(), /库存已备齐/);
+  await page.locator('#affairsFixture').screenshot({ path: path.join(output, 'orders-stock-ready.png') });
   const touchPage = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'reduce' });
   touchPage.on('pageerror', error => errors.push(error.message));
   await touchPage.goto(`http://127.0.0.1:${server.address().port}/order-picker-fixture`);

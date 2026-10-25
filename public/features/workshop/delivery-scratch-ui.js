@@ -1,5 +1,8 @@
 import { SCRATCH_REVEAL_THRESHOLD } from "../../../shared/domain/workshop/delivery-scratch.js";
 import { ScratchCoverage, SCRATCH_BRUSH_RADIUS } from "./scratch-coverage.js";
+import { ScratchValuation } from "./scratch-valuation.js";
+import { openingStoneFor } from "../opening/opening-render.js";
+import { formatMoney } from "../../shell/format-utils.js";
 
 const SIZE = 600, GRID = 160;
 
@@ -47,6 +50,25 @@ export function createDeliveryScratchUi({ root, delivery, playerId, itemIds, onT
     const pixels = sampler.getImageData(0, 0, GRID, GRID).data;
     const mask = Uint8Array.from({ length: GRID * GRID }, (_, i) => pixels[i * 4 + 3] >= 128 ? 1 : 0);
     const coverage = new ScratchCoverage(mask, GRID, saved);
+    const item = delivery.items.find((item) => item.id === id);
+    const valuation = new ScratchValuation(openingStoneFor(item), coverage, item.value ?? item.price);
+    const valuePanel = card.querySelector("[data-scratch-valuation]");
+    const valueText = valuePanel.querySelector("[data-scratch-value]");
+    const deltaText = valuePanel.querySelector("[data-scratch-value-delta]");
+    const progressText = valuePanel.querySelector("[data-scratch-value-progress]");
+    const statusText = valuePanel.querySelector("[data-scratch-value-status]");
+    let strokeStartValue = valuation.value;
+    const updateValue = () => {
+      const value = valuation.value;
+      const delta = value - strokeStartValue;
+      valueText.textContent = formatMoney(value);
+      valueText.dataset.value = value;
+      deltaText.textContent = `本笔 +${formatMoney(delta)}`;
+      progressText.textContent = `已揭露 ${Math.floor(coverage.ratio * 100)}%`;
+      valuePanel.classList.toggle("is-gaining", delta > 0);
+    };
+    updateValue();
+    const onErase = (index) => valuation.revealCell(index);
     canvas.width = canvas.height = SIZE;
     const ctx = canvas.getContext("2d");
     ctx.save();
@@ -78,13 +100,14 @@ export function createDeliveryScratchUi({ root, delivery, playerId, itemIds, onT
     };
     const erase = (next) => {
       const before = coverage.count;
-      coverage.erase(entry.last, next);
+      coverage.erase(entry.last, next, SCRATCH_BRUSH_RADIUS, onErase);
       ctx.lineWidth = SIZE * SCRATCH_BRUSH_RADIUS * 2;
       ctx.lineCap = ctx.lineJoin = "round";
       ctx.beginPath(); ctx.moveTo(entry.last.x * SIZE, entry.last.y * SIZE);
       ctx.lineTo(next.x * SIZE + .001, next.y * SIZE + .001); ctx.stroke();
       entry.last = next;
       if (coverage.count === before) return;
+      updateValue();
       card.classList.add("has-scratch-marks");
       clearTimeout(entry.timer); entry.timer = setTimeout(persist, 200);
       if (coverage.ratio >= SCRATCH_REVEAL_THRESHOLD) { persist(); onThreshold(id); }
@@ -92,12 +115,15 @@ export function createDeliveryScratchUi({ root, delivery, playerId, itemIds, onT
     const finish = (event) => {
       if (entry.pointer !== event.pointerId) return;
       entry.pointer = null;
+      statusText.textContent = `已揭露料值 ${formatMoney(valuation.value)}，本笔增加 ${formatMoney(valuation.value - strokeStartValue)}`;
       persist();
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     };
     canvas.addEventListener("pointerdown", (event) => {
       if (!enabled || entry.revealed || entry.pointer != null || (event.pointerType === "mouse" && event.button !== 0)) return;
       event.preventDefault();
+      strokeStartValue = valuation.value;
+      updateValue();
       entry.pointer = event.pointerId; entry.last = point(event);
       canvas.setPointerCapture(event.pointerId); erase(entry.last);
     }, { signal: events.signal });

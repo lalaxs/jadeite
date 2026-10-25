@@ -43,9 +43,9 @@
 
 6 个旧测试只调整工坊源码读取入口，随模块迁移读取原有函数；工艺规则导入断言支持新文件层级。旧阶段历史 fixture 和测试保留。上一阶段冻结之后新增的玩法已由本阶段新基线接纳，完整运行入口使用 `--server` 避免把阶段一冻结版本当作最新业务规则。
 
-执行结果以 [baseline-regressions.json](./baseline-regressions.json)、[baseline-windows-retest.log](./baseline-windows-retest.log)、[final-regressions.json](./final-regressions.json) 和最终 `verification-summary.json` 为准。
+执行结果以 [baseline-regressions.json](./baseline-regressions.json)、[baseline-windows-retest.log](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor/baseline-windows-retest.log)、[final-regressions.json](./final-regressions.json) 和最终 `verification-summary.json` 为准。
 
-详细汇总见 [verification-summary.json](./verification-summary.json)，源码一致性证据见 [workspace-verification.json](./workspace-verification.json)。视觉比较不屏蔽像素；Chrome 同源对照的阴影合成噪声基线最大为 3/255，候选最大为 2/255；所有元素坐标、尺寸和命令载荷完全一致。代表截图：[桌面材料分析（前）](./screenshots/before-desktop-material-analysis.png)、[桌面材料分析（后）](./screenshots/after-desktop-material-analysis.png)、[手机材料分析（前）](./screenshots/before-mobile-material-analysis.png)、[手机材料分析（后）](./screenshots/after-mobile-material-analysis.png)。真实流程证据：[重构前](./real-browser-before.json)、[重构后](./real-browser-after.json)。
+详细汇总见 [verification-summary.json](./verification-summary.json)，源码一致性证据见 [workspace-verification.json](./workspace-verification.json)。视觉比较不屏蔽像素；Chrome 同源对照的阴影合成噪声基线最大为 3/255，候选最大为 2/255；所有元素坐标、尺寸和命令载荷完全一致。代表截图：[桌面材料分析（前）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor/screenshots/before-desktop-material-analysis.png)、[桌面材料分析（后）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor/screenshots/after-desktop-material-analysis.png)、[手机材料分析（前）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor/screenshots/before-mobile-material-analysis.png)、[手机材料分析（后）](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor/screenshots/after-mobile-material-analysis.png)。真实流程证据：[重构前](./real-browser-before.json)、[重构后](./real-browser-after.json)。
 
 **复跑与恢复**
 
@@ -58,3 +58,5 @@ npm run test:workshop-server:browser
 专项边界检查绑定此次冻结清单；后续有意修改其他玩法时，需要记录新的阶段基线，不能通过删除受保护路径来规避。完整回归在隔离副本运行，结束后再核对工作区的生产与测试源码一致性。PostgreSQL 本轮执行仓库现有 adapter smoke；未配置真实 PostgreSQL 集成环境，不将其描述为线上数据库验收。
 
 需要回退时，仅从冻结快照恢复原 `server/services/workshop-service.js`，移除本阶段新增的六个工厂，再处理本阶段测试入口；先核对文件没有被后续任务改动。没有迁移存档版本或字段，不需要数据迁移。勿重置整个工作树或覆盖其他任务已经完成的交付材料分析、数值和黑市变更。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-server-refactor)。

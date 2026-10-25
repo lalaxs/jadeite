@@ -321,7 +321,7 @@ export function renderOwnedWorkers() {
       className: `owned-worker-card ${status.busy ? "is-busy" : ""}`,
       visualAttributes: `${detailAction} aria-label="查看${escapeHtml(worker.name)}能力详情"`,
       summary: [`${meta.label} · ${Number(worker.tier) || 1} 阶`, `登录日日薪 ${formatMoney(workerDailyWage(worker))}`],
-      body: `<span class="recruit-skill-row">${skills}</span><span class="trait-row">${traits || '<span class="recruit-trait-chip muted">暂无天赋</span>'}</span>`,
+      body: `<span class="recruit-skill-row">${skills}</span>${traits ? `<span class="trait-row">${traits}</span>` : ""}`,
       footer: `<button ${detailAction} type="button">查看能力详情</button>`
     });
   }).join("");
@@ -529,7 +529,7 @@ export function renderRecruitCandidates() {
       type: "employee", name: candidate.name, badge: "待招募", className: "recruit-candidate-card",
       visualAttributes: `${detailAction} aria-label="查看${escapeHtml(candidate.name)}完整详情"`,
       summary: [`${meta.label} · ${Number(candidate.tier) || 1} 阶`, `登录日日薪 ${formatMoney(baseWage)}`],
-      body: `<span class="recruit-skill-row">${skills}</span><span class="trait-row">${traits || '<span class="recruit-trait-chip muted">暂无天赋</span>'}</span>`,
+      body: `<span class="recruit-skill-row">${skills}</span>${traits ? `<span class="trait-row">${traits}</span>` : ""}`,
       footer: `<span class="inventory-slot-value"><span>签约费用</span><strong>${formatMoney(candidate.price)}</strong></span><button ${detailAction} type="button">查看完整详情</button>`
     });
   }).join("") || `

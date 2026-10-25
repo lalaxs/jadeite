@@ -4,11 +4,11 @@ import { once } from "node:events";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
 
-// A real, disposable server and browser. Only production timers are accelerated;
-// no cash, products, order requirements or client transport are mocked.
+// Real purchases and processing on a disposable server. A capitalized fixture
+// buys all three machines; production timers use the test timing profile.
 const port = 47000 + process.pid % 1000;
 const origin = `http://127.0.0.1:${port}`;
-const directory = "docs/reports/2026-10-23-starter-economy";
+const directory = ".tmp/workshop-owned-ui";
 mkdirSync(directory, { recursive: true });
 try { await fetch(origin); throw new Error("QA port is occupied"); }
 catch (error) { if (error.message === "QA port is occupied") throw error; }
@@ -70,13 +70,42 @@ try {
   milestones.push({ stage: "initial", cash: initial.cash, rough: initial.rough.length });
   await shot("01-initial");
 
+  assert.deepEqual(initial.workshop.devices, []);
+  assert.equal(Object.hasOwn(initial.workshop, "publicStations"), false);
+  await page.locator('#mainNav [data-nav-view="workshop"]').click();
+  for (const [step, label] of [["open", "开料"], ["plan", "规划"], ["finish", "精加工"]]) {
+    await page.locator(`#workshopStepTab-${step}`).click();
+    assert.equal(await page.locator('.workshop-recipe-card').count(), 0);
+    assert.match(await page.locator('.workshop-step-empty').innerText(), new RegExp(`暂无${label}设备`));
+    assert.equal(await page.locator('#workshopRoot [data-view-link="shop"]').count(), 1);
+    assert.equal(await page.locator('[data-action="openInlayPreviewTester"], .workshop-ownership-note').count(), 0);
+  }
+  await shot("02-empty-desktop");
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  await shot("03-empty-mobile");
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('.workshop-step-empty [data-view-link="shop"]').click();
+  await page.locator('[data-action="shopSelectTab"][data-payload="equipment"]').waitFor();
+  await page.evaluate(() => window.__starterQa.socket.emit('debugGrant', { cash: 14_000 }));
+  await page.waitForFunction(() => window.__starterQa.state.me.cash === 26_000);
+  for (const stage of ["opening", "carving", "finishing"]) {
+    await page.locator('[data-action="shopSelectTab"][data-payload="equipment"]').click();
+    await page.locator(`[data-eq-stage="${stage}"]`).click();
+    await page.locator(`[data-action="buyWorkshopDevice"][data-model-key="used-${stage}-1"]`).click();
+    await page.locator('[data-action="confirmShopPurchase"]').click();
+    await page.waitForFunction((stage) => window.__starterQa.state.me.workshop.devices.some(device => device.stage === stage), stage);
+  }
+  assert.equal((await state()).me.cash, 12_000);
+  milestones.push({ stage: "owned-line-purchased", invested: 14_000, cash: 12_000 });
+
   async function workshop(stage, itemId) {
     await page.locator('#mainNav [data-nav-view="workshop"]').click();
     const back = page.locator('[data-action="backWorkshopDevices"]');
     if (await back.isVisible()) await back.click();
     const tab = page.locator(`#workshopStepTab-${{ opening: "open", carving: "plan", finishing: "finish" }[stage]}`);
     if (await tab.count()) await tab.click();
-    const device = (await state()).me.workshop.publicStations.find((row) => row.stage === stage);
+    const device = (await state()).me.workshop.devices.find((row) => row.stage === stage);
     await page.locator(`[data-action="openWorkshopDevice"][data-payload="${device.id}"]`).click();
     await page.locator('.ws-big-material[data-action="openWorkshopPicker"]').click();
     await page.locator(`[data-action="pickWorkshopItem"][data-payload="${itemId}"]`).click();
@@ -135,7 +164,8 @@ try {
   const trial = (await state()).me.orders.find((order) => order.starterOrder);
   assert.ok(trial);
   await page.locator(`[data-action="openOrderProductPicker"][data-payload="${trial.id}"]`).click();
-  await page.locator(`[data-action="pickOrderProductOption"][data-product-id="${blank.id}"]`).click();
+  const productChoice = page.locator(`[data-action="pickOrderProductOption"][data-product-id="${blank.id}"]`);
+  if (await productChoice.getAttribute("aria-pressed") !== "true") await productChoice.click();
   await page.locator('[data-action="confirmOrderProductPick"]').click();
   await page.locator(`[data-action="completeOrder"][data-payload="${trial.id}"]`).click();
   await page.getByRole("button", { name: "确认交付", exact: true }).click();

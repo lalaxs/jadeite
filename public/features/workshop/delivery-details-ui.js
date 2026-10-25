@@ -2,6 +2,13 @@ import { activateModalLifecycle } from "../../modal-lifecycle.js";
 import { buildInventoryItems } from "../../inventory-module.js";
 import { inventoryDetailStats } from "../inventory/item-detail-model.js";
 import { deliveryMaterialAnalysis } from "./delivery-material-analysis.js";
+import { openingResult } from "../../../shared/domain/workshop/opening-result.js";
+
+export function openingResultHtml(item, helpers) {
+  const result = openingResult(item);
+  const money = helpers.formatMoney;
+  return `<section class="opening-result is-${result.tone}" aria-label="开料结果"><p>开料结果</p><h3>${result.title}</h3><div><span>开出料值</span><strong>${money(result.value)}</strong></div><div><span>${result.cost === 0 ? "赠料成本" : "购入成本"}</span><b>${result.cost == null ? "暂无记录" : money(result.cost)}</b></div>${result.cost > 0 ? `<div class="opening-result-difference"><span>较购入成本</span><strong>${result.difference > 0 ? "+" : result.difference < 0 ? "−" : ""}${money(Math.abs(result.difference))}（${result.difference > 0 ? "+" : ""}${Math.round(result.difference / result.cost * 100)}%）</strong></div>` : ""}<small>料值为参考估值，售出后结算实际盈亏。</small></section>`;
+}
 
 export function deliveryItemDetails(item, helpers) {
   const source = { rough: "rough", material: "materials", slice: "slices" }[item.type] || "bracelets";
@@ -11,6 +18,7 @@ export function deliveryItemDetails(item, helpers) {
 }
 
 export function createDeliveryDetailsUi({ parent, helpers }) {
+  const document = parent.ownerDocument;
   const esc = helpers.escapeHtml;
   let active = null;
   const fields = (stats) => stats.map(({ label, value }) => `<div class="delivery-detail-field"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("");
@@ -24,7 +32,7 @@ export function createDeliveryDetailsUi({ parent, helpers }) {
     summary(item) {
       const report = deliveryMaterialAnalysis(item);
       const rows = (values) => values.map(({ name, percent }) => `<div class="delivery-analysis-row"><span>${esc(name)}</span><b>${percent.toFixed(1)}%</b></div>`).join("");
-      return `<p class="delivery-summary-eyebrow">开料分析</p><h3>${esc(item.name)}</h3>
+      return `${openingResultHtml(item, helpers)}<p class="delivery-summary-eyebrow">开料分析</p><h3>${esc(item.name)}</h3>
         <section class="delivery-analysis-section"><h4>种水<small>玉肉内占比</small></h4>${report.grades.length ? rows(report.grades) : '<p class="delivery-analysis-empty">未检出可用玉肉</p>'}</section>
         <section class="delivery-analysis-section"><h4>颜色分布<small>占整块料面</small></h4>${rows(report.colors)}</section>
         <dl class="delivery-detail-fields delivery-analysis-defects">${fields([

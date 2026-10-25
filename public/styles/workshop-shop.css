@@ -166,8 +166,8 @@
   aspect-ratio: 1;
   padding: 0;
   background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.7), transparent 28%),
-    linear-gradient(180deg, #eef4ef, #dce7df);
+    radial-gradient(circle at 35% 25%, var(--jade-soft), transparent 65%),
+    var(--paper);
   cursor: default;
 }.jade-opening-svg {
   display: block;

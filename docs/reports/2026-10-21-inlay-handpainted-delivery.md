@@ -47,10 +47,10 @@
 
 ## 实际截图
 
-- [红宝石戒指](2026-10-21-inlay-handpainted/ring-ruby-desktop.jpg)
-- [方形蓝宝石戒指](2026-10-21-inlay-handpainted/sapphire-square-desktop.jpg)
-- [佛公微镶](2026-10-21-inlay-handpainted/buddha-micro-desktop.jpg)
-- [编绳和原貌对照](2026-10-21-inlay-handpainted/cord-desktop.jpg)
-- [390 宽手机佛公微镶](2026-10-21-inlay-handpainted/buddha-micro-mobile.jpg)
-- [430 宽手机方形配石](2026-10-21-inlay-handpainted/sapphire-square-mobile.jpg)
+- [红宝石戒指](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/ring-ruby-desktop.jpg)
+- [方形蓝宝石戒指](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/sapphire-square-desktop.jpg)
+- [佛公微镶](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/buddha-micro-desktop.jpg)
+- [编绳和原貌对照](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/cord-desktop.jpg)
+- [390 宽手机佛公微镶](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/buddha-micro-mobile.jpg)
+- [430 宽手机方形配石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-inlay-handpainted/sapphire-square-mobile.jpg)
 

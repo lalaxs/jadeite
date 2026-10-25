@@ -17,6 +17,8 @@ import {
   orderBatchRefreshFeeForCount
 } from "../server/services/orders-service.js";
 import { evaluateOrderFit, productMatchesOrder } from "../public/jade-rules.js";
+import { previewOrderIncome } from "../public/features/orders/orders-module.js";
+import { buildSaleComparison } from "../public/features/finance/sale-comparison.js";
 
 assert.ok(NPC_PROFILES.length >= 4);
 assert.equal(ORDER_SLOT_CAP, 4);
@@ -165,6 +167,33 @@ assert.equal(rejectPlayer.bracelets.length, 1, "拒收不应扣货");
 assert.equal(rejectPlayer.orders.length, 1, "拒收不应销单");
 assert.equal(rejectPlayer.cash, 20_000, "拒收不应付款");
 
+for (const [score, cracked, expectedPay] of [[4, false, 1250], [2, false, 1000], [2, true, 750]]) {
+  const customer = H.makePlayer(`order-fit-${expectedPay}`);
+  H.normalizePlayer(customer);
+  customer.orders = [{ id: `fit-${expectedPay}`, client: "熟客", pay: 5000, rep: 8, quantity: 1,
+    persona: { motive: "炫富", personality: "计较", temper: 1.15 },
+    hard: { minValue: 4000, kind: "dropPendant", sizeBand: "M", budgetMax: 5000 },
+    requirements: [{ type: "minScore", minScore: 4, label: "种水：正冰及以上" },
+      { type: "forbidCrack", label: "净度：无纹裂" }] }];
+  const product = { id: `product-${expectedPay}`, name: "水滴挂件", type: "bracelet", kind: "dropPendant",
+    materialStage: "finished", size: "M", value: 1000, score, visual: { crack: cracked } };
+  customer.bracelets = [product];
+  H.state.players.set(customer.id, customer);
+  const fitOrder = customer.orders[0];
+  const preview = previewOrderIncome(customer, fitOrder, [product], evaluateOrderFit(product, fitOrder));
+  assert.equal(preview.amount, expectedPay, "fitting requirements determine the capped product quote");
+  const comparison = buildSaleComparison({ me: customer }, product);
+  assert.equal(comparison.rows.find((row) => row.id === `order:${fitOrder.id}`).revenue, expectedPay);
+  const originalRandom = Math.random;
+  let settled;
+  try {
+    Math.random = () => 0.99;
+    settled = H.completeOrderForPlayer(customer, { orderId: fitOrder.id, braceletIds: [product.id] });
+  } finally { Math.random = originalRandom; }
+  assert.equal(settled.ok, true, settled.message);
+  assert.equal(settled.finalPay, expectedPay, "actual receipt matches the order and finance previews");
+}
+
 const local = createOrdersService({
   money: (value) => Math.max(0, Math.round(Number(value) || 0)),
   clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
@@ -183,6 +212,7 @@ const local = createOrdersService({
 const sample = local.makeOrder({ rep: 0, satisfaction: 50, orders: [] });
 assert.ok(sample.persona);
 assert.ok(sample.hard);
+assert.equal(Object.hasOwn(sample.hard, "minValue"), false);
 assert.ok(sample.client);
 assert.doesNotMatch(sample.client, /岁/);
 
@@ -264,7 +294,7 @@ assert.match(serviceSource, /function completeOrderForPlayer/);
 assert.match(serviceSource, /evaluateOrderFit/);
 assert.match(serviceSource, /persona/);
 assert.match(serviceSource, /客人拒收/);
-assert.match(serviceSource, /budgetSoftOver/);
+assert.match(serviceSource, /estimateOrderSettlement/);
 assert.match(serviceSource, /WEALTH_VALUE_BAND/);
 assert.match(serviceSource, /satisfactionPayBoost/);
 assert.match(serviceSource, /tipMult/);

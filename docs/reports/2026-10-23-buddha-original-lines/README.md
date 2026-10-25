@@ -16,8 +16,10 @@
 独立 `PORT=3012 JADE_WORLD_PERSIST=0` 样本世界完成 Chrome 桌面 1440×1000、手机 390×844、爪镶/包镶/微镶/编绳、三种抛光、60 颗钻石、库存 256 像素位图缓存与库存详情检查。页面脚本及素材加载无错误，手机无横向溢出，未读写玩家存档。访客会话探测的预期 401 单独计数。
 
 - [浏览器结果](browser-checks.json)
-- [原版改动前](../2026-10-23-buddha-rounded-minimal/before-detail.png)
-- [精简后的实机效果](after-jade-day.png)
-- [手机效果](after-mobile.png)
-- [库存缓存](inventory-cached-buddha.png)
-- [库存详情](inventory-detail.png)
+- [原版改动前](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-rounded-minimal/before-detail.png)
+- [精简后的实机效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-original-lines/after-jade-day.png)
+- [手机效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-original-lines/after-mobile.png)
+- [库存缓存](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-original-lines/inventory-cached-buddha.png)
+- [库存详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-original-lines/inventory-detail.png)
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-buddha-original-lines)。

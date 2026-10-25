@@ -77,7 +77,6 @@ export function renderCollection() {
         <div class="treasure-card-body">
           <div class="treasure-card-head">
             <div>
-              <span class="treasure-card-kicker">典藏</span>
               <h3>${escapeHtml(item.name)}</h3>
             </div>
             <span class="treasure-card-rep">${escapeHtml(
@@ -93,9 +92,8 @@ export function renderCollection() {
             <span>${escapeHtml(item.color)}</span>
           </div>
           ${summary ? `<p class="inlay-summary">${escapeHtml(summary)}</p>` : ""}
-          <p class="treasure-card-freeze-hint">冻结中 · 不可交易 / 加工</p>
           <div class="treasure-card-value"><span>藏品估值</span><strong>${formatMoney(item.value)}</strong></div>
-          <button class="secondary small treasure-card-return" data-action="returnCollectionItem" data-payload="${itemId}" type="button">放回仓库 · 解除冻结</button>
+          <button class="secondary small treasure-card-return" data-action="returnCollectionItem" data-payload="${itemId}" type="button">放回仓库</button>
         </div>
       </article>
     `;

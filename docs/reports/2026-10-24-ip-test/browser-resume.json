@@ -1,0 +1,11 @@
+{
+  "mode": "resume",
+  "httpsTrusted": true,
+  "distinctPlayers": 10,
+  "accountLogin": true,
+  "publicWorkstation": true,
+  "staticCache": "versioned immutable",
+  "purchaseDeduplication": true,
+  "restartRecovery": true,
+  "browserErrors": []
+}

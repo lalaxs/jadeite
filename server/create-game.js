@@ -35,18 +35,20 @@ export function createGame({ env = process.env, cwd = process.cwd(), world, crea
   const stopHttpSecurity = installHttpSecurity({ app, config: runtimeConfig, logger, metrics, health });
   const stopSocketSecurity = installSocketServerSecurity({ io, config: runtimeConfig, logger, metrics });
   app.use(express.json({ limit: "32kb", strict: true }));
-  app.use(express.static(path.join(rootDirectory, "public"), {
-    etag: true,
-    maxAge: 0,
-    setHeaders(res, filePath) {
-      if (/\.(?:png|jpe?g|webp|gif|svg)$/i.test(filePath)) {
-        res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
-        return;
+  if (!runtimeConfig.isProduction) {
+    app.use(express.static(path.join(rootDirectory, "public"), {
+      etag: true,
+      maxAge: 0,
+      setHeaders(res, filePath) {
+        if (/\.(?:png|jpe?g|webp|gif|svg)$/i.test(filePath)) {
+          res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+          return;
+        }
+        res.setHeader("Cache-Control", "no-cache");
       }
-      res.setHeader("Cache-Control", "no-cache");
-    }
-  }));
-  app.use("/shared", express.static(path.join(rootDirectory, "shared")));
+    }));
+    app.use("/shared", express.static(path.join(rootDirectory, "shared")));
+  }
 
   try {
     const boot = wireServer({

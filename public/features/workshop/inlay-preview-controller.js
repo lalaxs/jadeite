@@ -9,11 +9,13 @@ export function createWorkshopInlayPreview({ ui, document, helpers, ports }) {
   const { escapeHtml, empty, productCanvas } = helpers;
   const { finishCatalog, finishOptions } = ports;
 
+let previewRoot = null;
 function inlayPreviewTesterRootEl() {
-  let root = document.getElementById("inlay-preview-tester-root");
+  let root = previewRoot;
   if (root) return root;
   root = document.createElement("div");
   root.id = "inlay-preview-tester-root";
+  previewRoot = root;
   root.className = "modal-root";
   root.addEventListener("click", handleInlayPreviewTesterClick);
   root.addEventListener("change", updateInlayPreviewTesterFromControl);
@@ -179,7 +181,7 @@ function renderInlayPreviewMatrices(state, catalog, item) {
 }
 
 function patchInlayPreviewTester() {
-  const root = document.getElementById("inlay-preview-tester-root");
+  const root = previewRoot;
   const body = root?.querySelector("[data-inlay-preview-body]");
   if (!root || !body || !ui.activeInlayPreviewTester) return;
   const catalog = finishCatalog();
@@ -218,7 +220,7 @@ function closeInlayPreviewTester() {
   ui.activeInlayPreviewTester = null;
   ui.inlayPreviewTesterLifecycleCleanup?.();
   ui.inlayPreviewTesterLifecycleCleanup = null;
-  document.getElementById("inlay-preview-tester-root")?.remove();
+  previewRoot?.remove(); previewRoot = null;
 }
 
   return { inlayPreviewTesterRootEl, handleInlayPreviewTesterClick, updateInlayPreviewTesterFromControl, inlayPreviewTesterShell, inlayPreviewSelectOptions, renderInlayPreviewControls, renderInlayPreviewSettingCard, renderInlayPreviewMetalCard, renderInlayPreviewMatrices, patchInlayPreviewTester, openInlayPreviewTester, closeInlayPreviewTester };

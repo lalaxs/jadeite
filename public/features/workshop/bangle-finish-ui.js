@@ -7,7 +7,7 @@ export function bangleFinishControls(escapeHtml) {
     <label class="finish-plan-field"><span>抛光效果</span><select data-finish-field="polishId">${Object.entries(BANGLE_POLISHES).map(([id, name]) => `<option value="${id}">${name}</option>`).join("")}</select></label>`;
 }
 
-export function patchBangleFinishUi(root, { item, draft, worker, device, durationMs, formatMoney, formatDuration, escapeHtml, error, canStart, submitting, stationFee = 0, upkeep = 0 }) {
+export function patchBangleFinishUi(root, { item, draft, worker, device, durationMs, formatMoney, formatDuration, escapeHtml, error, canStart, submitting, upkeep = 0 }) {
   root.querySelector("h3").textContent = "制定手镯精修方案";
   const ring = bangleRingSize(item);
   root.querySelector("[data-finish-item-title]").textContent = `${item.name} · ${ring ? `${ring}圈口 · ` : ""}${worker?.name || "师傅"}`;
@@ -21,7 +21,7 @@ export function patchBangleFinishUi(root, { item, draft, worker, device, duratio
     <div><span>预计工艺</span><strong>${estimate.craftGrade}级 · ${estimate.craftScore}分</strong></div>
     <div><span>预计成品估值</span><strong>${escapeHtml(formatMoney(estimate.value))}</strong></div>
     <div><span>预计估值变化</span><strong>${escapeHtml(formatMoney(estimate.value - Number(item.value || item.price || 0)))}</strong></div>
-    <div><span>工位与维护</span><strong>${escapeHtml(formatMoney(stationFee + upkeep))}</strong></div>
+    <div><span>设备维护</span><strong>${escapeHtml(formatMoney(upkeep))}</strong></div>
     <div><span>加工风险</span><strong>${(risk * 100).toFixed(1)}%</strong></div>
     <p class="bangle-finish-estimate-note">评分：打磨60%＋修形40%。失败退回原坯，结算设备损耗与员工经验。</p>`;
   root.querySelector("[data-finish-warning-wrap]").hidden = !error;

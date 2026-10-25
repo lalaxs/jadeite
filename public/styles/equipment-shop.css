@@ -1,0 +1,21 @@
+.equipment-shop-schedule { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.equipment-shop-schedule strong { color: var(--ink); font-size: 16px; }
+.equipment-shop-schedule span { color: var(--muted); font-size: 12px; }
+.shop-equipment-detail-price strong { font-size: 26px; font-weight: 800; }
+.equipment-param-pill:is(.is-neutral, .is-good, .is-poor, .is-excellent) { color: var(--param-tone); border-color: color-mix(in srgb, var(--param-tone) 36%, var(--line)); background: color-mix(in srgb, var(--param-tone) 9%, var(--panel)); }
+.equipment-param-pill:is(.is-neutral, .is-good, .is-poor, .is-excellent) :is(em, strong) { color: inherit; }
+.shop-equipment-detail-param:is(.is-good, .is-poor, .is-excellent) > div strong { color: var(--param-tone); }
+.equipment-listing[data-shop-stock="0"] .resource-card-footer { opacity: .65; }
+.equipment-stock-badge { position: absolute; z-index: 4; top: 8px; right: 8px; padding: 3px 7px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--panel); color: var(--ink); font-size: 11px; font-weight: 700; line-height: 1.3; }
+.equipment-stock-badge.is-sold-out { color: var(--muted); }
+#equipmentShop .resource-card-footer > button { width: 100%; font-size: 14px; font-weight: 800; }
+.equipment-param-pill.is-neutral { --param-tone: #a6b8ad; }
+.equipment-param-pill.is-good, .shop-equipment-detail-param.is-good { --param-tone: #7ce9ae; }
+.equipment-param-pill.is-poor, .shop-equipment-detail-param.is-poor { --param-tone: #ffa08b; }
+.equipment-param-pill.is-excellent, .shop-equipment-detail-param.is-excellent { --param-tone: #f6d57d; }
+[data-theme="day"] :is(.equipment-param-pill, .shop-equipment-detail-param).is-neutral { --param-tone: #607166; }
+[data-theme="day"] :is(.equipment-param-pill, .shop-equipment-detail-param).is-good { --param-tone: #166b42; }
+[data-theme="day"] :is(.equipment-param-pill, .shop-equipment-detail-param).is-poor { --param-tone: #ae3e31; }
+[data-theme="day"] :is(.equipment-param-pill, .shop-equipment-detail-param).is-excellent { --param-tone: #8a6016; }
+.equipment-param-pill:is(.is-good, .is-poor, .is-excellent) { border-color: color-mix(in srgb, var(--param-tone) 70%, var(--line)); background: color-mix(in srgb, var(--param-tone) 19%, var(--panel)); }
+.equipment-param-pill:is(.is-neutral, .is-good, .is-poor, .is-excellent) strong { color: var(--param-tone); font-weight: 800; }

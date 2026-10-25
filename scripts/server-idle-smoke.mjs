@@ -199,7 +199,11 @@ assert.equal(starterSnapshot.me.rough.length, 1);
 assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueValue"), false);
 assert.equal(Object.hasOwn(starterSnapshot.me.rough[0], "trueQualityKey"), false);
 assert.equal(starterSnapshot.me.workshop.devices.length, 0);
-const starterDevices = starterSnapshot.me.workshop.publicStations;
+assert.equal(Object.hasOwn(starterSnapshot.me.workshop, "publicStations"), false);
+assert.equal(starterSnapshot.me.workshop.selectedDeviceId, null);
+// Remaining cases exercise a mature, explicitly equipped workshop.
+installOwnedWorkshopFixture(starterPlayer);
+const starterDevices = starterPlayer.workshop.devices;
 assert.equal(starterDevices.length, 3);
 assert.deepEqual(starterDevices.map((device) => device.stage), ["opening", "carving", "finishing"]);
 assert.equal(starterSnapshot.me.workshop.workers.length, 0);
@@ -218,8 +222,6 @@ assert.ok(starterOpeningDevice && starterCarvingDevice && starterFinishingDevice
 assert.equal(starterPlayer.rough.every((rough) => materialStageFor(rough) === "rough"), true);
 assert.equal(workshopProcessableItems(starterPlayer, starterOpeningDevice.id).length, 1);
 assert.equal(workshopProcessableItems(starterPlayer, starterCarvingDevice.id).length, 0);
-// Remaining cases exercise a mature, explicitly equipped workshop.
-installOwnedWorkshopFixture(starterPlayer);
 
 const instantOpeningPlayer = makePlayer("instant-opening-player");
 instantOpeningPlayer.rough.push(...__testHooks.makeStarterRoughs(instantOpeningPlayer.id, 2)); // Multi-job capacity fixture.

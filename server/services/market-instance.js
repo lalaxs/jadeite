@@ -1,3 +1,4 @@
+import { inventoryBucketName, restoreInventoryItem } from "./inventory-items.js";
 import { recordFinanceSale } from "../../shared/domain/economy/finance-book.js";
 import {
   wantMatchesItem,
@@ -27,9 +28,7 @@ import { remainingMarketLiquidity, bookMarketLiquidity } from "./market-liquidit
 import { createAchievementRewards } from "./achievement-rewards-instance.js";
 
 export function wantBucketName(type) {
-  return type === "rough" ? "rough"
-    : type === "material" ? "materials"
-    : type === "slice" ? "slices" : "bracelets";
+  return inventoryBucketName(type) || "bracelets";
 }
 
 export function createMarketService(deps) {
@@ -53,7 +52,7 @@ function restoreWantOfferItem(player, offer) {
   if (!player || !offer?.item) return;
   const item = offer.item;
   if (!item.type) item.type = offer.type;
-  player[wantBucketName(offer.type)].push(item);
+  restoreInventoryItem(player, offer.type, item);
 }
 
 function refundWantOffers(want, exceptOfferId = null, options = {}) {
@@ -271,7 +270,9 @@ function settleWantInternal(want, buyer, options = {}) {
       const modeLabel = rule === "manual"
         ? (isLowest ? "手选成交（当前最低价）" : "手选成交")
         : "已按最低价成交";
-      afterCommit(() => notifyPlayerToast(seller, "求购应征已成交。"));
+      const saleText = `交易行求购成交「${offer.item.name}」，成交金额 ${uiMoney(price)}，货款已入账。`;
+      requireApi().queueOfflineEvent?.(seller, { type: "market", text: saleText, income: price });
+      afterCommit(() => notifyPlayerToast(seller, saleText));
       afterCommit(() => emitUiEventToPlayer(buyer, {
         type: "modal",
         tone: "trade",
@@ -423,7 +424,7 @@ function buyListingForPlayer(player, listingId) {
   const total = listing.price + tax;
   return attemptAtomicMutation(
     [player, seller, state.listings, state.news],
-    () => {
+    ({ afterCommit }) => {
       if (!spendCash(player, total, `交易行购入：${listing.item.name}（含税 ${tax}）`, { source: "market", itemId: listing.item.id,
         ...(listing.type === "equipment" ? { financeCategory: "equipment-purchase" } : {}) })) {
         return { ok: false, message: `资金不足（含 ${MARKET_TAX_PERCENT}% 市场税）。` };
@@ -445,6 +446,9 @@ function buyListingForPlayer(player, listingId) {
       grantPlayerExp(player, "market_buy");
       settlePlayerAchievements(player);
       state.listings.splice(index, 1);
+      const saleText = `交易行售出「${listing.item.name}」，成交金额 ${requireApi().uiMoney(listing.price)}，货款已入账。`;
+      requireApi().queueOfflineEvent?.(seller, { type: "market", text: saleText, income: listing.price });
+      afterCommit(() => requireApi().notifyPlayerToast?.(seller, saleText));
       addNews(`${player.name} 从 ${listing.ownerName} 手里买下 ${listing.item.name}，成交 ${listing.price}。`, "trade");
       return {
         ok: true,
@@ -467,7 +471,7 @@ function withdrawListingForPlayer(player, listingId) {
   if (listing.ownerId !== player.id) return { ok: false, message: "只能撤下自己的挂单。" };
   return attemptAtomicMutation([player, state.listings, state.news], () => {
     if (listing.type === "equipment") receiveMarketEquipment(player, listing.item);
-    else player[wantBucketName(listing.type)].push(listing.item);
+    else restoreInventoryItem(player, listing.type, listing.item);
     state.listings.splice(index, 1);
     addNews(`${player.name} 撤回了交易行挂单 ${listing.item.name}。`, "trade");
     return { ok: true, message: listing.type === "equipment" ? "已撤单，设备已退回工坊。" : "已撤单，退回库存。", listing };
@@ -656,7 +660,7 @@ function applyWantForPlayer(player, { wantId, type, itemId, price } = {}) {
   if (!item) return { ok: false, message: "库存中找不到该货品。" };
   if (!wantMatchesItem(want, item, type)) {
     if (!item.type) item.type = type;
-    player[wantBucketName(type)].push(item);
+    restoreInventoryItem(player, type, item);
     return { ok: false, message: "货品不符合求购条件。" };
   }
   if (!item.type) item.type = type;

@@ -66,27 +66,23 @@ function tickWorkshopJobProgress() {
 function workshopRecipeCard(device) {
   const jobs = workshopJobs(device.id);
   const current = jobs[0];
-  const tier = device.tier || "T1";
   const durability = Number(device.condition ?? device.durability ?? 100);
   const typeLabel = workshopDeviceTypeLabel(device);
   const paramPills = renderEquipmentParamPills(device.attrs, escapeHtml, { containerTag: "span", className: "wrc-param-pills", interactive: false });
   const durClass = durability > 80 ? "high" : durability > 50 ? "mid" : "low";
   return renderResourceCard({
-    type: "equipment", name: device.name, badge: device.publicStation ? "公共工位" : typeLabel,
+    type: "equipment", stage: device.stage, name: device.name, badge: typeLabel,
     tag: "button", className: "workshop-recipe-card",
     attributes: `data-action="openWorkshopDevice" data-payload="${escapeHtml(device.id)}" type="button"`,
-    summary: [`${typeLabel} · ${device.publicStation ? "掌柜可亲自操作" : `${tier} 阶`}`],
     body: `<span class="wrc-durability">
         <span class="wrc-dur-meta">
-          <span class="wrc-dur-label">${device.publicStation ? `按次使用 · ${formatMoney(device.publicFee || 0)}` : `耐久 ${durability}%`}</span>
-          <span class="wsp-device-type-field">${escapeHtml(typeLabel)}</span>
+          <span class="wrc-dur-label">耐久 ${durability}%</span>
         </span>
-        ${device.publicStation ? '<span class="public-station-hint">无需购机 · 赠料免工位费</span>' : `<span class="wrc-dur-track"><span class="wrc-dur-fill ${durClass}" style="width:${durability}%"></span></span>`}
+        <span class="wrc-dur-track"><span class="wrc-dur-fill ${durClass}" style="width:${durability}%"></span></span>
       </span>
       ${paramPills}`,
     footer: `<span class="wrc-foot">
         <span class="recipe-card-current">${current ? `加工中：${escapeHtml(current.item?.name || "物料")}` : "设备空闲"}</span>
-        <span class="wrc-upgrade" aria-disabled="true">${device.publicStation ? "掌柜可亲自操作" : `固定 ${escapeHtml(String(tier))} 阶`}</span>
       </span>`
   });
 }
@@ -114,23 +110,18 @@ function workshopStepTabs() {
 }
 
 function workshopRecipeHome(devices) {
-  const stepDevices = devices.filter((device) => !device.publicStation && deviceStep(device) === ui.activeWorkshopStep);
+  const stepDevices = devices.filter((device) => deviceStep(device) === ui.activeWorkshopStep);
   const step = WORKSHOP_STEPS.find((s) => s.id === ui.activeWorkshopStep) || WORKSHOP_STEPS[0];
   const emptyStep = `
     <div class="game-empty-state workshop-step-empty">
       <span class="game-empty-state-mark" aria-hidden="true">工</span>
-      <strong>「${escapeHtml(step.label)}」还没有可用设备</strong>
-      <p>先到商铺添置对应工序的机器，设备到位后就能在这里选料、排工并开工。</p>
-      <button type="button" data-view-link="shop">去商铺看设备</button>
+      <strong>暂无${escapeHtml(step.label)}设备</strong>
+      <button type="button" data-view-link="shop">前往商铺购买</button>
     </div>`;
   return `
     <div class="workshop-recipe-home">
-      <div class="workshop-ownership-note"><button class="secondary small" type="button" data-view-link="shop">添置自有设备</button></div>
       ${workshopStepTabs()}
       <section id="workshopStepPanel" class="workshop-step-panel" role="tabpanel" aria-labelledby="workshopStepTab-${ui.activeWorkshopStep}">
-        <div class="workshop-step-tools">
-          <button class="secondary small" data-action="openInlayPreviewTester" type="button">镶嵌预览测试</button>
-        </div>
         <div class="workshop-recipe-grid">
           ${stepDevices.map(workshopRecipeCard).join("") || emptyStep}
         </div>
@@ -239,7 +230,7 @@ function workshopRecipeSummary(device, selected) {
       <div class="workshop-outcome-preview ${cashShort ? "is-short" : "is-safe"}" aria-label="本次加工预计结果">
         <div><span>预计产出</span><strong>${escapeHtml(estimate.output)}</strong></div>
         <div><span>预计耗时</span><strong>${isFinish ? "随工艺确定" : escapeHtml(estimate.duration)}</strong></div>
-        <div><span>${device.publicStation ? "工位费用" : "加工费用"}</span><strong>${estimate.fee ? formatMoney(estimate.fee) : "免费"}${device.publicStation && !estimate.fee ? "（赠料减免）" : ""}</strong></div>
+        <div><span>加工费用</span><strong>${estimate.fee ? formatMoney(estimate.fee) : "免费"}</strong></div>
       </div>
       ${planStep}
       ${startActions}
@@ -390,12 +381,11 @@ function workshopRecipePage(device) {
         <div class="mib-item"><em>等级</em><strong>${tier} 阶</strong></div>
         <div class="mib-item mib-param-pills"><em>参数</em>${renderEquipmentParamPills(device.attrs, escapeHtml, { className: "mib-equipment-param-pills" })}</div>
         <div class="mib-item mib-dura">
-          ${device.publicStation ? `<span class="public-station-terms">按次使用 ${formatMoney(device.publicFee || 0)} · 赠料免工位费 · 由街坊维护</span>` : `
           <em>耐久 ${durability}%</em>
           <span class="mib-dura-track"><span class="mib-dura-fill ${durClass}" style="width:${durability}%"></span></span>
           <button class="secondary small" data-action="repairWorkshopDevice" data-payload="${device.id}" type="button" ${repairDisabled ? "disabled" : ""}>${jobs.length ? "加工中" : durability >= 100 ? "无需维修" : `维修 ${formatMoney(repairCost)}`}</button>
           <button class="secondary small" data-action="openMarketListModal" data-payload="${device.id}" type="button" title="${escapeHtml(saleBlocked || "出售闲置设备")}" ${saleBlocked ? "disabled" : ""}>挂牌出售</button>
-          <button class="secondary small" data-action="sellBmResource" data-payload="${device.id}" type="button" title="${escapeHtml(blackSaleBlocked || "在黑市出售闲置设备")}" ${blackSaleBlocked ? "disabled" : ""}>${device.blackmarketListingId ? "黑市挂牌中" : "黑市出售"}</button>`}
+          <button class="secondary small" data-action="sellBmResource" data-payload="${device.id}" type="button" title="${escapeHtml(blackSaleBlocked || "在黑市出售闲置设备")}" ${blackSaleBlocked ? "disabled" : ""}>${device.blackmarketListingId ? "黑市挂牌中" : "黑市出售"}</button>
         </div>
       </section>
 

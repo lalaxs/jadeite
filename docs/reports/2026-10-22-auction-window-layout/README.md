@@ -14,4 +14,6 @@
 - 浏览器测量：实际卡片宽 306px；按实际固定内边距、标签列和 13px 字号保守计算，最长观察描述需要约 190px 卡片宽度，低于桌面卡片的 230px 最小宽度。未通过浏览器调整窗口尺寸测试移动端。
 - 3000 常驻服务已通过 HTTP 返回最新前端模块与样式，刷新页面即可载入本次修改，无需重启服务。
 
-![实际公盘开窗排版](day.jpg)
+![实际公盘开窗排版](https://raw.githubusercontent.com/lalaxs/jadeite/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-auction-window-layout/day.jpg)
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-auction-window-layout)。

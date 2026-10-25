@@ -1,6 +1,6 @@
 Generation mode: built-in image_gen
 Style reference: inlay-art-direction-v2.png
-Atlas: inlay-gems-atlas-v1.png
+Atlas: ../../../public/assets/inlay/gems-handpainted-v1.png
 Size: 1536x1024, RGBA transparent background.
 Layout: three columns of 512px by two rows of 512px. Top row round; bottom row square. Left to right: diamond, ruby, sapphire.
 Separate gemstone bodies only; no integrated mounting hardware. Visual asset only; no application code or runtime reference changes.

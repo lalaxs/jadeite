@@ -1,126 +1,48 @@
 // shop-module.js — 商铺：建筑 / 设备 / 镶嵌材料
-import { EQUIPMENT_PARAM_HELP, formatEquipmentParamValue, renderEquipmentParamPills } from "../../equipment-param-view.js";
+import { EQUIPMENT_PARAM_HELP, equipmentParamTone, formatEquipmentParamValue, renderEquipmentParamPills } from "../../equipment-param-view.js";
 import { renderResourceCard } from "../../resource-card-view.js";
-import { externalMaterialArtHtml } from "../../inventory-module.js";
+import { materialSwatchHtml as shopMaterialArtHtml } from "../../inlay-product-renderer.js";
 import { activateModalLifecycle } from "../../modal-lifecycle.js";
 import { quoteMaterialPurchase } from "../../material-pricing.js";
 import { operatingReserveFor } from "../../../shared/domain/economy/operating-reserve.js";
 
 let socketRef, getState, elsRef, getActiveView;
-let activeShopTab = "building";
-let eqShopStage = "carving";
-let eqShopBrand = "all";
-let eqShopSort = "price";
-let eqShopSortDir = "asc";
-let eqShopQuery = "";
+let activeShopTab = "equipment";
 let formatMoney, escapeHtml, empty, formatNumber, openGameModal, closeGameModal;
 let shopModalLifecycleCleanup = null;
 let shopTabsBound = false;
 let pendingShopPurchase = null;
 
-const EQ_STAGE_ORDER = ["opening", "carving", "finishing"];
 const stageNames = { opening: "开料设备", carving: "规划设备", finishing: "精加工设备" };
-
-// Frame the painted metal itself, excluding each PNG's transparent margins.
-const SHOP_METAL_ART = Object.freeze({
-  goldPure: { file: "gold-pure", frame: "120 367 1039 590" },
-  silver925: { file: "silver-925", frame: "138 403 1002 570" },
-  gold18k: { file: "gold-18k", frame: "106 323 1054 693" },
-  platinum: { file: "platinum-pt950", frame: "120 343 1032 637" }
-});
-
-function shopMaterialArtHtml(material, options = {}) {
-  const art = SHOP_METAL_ART[material.key || material.id];
-  if (!art) return externalMaterialArtHtml(material, { escapeHtml, ...options });
-  const sizeClass = options.sizeClass ? ` ${escapeHtml(options.sizeClass)}` : "";
-  return `<div class="material-swatch material-swatch-metal shop-metal-swatch${sizeClass}" data-material-key="${escapeHtml(material.key || material.id)}" data-group="metal" aria-hidden="true">
-    <svg viewBox="${art.frame}" preserveAspectRatio="xMidYMid meet" focusable="false">
-      <image href="/assets/materials/${art.file}-handpainted-v1.png" width="1254" height="1254"/>
-    </svg>
-  </div>`;
-}
 
 function equipmentStageLabel(stage) {
   return { opening: "开料", carving: "规划", finishing: "精加工" }[stage] || "加工";
+}
+
+function equipmentStock(modelKey) {
+  return (getState().equipmentShop?.items || []).find((row) => row.modelKey === modelKey)?.stock || 0;
 }
 
 function materialPurchaseQuote(material, amount) {
   return quoteMaterialPurchase(material?.price, material?.packs, amount);
 }
 
-function buildEquipmentBrandGroups(equipment) {
-  const brandGroups = equipment.reduce((groups, item) => {
-    const brandKey = item.brandKey || item.brand || "unknown";
-    if (!groups.has(brandKey)) {
-      groups.set(brandKey, {
-        brandKey,
-        brand: item.brand || "未命名品牌",
-        brandBasePrice: Number(item.brandBasePrice || 0),
-        rows: []
-      });
-    }
-    groups.get(brandKey).rows.push(item);
-    return groups;
-  }, new Map());
-  return [...brandGroups.values()]
-    .sort((left, right) => Number(left.brandBasePrice || 0) - Number(right.brandBasePrice || 0));
-}
-
-function filterEquipmentByBrand(rows) {
-  if (eqShopBrand === "all") return rows;
-  return rows.filter((item) => (item.brandKey || item.brand) === eqShopBrand);
-}
-
-function equipmentSortValue(item, key) {
-  if (key === "price") return Number(item.price || 0);
-  const attrs = item?.attrs || {};
-  return Number(attrs[key] ?? item[key] ?? 0);
-}
-
-function sortEquipmentRows(rows) {
-  const list = [...rows];
-  const key = eqShopSort;
-  const dir = eqShopSortDir === "desc" ? -1 : 1;
-  list.sort((a, b) => {
-    const diff = equipmentSortValue(a, key) - equipmentSortValue(b, key);
-    if (diff !== 0) return diff * dir;
-    return String(a.modelKey || a.name || "").localeCompare(String(b.modelKey || b.name || ""), "zh");
-  });
-  return list;
-}
-
-function equipmentSearchHaystack(item) {
-  return [
-    item.displayName, item.name, item.modelName, item.model, item.brand,
-    item.modelKey, item.category, equipmentStageLabel(item.stage), stageNames[item.stage]
-  ].filter(Boolean).join(" ").toLowerCase();
-}
-
-function filterEquipmentRows(rows) {
-  const q = String(eqShopQuery || "").trim().toLowerCase();
-  let next = rows;
-  if (eqShopStage !== "all") next = next.filter((item) => item.stage === eqShopStage);
-  if (q) next = next.filter((item) => equipmentSearchHaystack(item).includes(q));
-  return sortEquipmentRows(next);
-}
-
 function renderEquipmentListing(item, stageLabel) {
-  const brand = item.brand || "—";
-  const modelName = item.modelName || item.model || "—";
   const title = item.displayName || item.name;
   const label = stageLabel || stageNames[item.stage] || equipmentStageLabel(item.stage);
   const cash = Number(getState().me?.cash || 0);
   const price = Number(item.price || 0);
-  const canBuy = !!getState().me.assets?.workshopOwned && cash >= price;
+  const stock = equipmentStock(item.modelKey);
+  const canBuy = stock > 0 && !!getState().me.assets?.workshopOwned && cash >= price;
   return renderResourceCard({
-    type: "equipment", name: title, badge: label, className: "equipment-listing",
-    attributes: `data-shop-equipment-model="${escapeHtml(item.modelKey)}"`,
+    type: "equipment", stage: item.stage, name: title, badge: label, className: "equipment-listing",
+    controlHtml: `<span class="equipment-stock-badge${stock <= 0 ? " is-sold-out" : ""}" aria-label="全服剩余 ${stock} 台">${stock > 0 ? `余 ${stock} 台` : "售罄"}</span>`,
+    attributes: `data-shop-equipment-model="${escapeHtml(item.modelKey)}" data-shop-stock="${stock}"`,
     visualAttributes: `data-action="openShopEquipmentDetail" data-payload="${escapeHtml(item.modelKey)}" aria-label="查看${escapeHtml(title)}的设备详情" aria-haspopup="dialog"`,
-    summary: [`${brand} · ${modelName}`, "全新设备 · 耐久 100%"],
     body: renderEquipmentParamPills(item, escapeHtml),
-    footer: `<span class="inventory-slot-value"><span>售价</span><strong>${formatMoney(item.price)}</strong></span>
+    footer: `
       ${getState().me.assets?.workshopOwned ? "" : '<span class="resource-card-summary">先购置工坊</span>'}
-      <button data-action="buyWorkshopDevice" data-model-key="${escapeHtml(item.modelKey)}" type="button" ${canBuy ? "" : "disabled"}>${canBuy ? "购买" : "暂不可购买"}</button>`
+      <button data-action="buyWorkshopDevice" data-model-key="${escapeHtml(item.modelKey)}" type="button" ${canBuy ? "" : "disabled"}>${stock <= 0 ? "今日售罄" : `购买 · ${formatMoney(item.price)}`}</button>`
   });
 }
 
@@ -131,8 +53,9 @@ function openShopEquipmentDetail(modelKey) {
   const price = Number(item.price || 0);
   const cash = Number(state.me?.cash || 0);
   const ownsWorkshop = Boolean(state.me?.assets?.workshopOwned);
-  const canBuy = ownsWorkshop && cash >= price;
-  const availability = !ownsWorkshop ? "先购置工坊后即可购买设备。" : cash < price ? `现金不足，还差 ${formatMoney(price - cash)}。` : "购买后可在工坊中使用。";
+  const stock = equipmentStock(item.modelKey);
+  const canBuy = stock > 0 && ownsWorkshop && cash >= price;
+  const availability = stock <= 0 ? "今日已售罄，明日 05:00 补货。" : !ownsWorkshop ? "先购置工坊后即可购买设备。" : cash < price ? `现金不足，还差 ${formatMoney(price - cash)}。` : `全服剩余 ${stock} 台`;
   const facts = [
     ["品牌", item.brand || "—"],
     ["型号", item.modelName || item.model || "—"],
@@ -150,7 +73,7 @@ function openShopEquipmentDetail(modelKey) {
     html: `
       <div class="shop-equipment-detail">
         ${renderResourceCard({
-          type: "equipment", name: item.displayName || item.name || "加工设备", badge: "全新设备",
+          type: "equipment", stage: item.stage, name: item.displayName || item.name || "加工设备", badge: "全新设备",
           className: "resource-card--compact",
           summary: [item.focus || "加工设备", item.description].filter(Boolean)
         })}
@@ -158,7 +81,7 @@ function openShopEquipmentDetail(modelKey) {
         <section class="shop-equipment-detail-params" aria-label="设备性能与说明">
           <h4>设备性能</h4>
           <div>${Object.entries(EQUIPMENT_PARAM_HELP).map(([key, help]) => `
-            <div class="shop-equipment-detail-param">
+            <div class="shop-equipment-detail-param is-${equipmentParamTone(key, item.attrs?.[key] ?? item[key])}">
               <div><span>${escapeHtml(help.label)}</span><strong>${escapeHtml(formatEquipmentParamValue(key, item.attrs?.[key] ?? item[key]))}</strong></div>
               <p>${escapeHtml(help.description.replace(`${help.label}：`, ""))}</p>
             </div>`).join("")}</div>
@@ -175,128 +98,19 @@ function openShopEquipmentDetail(modelKey) {
 }
 
 
-function renderEquipmentShopListings(rows) {
-  if (!rows.length) return `
-    <div class="game-empty-state equipment-shop-empty">
-      <span class="game-empty-state-mark" aria-hidden="true">机</span>
-      <strong>没有符合条件的设备</strong>
-      <p>清除工序、品牌或搜索条件后查看完整设备目录。</p>
-      <button class="secondary" type="button" data-eq-reset>清除设备筛选</button>
-    </div>`;
-  if (eqShopStage !== "all") {
-    const label = stageNames[eqShopStage];
-    return `<div class="resource-card-grid">${rows.map((item) => renderEquipmentListing(item, label)).join("")}</div>`;
-  }
-  const sections = EQ_STAGE_ORDER.map((stage) => {
-    const stageRows = rows.filter((item) => item.stage === stage);
-    if (!stageRows.length) return "";
-    const label = stageNames[stage];
-    return `
-      <section class="equipment-shop-stage-group">
-        <div class="panel-head compact"><h5>${label}</h5><span>${stageRows.length} 款</span></div>
-        <div class="resource-card-grid">${stageRows.map((item) => renderEquipmentListing(item, label)).join("")}</div>
-      </section>
-    `;
-  }).filter(Boolean).join("");
-  return sections || `
-    <div class="game-empty-state equipment-shop-empty">
-      <span class="game-empty-state-mark" aria-hidden="true">机</span>
-      <strong>没有符合条件的设备</strong>
-      <p>清除工序、品牌或搜索条件后查看完整设备目录。</p>
-      <button class="secondary" type="button" data-eq-reset>清除设备筛选</button>
-    </div>`;
-}
-
-function sortChip(key, label) {
-  const on = eqShopSort === key;
-  const arrow = on ? (eqShopSortDir === "asc" ? " ↑" : " ↓") : "";
-  const title = on
-    ? (eqShopSortDir === "asc" ? `${label}：小→大，再点切换为大→小` : `${label}：大→小，再点切换为小→大`)
-    : `按${label}从小到大排序`;
-  return `<button type="button" class="eq-shop-chip ${on ? "is-active" : ""}" data-eq-sort="${key}" aria-pressed="${on}" title="${escapeHtml(title)}">${escapeHtml(label)}${arrow}</button>`;
-}
-
 function renderEquipmentShopHtml() {
-  const equipment = getState().equipmentCatalog || [];
-  const brandGroups = buildEquipmentBrandGroups(equipment);
-
-  const stageChip = (key, label) => `
-    <button type="button" class="eq-shop-chip ${eqShopStage === key ? "is-active" : ""}" data-eq-stage="${key}" aria-pressed="${eqShopStage === key}">${label}</button>
-  `;
-
-  const brandChipHtml = [
-    `<button type="button" class="eq-shop-chip ${eqShopBrand === "all" ? "is-active" : ""}" data-eq-brand="all" aria-pressed="${eqShopBrand === "all"}">全部品牌</button>`,
-    ...brandGroups.map((brandGroup) => `
-      <button type="button" class="eq-shop-chip ${eqShopBrand === brandGroup.brandKey ? "is-active" : ""}" data-eq-brand="${escapeHtml(brandGroup.brandKey)}" aria-pressed="${eqShopBrand === brandGroup.brandKey}">${escapeHtml(brandGroup.brand)}</button>
-    `)
-  ].join("");
-
-  const rows = filterEquipmentRows(filterEquipmentByBrand(equipment));
-  const hasFilters = eqShopStage !== "all" || eqShopBrand !== "all" || Boolean(String(eqShopQuery || "").trim());
-  const stageLabel = eqShopStage === "all" ? "全部工序" : (stageNames[eqShopStage] || "当前工序");
-  const bodyHtml = !equipment.length
-    ? empty("设备目录未加载。")
-    : `
-      <div class="eq-shop-result-head" aria-live="polite">
-        <span>显示 ${rows.length}/${equipment.length} 台 · ${escapeHtml(stageLabel)}</span>
-        ${hasFilters ? '<button type="button" class="secondary" data-eq-reset>清除筛选</button>' : ""}
-      </div>
-      ${renderEquipmentShopListings(rows)}
-    `;
-
-  return `
-    <div class="eq-shop">
-      <div class="eq-shop-toolbar">
-        <div class="eq-shop-row">
-          <span class="eq-shop-row-label">工序</span>
-          <div class="eq-shop-chips">
-            ${stageChip("all", "全部")}
-            ${stageChip("opening", "开料")}
-            ${stageChip("carving", "规划")}
-            ${stageChip("finishing", "精加工")}
-          </div>
-        </div>
-        <div class="eq-shop-row">
-          <span class="eq-shop-row-label">品牌</span>
-          <div class="eq-shop-chips eq-shop-brands">${brandChipHtml}</div>
-        </div>
-        <div class="eq-shop-row eq-shop-row-tools">
-          <div class="eq-shop-sort">
-            <span>排序</span>
-            <div class="eq-shop-chips">
-              ${sortChip("price", "价格")}
-              ${sortChip("speed", "速度")}
-              ${sortChip("quality", "品质")}
-              ${sortChip("risk", "风险")}
-            </div>
-          </div>
-          <label class="eq-shop-search">
-            <span class="sr-only">搜索设备</span>
-            <input type="search" data-eq-search value="${escapeHtml(eqShopQuery)}" placeholder="搜索型号 / 代号 / 品牌…" aria-label="搜索设备型号、代号或品牌" autocomplete="off">
-          </label>
-        </div>
-      </div>
-      <div class="eq-shop-body">${bodyHtml}</div>
-    </div>
-  `;
+  const offered = new Set((getState().equipmentShop?.items || []).map((row) => row.modelKey));
+  const equipment = (getState().equipmentCatalog || []).filter((row) => offered.has(row.modelKey));
+  return `<div class="eq-shop">
+    <div class="equipment-shop-schedule"><strong>今日设备</strong><span>全服共享库存 · 每日 05:00 补货</span></div>
+    <div class="eq-shop-body">${equipment.length
+      ? `<div class="resource-card-grid">${equipment.map((item) => renderEquipmentListing(item)).join("")}</div>`
+      : empty("设备货源准备中。")}</div>
+  </div>`;
 }
 
-function refreshEquipmentShop(preserveSearchFocus = false) {
-  if (!elsRef?.equipmentShop) return;
-  const active = document.activeElement;
-  const isSearch = preserveSearchFocus && active?.matches?.("[data-eq-search]");
-  const start = isSearch ? active.selectionStart : null;
-  const end = isSearch ? active.selectionEnd : null;
-  elsRef.equipmentShop.innerHTML = renderEquipmentShopHtml();
-  if (isSearch) {
-    const input = elsRef.equipmentShop.querySelector("[data-eq-search]");
-    if (input) {
-      input.focus();
-      if (start != null && end != null) {
-        try { input.setSelectionRange(start, end); } catch (_) { /* ignore */ }
-      }
-    }
-  }
+function refreshEquipmentShop() {
+  if (elsRef.equipmentShop) elsRef.equipmentShop.innerHTML = renderEquipmentShopHtml();
 }
 
 export function initShopModule(deps) {
@@ -375,7 +189,7 @@ function requestAssetPurchase(listingId) {
 function requestEquipmentPurchase(modelKey) {
   const item = (getState()?.equipmentCatalog || []).find((entry) => String(entry.modelKey) === String(modelKey));
   if (!item) return;
-  if (!getState()?.me?.assets?.workshopOwned || Number(getState().me?.cash || 0) < Number(item.price || 0)) {
+  if (equipmentStock(modelKey) <= 0 || !getState()?.me?.assets?.workshopOwned || Number(getState().me?.cash || 0) < Number(item.price || 0)) {
     openShopEquipmentDetail(modelKey);
     return;
   }
@@ -451,7 +265,6 @@ export function renderShop() {
         <article class="mat-card" data-material-id="${m.id}">
           <div class="mat-art">
             ${shopMaterialArtHtml(m)}
-            <span class="mat-art-tag">${escapeHtml(m.unitLabel)}</span>
           </div>
           <div class="mat-info">
             <div class="mat-title-row">
@@ -459,11 +272,11 @@ export function renderShop() {
             </div>
             <div class="mat-prices">
               <div class="mat-price">
-                <span>当前单价</span>
+                <span>单价</span>
                 <strong>${formatMoney(m.price)}<i>/${m.unitLabel}</i></strong>
               </div>
               <div class="mat-price">
-                <span>我的持有</span>
+                <span>持有</span>
                 <strong>${formatNumber(held)}<i>${m.unitLabel}</i></strong>
               </div>
             </div>
@@ -490,11 +303,7 @@ function initShopTabs() {
   shopTabsBound = true;
   shopView.addEventListener("click", onShopClick);
   shopView.addEventListener("keydown", onShopTabKeydown);
-  shopView.addEventListener("input", (e) => {
-    if (!e.target.matches?.("[data-eq-search]")) return;
-    eqShopQuery = e.target.value || "";
-    refreshEquipmentShop(true);
-  });
+
 }
 
 function onShopTabKeydown(event) {
@@ -532,40 +341,6 @@ function onShopClick(e) {
     setShopTab(tabBtn.dataset.tab);
     return;
   }
-  const stageBtn = e.target.closest("[data-eq-stage]");
-  if (stageBtn) {
-    eqShopStage = stageBtn.dataset.eqStage || "all";
-    refreshEquipmentShop();
-    return;
-  }
-  const brandBtn = e.target.closest("[data-eq-brand]");
-  if (brandBtn) {
-    eqShopBrand = brandBtn.dataset.eqBrand || "all";
-    refreshEquipmentShop();
-    return;
-  }
-  const sortBtn = e.target.closest("[data-eq-sort]");
-  if (sortBtn) {
-    const key = sortBtn.dataset.eqSort || "price";
-    if (key === eqShopSort) {
-      eqShopSortDir = eqShopSortDir === "asc" ? "desc" : "asc";
-    } else {
-      eqShopSort = key;
-      eqShopSortDir = "asc";
-    }
-    refreshEquipmentShop();
-    return;
-  }
-  const resetBtn = e.target.closest("[data-eq-reset]");
-  if (resetBtn) {
-    eqShopStage = "all";
-    eqShopBrand = "all";
-    eqShopSort = "price";
-    eqShopSortDir = "asc";
-    eqShopQuery = "";
-    refreshEquipmentShop();
-    return;
-  }
   const buyBtn = e.target.closest(".mat-buy-btn");
   if (buyBtn) {
     openBuyModal(buyBtn.dataset.materialId);
@@ -579,7 +354,7 @@ function onShopClick(e) {
 }
 
 function setShopTab(tab) {
-  activeShopTab = ["building", "equipment", "material"].includes(tab) ? tab : "building";
+  activeShopTab = ["building", "equipment", "material"].includes(tab) ? tab : "equipment";
   applyShopTab();
   if (activeShopTab === "equipment") refreshEquipmentShop();
 }

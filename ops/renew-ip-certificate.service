@@ -1,0 +1,8 @@
+[Unit]
+Description=Renew Jade Market HTTPS certificate
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/certbot/bin/certbot renew --quiet

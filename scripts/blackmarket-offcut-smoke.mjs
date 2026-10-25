@@ -11,6 +11,7 @@ import { buildOpeningStone, evaluateLeftoverMaterial, evaluateOpeningKit, render
 import { materialEvaluationWeight } from "../shared/domain/workshop/material-value-pool.js";
 import { createMemoryWorldStore } from "../server/world-store.js";
 import { canonicalizeExtractionKitIntents } from "../server/services/workshop-planning.js";
+import { buyEquipment } from "../server/systems/equipment-system.js";
 
 const api = requireApi();
 const samples = [];
@@ -102,6 +103,8 @@ maintainNpcBlackmarket();
 const buyer = H.makePlayer("offcut-buyer"); H.normalizePlayer(buyer);
 buyer.cash = 1_000_000; buyer.achievementPoints = buyer.achievementPointsBonus = 680;
 H.state.players.set(buyer.id, buyer);
+const equipment = buyEquipment(buyer, "used-carving-1", { spendCash: H.spendCash, makeId: () => "offcut-carving" });
+assert.equal(equipment.ok, true, equipment.message);
 const legacyOwned = { ...structuredClone(oversized), id: "owned-old-policy-offcut" };
 buyer.materials.push(legacyOwned);
 const preservedOwned = structuredClone(legacyOwned);

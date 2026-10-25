@@ -1,3 +1,4 @@
+import { readCommerceClientSource } from "./load-commerce-client-source.mjs";
 import { readTradingServiceSource } from "./load-trading-service-source.mjs";
 import { readWorkshopServiceSource } from "./load-workshop-service-source.mjs";
 import { readWorkshopSource } from "./load-workshop-source.mjs";
@@ -99,13 +100,15 @@ const clientModulePaths = [
 ];
 const main = [
   shellSource,
-  ...clientModulePaths.map((file) => file === "public/features/workshop/workshop-module.js" ? readWorkshopSource() : readFileSync(file, "utf8"))
+  ...clientModulePaths.map((file) => file === "public/features/workshop/workshop-module.js" ? readWorkshopSource()
+    : file === "public/features/market/market-module.js" ? readCommerceClientSource("market")
+      : file === "public/features/livestream/livestream-module.js" ? readCommerceClientSource("livestream") : readFileSync(file, "utf8"))
 ].join("\n");
 const workshopModule = readWorkshopSource();
 const inventoryModule = readFileSync("public/features/inventory/inventory-module.js", "utf8");
 const collectionModule = readFileSync("public/features/collection/collection-module.js", "utf8");
 const ordersModule = readFileSync("public/features/orders/orders-module.js", "utf8");
-const marketModule = readFileSync("public/features/market/market-module.js", "utf8");
+const marketModule = readCommerceClientSource("market");
 const index = readFileSync("public/index.html", "utf8");
 const renderer = readFileSync("public/jade-renderer.js", "utf8");
 const openingEngine = [
@@ -1002,9 +1005,12 @@ if (!/world\.unbindSocket\(socket\.id\)[\s\S]*playerSocketCount\(playerId\)\s*==
 
 const realtimeTickBody = extractBlockFrom(
   runtimeTicks,
-  runtimeTicks.search(/(?:setInterval\(\(\) =>|every\(25000,\s*\(\) => runTick\("tick:world-refresh",\s*\(\) =>)\s*\{\s*const now = Date\.now\(\);\s*processPolishingJobs\(now, \{ broadcast: false \}\);\s*refreshRoughPool\(\);/),
+  runtimeTicks.search(/every\(25000,\s*\(\) => runTick\("tick:world-refresh",\s*\(\) =>/),
   "realtime tick"
 );
+if (!/processPolishingJobs\(now, \{ broadcast: false \}\);\s*refreshRoughPool\(\);/.test(realtimeTickBody)) {
+  throw new Error("realtime tick should settle polishing and refresh rough stock");
+}
 if (!/for\s*\(const player of playersMatching\(state\.players, isPlayerOnline\)\)\s*\{[\s\S]*if\s*\(!isPlayerOnline\(player\)\)\s*continue;[\s\S]*player\.orders\s*=/.test(realtimeTickBody)) {
   throw new Error("realtime order and reputation tick should skip offline players before mutating them");
 }

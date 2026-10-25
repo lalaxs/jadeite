@@ -1,3 +1,4 @@
+import { restoreInventoryItem } from "../services/inventory-items.js";
 import { playersMatching } from "../persistence/mutation-scope.js";
 /**
  * World runtime ticks — legacy cutting drain, online polishing, server intervals.
@@ -55,6 +56,8 @@ export function createRuntimeTicks(deps) {
     reconcileMarketReferences,
     reconcileBlackmarketReferences,
     maintainNpcBlackmarket,
+    ensureEquipmentShop,
+    processBlackmarketCustomers,
     processExpiredWants,
     processMarketLiquidity,
     processExpiredBlackServiceOrders,
@@ -204,7 +207,7 @@ export function createRuntimeTicks(deps) {
       slicePotential: Math.max(1, Math.round(quality.score + rough.mass / 1.4))
     };
 
-    player.materials.push(markInventoryItemNew(material));
+    restoreInventoryItem(player, "material", markInventoryItemNew(material));
     applyRepDelta(player, quality.rep, `切出${material.name}`, { source: "cut", itemId: material.id });
     if (quality.score >= 5) {
       addNews(`${player.name} ${cutAngleName(job.angle)}切出 ${material.name}，全场轰动，声望 +${quality.rep}。`, "great");
@@ -247,6 +250,7 @@ export function createRuntimeTicks(deps) {
 
   function reconcileWorld(now = Date.now(), options = {}) {
     let changed = false;
+    if (typeof ensureEquipmentShop === "function" && ensureEquipmentShop(now)) changed = true;
     if (typeof processMiningJobs === "function") {
       const miningJobResult = processMiningJobs(now);
       reportMiningRecovery(miningJobResult);
@@ -272,6 +276,7 @@ export function createRuntimeTicks(deps) {
     if (typeof processExpiredBlindDraws === "function" && processExpiredBlindDraws(state, now)) changed = true;
     if (typeof sweepEmptyBlackGoodsStalls === "function" && sweepEmptyBlackGoodsStalls(state)) changed = true;
     if (typeof maintainNpcBlackmarket === "function" && maintainNpcBlackmarket(now).changed) changed = true;
+    if (typeof processBlackmarketCustomers === "function" && processBlackmarketCustomers(now).changed) changed = true;
     for (const player of state.players.values()) {
       normalizePlayer(player);
       if (settleEmployeePayroll?.(player, now)?.changed) changed = true;
@@ -300,6 +305,7 @@ export function createRuntimeTicks(deps) {
 
     every(25000, () => runTick("tick:world-refresh", () => {
       const now = Date.now();
+      ensureEquipmentShop?.(now);
       processPolishingJobs(now, { broadcast: false });
       refreshRoughPool();
       const miningJobResult = typeof processMiningJobs === "function" ? processMiningJobs(now) : null;
@@ -314,6 +320,7 @@ export function createRuntimeTicks(deps) {
       const state = getState();
       let bmChanged = processExpiredBlackServiceOrders(state, now);
       if (typeof maintainNpcBlackmarket === "function") bmChanged = maintainNpcBlackmarket(now).changed || bmChanged;
+      if (typeof processBlackmarketCustomers === "function") bmChanged = processBlackmarketCustomers(now).changed || bmChanged;
       bmChanged = refreshBlackServiceOrderStates(state) || bmChanged;
       if (typeof processExpiredBlindDraws === "function") {
         bmChanged = processExpiredBlindDraws(state, now) || bmChanged;

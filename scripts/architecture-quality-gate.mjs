@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, normalize, resolve } from "node:path";
+import { parse } from "acorn";
+import { assertInventoryBoundary } from "./check-inventory-boundary.mjs";
 
 const root = process.cwd();
+const inventoryModules = assertInventoryBoundary();
 const lineBudgets = new Map([
   ["server/shell/socket-handlers.js", 1050],
   ["server/world-store.js", 250],
@@ -30,18 +33,34 @@ function filesBelow(directory, predicate) {
   return result;
 }
 
-const blackmarketRoot = resolve(root, "public/features/blackmarket");
-const blackmarketFiles = filesBelow(blackmarketRoot, (path) => extname(path) === ".js");
+const featureRoots = ["blackmarket", "market", "livestream"].map(name => resolve(root, "public/features", name));
+featureRoots.push(resolve(root, "public/commerce"));
+const featureFiles = featureRoots.flatMap(directory => filesBelow(directory, (path) => extname(path) === ".js"));
 const graph = new Map();
-for (const file of blackmarketFiles) {
+for (const file of featureFiles) {
   const source = readFileSync(file, "utf8");
   const imports = [...source.matchAll(/from\s+["'](\.[^"']+)["']/g)]
     .map((match) => normalize(resolve(dirname(file), match[1])))
     .map((path) => extname(path) ? path : `${path}.js`)
-    .filter((path) => path.startsWith(blackmarketRoot) && blackmarketFiles.includes(path));
+    .filter((path) => featureFiles.includes(path));
   graph.set(file, imports);
-  if (!["actions.js", "index.js"].includes(basename(file))) {
-    assert.doesNotMatch(source, /from\s+["']\.\/plaza\.js["']/, `${file} must use controller.js, not import plaza.js back`);
+  const feature = basename(dirname(file));
+  if (feature === "commerce") {
+    assert.doesNotMatch(source, /from\s+["'][^"']*features\//, `${file} must not depend on a feature`);
+  }
+  if (feature === "blackmarket") {
+    assert.doesNotMatch(source, /from\s+["'](?:\.\.\/)*(?:features\/)?market(?:-module\.js|\/)/, `${file} must use the common product view`);
+    if (!["index.js", "create-blackmarket-feature.js"].includes(basename(file))) {
+      assert.doesNotMatch(source, /from\s+["']\.\/(?:plaza|index)\.js["']/, `${file} must receive panel callbacks through its instance`);
+    }
+  }
+  if (["blackmarket", "market", "livestream"].includes(feature) && !["index.js", `${feature}-module.js`].includes(basename(file))) {
+    assert.doesNotMatch(source, new RegExp(`from\\s+["']\\./${feature}-module\\.js["']`), `${file} must not depend on the legacy singleton`);
+    const ast = parse(source, { ecmaVersion: "latest", sourceType: "module" });
+    assert.ok(!ast.body.some(node => {
+      const declaration = node.declaration || node;
+      return declaration.type === "VariableDeclaration" && declaration.kind === "let";
+    }), `${file} must own mutable bindings inside its feature instance`);
   }
 }
 
@@ -73,4 +92,4 @@ const compose = readFileSync(join(root, "compose.yaml"), "utf8");
 assert.doesNotMatch(dockerfile, /^FROM node:24-bookworm-slim/m, "pin the Node image to a patch version");
 assert.doesNotMatch(compose, /image:\s+(?:postgres:17-alpine|caddy:2-alpine)\s*$/m, "pin service images to patch versions");
 
-console.log(`architecture-quality-gate: ${lineBudgets.size} module budgets, ${graph.size} black-market modules, ${assets.length} assets ok`);
+console.log(`architecture-quality-gate: ${lineBudgets.size} module budgets, ${graph.size} feature modules, ${inventoryModules} inventory write boundaries, ${assets.length} assets ok`);

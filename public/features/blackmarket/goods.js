@@ -1,14 +1,5 @@
-// 黑市 goods：卖物品上架弹窗
-
 import { paintJadeCanvases } from "../../jade-renderer.js";
-import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
-import {
-  marketQualityMeta,
-  marketRefValue,
-  marketGemColor,
-  deriveMaterialProfile,
-  mlVisual
-} from "../../market-module.js";
+import { lazyPreviewMarkup } from "../../lazy-preview.js";
 import {
   bmSelectionConflicts,
   buildBmListEntry
@@ -18,29 +9,21 @@ import {
   BLACKMARKET_MIN_PRICE as BM_MIN_PRICE,
   BLACKMARKET_GOODS_CAP as BM_GOODS_CAP
 } from "../../bm-constants.js";
-import {
-  socketRef,
-  elsRef,
-  formatMoney,
-  escapeHtml,
-  empty,
-  showToast,
-  typeName,
-  bmUi,
-  bmSellables,
-  clearBmPlanDrafts,
-  bmMyStall,
-  bmFeatureGate,
-  guardBmFeature
-} from "./shared.js";
-import { openBmSetupModal, renderBlackmarket, closeBmModals } from "./controller.js";
 import { isBlackmarketResource, resourceReferencePrice } from "../../../shared/domain/blackmarket/bm-resources.js";
-import { specialGoodsVisual, specialGoodsChips, npcGoodsInfo, specialGoodsLabel, blackmarketResourceCard } from "./goods-display.js";
 import { employeePayrollQuote } from "../../worker-economy.js";
-import { getState } from "./shared.js";
 import { nowMs } from "../../shell/format-utils.js";
 
-export function openBmListModal() {
+export function createBlackmarketGoods({ document, scope, ui, observeLazyPreviews, socketRef, elsRef, bmUi, getState, helpers, ports, productView }) {
+  const { formatMoney, escapeHtml, empty, showToast, typeName } = helpers;
+  const { bmSellables, clearBmPlanDrafts, bmMyStall, bmFeatureGate, guardBmFeature, openBmSetupModal, renderBlackmarket, closeBmModals, specialGoodsVisual, specialGoodsChips, npcGoodsInfo, specialGoodsLabel, blackmarketResourceCard } = ports;
+  const { productQualityMeta, itemReferenceValue, productGemColor, deriveMaterialProfile, listingItemVisual } = productView;
+  let stopPriceInput = () => {};
+  function bindPriceInput(target, callback) {
+    stopPriceInput();
+    stopPriceInput = scope.listen(target, "input", callback);
+  }
+
+function openBmListModal() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "goods") {
     showToast("请先开设卖物品摊位。");
@@ -67,18 +50,18 @@ export function openBmListModal() {
   modal.hidden = false;
 }
 
-export function defaultGoodsPrice(item) {
+function defaultGoodsPrice(item) {
   if (isBlackmarketResource(item?._type)) return resourceReferencePrice(item._type, item);
-  return Math.max(BM_MIN_PRICE, Math.round(marketRefValue(item) * 1.05) || BM_MIN_PRICE);
+  return Math.max(BM_MIN_PRICE, Math.round(itemReferenceValue(item) * 1.05) || BM_MIN_PRICE);
 }
 
-export function bmListSlotsLeft() {
+function bmListSlotsLeft() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "goods") return 0;
   return Math.max(0, BM_GOODS_CAP - (mine.items || []).length);
 }
 
-export function goodsPriceForItem(item) {
+function goodsPriceForItem(item) {
   if (!item) return BM_MIN_PRICE;
   return Math.max(
     BM_MIN_PRICE,
@@ -86,7 +69,7 @@ export function goodsPriceForItem(item) {
   );
 }
 
-export function bmSelectionTotals() {
+function bmSelectionTotals() {
   const selected = [...bmUi.goodsSelectedIds]
     .map((id) => bmSellables().find((i) => i.id === id))
     .filter(Boolean);
@@ -94,7 +77,7 @@ export function bmSelectionTotals() {
   return { count: selected.length, total, selected };
 }
 
-export function toggleBmListItem(id) {
+function toggleBmListItem(id) {
   const sellables = bmSellables();
   const item = sellables.find((i) => i.id === id);
   if (!item) return;
@@ -130,7 +113,7 @@ export function toggleBmListItem(id) {
   updateBmListConfirmBtn();
 }
 
-export function renderBmListGrid() {
+function renderBmListGrid() {
   const grid = document.getElementById("bmMlGrid");
   if (!grid) return;
   let items = bmSellables();
@@ -157,20 +140,20 @@ export function renderBmListGrid() {
     return `
     <button class="ml-slot bm-ml-slot${selected ? " selected" : ""}" data-action="bmToggleListItem" data-payload="${item.id}" type="button">
       <span class="bm-ml-check${selected ? " on" : ""}" aria-hidden="true"></span>
-      <div class="ml-slot-visual">${isBlackmarketResource(item._type) ? specialGoodsVisual({ type: item._type, item }) : lazyPreviewMarkup(mlVisual(item), {
+      <div class="ml-slot-visual">${isBlackmarketResource(item._type) ? specialGoodsVisual({ type: item._type, item }) : lazyPreviewMarkup(listingItemVisual(item), {
         tint: item?.visual?.skin || item?.visual?.vein || "",
         cacheKey: `bm-ml:${item.id}:${stage}:${windows}`
       })}</div>
       <div class="ml-slot-copy">
         <div class="ml-slot-name"><strong>${escapeHtml(item.name)}</strong></div>
-        <div class="ml-slot-meta">${escapeHtml(isBlackmarketResource(item._type) ? specialGoodsLabel(item._type) : typeName(item._type, item))} · 参考 ${formatMoney(isBlackmarketResource(item._type) ? resourceReferencePrice(item._type, item) : marketRefValue(item))}</div>
+        <div class="ml-slot-meta">${escapeHtml(isBlackmarketResource(item._type) ? specialGoodsLabel(item._type) : typeName(item._type, item))} · 参考 ${formatMoney(isBlackmarketResource(item._type) ? resourceReferencePrice(item._type, item) : itemReferenceValue(item))}</div>
       </div>
     </button>`;
   }).join("");
   observeLazyPreviews(grid);
 }
 
-export function renderBmListDetail() {
+function renderBmListDetail() {
   const detail = document.getElementById("bmMlDetail");
   if (!detail) return;
   detail.scrollTop = 0;
@@ -196,7 +179,7 @@ export function renderBmListDetail() {
         <input id="bmMlPrice" type="number" inputmode="numeric" min="${BM_MIN_PRICE}" step="1" value="${row.price}">
         <div class="bm-list-selection-bar">当前选择 ${count} 件 · 合计 ${formatMoney(total)}</div>
       </div></div>`;
-    detail.querySelector("#bmMlPrice")?.addEventListener("input", (event) => {
+    bindPriceInput(detail.querySelector("#bmMlPrice"), (event) => {
       bmUi.goodsPriceById.set(item.id, Math.max(BM_MIN_PRICE, Number(event.target.value) || BM_MIN_PRICE));
       const wageLine = detail.querySelector("[data-bm-wage-quote]");
       if (wageLine) wageLine.textContent = wageText(goodsPriceForItem(item));
@@ -204,9 +187,9 @@ export function renderBmListDetail() {
     });
     return;
   }
-  const q = marketQualityMeta(item);
-  const gem = marketGemColor(item);
-  const ref = marketRefValue(item);
+  const q = productQualityMeta(item);
+  const gem = productGemColor(item);
+  const ref = itemReferenceValue(item);
   const profile = deriveMaterialProfile(item);
   const summary = inlaySummary(item);
   const stage = item.materialStage || item.stage || "rough";
@@ -233,15 +216,15 @@ export function renderBmListDetail() {
   detail.innerHTML = `
     <div class="ml-detail-panels">
       <div class="ml-detail-info">
-        <div class="ml-info-visual ${gem}">${mlVisual(item)}</div>
+        <div class="ml-info-visual ${gem}">${listingItemVisual(item)}</div>
         <div class="ml-info-copy">
           <b class="ml-info-name">${escapeHtml(item.name)}</b>
           <div class="ml-info-chips">
             ${stateChip}
-            <span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>
-            ${item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
+            ${!isSealed ? `<span class="ml-info-chip">${escapeHtml(item.quality || q.name)} ${q.stars}</span>` : ""}
+            ${!isSealed && item.color ? `<span class="ml-info-chip">${escapeHtml(item.color)}</span>` : ""}
           </div>
-          <div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>
+          ${profile.hasReference ? `<div class="ml-info-ref">参考估值 <strong>${formatMoney(ref)}</strong></div>` : ""}
           ${planEvalHtml}
         </div>
       </div>
@@ -254,7 +237,7 @@ export function renderBmListDetail() {
       </div>
     </div>`;
   paintJadeCanvases(detail);
-  detail.querySelector("#bmMlPrice")?.addEventListener("input", (e) => {
+  bindPriceInput(detail.querySelector("#bmMlPrice"), (e) => {
     const next = Math.max(BM_MIN_PRICE, Number(e.target.value) || BM_MIN_PRICE);
     bmUi.goodsPriceById.set(item.id, next);
     const bar = detail.querySelector(".bm-list-selection-bar");
@@ -265,7 +248,7 @@ export function renderBmListDetail() {
   });
 }
 
-export function updateBmListConfirmBtn() {
+function updateBmListConfirmBtn() {
   const btn = document.getElementById("bmConfirmListBtn");
   if (!btn) return;
   const n = bmUi.goodsSelectedIds.size;
@@ -277,7 +260,7 @@ export function updateBmListConfirmBtn() {
       : "确认上架";
 }
 
-export function buildBmListEntries() {
+function buildBmListEntries() {
   return [...bmUi.goodsSelectedIds]
     .map((id) => {
       const item = bmSellables().find((i) => i.id === id);
@@ -286,7 +269,7 @@ export function buildBmListEntries() {
     .filter(Boolean);
 }
 
-export function confirmBmList() {
+function confirmBmList() {
   if (bmUi.goodsSubmitting) return;
   const entries = buildBmListEntries();
   if (!entries.length) {
@@ -306,7 +289,8 @@ export function confirmBmList() {
   renderBmListGrid();
   socketRef.emit("bmListItem", { entries });
   const pending = new Set(bmUi.goodsPendingIds);
-  setTimeout(() => {
+  scope.clearTimeout(ui.goodsSubmitTimer);
+  ui.goodsSubmitTimer = scope.setTimeout(() => {
     if (!bmUi.goodsSubmitting) return;
     const stillThere = entries.some((e) => bmSellables().some((i) => i.id === e.itemId));
     finishGoodsList(stillThere
@@ -315,7 +299,9 @@ export function confirmBmList() {
   }, 6000);
 }
 
-export function finishGoodsList(res = {}) {
+function finishGoodsList(res = {}) {
+  scope.clearTimeout(ui.goodsSubmitTimer);
+  ui.goodsSubmitTimer = null;
   bmUi.goodsSubmitting = false;
   bmUi.goodsPendingIds = new Set();
   if (res.ok && Array.isArray(res.clearedParentIds)) {
@@ -342,7 +328,7 @@ export function finishGoodsList(res = {}) {
   if (res.ok && !res.activated && bmMyStall()?.status === "setup") openBmSetupModal("goods");
 }
 
-export function requestBmWithdraw(listingId) {
+function requestBmWithdraw(listingId) {
   const mine = bmMyStall();
   if (!mine || mine.type !== "goods") return;
   const items = mine.items || [];
@@ -356,9 +342,12 @@ export function requestBmWithdraw(listingId) {
   socketRef.emit("bmWithdrawListing", listingId);
 }
 
-export function confirmBmWithdraw() {
+function confirmBmWithdraw() {
   if (!bmUi.pendingWithdrawId) return;
   socketRef.emit("bmWithdrawListing", bmUi.pendingWithdrawId);
   bmUi.pendingWithdrawId = null;
   closeBmModals();
+}
+
+  return { openBmListModal, defaultGoodsPrice, bmListSlotsLeft, goodsPriceForItem, bmSelectionTotals, toggleBmListItem, renderBmListGrid, renderBmListDetail, updateBmListConfirmBtn, buildBmListEntries, confirmBmList, finishGoodsList, requestBmWithdraw, confirmBmWithdraw };
 }

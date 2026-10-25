@@ -24,3 +24,5 @@
 3000 正式端口已返回更新后的 CSS、笔刷和居中模块（均为 200）；本次仅前端修改，无需重启服务。刷新游戏即可加载。浏览器验证使用 3013 无存档测试世界，结束后关闭测试服务并恢复默认浏览器尺寸。
 
 截图：before.jpg、desktop-covered.jpg、desktop-three-strokes.jpg、desktop-resumed.jpg、desktop-revealed.jpg、large-desktop-partial.jpg、mobile-partial.jpg。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-scratch-refinement)。

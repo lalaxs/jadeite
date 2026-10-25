@@ -53,25 +53,48 @@ SQLite 存档将来源驱动改为 `sqlite`，并把路径指向 `data/world.sql
 
 ## 启动与状态
 
+当前服务器的运维账号为 `jadeops`，使用 SSH 2222 端口和本机密钥登录。root 远程登录和密码登录已关闭。
+
 服务器部署阶段使用：
 
 ```bash
-docker compose --env-file .env.production build --pull
-docker compose --env-file .env.production up -d
+sudo sh ops/prepare-ip-test.sh
+sudo sh ops/publish-ip-test.sh
 docker compose --env-file .env.production ps
 ```
 
-首次上线或迁移后，先保持外部流量关闭，确认应用、数据库和代理均健康，再开放 80/443。
+首次部署先按 `server-deployment-plan.md` 准备公网 IP 证书和 HTTP 验证服务，再执行上述命令。各发布目录保留自己的 `.env.production`。静态版本资源在构建阶段提取，入口 HTML 在后端健康后切换。
 
 编排文件固定 Node 24.20.0、PostgreSQL 17.11 Alpine 3.24 和 Caddy 2.11.4，并使用 `APP_VERSION` 标记应用镜像；升级基础镜像时应先由 CI 完整验证，再单独提交版本变更。
 
 检查：
 
 ```bash
-curl -fsS https://你的域名/health/live
-curl -fsS https://你的域名/health/ready
-curl -fsS https://你的域名/version
+curl -fsS https://38.76.197.136/health/live
+curl -fsS https://38.76.197.136/health/ready
+curl -fsS https://38.76.197.136/version
 ```
+
+## 日常版本更新
+
+开发与完整功能测试在本地或隔离测试库进行。正式服务器运行已发布版本，玩家账号、资产及进度保存在 PostgreSQL 持久卷中，正常代码更新沿用该卷。
+
+`prepare-ip-test.sh` 和 `publish-ip-test.sh` 用于首次部署。后续按以下流程发布；现有 GitHub 工作流执行自动测试，正式服构建、切换和验收仍需执行发布操作。
+
+1. 保存本次代码的 Git 提交，分配独立版本号，并将源码放入 `/opt/jade-market/releases/<版本号>`。从当前发布复制生产配置，只按本次需求调整配置和 `APP_VERSION`，保留数据库凭据及持久卷。
+2. 使用 Node.js 24 运行发布检查。账号、交易、实时消息、存档或数据库相关改动，还需在可丢弃的 PostgreSQL 数据库验证。压测和功能测试数据与正式玩家数据隔离。
+3. 从新版本目录运行 `sh ops/build-release.sh`，提前构建镜像并提取版本资源。每个版本号只发布一次，已有 `immutable` 资源保持原内容。
+4. 记录当前版本。后端或存档更新安排短维护窗口，保存当前世界、正常停止游戏进程并备份数据库；纯图片、样式和兼容现有接口的界面更新可沿用运行中的后端。
+5. 后端更新从新版本目录启动服务，健康检查通过后切换 `/opt/jade-market/current`、入口 HTML 和主生产配置副本。纯静态更新切换入口 HTML 即可。保留上一版镜像、配置和资源。
+6. 核对 `/health/ready`、`/version`、错误日志、连接恢复、存档及受影响功能。正式环境使用的临时验收角色按明确 ID 清理，清理时保留真实玩家数据。将发布记录和备份同步到运维电脑。
+
+发布记录分别注明前端资源版本和运行中的后端版本；入口资源路径对应前端版本，`/version` 对应后端版本。
+
+纯静态更新后，已打开的页面通常需要刷新才能加载新版。后端更新期间玩家会短暂断开连接，恢复后继续使用原角色。实时消息结构变动应把已打开旧页面的处理纳入发布计划；已有玩家数据变动应单独说明规则和恢复方法。
+
+发布异常时，先核对数据库兼容性，再切回上一版应用、入口 HTML、配置及 `current` 指向。恢复数据库会回退备份之后的玩家进度，应作为独立的数据恢复操作处理。
+
+日常关注服务就绪状态、保存失败、磁盘空间、证书续期结果和最近一次异地备份时间。服务器备份和证书续期已有自动任务，故障通知及自动发布尚未配置。
 
 ## 查看日志
 
@@ -82,6 +105,12 @@ docker compose --env-file .env.production logs --tail=200 caddy
 ```
 
 日志为结构化 JSON。严禁临时加入密码、Cookie 或完整玩家令牌输出。
+
+## 角色名与排行榜
+
+玩家在「账号」窗口修改「角色名」并保存，名字最多 10 个字符。角色名同步用于头像区和排行榜，登录名保持不变。改名成功回执在存档提交后返回，刷新或重新登录后保留。
+
+排行榜依据正式世界中的玩家角色计算，离线角色仍保留排名。功能和负载测试使用隔离数据；正式库的验收角色须在验收结束后清理，并保留清理前备份。
 
 ## 维护模式与关机
 
@@ -95,16 +124,16 @@ docker compose --env-file .env.production stop -t 30 app
 
 ## 备份
 
-`backup` 服务每天在 `./backups` 生成：
+`backup` 服务每天在 `/opt/jade-market/backups` 生成，保留 14 天：
 
 ```text
 jade-market-YYYYMMDDTHHMMSSZ.dump
 jade-market-YYYYMMDDTHHMMSSZ.dump.sha256
 ```
 
-上线前必须将备份目录同步到另一台机器或对象存储。同机备份无法抵御磁盘损坏或服务器丢失。
+运维电脑的 `JadeMarket-Backup` 计划任务每天北京时间 03:30 通过 SSH 2222 端口拉取最新备份，校验后保存到 `C:\Users\666\.local\jade-market-ops\backups`。任务启用错过后补跑；电脑需在线并登录当前 Windows 用户。
 
-项目不会替你持有对象存储密钥；异地目标和凭据是正式部署前仍需提供的外部条件。同步任务必须使用只允许写入指定备份桶/路径的最小权限凭据，并至少告警“最后成功上传时间”。
+`C:\Users\666\.local\jade-market-ops\backup-status.json` 记录最近成功同步时间，`backup.log` 保存任务日志。手动补跑使用 `Start-ScheduledTask -TaskName JadeMarket-Backup`，并检查任务结果及状态文件。
 
 ## 恢复演练
 
@@ -121,7 +150,7 @@ jade-market-YYYYMMDDTHHMMSSZ.dump.sha256
 
 ## 回滚
 
-每次上线必须保留上一个不可变镜像标签。代码回滚不能盲目回滚数据库结构；先确认新版本是否已执行不兼容迁移。当前迁移采用只新增表和列的兼容策略，旧应用可忽略新增投影。
+每次上线必须保留上一个不可变镜像标签。回滚前核对目标应用与已执行数据库迁移的兼容性。迁移 004 移除了旧索引，依赖旧索引的应用不能直接配合当前数据库运行；数据恢复按维护窗口单独处理。
 
 ## 常见告警
 

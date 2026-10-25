@@ -1,3 +1,4 @@
+import { readCommerceClientSource } from "./load-commerce-client-source.mjs";
 import assert from "node:assert/strict";
 import { readClientShellSource } from "./load-client-shell.mjs";
 import { readFileSync } from "node:fs";
@@ -19,7 +20,7 @@ import {
 } from "../public/livestream-rules.js";
 import { loadResolvedStyles } from "./load-styles.mjs";
 
-const moduleSource = readFileSync("public/features/livestream/livestream-module.js", "utf8");
+const moduleSource = readCommerceClientSource("livestream");
 const settleModalSource = readFileSync("shared/domain/livestream/settle-modal.js", "utf8");
 const mainEntry = readFileSync("public/main.js", "utf8");
 const mainSource = readClientShellSource();
@@ -46,11 +47,11 @@ assert.match(moduleSource, /watchingRoomId/);
 assert.match(moduleSource, /visitorWatchMarkup/);
 assert.match(moduleSource, /function visitorRoomCardMarkup[\s\S]*?is-hall-card/);
 assert.doesNotMatch(
-  moduleSource.slice(moduleSource.indexOf("function visitorRoomCardMarkup"), moduleSource.indexOf("export function trimLivestreamSelection")),
+  moduleSource.slice(moduleSource.indexOf("function visitorRoomCardMarkup"), moduleSource.indexOf("function visitorWatchMarkup", moduleSource.indexOf("function visitorRoomCardMarkup"))),
   /livestream-live-badge/
 );
-assert.match(stylesSource, /\.livestream-hall-section\s+\.livestream-room-card\s*\{[^}]*width:\s*70%/s);
-assert.match(stylesSource, /\.livestream-hall-section\s+\.livestream-room-head\s+h3\s*\{[^}]*font-size:\s*13px/s);
+assert.match(stylesSource, /\.livestream-hall-section\s+\.livestream-room-card\s*\{[^}]*width:\s*100%/s);
+assert.match(stylesSource, /\.livestream-hall-section\s+\.livestream-room-head\s+h3\s*\{[^}]*font-size:\s*14px/s);
 assert.match(moduleSource, /buildLivestreamSettleModalEvent/);
 assert.match(moduleSource, /formatLivestreamDuration/);
 assert.match(moduleSource, /shared\/domain\/livestream\/settle-modal\.js/);
@@ -96,7 +97,7 @@ assert.match(moduleSource, /data-livestream-action="select-slide"/);
 assert.match(moduleSource, /data-livestream-action="confirm-buy"/);
 assert.match(moduleSource, /data-hall-sort/);
 assert.match(moduleSource, /workerId:\s*host\?\.id\s*\|\|\s*null/);
-assert.match(moduleSource, /talkStyle:\s*normalizeTalkStyle\(draftTalkStyle\)/);
+assert.match(moduleSource, /talkStyle:\s*normalizeTalkStyle\(ui\.draftTalkStyle\)/);
 assert.match(moduleSource, /hostBonusesFromWorker/);
 assert.doesNotMatch(moduleSource, /hostBonusesWithTalkStyle/);
 assert.doesNotMatch(moduleSource, /LIVESTREAM_TALK_STYLES/);

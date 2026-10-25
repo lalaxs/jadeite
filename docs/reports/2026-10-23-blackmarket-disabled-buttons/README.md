@@ -8,7 +8,9 @@
 
 按 game-playtest 在独立 3020 测试服验收，禁用持久化。现金刚好等于最便宜商品的售价 ¥662 时，该按钮保持绿色且可购买，其余五件显示灰色禁用；实际支付后现金归零，剩余五个按钮均自动置灰；通过测试服开发工具补足至 ¥5,000 后，五个按钮全部恢复绿色可购。日间灰底为 `rgba(31,50,40,.1)`、夜间灰底为 `rgba(143,181,164,.14)`，均与原有购买确认按钮共享同一 CSS 规则。
 
-- [日间对比](day.jpg)
-- [夜间对比](night.jpg)
+- [日间对比](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-disabled-buttons/day.jpg)
+- [夜间对比](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-disabled-buttons/night.jpg)
 
 此次为前端样式变更，3000 服务直接提供最新文件，刷新游戏页面即可生效，无需重启。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-disabled-buttons)。

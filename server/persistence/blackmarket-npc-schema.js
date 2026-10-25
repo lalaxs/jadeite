@@ -1,4 +1,4 @@
-import { NPC_STALLS, NPC_SCHEDULE_VERSION, isNpcBlackStall } from "../../shared/domain/blackmarket/npc-rules.js";
+import { NPC_SCHEDULE_VERSION, npcRuleForStall, isNpcBlackStall } from "../../shared/domain/blackmarket/npc-rules.js";
 import { normalizeNonNegativeInteger, normalizeNonNegativeNumber, normalizeOptionalTimestamp } from "./world-schema-utils.js";
 import { MATERIAL_META } from "../services/materials-service.js";
 import { equipmentCatalog } from "../systems/equipment-system.js";
@@ -14,7 +14,7 @@ export function validateNpcBlackStall(stall) {
   const legacyIdentity = legacyRule && stall.type === "goods" && stall.id === `bm-npc:${stall.npcRole}` && stall.ownerId === `npc:blackmarket:${stall.npcRole}`;
   if (!isNpcBlackStall(stall) && !legacyIdentity) throw new Error("world-store: invalid NPC black stall identity");
   const label = `NPC black stall ${stall.id}`;
-  const rule = NPC_STALLS.find((entry) => entry.role === stall.npcRole) || legacyRule;
+  const rule = npcRuleForStall(stall) || legacyRule;
   for (const field of ["npcSequence", "npcBatch", "npcDiscountIssued", "npcPremiumIssued"]) {
     normalizeNonNegativeInteger(stall, field, label);
   }
@@ -23,7 +23,7 @@ export function validateNpcBlackStall(stall) {
   }
   normalizeNonNegativeInteger(stall, "npcScheduleVersion", label, { optional: true });
   normalizeNonNegativeInteger(stall, "npcPricingVersion", label, { optional: true });
-  for (const field of ["npcRotateAt", "npcShiftAt", "npcRefillAt"]) normalizeOptionalTimestamp(stall, field, label);
+  for (const field of ["npcRotateAt", "npcShiftAt", "npcRefillAt", "npcMarketRefreshAt"]) normalizeOptionalTimestamp(stall, field, label);
   if (stall.npcScheduleVersion === NPC_SCHEDULE_VERSION && stall.npcRotateAt == null) {
     throw new Error(`world-store: ${label} is missing its rotation deadline`);
   }

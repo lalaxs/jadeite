@@ -1,44 +1,17 @@
-// 黑市 service-ui：技术支持资料 / 订单 / offer
-
-import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
-import {
-  marketQualityMeta,
-  deriveMaterialProfile,
-  mlVisual
-} from "../../market-module.js";
+import { lazyPreviewMarkup } from "../../lazy-preview.js";
 import { WORKER_SKILL_DEFS } from "../../workshop-craft-scoring.js";
 import { renderResourceCard } from "../../resource-card-view.js";
 import { BM_SERVICE_TEMPLATES, bmServiceTemplateById } from "../../bm-service-templates.js";
 import {
   BM_SERVICE_PROFILE_CAPS as BM_PROFILE_CAPS
 } from "../../bm-constants.js";
-import {
-  socketRef,
-  getState,
-  formatMoney,
-  escapeHtml,
-  empty,
-  showToast,
-  openGameModal,
-  typeName,
-  bmUi,
-  bmMyStall,
-  bmStallById,
-  bmFeatureGate,
-  guardBmFeature,
-  bmAffordable,
-  starsHtml
-} from "./shared.js";
-import {
-  serviceProfileHtml,
-  serviceOfferCapabilityHtml,
-  serviceOfferBasisHtml,
-  closeBmModals
-} from "./controller.js";
 
-export let bmServiceTemplateBound = false;
+export function createBlackmarketServiceUi({ document, scope, ui, observeLazyPreviews, socketRef, getState, bmUi, helpers, ports, productView }) {
+  const { formatMoney, escapeHtml, empty, showToast, openGameModal, typeName } = helpers;
+  const { bmMyStall, bmStallById, bmFeatureGate, guardBmFeature, bmAffordable, starsHtml, serviceProfileHtml, serviceOfferCapabilityHtml, serviceOfferBasisHtml, closeBmModals } = ports;
+  const { productQualityMeta, deriveMaterialProfile, listingItemVisual } = productView;
 
-export function openBmServiceOfferModal() {
+function openBmServiceOfferModal() {
   const modal = document.getElementById("bmServiceOfferModal");
   if (!modal) return;
   const templateEl = modal.querySelector("#bmSvcTemplate");
@@ -48,9 +21,9 @@ export function openBmServiceOfferModal() {
       `<option value="${escapeHtml(t.id)}">${escapeHtml(t.title)}</option>`
     ).join("");
   }
-  if (templateEl && !bmServiceTemplateBound) {
-    templateEl.addEventListener("change", () => applyBmServiceTemplateFields(modal));
-    bmServiceTemplateBound = true;
+  if (templateEl && !ui.bmServiceTemplateBound) {
+    scope.listen(templateEl, "change", () => applyBmServiceTemplateFields(modal));
+    ui.bmServiceTemplateBound = true;
   }
   if (templateEl) templateEl.value = "open-window";
   applyBmServiceTemplateFields(modal);
@@ -58,7 +31,7 @@ export function openBmServiceOfferModal() {
   modal.hidden = false;
 }
 
-export function openBmServiceInfoModal(stallId) {
+function openBmServiceInfoModal(stallId) {
   const stall = bmStallById(stallId);
   const modal = document.getElementById("bmServiceInfoModal");
   if (!stall || stall.type !== "service" || !modal) return;
@@ -79,7 +52,7 @@ export function openBmServiceInfoModal(stallId) {
   observeLazyPreviews(body);
 }
 
-export function applyBmServiceTemplateFields(modal) {
+function applyBmServiceTemplateFields(modal) {
   const template = bmServiceTemplateById(modal?.querySelector("#bmSvcTemplate")?.value || "open-window");
   const title = modal?.querySelector("#bmSvcTitle");
   const desc = modal?.querySelector("#bmSvcDesc");
@@ -98,7 +71,7 @@ export function applyBmServiceTemplateFields(modal) {
   }
 }
 
-export function confirmBmServiceOffer() {
+function confirmBmServiceOffer() {
   const modal = document.getElementById("bmServiceOfferModal");
   const templateId = modal?.querySelector("#bmSvcTemplate")?.value || "open-window";
   const template = bmServiceTemplateById(templateId);
@@ -116,11 +89,11 @@ export function confirmBmServiceOffer() {
   });
 }
 
-export function bmProfileEmptyHtml(message) {
+function bmProfileEmptyHtml(message) {
   return `<div class="bm-profile-empty"><p>${escapeHtml(message)}</p></div>`;
 }
 
-export function bmProfilePickHtml({ attrs, title, sub = "", checked = false, type }) {
+function bmProfilePickHtml({ attrs, title, sub = "", checked = false, type }) {
   if (type) return renderResourceCard({
     type, name: title, badge: type === "employee" ? "招牌员工" : "招牌设备",
     tag: "label", className: `bm-profile-pick${checked ? " on" : ""}`,
@@ -137,7 +110,7 @@ export function bmProfilePickHtml({ attrs, title, sub = "", checked = false, typ
     </label>`;
 }
 
-export function bmProfileInventoryItem(type, itemId) {
+function bmProfileInventoryItem(type, itemId) {
   const me = getState()?.me;
   if (!me) return null;
   const bucket = type === "bracelet" ? me.bracelets
@@ -147,7 +120,7 @@ export function bmProfileInventoryItem(type, itemId) {
   return (bucket || []).find((item) => item.id === itemId) || null;
 }
 
-export function readBmProfileDraft(modal) {
+function readBmProfileDraft(modal) {
   return {
     headlineTagIds: [...modal.querySelectorAll("[data-bm-profile-tag]:checked")].map((el) => el.dataset.bmProfileTag),
     acceptScopes: [...modal.querySelectorAll("[data-bm-profile-scope]:checked")].map((el) => el.dataset.bmProfileScope),
@@ -165,7 +138,7 @@ export function readBmProfileDraft(modal) {
   };
 }
 
-export function buildBmProfilePreviewStall(mine, draft) {
+function buildBmProfilePreviewStall(mine, draft) {
   const options = mine.serviceProfileOptions || {};
   const baseSnap = mine.serviceSnapshot || {};
   const tagsById = new Map((options.eligibleHeadlineTags || []).map((tag) => [tag.id, tag]));
@@ -228,7 +201,7 @@ export function buildBmProfilePreviewStall(mine, draft) {
   };
 }
 
-export function updateBmProfileChrome(modal, draft = null) {
+function updateBmProfileChrome(modal, draft = null) {
   const next = draft || readBmProfileDraft(modal);
   const counts = {
     tags: next.headlineTagIds.length,
@@ -262,7 +235,7 @@ export function updateBmProfileChrome(modal, draft = null) {
   }
 }
 
-export function enforceBmProfileCap(input) {
+function enforceBmProfileCap(input) {
   if (!input?.checked) return true;
   const modal = input.closest("#bmServiceProfileModal");
   if (!modal) return true;
@@ -295,14 +268,14 @@ export function enforceBmProfileCap(input) {
   return false;
 }
 
-export function syncBmProfilePickState(modal) {
+function syncBmProfilePickState(modal) {
   modal.querySelectorAll(".bm-profile-pick").forEach((pick) => {
     const checked = pick.querySelector("input")?.checked;
     pick.classList.toggle("on", Boolean(checked));
   });
 }
 
-export function setBmProfileTab(tabId = "tags") {
+function setBmProfileTab(tabId = "tags") {
   const modal = document.getElementById("bmServiceProfileModal");
   if (!modal) return;
   const next = String(tabId || "tags");
@@ -319,7 +292,7 @@ export function setBmProfileTab(tabId = "tags") {
   });
 }
 
-export function renderBmServiceProfileModal(mine) {
+function renderBmServiceProfileModal(mine) {
   const modal = document.getElementById("bmServiceProfileModal");
   if (!modal || !mine) return;
   const profile = mine.serviceProfile || {};
@@ -390,7 +363,7 @@ export function renderBmServiceProfileModal(mine) {
         return `
           <label class="bm-profile-pick bm-profile-pick-showcase${showcaseSet.has(key) ? " on" : ""}">
             <input type="checkbox" data-bm-profile-showcase-type="${escapeHtml(row.type)}" data-bm-profile-showcase-id="${escapeHtml(row.itemId)}" ${showcaseSet.has(key) ? "checked" : ""}>
-            <span class="bm-profile-pick-visual">${lazyPreviewMarkup(mlVisual(item), { eager: false })}</span>
+            <span class="bm-profile-pick-visual">${lazyPreviewMarkup(listingItemVisual(item), { eager: false })}</span>
             <span class="bm-profile-pick-body">
               <strong>${escapeHtml(row.name)}</strong>
               <small>${escapeHtml(typeName?.(row.type) || row.type)}</small>
@@ -412,7 +385,7 @@ export function renderBmServiceProfileModal(mine) {
   updateBmProfileChrome(modal);
 }
 
-export function openBmServiceProfileModal() {
+function openBmServiceProfileModal() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "service") return;
   const modal = document.getElementById("bmServiceProfileModal");
@@ -421,7 +394,7 @@ export function openBmServiceProfileModal() {
   modal.hidden = false;
 }
 
-export function confirmBmServiceProfile() {
+function confirmBmServiceProfile() {
   const modal = document.getElementById("bmServiceProfileModal");
   if (!modal) return;
   const draft = readBmProfileDraft(modal);
@@ -429,11 +402,12 @@ export function confirmBmServiceProfile() {
   modal.hidden = true;
 }
 
-export function bindBmServiceProfileModal() {
+function bindBmServiceProfileModal() {
   const modal = document.getElementById("bmServiceProfileModal");
-  if (!modal || modal.dataset.bmProfileBound === "1") return;
+  if (!modal || ui.profileModalBound === modal) return;
+  ui.profileModalBound = modal;
   modal.dataset.bmProfileBound = "1";
-  modal.addEventListener("change", (event) => {
+  scope.listen(modal, "change", (event) => {
     const input = event.target;
     if (!(input instanceof HTMLInputElement) || input.type !== "checkbox") return;
     if (!input.closest(".bm-profile-pick, .bm-profile-visibility")) return;
@@ -446,7 +420,7 @@ export function bindBmServiceProfileModal() {
   });
 }
 
-export function clientItemStage(item) {
+function clientItemStage(item) {
   if (!item) return "unknown";
   if (item.materialStage) return item.materialStage;
   if (item.type === "rough") return item.revealed ? "opened" : "rough";
@@ -454,7 +428,7 @@ export function clientItemStage(item) {
   return item.stage || "unknown";
 }
 
-export function bmItemMatchesScope(item, scopeId) {
+function bmItemMatchesScope(item, scopeId) {
   const stage = clientItemStage(item);
   const score = Number(item.score || 0);
   switch (scopeId) {
@@ -466,14 +440,14 @@ export function bmItemMatchesScope(item, scopeId) {
   }
 }
 
-export function bmStallAcceptScopeIds(stall) {
+function bmStallAcceptScopeIds(stall) {
   const fromProfile = stall?.serviceProfile?.acceptScopes;
   if (Array.isArray(fromProfile) && fromProfile.length) return fromProfile.map(String);
   const snap = stall?.serviceSnapshot?.acceptScopes || [];
   return snap.map((row) => (typeof row === "string" ? row : row.id)).filter(Boolean);
 }
 
-export function bmOrderEligibleItems(stall) {
+function bmOrderEligibleItems(stall) {
   const me = getState()?.me;
   if (!me || !stall) return [];
   const scopes = bmStallAcceptScopeIds(stall);
@@ -492,7 +466,7 @@ export function bmOrderEligibleItems(stall) {
   return rows;
 }
 
-export function bmOrderStageLabel(item, type) {
+function bmOrderStageLabel(item, type) {
   const stage = clientItemStage(item);
   if (stage === "rough") return "暗料";
   if (stage === "opened") return "明料";
@@ -501,13 +475,13 @@ export function bmOrderStageLabel(item, type) {
   return typeName?.(type) || type || "物料";
 }
 
-export function bmOrderItemHint(item) {
+function bmOrderItemHint(item) {
   try {
     const profile = deriveMaterialProfile(item);
     if (profile?.sealed) {
       return String(item.publicHint || item.hint || "暗料 · 种水未揭露").trim().slice(0, 36);
     }
-    const q = marketQualityMeta(item);
+    const q = productQualityMeta(item);
     const parts = [];
     if (item.quality || q?.name) parts.push(`${item.quality || q.name}${q?.stars ? ` ${q.stars}` : ""}`);
     if (item.color) parts.push(item.color);
@@ -517,24 +491,24 @@ export function bmOrderItemHint(item) {
   }
 }
 
-export function bmOrderFilterTypes(eligible) {
+function bmOrderFilterTypes(eligible) {
   const order = ["rough", "material", "slice", "bracelet"];
   const present = new Set(eligible.map((row) => row.type));
   return order.filter((type) => present.has(type));
 }
 
-export function bmOrderFilteredItems(eligible, filter = bmUi.orderFilter) {
+function bmOrderFilteredItems(eligible, filter = bmUi.orderFilter) {
   if (!filter || filter === "all") return eligible;
   return eligible.filter((row) => row.type === filter);
 }
 
-export function bmOrderItemCardHtml(row, { checked = false } = {}) {
+function bmOrderItemCardHtml(row, { checked = false } = {}) {
   const { type, item } = row;
   const hint = bmOrderItemHint(item);
   return `
     <label class="bm-order-pick${checked ? " on" : ""}">
       <input type="radio" name="bmOrderItem" value="${escapeHtml(item.id)}" data-item-type="${escapeHtml(type)}" ${checked ? "checked" : ""}>
-      <span class="bm-order-pick-visual">${lazyPreviewMarkup(mlVisual(item), { eager: false })}</span>
+      <span class="bm-order-pick-visual">${lazyPreviewMarkup(listingItemVisual(item), { eager: false })}</span>
       <span class="bm-order-pick-body">
         <strong>${escapeHtml(item.name || "物料")}</strong>
         <small>${escapeHtml(typeName?.(type) || type)} · ${escapeHtml(bmOrderStageLabel(item, type))}</small>
@@ -543,7 +517,7 @@ export function bmOrderItemCardHtml(row, { checked = false } = {}) {
     </label>`;
 }
 
-export function updateBmOrderChrome(modal) {
+function updateBmOrderChrome(modal) {
   if (!modal) return;
   const stall = bmStallById(bmUi.orderStallId);
   const offer = (stall?.offers || []).find((row) => row.id === bmUi.orderOfferId);
@@ -591,7 +565,7 @@ export function updateBmOrderChrome(modal) {
   }
 }
 
-export function renderBmOrderItemGrid(modal, eligible) {
+function renderBmOrderItemGrid(modal, eligible) {
   const grid = modal.querySelector("#bmOrderItemGrid");
   if (!grid) return;
   const filtered = bmOrderFilteredItems(eligible, bmUi.orderFilter);
@@ -610,7 +584,7 @@ export function renderBmOrderItemGrid(modal, eligible) {
   observeLazyPreviews(grid);
 }
 
-export function openBmOrderServiceModal(stallId, offerId) {
+function openBmOrderServiceModal(stallId, offerId) {
   const stall = bmStallById(stallId);
   const offer = (stall?.offers || []).find((row) => row.id === offerId);
   if (!stall || !offer || stall.isMine) return;
@@ -692,7 +666,7 @@ export function openBmOrderServiceModal(stallId, offerId) {
   modal.hidden = false;
 }
 
-export function setBmOrderFilter(filterId = "all") {
+function setBmOrderFilter(filterId = "all") {
   const modal = document.getElementById("bmOrderServiceModal");
   if (!modal) return;
   bmUi.orderFilter = String(filterId || "all");
@@ -723,11 +697,12 @@ export function setBmOrderFilter(filterId = "all") {
   updateBmOrderChrome(modal);
 }
 
-export function bindBmOrderServiceModal() {
+function bindBmOrderServiceModal() {
   const modal = document.getElementById("bmOrderServiceModal");
-  if (!modal || modal.dataset.bmOrderBound === "1") return;
+  if (!modal || ui.orderModalBound === modal) return;
+  ui.orderModalBound = modal;
   modal.dataset.bmOrderBound = "1";
-  modal.addEventListener("change", (event) => {
+  scope.listen(modal, "change", (event) => {
     const input = event.target;
     if (!(input instanceof HTMLInputElement)) return;
     if (input.name !== "bmOrderItem") return;
@@ -737,7 +712,7 @@ export function bindBmOrderServiceModal() {
   });
 }
 
-export function confirmBmOrderService() {
+function confirmBmOrderService() {
   if (!guardBmFeature("bmBuy")) return;
   const modal = document.getElementById("bmOrderServiceModal");
   const picked = modal?.querySelector('input[name="bmOrderItem"]:checked');
@@ -758,7 +733,7 @@ export function confirmBmOrderService() {
   closeBmModals();
 }
 
-export function promptBmEarlySubmit(orderId, { message, penalty } = {}) {
+function promptBmEarlySubmit(orderId, { message, penalty } = {}) {
   const id = String(orderId || "");
   if (!id) {
     showToast({ text: "订单无效。", tone: "warn" });
@@ -780,4 +755,7 @@ export function promptBmEarlySubmit(orderId, { message, penalty } = {}) {
       { label: "再等等", variant: "secondary" }
     ]
   });
+}
+
+  return { openBmServiceOfferModal, openBmServiceInfoModal, applyBmServiceTemplateFields, confirmBmServiceOffer, bmProfileEmptyHtml, bmProfilePickHtml, bmProfileInventoryItem, readBmProfileDraft, buildBmProfilePreviewStall, updateBmProfileChrome, enforceBmProfileCap, syncBmProfilePickState, setBmProfileTab, renderBmServiceProfileModal, openBmServiceProfileModal, confirmBmServiceProfile, bindBmServiceProfileModal, clientItemStage, bmItemMatchesScope, bmStallAcceptScopeIds, bmOrderEligibleItems, bmOrderStageLabel, bmOrderItemHint, bmOrderFilterTypes, bmOrderFilteredItems, bmOrderItemCardHtml, updateBmOrderChrome, renderBmOrderItemGrid, openBmOrderServiceModal, setBmOrderFilter, bindBmOrderServiceModal, confirmBmOrderService, promptBmEarlySubmit };
 }

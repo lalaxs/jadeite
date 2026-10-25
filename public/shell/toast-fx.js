@@ -262,7 +262,7 @@ export function showToast(message) {
   // once as a socket toast and once as a UI event with different ids.
   const key = String(payload.dedupeKey || `${tone}:${text}`);
   const existing = [...host.querySelectorAll(".toast-item")].find((entry) => (
-    entry.dataset.toastKey === key && now - Number(entry.dataset.toastAt || 0) < TOAST_MERGE_WINDOW
+    entry.dataset.toastKey === key && (payload.sticky || now - Number(entry.dataset.toastAt || 0) < TOAST_MERGE_WINDOW)
   ));
   if (existing) {
     existing.dataset.toastAt = String(now);
@@ -277,7 +277,7 @@ export function showToast(message) {
     }
     existing.classList.remove("is-leaving");
     scheduleToast(existing, payload, tone);
-    return;
+    return existing;
   }
 
   const node = document.createElement("div");
@@ -286,14 +286,22 @@ export function showToast(message) {
   node.dataset.toastCount = "1";
   node.dataset.toastAt = String(now);
   node.dataset.toastPriority = String(TOAST_PRIORITY[tone] ?? 0);
+  node.dataset.toastSticky = payload.sticky ? "true" : "false";
   node.setAttribute("role", tone === "danger" ? "alert" : "status");
 
   const icon = document.createElement("span");
   icon.className = "toast-icon";
   icon.setAttribute("aria-hidden", "true");
   icon.textContent = toastIcon(tone);
-  const copy = document.createElement("span");
-  copy.className = "toast-copy";
+  const actionable = typeof payload.onClick === "function";
+  const copy = document.createElement(actionable ? "button" : "span");
+  copy.className = actionable ? "toast-copy toast-action" : "toast-copy";
+  if (actionable) {
+    copy.type = "button";
+    node.addEventListener("click", (event) => {
+      if (!event.target.closest(".toast-close")) payload.onClick();
+    });
+  }
   const title = document.createElement("strong");
   title.textContent = payload.title && payload.title !== text ? payload.title : toastTitle(tone);
   const body = document.createElement("span");
@@ -308,10 +316,11 @@ export function showToast(message) {
   close.textContent = "×";
   close.addEventListener("click", () => dismissToast(node));
   copy.append(title, body);
-  node.append(icon, copy, count, close);
+  node.append(icon, copy, count);
+  if (!payload.sticky || !actionable) node.append(close);
   host.append(node);
 
-  const activeToasts = [...host.querySelectorAll(".toast-item")];
+  const activeToasts = [...host.querySelectorAll(".toast-item")].filter(entry => entry.dataset.toastSticky !== "true");
   const overflow = Math.max(0, activeToasts.length - MAX_TOASTS);
   const staleToasts = [...activeToasts]
     .sort((a, b) => Number(a.dataset.toastPriority || 0) - Number(b.dataset.toastPriority || 0)
@@ -321,4 +330,5 @@ export function showToast(message) {
     dismissToast(stale, { immediate: true });
   }
   scheduleToast(node, payload, tone);
+  return node;
 }

@@ -1,18 +1,7 @@
-// 黑市 plaza：广场 / 我的摊 / 卡片 / renderBlackmarket
-
 import { paintJadeCanvases } from "../../jade-renderer.js";
-import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
+import { lazyPreviewMarkup } from "../../lazy-preview.js";
 import { materialStageForClient, materialStageLabel } from "../inventory-helpers.js";
 import { inlaySummary } from "../../product-meta.js";
-import {
-  marketRefValue,
-  marketPriceDelta,
-  marketElapsed,
-  marketItemVisual,
-  marketCardAttrChips,
-  deriveMaterialProfile,
-  mlVisual
-} from "../../market-module.js";
 import { PROCESS_SKILLS, WORKER_SKILL_DEFS } from "../../workshop-craft-scoring.js";
 import { bmServiceTemplateById } from "../../bm-service-templates.js";
 import {
@@ -21,84 +10,24 @@ import {
   BLACKMARKET_BLIND_CAP as BM_BLIND_CAP,
   BLACKMARKET_BLIND_EXTRA_RATES as BM_BLIND_EXTRA_RATES
 } from "../../bm-constants.js";
-import {
-  socketRef,
-  getState,
-  elsRef,
-  getActiveView,
-  leaveLockedBlackmarket,
-  formatMoney,
-  escapeHtml,
-  empty,
-  showToast,
-  openGameModal,
-  bmUi,
-  bmFiltersBound,
-  setBmFiltersBound,
-  BM_TYPE_META,
-  BM_FILTERS,
-  bmSellables,
-  bmFeatureGate,
-  guardBmFeature,
-  syncBmFeatureChrome,
-  bmStalls,
-  bmPublishedStalls,
-  bmMyStall,
-  bmStallInSetup,
-  bmSetupHint,
-  bmStallById,
-  bmClaimable,
-  bmPendingRatings,
-  bmPendingRatingLine,
-  bmPendingRatingsSummary,
-  bmServiceOrders,
-  bmAffordable,
-  starsHtml,
-  satisfactionStars,
-  bmRatingPublicHtml,
-  bmRatingSortScore,
-  typeLabel
-} from "./shared.js";
-import { openBmListModal } from "./goods.js";
-import {
-  syncBmBlindStockModalIfOpen,
-  bmBlindDisplayPrice,
-  reconcileBmBlindPlaceholderPrice,
-  confirmBmBlindManageMeta,
-  isBmBlindManageModalOpen,
-  syncBmBlindManageModalIfOpen,
-  openBmBlindManageModal,
-  closeBmBlindManageModal,
-  requestBmBlindDrawClose,
-  resumeBmBlindDrawFromState
-} from "./blind-ui.js";
-import { openBmServiceOfferModal } from "./service-ui.js";
-import { bindBlackmarketController } from "./controller.js";
-import { npcRoleLabel, isSpecialGoods, specialGoodsVisual, specialGoodsChips, npcGoodsInfo, npcPurchaseDestination, specialGoodsLabel, employeeSkillStats, goodsPriceComparison, resourceCardName, resourceCardSummary, blackmarketResourceCard } from "./goods-display.js";
 import { renderResourceCard } from "../../resource-card-view.js";
 import { workerDailyWage, equipmentRepairQuote } from "../../../shared/domain/blackmarket/bm-resources.js";
-import { bindBmPreviewPrewarming, prewarmBmVisibleStalls } from "./previews.js";
-import { blackmarketItemDetailHtml } from "./item-detail-view.js";
+import { BM_TYPE_META, BM_FILTERS } from "./catalog.js";
+
+export function createBlackmarketPlaza({ document, scope, ui, observeLazyPreviews, socketRef, getState, elsRef, getActiveView, leaveLockedBlackmarket, bmUi, helpers, ports, productView }) {
+  const { formatMoney, escapeHtml, empty, showToast, openGameModal } = helpers;
+  const { setBmFiltersBound, bmSellables, bmFeatureGate, guardBmFeature, syncBmFeatureChrome, bmStalls, bmPublishedStalls, bmMyStall, bmStallInSetup, bmSetupHint, bmStallById, bmClaimable, bmPendingRatings, bmPendingRatingLine, bmPendingRatingsSummary, bmServiceOrders, bmAffordable, starsHtml, satisfactionStars, bmRatingPublicHtml, bmRatingSortScore, typeLabel, openBmListModal, syncBmBlindStockModalIfOpen, bmBlindDisplayPrice, reconcileBmBlindPlaceholderPrice, confirmBmBlindManageMeta, isBmBlindManageModalOpen, syncBmBlindManageModalIfOpen, openBmBlindManageModal, closeBmBlindManageModal, requestBmBlindDrawClose, resumeBmBlindDrawFromState, openBmServiceOfferModal, npcRoleLabel, isSpecialGoods, specialGoodsVisual, specialGoodsChips, npcGoodsInfo, npcPurchaseDestination, specialGoodsLabel, employeeSkillStats, goodsPriceComparison, resourceCardName, resourceCardSummary, blackmarketResourceCard, bindBmPreviewPrewarming, prewarmBmVisibleStalls, blackmarketItemDetailHtml } = ports;
+  const { itemReferenceValue, priceDelta, listingElapsed, itemVisual, itemAttributeChips, deriveMaterialProfile, listingItemVisual } = productView;
 
 const STALL_ART_ROLES = new Set(["stone", "offcut", "finished", "supplies", "equipment", "traveler"]);
-let lastDetailRender = null;
 
-bindBlackmarketController({
-  renderBlackmarket,
-  openBmSetupModal,
-  closeBmModals,
-  serviceProfileHtml,
-  serviceOfferCapabilityHtml,
-  serviceOfferBasisHtml
-});
-
-export function openBmSetupModal(type = bmMyStall()?.type || bmUi.openType) {
+function openBmSetupModal(type = bmMyStall()?.type || bmUi.openType) {
   if (type === "goods") openBmListModal();
   else if (type === "blindbox") openBmBlindManageModal({ tab: "stock" });
   else openBmServiceOfferModal();
 }
 
-export function guardBmPlazaLeave() {
+function guardBmPlazaLeave() {
   const mine = bmMyStall();
   if (!bmStallInSetup(mine)) return true;
   showToast({ text: bmSetupHint(mine.type), tone: "warn" });
@@ -108,7 +37,7 @@ export function guardBmPlazaLeave() {
   return false;
 }
 
-export function renderBlackmarket() {
+function renderBlackmarket() {
   if (getActiveView() !== "blackmarket") return;
   const browse = bmFeatureGate("bmBrowse");
   if (!browse.ok) {
@@ -141,11 +70,11 @@ export function renderBlackmarket() {
   if (bmUi.pendingSetupType && mine?.status === "setup") {
     const type = bmUi.pendingSetupType;
     bmUi.pendingSetupType = null;
-    queueMicrotask(() => openBmSetupModal(type));
+    queueMicrotask(scope.guard(() => openBmSetupModal(type)));
   }
 }
 
-export function syncBmPlazaChrome() {
+function syncBmPlazaChrome() {
   const inStallFocus = bmUi.section === "detail" || (bmUi.section === "mine" && bmMyStall());
   document.querySelector('section.view[data-view="blackmarket"]')?.classList.toggle("bm-stall-focus", inStallFocus);
   elsRef.bmShop?.classList.toggle("solo", inStallFocus);
@@ -154,7 +83,7 @@ export function syncBmPlazaChrome() {
   mineButton?.setAttribute("aria-pressed", bmUi.section === "mine" ? "true" : "false");
 }
 
-export function renderBmTypeFilters() {
+function renderBmTypeFilters() {
   if (!elsRef.bmStalls) return;
   const stalls = bmPublishedStalls();
   const counts = { all: stalls.length, goods: 0, blindbox: 0, service: 0, jade: 0, employee: 0, equipment: 0 };
@@ -168,7 +97,7 @@ export function renderBmTypeFilters() {
     </button>`).join("");
 }
 
-export function filterSortStalls(list) {
+function filterSortStalls(list) {
   let arr = list.slice();
   if (["jade", "employee", "equipment"].includes(bmUi.typeFilter)) arr = arr.filter((s) => s.type === "goods" && (s.items || []).some((row) => goodsMatchesFilter(row, bmUi.typeFilter)));
   else if (bmUi.typeFilter !== "all") arr = arr.filter((s) => s.type === bmUi.typeFilter);
@@ -199,7 +128,7 @@ function goodsMatchesFilter(row, filter = bmUi.typeFilter) {
   return !["employee", "equipment"].includes(filter) || row.type === filter;
 }
 
-export function summaryText(stall) {
+function summaryText(stall) {
   const s = stall.summary || {};
   if (stall.type === "goods") return `在售 ${s.count || 0} 件`;
   if (stall.type === "blindbox") {
@@ -213,7 +142,7 @@ export function summaryText(stall) {
   return `服务 ${s.count || 0} 项`;
 }
 
-export function serviceProfileChips(stall, limit = 4) {
+function serviceProfileChips(stall, limit = 4) {
   const snap = stall.serviceSnapshot;
   if (!snap) return [];
   const chips = [];
@@ -242,7 +171,7 @@ export function serviceProfileChips(stall, limit = 4) {
   return chips.slice(0, limit);
 }
 
-export function serviceSkillBarsHtml(snap) {
+function serviceSkillBarsHtml(snap) {
   if (!snap?.skillPeaks) return "";
   return PROCESS_SKILLS.map((key) => {
     const level = Math.max(1, Math.min(10, Number(snap.skillPeaks[key] || 1)));
@@ -256,7 +185,7 @@ export function serviceSkillBarsHtml(snap) {
   }).join("");
 }
 
-export function serviceDevicesHtml(snap) {
+function serviceDevicesHtml(snap) {
   const devices = snap?.topDevices || [];
   if (!devices.length) {
     return `<div class="bm-svc-empty">尚未购置可展示设备</div>`;
@@ -268,7 +197,7 @@ export function serviceDevicesHtml(snap) {
   })).join("")}</div>`;
 }
 
-export function serviceFeaturedWorkersHtml(snap) {
+function serviceFeaturedWorkersHtml(snap) {
   const rows = snap?.featuredWorkers || [];
   if (!rows.length) return "";
   return `<div class="bm-svc-workers resource-card-grid">${rows.map((worker) => renderResourceCard({
@@ -277,21 +206,21 @@ export function serviceFeaturedWorkersHtml(snap) {
   })).join("")}</div>`;
 }
 
-export function serviceShowcaseHtml(snap) {
+function serviceShowcaseHtml(snap) {
   const items = snap?.showcaseItems || [];
   if (!items.length) return "";
   return `<div class="bm-svc-showcase">${items.map((row) => `
     <div class="bm-svc-showcase-item">
-      <div class="bm-svc-showcase-visual">${lazyPreviewMarkup(mlVisual(row.item || { name: row.name, type: row.type }), { eager: false })}</div>
+      <div class="bm-svc-showcase-visual">${lazyPreviewMarkup(listingItemVisual(row.item || { name: row.name, type: row.type }), { eager: false })}</div>
       <span>${escapeHtml(row.name)}</span>
     </div>`).join("")}</div>`;
 }
 
-export function bmOwnerLinkHtml(stall) {
+function bmOwnerLinkHtml(stall) {
   return `<button type="button" class="bm-owner-link" data-action="openBmServiceInfo" data-payload="${escapeHtml(stall.id)}" title="查看详细资料">查看详细资料</button>`;
 }
 
-export function serviceProfileHtml(stall, { ownerHint = false } = {}) {
+function serviceProfileHtml(stall, { ownerHint = false } = {}) {
   const snap = stall.serviceSnapshot;
   if (!snap) return "";
   const repLine = (() => {
@@ -349,13 +278,13 @@ export function serviceProfileHtml(stall, { ownerHint = false } = {}) {
     </section>`;
 }
 
-export function serviceOfferCapabilityHtml(offer) {
+function serviceOfferCapabilityHtml(offer) {
   const labels = offer.capabilityLabels || [];
   if (!labels.length) return "";
   return `<div class="bm-offer-bind">${labels.map((label) => `<span class="bm-svc-chip">${escapeHtml(label)}</span>`).join("")}</div>`;
 }
 
-export function serviceOfferBasisHtml(offer) {
+function serviceOfferBasisHtml(offer) {
   const basis = offer.capabilityBasis;
   if (!basis || (!(basis.skills || []).length && !(basis.devices || []).length)) return "";
   const skillLines = (basis.skills || []).map((s) => `${escapeHtml(s.name)} L${s.level}`).join(" · ");
@@ -376,7 +305,7 @@ export function serviceOfferBasisHtml(offer) {
     </details>`;
 }
 
-export function serviceOfferCardHtml(offer, { stall, isMine = false } = {}) {
+function serviceOfferCardHtml(offer, { stall, isMine = false } = {}) {
   const tpl = bmServiceTemplateById(offer.templateId);
   const templateTag = tpl
     ? `<span class="bm-offer-template">${escapeHtml(offer.templateLabel || tpl.title)}</span>`
@@ -405,8 +334,13 @@ export function serviceOfferCardHtml(offer, { stall, isMine = false } = {}) {
     </div>`;
 }
 
-export function stallCardHtml(stall) {
+function stallCardHtml(stall) {
   const meta = BM_TYPE_META[stall.type] || BM_TYPE_META.goods;
+  const goodsKinds = [...new Set((stall.items || []).map((row) => row.type === "equipment" ? "设备"
+    : row.type === "employee" ? "师傅" : row.item?.leftover ? "余料"
+      : row.type === "slice" ? "片料" : row.type === "bracelet" ? materialStageForClient(row.item) === "finished" ? "成品" : "毛坯"
+        : materialStageForClient(row.item) === "rough" ? "暗料" : "明料"))];
+  const brief = stall.npc ? stall.type === "goods" ? goodsKinds.join(" · ") || "待补货" : "" : stall.blurb || "";
   const artRole = stall.npc && STALL_ART_ROLES.has(stall.npcRole)
     ? stall.npcRole
     : stall.type === "service" ? "equipment" : "traveler";
@@ -415,7 +349,6 @@ export function stallCardHtml(stall) {
   if (stall.isMine) badges.push(`<span class="jm-badge mine">我的</span>`);
   if (stall.anonymous) badges.push(`<span class="jm-badge sealed">匿名</span>`);
   if (paused) badges.push(`<span class="jm-badge stage">休摊</span>`);
-  badges.push(`<span class="jm-badge opened">${escapeHtml(meta.label)}</span>`);
   const svcChips = stall.type === "service" ? serviceProfileChips(stall) : [];
   const chipHtml = svcChips.length
     ? `<div class="bm-svc-card-chips">${svcChips.map((chip) => `<span class="bm-svc-chip">${escapeHtml(chip)}</span>`).join("")}</div>`
@@ -431,20 +364,20 @@ export function stallCardHtml(stall) {
     <div class="jm-art bm-stall-art" data-stall-art="${artRole}">
       <img class="bm-stall-illustration" src="/assets/blackmarket/stall-${artRole}.svg" alt="" aria-hidden="true" width="320" height="180" decoding="async" draggable="false" />
       ${badges.length ? `<div class="jm-badges">${badges.join("")}</div>` : ""}
-      <div class="bm-stall-mark">${escapeHtml(stall.npc ? npcRoleLabel(stall) : meta.label.slice(0, 2))}</div>
+      <div class="bm-stall-mark">${escapeHtml(stall.npc && stall.npcRole !== "traveler" ? npcRoleLabel(stall) : meta.label.slice(0, 2))}</div>
     </div>
     <div class="jm-body">
       <div class="jm-nm">${escapeHtml(stall.title || "未命名摊位")}</div>
-      <div class="bm-stall-who">${escapeHtml(stall.displayName || stall.ownerName || "摊主")}${stall.npc ? "" : ` · ${bmRatingPublicHtml(stall)}`}</div>
-      <p class="bm-stall-blurb">${escapeHtml(stall.blurb || "暂无简介")}</p>
+      ${!stall.npc ? `<div class="bm-stall-who">${escapeHtml(stall.displayName || stall.ownerName || "摊主")} · ${bmRatingPublicHtml(stall)}</div>` : ""}
+      ${brief ? `<p class="bm-stall-blurb">${escapeHtml(brief)}</p>` : ""}
       ${chipHtml}
-      <div class="jm-price-meta"><span>${escapeHtml(summaryText(stall))} · ${marketElapsed(stall.updatedAt || stall.createdAt)}</span></div>
+      <div class="jm-price-meta"><span>${escapeHtml(summaryText(stall))}</span></div>
       <button class="jm-buy" ${enterAction} type="button" aria-label="${escapeHtml(enterLabel)}">进入摊位</button>
     </div>
   </article>`;
 }
 
-export function renderBmMain(stalls, mine) {
+function renderBmMain(stalls, mine) {
   if (!elsRef.bmGrid) return;
   const resultStatus = document.getElementById("bmResultStatus");
   if (bmUi.section === "detail") {
@@ -489,7 +422,7 @@ export function renderBmMain(stalls, mine) {
   prewarmBmVisibleStalls();
 }
 
-export function renderBmMine(mine) {
+function renderBmMine(mine) {
   if (!mine) {
     const stallGate = bmFeatureGate("bmStall");
     elsRef.bmGrid.innerHTML = `
@@ -518,7 +451,7 @@ export function renderBmMine(mine) {
       <div class="bm-page-head-main">
         <div class="jm-mine-summary-copy">
           <strong>${escapeHtml(mine.title)}</strong>
-          <div class="jm-mine-summary-meta">${mineOwnerMeta}</div>
+          <div class="jm-mine-summary-meta">${mineOwnerMeta} · 浏览 ${Number(mine.views || 0)}</div>
         </div>
         <div class="bm-mine-actions">
           ${inSetup ? "" : `<button class="jm-hero-btn" data-action="bmToggleAnonymous" type="button">${mine.anonymous ? "取消匿名" : "开启匿名"}</button>`}
@@ -535,7 +468,7 @@ export function renderBmMine(mine) {
   observeLazyPreviews(elsRef.bmGrid);
 }
 
-export function mineManageHtml(mine) {
+function mineManageHtml(mine) {
   if (mine.type === "goods") {
     const items = mine.items || [];
     return `
@@ -583,11 +516,9 @@ export function mineManageHtml(mine) {
     ${serviceProofHtml(mine)}`;
 }
 
-export function goodsRowHtml(stall, row, isMine) {
+function goodsRowHtml(stall, row, isMine) {
   const item = row.item;
   const resource = row.type === "employee" || row.type === "equipment";
-  const stage = materialStageForClient(item);
-  const category = isSpecialGoods(row) ? specialGoodsLabel(row.type) : stage === "rough" ? "原石" : stage === "finished" ? "成品" : "阶段产物";
   const summary = inlaySummary(item);
   const detailAction = `data-action="openBmItemDetail" data-stall="${escapeHtml(stall.id)}" data-payload="${escapeHtml(row.id)}"`;
   const can = bmAffordable(row.price);
@@ -598,25 +529,25 @@ export function goodsRowHtml(stall, row, isMine) {
   } else if (!buy.ok) {
     buyBtn = `<button class="jm-buy" disabled type="button" title="${escapeHtml(buy.message)}">积分未解锁</button>`;
   } else {
-    buyBtn = `<button class="jm-buy" data-action="openBmBuyGoods" data-stall="${escapeHtml(stall.id)}" data-payload="${escapeHtml(row.id)}" ${can ? "" : "disabled"} type="button">${can ? "买入" : "现金不足"}</button>`;
+    buyBtn = `<button class="jm-buy" data-action="openBmBuyGoods" data-stall="${escapeHtml(stall.id)}" data-payload="${escapeHtml(row.id)}" ${can ? "" : "disabled"} type="button">${can ? "买入" : "现金不足"} · ${formatMoney(row.price)}</button>`;
   }
   return `
   <article class="inventory-slot bm-goods-card" ${detailAction}>
     <button class="inventory-slot-visual bm-goods-preview" ${detailAction} type="button" aria-label="查看${escapeHtml(item?.name || "物品")}详情">
-      <span class="inventory-slot-badge">${category}</span>
-      ${isSpecialGoods(row) ? specialGoodsVisual(row) : marketItemVisual(item, { bitmapOnly: true })}
+      <span class="inventory-slot-badge">${escapeHtml(isSpecialGoods(row) ? specialGoodsLabel(row.type) : materialStageLabel(item))}</span>
+      ${isSpecialGoods(row) ? specialGoodsVisual(row) : itemVisual(item, { bitmapOnly: true })}
     </button>
     <div class="inventory-slot-copy">
       <div class="inventory-slot-name"><strong>${escapeHtml(resource ? resourceCardName(row) : item?.name || "")}</strong></div>
-      ${resource ? resourceCardSummary(row, stall.npc) : `<p>${escapeHtml(isSpecialGoods(row) ? specialGoodsLabel(row.type) : materialStageLabel(item))} · ${stall.npc ? "NPC 供货" : "玩家转售"}</p>`}
+      ${resource ? resourceCardSummary(row, stall.npc) : ""}
       ${summary ? `<p class="inventory-finish-summary">${escapeHtml(summary)}</p>` : ""}
-      <div class="inventory-slot-value"><span>${row.type === "employee" ? "转聘费" : "售价"}</span><strong>${formatMoney(row.price)}</strong></div>
+      ${isMine || !buy.ok ? `<div class="inventory-slot-value"><span>${row.type === "employee" ? "转聘费" : "售价"}</span><strong>${formatMoney(row.price)}</strong></div>` : ""}
       ${buyBtn}
     </div>
   </article>`;
 }
 
-export function openBmItemDetail(listingId, stallId) {
+function openBmItemDetail(listingId, stallId) {
   if (!guardBmFeature("bmBrowse")) return;
   const stall = bmStallById(stallId);
   const row = stall?.items?.find((entry) => entry.id === listingId);
@@ -630,12 +561,12 @@ export function openBmItemDetail(listingId, stallId) {
   const stats = [
     { label: "阶段", value: isSpecialGoods(row) ? specialGoodsLabel(row.type) : materialStageLabel(item) },
     { label: "售价", value: formatMoney(row.price) },
-    { label: comparison.referenceLabel, value: formatMoney(comparison.referencePrice) },
+    ...(comparison.hasReference ? [{ label: comparison.referenceLabel, value: formatMoney(comparison.referencePrice) }] : []),
     { label: "摊位", value: stall.title || stall.displayName || "黑市摊位" }
   ];
   if (row.type === "employee") stats.push({ label: "登录日日薪", value: formatMoney(workerDailyWage(item)) }, ...employeeSkillStats(item), { label: "优点", value: (item.traits || []).join("、") || "无" }, { label: "缺点", value: (item.flaws || []).join("、") || "无" });
   if (row.type === "equipment") stats.push({ label: "耐久", value: `${item.condition} / 100` }, { label: "维修报价", value: formatMoney(comparison.repair) }, { label: "修满后总投入", value: formatMoney(comparison.totalCost) });
-  if (comparison.savings > 0) stats.push({ label: comparison.savingsLabel, value: formatMoney(comparison.savings) });
+  if (comparison.hasReference && comparison.savings > 0) stats.push({ label: comparison.savingsLabel, value: formatMoney(comparison.savings) });
   const lines = [item.hint, !stall.npc ? row.note : "", isSpecialGoods(row) ? npcPurchaseDestination(row) : ""].filter(Boolean);
   const actions = [];
   if (!stall.isMine) {
@@ -650,11 +581,11 @@ export function openBmItemDetail(listingId, stallId) {
   actions.push({ label: "关闭", variant: "secondary" });
   openGameModal({
     id: `blackmarket-item:${row.id}`, title: item.name || "黑市物品详情", subtitle: "黑市物品详情", size: "wide", modalClass: "inventory-detail-modal blackmarket-detail-modal",
-    previewHtml: blackmarketItemDetailHtml(row, { previewHtml: isSpecialGoods(row) ? specialGoodsVisual(row) : marketItemVisual(item, { eager: true }), stats, lines }), actions
+    previewHtml: blackmarketItemDetailHtml(row, { previewHtml: isSpecialGoods(row) ? specialGoodsVisual(row) : itemVisual(item, { eager: true }), stats, lines }), actions
   });
 }
 
-export function serviceProofHtml(stall) {
+function serviceProofHtml(stall) {
   const proof = stall.serviceProof;
   if (!proof?.completedCount) return "";
   const avgLine = proof.avgStars != null ? ` · 均 ${proof.avgStars} 星` : "";
@@ -668,7 +599,7 @@ export function serviceProofHtml(stall) {
           <span>${formatMoney(row.price)} · ${escapeHtml(row.buyerLabel)} · ${stars}</span>
         </div>
         ${bind ? `<span class="bm-proof-bind">${escapeHtml(bind)}</span>` : ""}
-        <span class="bm-proof-time">${escapeHtml(marketElapsed(row.completedAt))}</span>
+        <span class="bm-proof-time">${escapeHtml(listingElapsed(row.completedAt))}</span>
       </div>`;
   }).join("");
   return `
@@ -678,7 +609,7 @@ export function serviceProofHtml(stall) {
     </details>`;
 }
 
-export function orderCapabilityDetailHtml(order) {
+function orderCapabilityDetailHtml(order) {
   const snap = order.capabilitySnapshot;
   if (!snap) return "";
   const svc = snap.serviceSnapshot;
@@ -699,7 +630,7 @@ export function orderCapabilityDetailHtml(order) {
     </details>`;
 }
 
-export function serviceOrderRow(o) {
+function serviceOrderRow(o) {
   const snap = o.capabilitySnapshot;
   const snapLine = snap?.bindLabels?.length
     ? `<span class="bm-order-snap">下单依据：${escapeHtml(snap.bindLabels.join(" · "))}</span>`
@@ -747,8 +678,7 @@ export function serviceOrderRow(o) {
   </div>`;
 }
 
-/** 盲盒摊桌：按池内件数决定可视问号盒数量与疏密档 */
-export function bmBlindPileVisibleCount(n) {
+function bmBlindPileVisibleCount(n) {
   const count = Math.max(0, Number(n) || 0);
   if (count <= 0) return 0;
   if (count < BM_BLIND_MIN) return Math.min(count, 5);
@@ -757,7 +687,7 @@ export function bmBlindPileVisibleCount(n) {
   return 16;
 }
 
-export function bmBlindPileDensity(n) {
+function bmBlindPileDensity(n) {
   const count = Math.max(0, Number(n) || 0);
   if (count <= 0) return "empty";
   if (count < BM_BLIND_MIN) return "sparse";
@@ -766,7 +696,7 @@ export function bmBlindPileDensity(n) {
   return "full";
 }
 
-export function bmBlindPileHtml(n) {
+function bmBlindPileHtml(n) {
   const count = Math.max(0, Number(n) || 0);
   const visible = bmBlindPileVisibleCount(count);
   const density = bmBlindPileDensity(count);
@@ -787,7 +717,7 @@ export function bmBlindPileHtml(n) {
     </div>`;
 }
 
-export function renderBmDetail() {
+function renderBmDetail() {
   const stall = bmStallById(bmUi.detailStallId);
   if (!stall) {
     bmUi.section = "plaza";
@@ -800,8 +730,8 @@ export function renderBmDetail() {
   ]);
   // Experience / workshop ticks do not change this shelf. Keep decoded images,
   // in-flight captures and focused controls instead of rebuilding their DOM.
-  if (lastDetailRender?.root === elsRef.bmGrid && lastDetailRender.head === elsRef.bmGrid.firstElementChild
-    && lastDetailRender.fingerprint === fingerprint) return;
+  if (ui.lastDetailRender?.root === elsRef.bmGrid && ui.lastDetailRender.head === elsRef.bmGrid.firstElementChild
+    && ui.lastDetailRender.fingerprint === fingerprint) return;
   let body = "";
   if (stall.type === "goods") {
     const items = (stall.items || []).filter((row) => stall.isMine || goodsMatchesFilter(row));
@@ -870,29 +800,30 @@ export function renderBmDetail() {
       <div class="bm-page-head-main">
         <div class="jm-mine-summary-copy">
           <strong>${escapeHtml(stall.title)}</strong>
-          <div class="jm-mine-summary-meta">${detailOwnerMeta}</div>
+          <div class="jm-mine-summary-meta">${detailOwnerMeta} · 浏览 ${Number(stall.views || 0)}</div>
           <p class="bm-stall-blurb">${escapeHtml(stall.blurb || "")}</p>
         </div>
       </div>
     </div>
     ${body}`;
-  lastDetailRender = { root: elsRef.bmGrid, head: elsRef.bmGrid.firstElementChild, fingerprint };
+  ui.lastDetailRender = { root: elsRef.bmGrid, head: elsRef.bmGrid.firstElementChild, fingerprint };
   observeLazyPreviews(elsRef.bmGrid);
 }
 
-export function bindBlackmarketOnce() {
-  if (bmFiltersBound) return;
+function bindBlackmarketOnce() {
+  if (!scope.active) return;
+  if (ui.bmFiltersBound) return;
   setBmFiltersBound(true);
   bindBmPreviewPrewarming();
-  elsRef.bmSearch?.addEventListener("input", () => {
+  scope.listen(elsRef.bmSearch, "input", () => {
     bmUi.search = elsRef.bmSearch.value.trim();
     renderBlackmarket();
   });
-  elsRef.bmSort?.addEventListener("change", () => {
+  scope.listen(elsRef.bmSort, "change", () => {
     bmUi.sort = elsRef.bmSort.value;
     renderBlackmarket();
   });
-  elsRef.bmReset?.addEventListener("click", () => {
+  scope.listen(elsRef.bmReset, "click", () => {
     bmUi.search = "";
     bmUi.sort = "latest";
     bmUi.typeFilter = "all";
@@ -900,19 +831,17 @@ export function bindBlackmarketOnce() {
     if (elsRef.bmSort) elsRef.bmSort.value = "latest";
     renderBlackmarket();
   });
-  document.getElementById("bmBlindStockPrice")?.addEventListener("keydown", (event) => {
+  scope.listen(document.getElementById("bmBlindStockPrice"), "keydown", (event) => {
     if (event.key !== "Enter") return;
     event.preventDefault();
     confirmBmBlindManageMeta();
   });
-  document.getElementById("bmBlindStockPrice")?.addEventListener("input", () => {
+  scope.listen(document.getElementById("bmBlindStockPrice"), "input", () => {
     bmUi.blindPriceTouched = true;
   });
 }
 
-/* ——— Modals ——— */
-
-export function openBmOpenModal() {
+function openBmOpenModal() {
   if (!guardBmFeature("bmStall")) return;
   if (bmMyStall()) {
     showToast("你已有摊位，请先收摊。");
@@ -939,7 +868,7 @@ export function openBmOpenModal() {
   modal.hidden = false;
 }
 
-export function syncBmOpenTypeHint() {
+function syncBmOpenTypeHint() {
   const hint = document.getElementById("bmOpenTypeHint");
   if (!hint) return;
   const show = bmUi.openType === "blindbox";
@@ -951,7 +880,7 @@ export function syncBmOpenTypeHint() {
     : `盲盒需可售库存 ≥${BM_BLIND_MIN} 件（当前 ${n} 件，不足无法开摊）。`;
 }
 
-export function confirmBmOpenStall() {
+function confirmBmOpenStall() {
   if (!guardBmFeature("bmStall")) return;
   const modal = document.getElementById("bmOpenModal");
   if (bmUi.openType === "blindbox" && bmSellables().length < BM_BLIND_MIN) {
@@ -974,7 +903,7 @@ export function confirmBmOpenStall() {
   if (modal) modal.hidden = true;
 }
 
-export function openBmBuy(listingId, stallId) {
+function openBmBuy(listingId, stallId) {
   if (!guardBmFeature("bmBuy")) return;
   const stall = bmStallById(stallId);
   const row = (stall?.items || []).find((r) => r.id === listingId);
@@ -1001,34 +930,33 @@ export function openBmBuy(listingId, stallId) {
   const item = row.item;
   const profile = deriveMaterialProfile(item);
   const comparison = goodsPriceComparison(row);
-  const delta = marketPriceDelta(comparison.totalCost, comparison.referencePrice);
+  const delta = priceDelta(comparison.totalCost, comparison.referencePrice);
   body.innerHTML = `
     <div class="jm-buy-detail">
       ${["employee", "equipment"].includes(row.type) ? `${blackmarketResourceCard(row, {
         npc: stall.npc, className: "resource-card--compact", body: specialGoodsChips(row)
       })}<div class="jm-buy-seller">${escapeHtml(stall.displayName)} · ${bmRatingPublicHtml(stall)}</div>${npcGoodsInfo(row, { npc: stall.npc, showSavings: true })}` : `<div class="jm-buy-hero">
-        <div class="jm-buy-visual">${isSpecialGoods(row) ? specialGoodsVisual(row) : marketItemVisual(item, { eager: true })}</div>
+        <div class="jm-buy-visual">${isSpecialGoods(row) ? specialGoodsVisual(row) : itemVisual(item, { eager: true })}</div>
         <div class="jm-buy-copy">
           <div class="jm-nm">${escapeHtml(item.name)}</div>
-          ${isSpecialGoods(row) ? specialGoodsChips(row) : marketCardAttrChips(item, row.type, profile)}
+          ${isSpecialGoods(row) ? specialGoodsChips(row) : itemAttributeChips(item, row.type, profile)}
           <div class="jm-buy-seller">${escapeHtml(stall.displayName)} · ${bmRatingPublicHtml(stall)}</div>
           ${npcGoodsInfo(row, { npc: stall.npc, showSavings: true })}
         </div>
       </div>`}
       <div class="jm-fee">
         <div><span>挂牌价</span><span>${formatMoney(row.price)}</span></div>
-        <div><span>${comparison.referenceLabel}</span><span>${formatMoney(comparison.referencePrice)} <span class="jm-delta ${delta.cls}">${escapeHtml(delta.txt)}</span></span></div>
+        ${comparison.hasReference ? `<div><span>${comparison.referenceLabel}</span><span>${formatMoney(comparison.referencePrice)} <span class="jm-delta ${delta.cls}">${escapeHtml(delta.txt)}</span></span></div>` : ""}
         <div class="total"><span>你需支付</span><span>${formatMoney(row.price)}</span></div>
       </div>
       ${row.type === "employee" ? `<p class="bm-npc-note">接收后员工人数 ${roster.length + 1}/8 · ${blocked || "保留技能和经验，加入当天记薪"}</p>` : ""}
       ${isSpecialGoods(row) || stall.npc ? `<p class="bm-npc-note">${escapeHtml(npcPurchaseDestination(row))}</p>` : ""}
-      ${row.type === "rough" && !item.revealed && (item.materialStage || item.stage || "rough") === "rough" ? '<p class="bm-npc-note">自购暗料有开亏风险，参考估值不保证回本。</p>' : ""}
     </div>`;
   paintJadeCanvases(body);
   modal.hidden = false;
 }
 
-export function confirmBmBuy() {
+function confirmBmBuy() {
   if (!guardBmFeature("bmBuy")) return;
   if (!bmUi.buyStallId || !bmUi.buyListingId) return;
   socketRef.emit("bmBuyListing", { stallId: bmUi.buyStallId, listingId: bmUi.buyListingId, expectedPrice: bmUi.buyPrice });
@@ -1037,7 +965,7 @@ export function confirmBmBuy() {
   bmUi.buyListingId = null;
 }
 
-export function resolveBmRatingPrice(rating) {
+function resolveBmRatingPrice(rating) {
   const direct = Number(rating?.price ?? rating?.amount ?? 0);
   if (Number.isFinite(direct) && direct > 0) return direct;
   const tradeId = String(rating?.tradeId || "");
@@ -1060,7 +988,7 @@ export function resolveBmRatingPrice(rating) {
   return 0;
 }
 
-export function bmRatingModalShell() {
+function bmRatingModalShell() {
   const modal = document.getElementById("bmRatingModal");
   const body = document.getElementById("bmRatingBody");
   const title = modal?.querySelector(".jm-modal-head h3");
@@ -1069,7 +997,7 @@ export function bmRatingModalShell() {
   return { modal, body, title, sub, countEl };
 }
 
-export function bmRatingKindLabel(tradeKind) {
+function bmRatingKindLabel(tradeKind) {
   return ({
     goods: "卖物品成交",
     blindbox: "盲盒成交",
@@ -1077,24 +1005,24 @@ export function bmRatingKindLabel(tradeKind) {
   })[tradeKind] || "黑市成交";
 }
 
-export function bmRatingOrderTitle(r) {
+function bmRatingOrderTitle(r) {
   return bmPendingRatingLine(r) || r.itemName || r.itemLabel || "成交订单";
 }
 
-export function bmRatingOrderMeta(r) {
+function bmRatingOrderMeta(r) {
   const kind = bmRatingKindLabel(r.tradeKind);
   const peer = r.anonymous
     ? `${r.counterpartyName || "对方"}（匿名）`
     : (r.counterpartyName || "对方");
   const price = resolveBmRatingPrice(r);
-  const when = r.createdAt ? marketElapsed(r.createdAt) : "刚刚";
+  const when = r.createdAt ? listingElapsed(r.createdAt) : "刚刚";
   const bits = [kind, peer];
   if (price > 0) bits.push(formatMoney(price));
   bits.push(when);
   return bits.join(" · ");
 }
 
-export function bmRateListHtml(pending) {
+function bmRateListHtml(pending) {
   const rows = pending.map((r) => `
     <div class="bm-rate-order-row">
       <div class="bm-rate-order-copy">
@@ -1106,12 +1034,12 @@ export function bmRateListHtml(pending) {
   return `<div class="bm-rate-order-list" role="list">${rows}</div>`;
 }
 
-export function bmRateCardHtml(r) {
+function bmRateCardHtml(r) {
   const kind = bmRatingKindLabel(r.tradeKind);
   const itemTitle = bmRatingOrderTitle(r);
   const price = resolveBmRatingPrice(r);
   const tradeShort = String(r.tradeId || r.id || "").slice(0, 8).toUpperCase();
-  const when = r.createdAt ? marketElapsed(r.createdAt) : "刚刚";
+  const when = r.createdAt ? listingElapsed(r.createdAt) : "刚刚";
   const counterparty = r.anonymous
     ? `${r.counterpartyName || "对方"}（匿名摊）`
     : (r.counterpartyName || "对方");
@@ -1150,8 +1078,7 @@ export function bmRateCardHtml(r) {
     </article>`;
 }
 
-/** 顶栏「待评价」：可滚动订单列表 */
-export function openBmRatingModal() {
+function openBmRatingModal() {
   const pending = bmPendingRatings();
   const { modal, body, title, sub, countEl } = bmRatingModalShell();
   if (!modal || !body) return;
@@ -1173,8 +1100,7 @@ export function openBmRatingModal() {
   modal.hidden = false;
 }
 
-/** 列表行「去评价」：进入该笔打分 */
-export function openBmRatingForm(ratingId) {
+function openBmRatingForm(ratingId) {
   const pending = bmPendingRatings();
   const { modal, body, title, sub, countEl } = bmRatingModalShell();
   if (!modal || !body) return;
@@ -1198,7 +1124,7 @@ export function openBmRatingForm(ratingId) {
   modal.hidden = false;
 }
 
-export function closeBmModals() {
+function closeBmModals() {
   const drawModal = document.getElementById("bmBlindDrawModal");
   if (drawModal && !drawModal.hidden && bmUi.blindDraw) {
     requestBmBlindDrawClose();
@@ -1235,4 +1161,7 @@ export function closeBmModals() {
   if (!closingSetupModal) return;
   bmUi.pendingSetupType = null;
   socketRef.emit("bmCloseStall");
+}
+
+  return { openBmSetupModal, guardBmPlazaLeave, renderBlackmarket, syncBmPlazaChrome, renderBmTypeFilters, filterSortStalls, summaryText, serviceProfileChips, serviceSkillBarsHtml, serviceDevicesHtml, serviceFeaturedWorkersHtml, serviceShowcaseHtml, bmOwnerLinkHtml, serviceProfileHtml, serviceOfferCapabilityHtml, serviceOfferBasisHtml, serviceOfferCardHtml, stallCardHtml, renderBmMain, renderBmMine, mineManageHtml, goodsRowHtml, openBmItemDetail, serviceProofHtml, orderCapabilityDetailHtml, serviceOrderRow, bmBlindPileVisibleCount, bmBlindPileDensity, bmBlindPileHtml, renderBmDetail, bindBlackmarketOnce, openBmOpenModal, syncBmOpenTypeHint, confirmBmOpenStall, openBmBuy, confirmBmBuy, resolveBmRatingPrice, bmRatingModalShell, bmRatingKindLabel, bmRatingOrderTitle, bmRatingOrderMeta, bmRateListHtml, bmRateCardHtml, openBmRatingModal, openBmRatingForm, closeBmModals };
 }

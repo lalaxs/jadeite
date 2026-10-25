@@ -77,19 +77,19 @@ assert.equal(softBudget.tier, "partial");
 assert.equal(softBudget.budgetSoftOver, true);
 assert.equal(softBudget.rejected, false);
 
-const prestigeFail = evaluateOrderFit(
+const inexpensiveFit = evaluateOrderFit(
   { score: 3, value: 400, size: "M", kind: "bracelet" },
-  { ...personaOrder, persona: { motive: "炫富", personality: "计较", temper: 1.15 }, pay: 4000 }
+  { ...personaOrder, hard: { ...personaOrder.hard, minValue: 3200 }, persona: { motive: "炫富", personality: "计较", temper: 1.15 }, pay: 4000 }
 );
-assert.equal(prestigeFail.tier, "hard_fail");
-assert.equal(prestigeFail.rejected, true);
+assert.equal(inexpensiveFit.tier, "full", "an old saved value floor does not reject a fitting product");
+assert.equal(inexpensiveFit.rejected, false);
 
-const prestigePartial = evaluateOrderFit(
+const inexpensiveShowpiece = evaluateOrderFit(
   { score: 3, value: 800, size: "M", kind: "bracelet" },
   { ...personaOrder, persona: { motive: "装样子", personality: "宽和", temper: 0.45 }, pay: 4000 }
 );
-assert.equal(prestigePartial.tier, "hard_fail", "a cheap product cannot receive a high fixed quote");
-assert.equal(prestigePartial.rejected, true);
+assert.equal(inexpensiveShowpiece.tier, "full");
+assert.equal(inexpensiveShowpiece.rejected, false);
 
 const craftGood = evaluateOrderFit(
   { score: 3, value: 3500, size: "M", kind: "bracelet", craftScore: 92, craftGrade: "A" },
@@ -107,8 +107,10 @@ assert.equal(craftBad.tier, "full");
 
 const settleFull = estimateOrderSettlement({ tier: "full" }, { pay: 1000 });
 assert.equal(settleFull.payMult, 1);
-const settlePartial = estimateOrderSettlement({ tier: "partial", budgetSoftOver: true }, { pay: 1000 });
-assert.equal(settlePartial.payMult, 0.65);
+const settlePartial = estimateOrderSettlement({ tier: "partial", mismatch: 0.5 }, { pay: 1000 });
+assert.equal(settlePartial.payMult, 0.8);
+assert.equal(estimateOrderSettlement({ tier: "partial", mismatch: 1 }).payMult, 0.6);
+assert.ok(estimateOrderSettlement(softBudget).payMult < 1);
 const settleReject = estimateOrderSettlement({ tier: "hard_fail", rejected: true }, { pay: 1000 });
 assert.equal(settleReject.payMult, 0);
 

@@ -74,12 +74,18 @@ assert.match(String(duplicateToast?.text || duplicateToast), /已处理|重复/)
 
 const renameRequestId = "e2e-rename-once";
 const renamedStatePromise = once(first.socket, "state");
-first.socket.emit("setName", {
+const renameResult = await emitWithAck(first.socket, "setName", {
   value: expectedName,
   requestId: renameRequestId
 });
+assert.equal(renameResult.ok, true);
+assert.equal(renameResult.name, expectedName);
 const renamedState = await renamedStatePromise;
 assert.equal(renamedState.me.name, expectedName);
+const unchangedName = await emitWithAck(first.socket, "setName", { name: expectedName, requestId: "e2e-same-name" });
+assert.equal(unchangedName.ok, true);
+const emptyName = await emitWithAck(first.socket, "setName", { name: "   ", requestId: "e2e-empty-name" });
+assert.equal(emptyName.ok, false);
 
 const chatRequestId = "e2e-chat-once";
 const chatResult = await emitWithAck(first.socket, "sendWorldChat", {

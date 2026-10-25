@@ -300,7 +300,7 @@ const EQUIPMENT_CATALOG = Object.freeze(
       techLevel: 1, tier: 1, model: `街坊旧机 ${modelName}`,
       displayName: deviceInstanceName(name, "街坊旧机", modelName, category),
       focus: "低成本自营", profile: "低价耐用，效率与工艺加值较低；维修按实际损耗计费。",
-      description: "适合从公共工位起步后逐台购入，自营节省工位费用，后续可换购标准设备。"
+      description: "适合起步经营时逐台购入，后续可换购标准设备。"
     })),
     ...BRAND_LINES.flatMap((line) =>
     Object.entries(line.stages).flatMap(([stage, rows]) =>

@@ -12,3 +12,5 @@
 - 正式端口 3000 的更新文件均返回 200；仅前端改动，无需重启，刷新游戏加载。测试使用 3013 无存档世界，完成后关闭服务并恢复浏览器默认尺寸。
 
 主要截图：desktop-reveal-info.jpg、returned-dialog.jpg、raw-item-detail.jpg、blank-detail.jpg、finished-detail.jpg、offcut-detail.jpg、mobile-reveal-info.jpg、mobile-returned-dialog.jpg、mobile-item-detail.jpg、brush-1.2x.jpg。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-review-details)。

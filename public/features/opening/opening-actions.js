@@ -1,22 +1,13 @@
-// Opening client actions + kit size/choice click handling (moved from main.js)
 
-import {
-  setSelectedBangleRingSize,
-  setSelectedPendantSize,
-  normalizePendantSize,
-  normalizeBangleRingSize
-} from "./opening-state.js";
-import { settlePlannerSubmission } from "./planner-drafts.js";
-import {
-  applyOpeningKitSizeToSelected,
-  refreshOpeningPlanUi,
-  addRoughKit,
-  clearRoughKits,
-  openingKitsForServer
-} from "./opening-kits.js";
-
+import { defaultOpeningState } from "./opening-state.js";
+import { defaultPlannerDraftRuntime } from "./planner-drafts.js";
+import { defaultOpeningKits } from "./opening-kits.js";
+export function createOpeningActions({ openingState = defaultOpeningState, drafts = defaultPlannerDraftRuntime, kits = defaultOpeningKits } = {}) {
+  const { setSelectedBangleRingSize, setSelectedPendantSize, normalizePendantSize, normalizeBangleRingSize } = openingState;
+  const { settlePlannerSubmission } = drafts;
+  const { applyOpeningKitSizeToSelected, refreshOpeningPlanUi, addRoughKit, clearRoughKits, removeOpeningKit, openingKitsForServer } = kits;
 /** @returns {boolean} true if the click was handled as an opening kit interaction */
-export function handleOpeningClick(target, event) {
+function handleOpeningClick(target, event) {
   const kitSizeChoice = target?.closest?.("[data-opening-kit-size]");
   if (kitSizeChoice) {
     const kind = kitSizeChoice.dataset.openingKitSizeKind === "bangle" ? "bangle" : "pendant";
@@ -40,7 +31,7 @@ export function handleOpeningClick(target, event) {
   return false;
 }
 
-export function registerOpeningActions(registerAction, deps = {}) {
+function registerOpeningActions(registerAction, deps = {}) {
   const { socket } = deps;
 
   registerAction("extractFromRough", ({ payload }) => {
@@ -53,6 +44,7 @@ export function registerOpeningActions(registerAction, deps = {}) {
     });
   });
   registerAction("clearRoughKits", ({ payload }) => clearRoughKits(payload));
+  registerAction("removeOpeningKit", ({ payload, target }) => removeOpeningKit(payload, target.dataset.kitId));
   registerAction("startPolish", ({ payload }) => {
     socket.emit("startPolish", {
       roughId: payload,
@@ -60,3 +52,9 @@ export function registerOpeningActions(registerAction, deps = {}) {
     });
   });
 }
+
+  return { handleOpeningClick, registerOpeningActions };
+}
+
+export const defaultOpeningActions = createOpeningActions();
+export const { handleOpeningClick, registerOpeningActions } = defaultOpeningActions;

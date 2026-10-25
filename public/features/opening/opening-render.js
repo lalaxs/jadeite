@@ -1,5 +1,3 @@
-// Opening stone / product / board render (moved from main.js)
-
 import { jadeCanvasMarkup } from "../../jade-renderer.js";
 import { productKindLabel } from "../../jade-categories.js";
 import { resolveExactOpeningProductPlacement } from "../../product-meta.js";
@@ -16,37 +14,28 @@ import {
   renderJadeOpeningSvg,
   scaleForOpeningKit
 } from "../../jade-opening-engine.js";
+import { computeOverlaps, openingKitsOutsideStone } from "../../jade-opening-engine.js";
+import { kitFitsRemainingStone } from "../../../shared/domain/jade/offcut-layout.js";
 import { materialEvaluationWeight, partitionMaterialValue } from "../../../shared/domain/workshop/material-value-pool.js";
 import { escapeHtml, formatMoney } from "../../shell/format-utils.js";
-import {
-  OPENING_KIT_BY_SERVER_TYPE,
-  OPENING_KIT_SERVER_TYPES,
-  OPENING_KIT_TEMPLATE_IDS,
-  BANGLE_RING_SIZES,
-  PENDANT_SIZE_OPTIONS,
-  openingStoneCache,
-  selectedBangleRingSize,
-  selectedOpeningKitId,
-  selectedOpeningKitTpl,
-  selectedPendantSize,
-  setSelectedOpeningKitId,
-  openingKitSizeLabel
-} from "./opening-state.js";
-import { kitsFor } from "./opening-kits.js";
+import { defaultOpeningState, OPENING_KIT_BY_SERVER_TYPE, OPENING_KIT_SERVER_TYPES, OPENING_KIT_TEMPLATE_IDS, BANGLE_RING_SIZES, PENDANT_SIZE_OPTIONS } from "./opening-state.js";
+import { defaultOpeningKits } from "./opening-kits.js";
+export function createOpeningRender({ openingState = defaultOpeningState, kits = defaultOpeningKits, ...deps } = {}) {
+  const { openingStoneCache, setSelectedOpeningKitId, openingKitSizeLabel } = openingState;
+  const { kitsFor } = kits;
+let getState = deps.getState || (() => null);
+let materialStageForClient = deps.materialStageForClient || (() => "unknown");
 
-export let getState = () => null;
-export let materialStageForClient = () => "unknown";
-
-export function bindOpeningRenderDeps(deps = {}) {
+function bindOpeningRenderDeps(deps = {}) {
   if (typeof deps.getState === "function") getState = deps.getState;
   if (typeof deps.materialStageForClient === "function") materialStageForClient = deps.materialStageForClient;
 }
 
-export function openingSeedFor(rough) {
+function openingSeedFor(rough) {
   return rough.openingSeed || rough.visual?.openingSeed || rough.visual?.seed || rough.id || rough.name;
 }
 
-export function openingStoneFor(rough) {
+function openingStoneFor(rough) {
   const qualityToken = rough.qualityKey || rough.quality || "hidden";
   const colorToken = rough.color || "hidden";
   const key = `${rough.id || rough.name}:${openingSeedFor(rough)}:${qualityToken}:${colorToken}`;
@@ -62,23 +51,23 @@ export function openingStoneFor(rough) {
   return openingStoneCache.get(key);
 }
 
-export function openingKitTemplate(tplId) {
+function openingKitTemplate(tplId) {
   return OPENING_KIT_LIB.find((kit) => kit.id === tplId) || OPENING_KIT_LIB[0];
 }
 
-export function serverTypeForOpeningKit(tplId) {
+function serverTypeForOpeningKit(tplId) {
   return OPENING_KIT_SERVER_TYPES[tplId] || "peacePendant";
 }
 
-export function openingTplForServerType(type) {
+function openingTplForServerType(type) {
   return OPENING_KIT_BY_SERVER_TYPE[type] || "ping";
 }
 
-export function openingKitProductLabel(tplId) {
+function openingKitProductLabel(tplId) {
   return productKindLabel(mapOpeningKitToProductKind(tplId));
 }
 
-export function openingKitFromStored(kit, saved = false) {
+function openingKitFromStored(kit, saved = false) {
   const tpl = kit.tpl || kit.openingTpl || openingTplForServerType(kit.type);
   const scale = Number(kit.scale) || scaleForOpeningKit(tpl, kit.size || kit.ringSize || (tpl === "bangle" ? 56 : "M"));
   const rawX = Number(kit.x) || 50;
@@ -102,7 +91,7 @@ export function openingKitFromStored(kit, saved = false) {
 // Match authoritative submission/placement normalization before quoting. Draft
 // SVG positions are rounded to integer percentages by openingKitsForServer;
 // historical positions and scales retain their saved precision.
-export function openingKitForValuePreview(kit, { saved = false, maxScale = 1.45 } = {}) {
+function openingKitForValuePreview(kit, { saved = false, maxScale = 1.45 } = {}) {
   // Saved extractionKits are server percentage records, including legacy
   // entries carrying an erroneous svgSpace flag. That flag is only meaningful
   // for client drafts and independent product-placement rendering.
@@ -121,24 +110,24 @@ export function openingKitForValuePreview(kit, { saved = false, maxScale = 1.45 
 }
 
 /** Geometry supplies weights only; quoted money always comes from one material pool. */
-export function openingPlanningValuePreview(rough, kits = []) {
+function openingPlanningValuePreview(rough, kits = []) {
   const stone = openingStoneFor(rough);
   const maxScale = rough.leftoverGeometryVersion === 2 ? 5 : 1.45;
   const saved = (rough.extractionKits || rough.braceletPlacements || [])
     .map((kit) => openingKitForValuePreview(kit, { saved: true, maxScale }));
   const planned = kits.map((kit) => openingKitForValuePreview(kit));
-  const evaluations = planned.map((kit) => evaluateOpeningKit(kit, stone));
   const options = { withinStone: rough.leftoverGeometryVersion === 2 };
+  const evaluations = planned.map((kit) => evaluateOpeningKit(kit, stone, options));
   const before = evaluateLeftoverMaterial(saved, stone, options);
   const after = evaluateLeftoverMaterial([...saved, ...planned], stone, options);
   const previousRatio = Math.max(.0001, Math.min(1, Number(rough.remainingRatio ?? rough.openingEval?.remainRatio ?? 1) || 0));
   const beforeWeight = materialEvaluationWeight(before, stone);
   const valueRetainedRatio = beforeWeight > 0 ? materialEvaluationWeight(after, stone) / beforeWeight : after.remainRatio / previousRatio;
-  const partition = partitionMaterialValue(rough, after.remainRatio, evaluations.map((evaluation) => evaluation.price), { valueRetainedRatio });
+  const partition = partitionMaterialValue(rough, after.remainRatio, evaluations.map((evaluation) => materialEvaluationWeight(evaluation, stone)), { valueRetainedRatio, sourceWeight: beforeWeight });
   return { stone, planned, evaluations, partition };
 }
 
-export function productsReferencingRough(roughId) {
+function productsReferencingRough(roughId) {
   const id = String(roughId || "");
   const state = getState();
   if (!id || !state?.me) return [];
@@ -159,7 +148,7 @@ export function productsReferencingRough(roughId) {
   ));
 }
 
-export function openingKitsFromProductPlacements(roughId) {
+function openingKitsFromProductPlacements(roughId) {
   const id = String(roughId || "");
   if (!id) return [];
   const kits = [];
@@ -188,7 +177,7 @@ export function openingKitsFromProductPlacements(roughId) {
   return kits;
 }
 
-export function openingKitsForRender(rough) {
+function openingKitsForRender(rough) {
   // 黑市规划余料虚拟项：套件挂在 _planKitsServer，按已取件黑洞绘制
   if (rough?._leftover && Array.isArray(rough._planKitsServer) && rough._planKitsServer.length) {
     return rough._planKitsServer.map((kit) => openingKitFromStored(kit, true));
@@ -210,7 +199,7 @@ export function openingKitsForRender(rough) {
   return [...merged, ...active];
 }
 
-export function openingStoneSvg(rough, options = {}) {
+function openingStoneSvg(rough, options = {}) {
   return renderJadeOpeningSvg(openingStoneFor(rough), {
     scratches: [],
     kits: options.kits || [],
@@ -221,7 +210,7 @@ export function openingStoneSvg(rough, options = {}) {
   });
 }
 
-export function openingProductKitFor(item, placement) {
+function openingProductKitFor(item, placement) {
   const rawX = Number(placement.x);
   const rawY = Number(placement.y);
   const usesPercent = rawX <= 100 && rawY <= 100 && !placement.svgSpace;
@@ -237,7 +226,7 @@ export function openingProductKitFor(item, placement) {
   };
 }
 
-export function openingProductSvg(item, size = "finished") {
+function openingProductSvg(item, size = "finished") {
   const source = item?.sourceMaterial;
   const placement = resolveExactOpeningProductPlacement(source, {
     validTemplateIds: OPENING_KIT_TEMPLATE_IDS,
@@ -262,7 +251,7 @@ export function openingProductSvg(item, size = "finished") {
   `;
 }
 
-export function productCutoutPlaceholder(item, size = "finished") {
+function productCutoutPlaceholder(item, size = "finished") {
   const label = escapeHtml(item?.name || "套件");
   return `
     <div class="jade-opening-product ${escapeHtml(size)} is-placeholder" role="img" aria-label="${label}裁切数据缺失">
@@ -275,7 +264,7 @@ export function productCutoutPlaceholder(item, size = "finished") {
   `;
 }
 
-export function componentJadeCutoutMarkup(item, size = "finished") {
+function componentJadeCutoutMarkup(item, size = "finished") {
   const jade = Array.isArray(item?.components)
     ? item.components.find((component) => component?.type === "jade")
     : null;
@@ -289,7 +278,7 @@ export function componentJadeCutoutMarkup(item, size = "finished") {
   }, size);
 }
 
-export function productCanvas(item, size = "finished") {
+function productCanvas(item, size = "finished") {
   if (Array.isArray(item?.components) && item.components.length) {
     return componentJewelrySvg(item, size);
   }
@@ -315,29 +304,43 @@ export function productCanvas(item, size = "finished") {
   return jadeCanvasMarkup("product", item, size);
 }
 
-export function roughBoard(rough) {
+function roughBoard(rough) {
   const kits = openingKitsForRender(rough);
   return `
     <div class="rough-board-wrap jade-opening-board" data-opening-board="${rough.id}" data-rough-board="${rough.id}" aria-label="${escapeHtml(rough.name)}取件规划">
-      ${openingStoneSvg(rough, { revealed: true, kits, selectedUid: selectedOpeningKitId, outlineOnly: true })}
+      ${openingStoneSvg(rough, { revealed: true, kits, selectedUid: openingState.selectedOpeningKitId, outlineOnly: true })}
     </div>
   `;
 }
 
-export function roughPlannerControls(rough) {
+function openingPlanValidation(rough, kits = kitsFor(rough.id)) {
+  const stone = openingStoneFor(rough);
+  const planned = kits.map((kit) => openingKitForValuePreview(kit));
+  const saved = openingKitsForRender(rough).filter((kit) => kit.extracted);
+  const outside = openingKitsOutsideStone(planned, stone);
+  const overlaps = computeOverlaps([...saved, ...planned]);
+  const invalid = new Set([...outside, ...overlaps]);
+  if (rough.leftoverGeometryVersion === 2) {
+    for (const kit of planned) if (!kitFitsRemainingStone(kit, stone, [...saved, ...planned.filter((other) => other !== kit)])) invalid.add(kit.uid ?? kit.id);
+  }
+  const message = outside.size ? "套件超出石料边缘，请移回料内。" : invalid.size ? "套件重叠或覆盖已取走的部分，请重新摆放。" : "";
+  return { ok: kits.length > 0 && !invalid.size, outside, invalid, message };
+}
+
+function roughPlannerControls(rough) {
   const kits = kitsFor(rough.id);
-  if (selectedOpeningKitId && !kits.some((kit) => kit.id === selectedOpeningKitId)) {
+  if (openingState.selectedOpeningKitId && !kits.some((kit) => kit.id === openingState.selectedOpeningKitId)) {
     setSelectedOpeningKitId(null);
   }
   const savedCount = (rough.extractionKits || rough.braceletPlacements || []).length;
-  const planningBangle = selectedOpeningKitTpl === "bangle";
+  const planningBangle = openingState.selectedOpeningKitTpl === "bangle";
   const sizeRow = planningBangle
     ? `
       <div class="kit-size-row" role="group" aria-label="手镯圈口">
         <span class="kit-size-label">手镯圈口</span>
         <div class="kit-size-options">
           ${BANGLE_RING_SIZES.map((size) => `
-            <button class="kit-size-choice ${selectedBangleRingSize === size ? "on" : ""}" type="button"
+            <button class="kit-size-choice ${openingState.selectedBangleRingSize === size ? "on" : ""}" type="button"
               data-opening-kit-size="${size}" data-opening-kit-size-kind="bangle" data-rough="${rough.id}">${size}</button>
           `).join("")}
         </div>
@@ -348,7 +351,7 @@ export function roughPlannerControls(rough) {
         <span class="kit-size-label">挂件尺寸</span>
         <div class="kit-size-options">
           ${PENDANT_SIZE_OPTIONS.map((option) => `
-            <button class="kit-size-choice ${selectedPendantSize === option.id ? "on" : ""}" type="button"
+            <button class="kit-size-choice ${openingState.selectedPendantSize === option.id ? "on" : ""}" type="button"
               data-opening-kit-size="${option.id}" data-opening-kit-size-kind="pendant" data-rough="${rough.id}">${option.label}</button>
           `).join("")}
         </div>
@@ -357,7 +360,7 @@ export function roughPlannerControls(rough) {
   return `
     <div class="layout-tools">
       <div class="kit-choice-row">
-        ${OPENING_KIT_LIB.map((template) => `<button class="kit-choice opening-kit-choice ${selectedOpeningKitTpl === template.id ? "on" : ""}" data-opening-kit-choice="${template.id}" data-rough="${rough.id}" type="button">${escapeHtml(template.name)}</button>`).join("")}
+        ${OPENING_KIT_LIB.map((template) => `<button class="kit-choice opening-kit-choice ${openingState.selectedOpeningKitTpl === template.id ? "on" : ""}" data-opening-kit-choice="${template.id}" data-rough="${rough.id}" type="button">${escapeHtml(template.name)}</button>`).join("")}
       </div>
       ${sizeRow}
       <div class="placement-summary">
@@ -371,31 +374,36 @@ export function roughPlannerControls(rough) {
   `;
 }
 
-export function placementAnalysisRows(rough, kits) {
+function placementAnalysisRows(rough, kits) {
   if (!kits.length) return `<div class="placement-analysis muted">选择套件后显示吃色、压裂和边缘风险。</div>`;
   const { stone, planned, evaluations, partition } = openingPlanningValuePreview(rough, kits);
   const pieceValue = partition.pieces.reduce((sum, piece) => sum + piece.value, 0);
+  const validation = openingPlanValidation(rough, kits);
   return `
     <div class="placement-analysis">
+      ${validation.message ? `<p class="planner-validation-error" role="alert">${validation.message}</p>` : ""}
       <div class="placement-summary"><strong>取件料值 ${formatMoney(pieceValue)}</strong><span>余料料值 ${formatMoney(partition.leftover.value)}</span></div>
       ${kits.map((kit, index) => {
         const openingKit = planned[index];
         const template = openingKitTemplate(openingKit.tpl);
         const evalResult = evaluations[index];
         const grade = computeOpeningGrade(evalResult, stone);
-        const tone = evalResult.penalty > 0.42 || grade.score < 34 ? "danger" : grade.score >= 65 ? "profit" : "";
+        const tone = validation.invalid.has(kit.id) || evalResult.penalty > 0.42 || grade.score < 34 ? "danger" : grade.score >= 65 ? "profit" : "";
         const crackPct = Math.round(evalResult.crackRatio * 100);
         const wastePct = Math.round(evalResult.wasteRatio * 100);
         const crackWarn = crackPct >= 20 ? "is-warn" : "";
         const wasteWarn = wastePct >= 40 ? "is-warn" : "";
         return `
-          <article class="analysis-row ${tone}">
+          <article class="analysis-row ${tone}" data-planner-kit="${escapeHtml(kit.id)}">
             <header class="analysis-head">
               <div class="analysis-title">
                 <span class="analysis-kind">${escapeHtml(template.name)} · ${escapeHtml(openingKitSizeLabel(openingKit.tpl, openingKit.size))}</span>
                 <strong class="analysis-grade">${escapeHtml(grade.letter)}</strong>
               </div>
-              <strong class="analysis-price" data-value-kind="material">料值 ${formatMoney(partition.pieces[index].value)}</strong>
+              <div class="analysis-actions">
+                <strong class="analysis-price" data-value-kind="material">料值 ${formatMoney(partition.pieces[index].value)}</strong>
+                <button class="secondary small analysis-remove" type="button" data-action="removeOpeningKit" data-payload="${escapeHtml(rough.id)}" data-kit-id="${escapeHtml(kit.id)}" aria-label="移除${escapeHtml(template.name)}套件" title="移除套件">×</button>
+              </div>
             </header>
             <div class="analysis-metrics" aria-label="取件风险与吃色">
               <div class="analysis-metric ${crackWarn}"><em>裂</em><b>${crackPct}%</b></div>
@@ -410,3 +418,11 @@ export function placementAnalysisRows(rough, kits) {
     </div>
   `;
 }
+
+  return { bindOpeningRenderDeps, openingSeedFor, openingStoneFor, openingKitTemplate, serverTypeForOpeningKit, openingTplForServerType, openingKitProductLabel, openingKitFromStored, openingKitForValuePreview, openingPlanningValuePreview, productsReferencingRough, openingKitsFromProductPlacements, openingKitsForRender, openingStoneSvg, openingProductKitFor, openingProductSvg, productCutoutPlaceholder, componentJadeCutoutMarkup, productCanvas, roughBoard, openingPlanValidation, roughPlannerControls, placementAnalysisRows, get getState() { return getState; }, get materialStageForClient() { return materialStageForClient; } };
+}
+
+export const defaultOpeningRender = createOpeningRender();
+export const { bindOpeningRenderDeps, openingSeedFor, openingStoneFor, openingKitTemplate, serverTypeForOpeningKit, openingTplForServerType, openingKitProductLabel, openingKitFromStored, openingKitForValuePreview, openingPlanningValuePreview, productsReferencingRough, openingKitsFromProductPlacements, openingKitsForRender, openingStoneSvg, openingProductKitFor, openingProductSvg, productCutoutPlaceholder, componentJadeCutoutMarkup, productCanvas, roughBoard, openingPlanValidation, roughPlannerControls, placementAnalysisRows } = defaultOpeningRender;
+export const getState = (...args) => defaultOpeningRender.getState(...args);
+export const materialStageForClient = (...args) => defaultOpeningRender.materialStageForClient(...args);

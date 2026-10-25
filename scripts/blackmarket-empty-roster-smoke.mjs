@@ -22,7 +22,7 @@ function player(id, legacyOwned = false) {
 const fresh = player("fresh-empty");
 assert.equal(fresh.workshop.devices.length, 0, "new accounts begin without gifted machines");
 assert.equal(fresh.workshop.workers.length, 0, "new accounts are self-run without gifted paid employees");
-assert.equal(H.workshopDevicesForPlayer(fresh).filter((device) => device.publicStation).length, 3);
+assert.deepEqual(H.workshopDevicesForPlayer(fresh), []);
 const seller = player("sell-empty", true), neighbor = player("sell-neighbor", true), buyer = player("buy-starters", true);
 const sourceWorkers = structuredClone(seller.workshop.workers);
 const sourceDevices = structuredClone(seller.workshop.devices);

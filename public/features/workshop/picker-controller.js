@@ -48,11 +48,13 @@ function workshopPickerEmptyHint(device) {
     + `</div>`;
 }
 
+let pickerRoot = null;
 function pickerRootEl() {
-  let el = document.getElementById("ws-picker-root");
+  let el = pickerRoot;
   if (!el) {
     el = document.createElement("div");
     el.id = "ws-picker-root";
+    pickerRoot = el;
     document.body.appendChild(el);
   }
   return el;
@@ -277,7 +279,7 @@ function workshopSetSort(target) {
   if (!sort) return;
   ui.activeWorkerSort = sort;
   // 同步工具栏按钮高亮（不重建外壳，只改 active 类）
-  document.querySelectorAll(".wsp-toolbar-btn[data-action='setWorkerSort']").forEach((b) => {
+  pickerRoot?.querySelectorAll(".wsp-toolbar-btn[data-action='setWorkerSort']").forEach((b) => {
     const on = b.dataset.sort === sort;
     b.classList.toggle("is-active", on);
     b.setAttribute("aria-pressed", on ? "true" : "false");
@@ -301,7 +303,7 @@ function disposeWorkshopPicker() {
   ui.activeWorkshopPicker = null;
   ui.activePickerWorkerId = null;
   ui.pickerMountKey = null;
-  document?.getElementById("ws-picker-root")?.remove();
+  pickerRoot?.remove(); pickerRoot = null;
 }
 
   return { workshopPickerEmptyHint, pickerRootEl, buildPickerShell, buildPickerContent, applyPickerSearch, attachPickerSearch, renderPicker, renderWorkerDetail, workshopOpenPicker, workshopClosePicker, workshopPickItem, workshopPickWorker, workshopSetSort, workshopConfirmPickerWorker, disposeWorkshopPicker };

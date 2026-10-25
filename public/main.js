@@ -122,6 +122,7 @@ import { wireShellActions } from "./shell/wire-shell-actions.js";
 import { initShell } from "./shell/wire-shell-ui.js";
 import {
   bindOpeningDeps,
+  defaultOpeningRuntime,
   roughKits,
   removeOpeningKit,
   kitsFor,
@@ -533,7 +534,7 @@ wireSocket({
 });
 
 initTheme();
-initAccountModule({ socket, showToast });
+initAccountModule({ socket, getState: () => state, showToast });
 initShell({
   els,
   socket,
@@ -562,6 +563,7 @@ initShell({
 });
 
 wireFeatureModules({
+  opening: defaultOpeningRuntime,
   initAuctionModule,
   initMarketModule,
   initBlackmarketModule,
@@ -594,7 +596,7 @@ wireFeatureModules({
     },
     blackmarket: {
       formatMoney, escapeHtml, empty, showToast, openGameModal, closeGameModal, typeName,
-      productCanvas, openingStoneSvg, jadeCanvasMarkup,
+      productCanvas, openingStoneSvg, openingKitsForRender, jadeCanvasMarkup,
       kitsFor, roughKits, openingKitsForServer, openingKitFromStored, openingKitProductLabel
     },
     workshop: {

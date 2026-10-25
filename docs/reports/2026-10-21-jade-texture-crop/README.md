@@ -14,8 +14,10 @@
 
 浏览器使用本地 3000 端口实际提供的前端模块，只读加载玩家物品到独立测试页面；没有创建玩家或注入物品。旧手镯显示与正确中心坐标的显示逐像素一致。390px 视口无横向溢出，隐藏配件控件正常，页面无脚本错误。详见 `browser-checks.json`。
 
-- `before.png`：同一物品修复前的矩形截断。
-- `after.png`：修复后的原貌与加工对照。
-- `after-mobile.png`：390px 视口。
+- [before.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-texture-crop/before.png)：同一物品修复前的矩形截断。
+- [after.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-texture-crop/after.png)：修复后的原貌与加工对照。
+- [after-mobile.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-texture-crop/after-mobile.png)：390px 视口。
 
 前端刷新后即对旧记录生效。生成器的服务端修改在下次启动时加载；仍在运行的旧进程所生成的同类记录也受前端兼容修正覆盖。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-texture-crop)。

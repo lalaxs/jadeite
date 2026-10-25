@@ -5,7 +5,8 @@ import { componentJewelrySvg, materialSwatchHtml } from "../public/inlay-product
 import { buildInlayPreviewBaseItem, buildFinishPreviewProduct } from "../public/inlay-preview-tester.js";
 import { SETTING_GEMS, settingGemLayout } from "../shared/domain/workshop/finished-product-design.js";
 import { inlinePreviewImages } from "../public/preview-bitmap-cache.js";
-import { specialGoodsVisual } from "../public/features/blackmarket/goods-display.js";
+import { createBlackmarketFeature } from "../public/blackmarket-module.js";
+const { specialGoodsVisual } = createBlackmarketFeature();
 
 for (const [name, atlas] of Object.entries(INLAY_ART_ATLASES)) {
   const png = readFileSync(new URL(`../public${atlas.href}`, import.meta.url));

@@ -2,11 +2,11 @@
 import {
   NPC_STALLS, NPC_SCHEDULE_VERSION, NPC_SHIFT_MS, NPC_MIN_DISPLAY_MS, NPC_STALE_MS,
   NPC_ROTATION_MIN_MS, NPC_ROTATION_MAX_MS, NPC_TRAVELER_ROTATION_MIN_MS,
-  NPC_TRAVELER_ROTATION_MAX_MS, NPC_REFILL_MIN_MS, NPC_REFILL_MAX_MS, isNpcBlackStall, isNpcGoodsRow
+  NPC_TRAVELER_ROTATION_MAX_MS, NPC_REFILL_MIN_MS, NPC_REFILL_MAX_MS, NPC_MARKET_REFRESH_MS, NPC_TARGET_STALLS, npcRuleForStall, isNpcBlackStall, isNpcGoodsRow
 } from "../../../../shared/domain/blackmarket/npc-rules.js";
 import { NPC_PRICING_VERSION } from "../../../../shared/domain/blackmarket/npc-pricing.js";
 import { attemptAtomicMutation } from "../../atomic-mutation.js";
-import { isBlackmarketGoodsType } from "../../../../shared/domain/blackmarket/bm-constants.js";
+import { BLACKMARKET_BLIND_MIN, BLACKMARKET_MIN_PRICE } from "../../../../shared/domain/blackmarket/bm-constants.js";
 import { isBlackmarketResource } from "../../../../shared/domain/blackmarket/bm-resources.js";
 
 export function createNpc({
@@ -53,7 +53,7 @@ function migratePricingQuota(stall, rule) {
 }
 
 function createRestockRow(stall, rule, now, flags, deps) {
-  if (isBlackmarketResource(rule.role)) return createNpcGoodsRow(rule, stall, now, flags, deps);
+  if (rule.assortment || isBlackmarketResource(rule.role)) return createNpcGoodsRow(rule, stall, now, flags, deps);
   const categories = rule.role === "stone" ? ["rough", "material"]
     : rule.role === "offcut" ? ["material", "slice", "bracelet"] : [];
   const missingType = categories.find((type) => !stall.items.some((row) => row.type === type));
@@ -136,7 +136,7 @@ function maintainStall(stall, rule, now, deps) {
       delete row.npcPricingVersion;
       changed = true;
     }
-    if (rule.role === "offcut" && upgradeNpcOffcutRow(row, deps, previousOffcut)) {
+    if (row.item.leftover && upgradeNpcOffcutRow(row, deps, previousOffcut)) {
       delete row.npcPricingVersion;
       changed = true;
     }
@@ -170,38 +170,95 @@ function maintainStall(stall, rule, now, deps) {
   return changed;
 }
 
+function shuffled(rows, rng) {
+  const result = [...rows];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(rng() * (index + 1));
+    [result[index], result[other]] = [result[other], result[index]];
+  }
+  return result;
+}
+
+function maintainBlindStock(stall, rule, now, deps, replenish) {
+  if (stall.blindDraw) return false;
+  let changed = false;
+  if (stall.npcBatch < 0 || replenish) {
+    while (stall.pool.length < rule.stock) {
+      stall.pool.push(createNpcGoodsRow(rule, stall, now, {}, deps));
+      changed = true;
+    }
+    if (changed || stall.npcBatch < 0) {
+      stall.blindPrice = Math.max(BLACKMARKET_MIN_PRICE, deps.money(stall.pool.reduce((sum, row) => sum + row.price, 0) / stall.pool.length));
+      stall.npcBatch = Math.max(0, stall.npcBatch + 1);
+    }
+  }
+  if (stall.pool.length >= BLACKMARKET_BLIND_MIN && stall.status !== "open") { stall.status = "open"; changed = true; }
+  stall.npcScheduleVersion = NPC_SCHEDULE_VERSION;
+  stall.npcRotateAt ||= nextRotation(rule, now, deps);
+  if (changed) stall.updatedAt = now;
+  return changed;
+}
+
 function maintainNpcBlackmarket(now = Date.now()) {
   const deps = requireApi();
   const state = deps.getState();
   state.blackStalls ||= [];
   let changed = false;
-  // Old saves can still contain the retired materials/equipment merchants.
-  // Remove only NPC stalls; players' shelves and already-owned goods stay intact.
   for (let index = state.blackStalls.length - 1; index >= 0; index -= 1) {
     if (state.blackStalls[index].npc === true && !isNpcBlackStall(state.blackStalls[index])) {
       state.blackStalls.splice(index, 1);
       changed = true;
     }
   }
-  for (const rule of NPC_STALLS) {
-    let stall = state.blackStalls.find((row) => row.id === `bm-npc:${rule.role}`);
-    if (!stall) {
-      stall = {
-        id: `bm-npc:${rule.role}`, ownerId: `npc:blackmarket:${rule.role}`, npc: true, npcRole: rule.role,
-        type: "goods", title: rule.title, ownerName: rule.ownerName, blurb: rule.blurb, anonymous: false,
+  const existing = state.blackStalls.filter(isNpcBlackStall);
+  const deadline = existing.find((stall) => stall.npcMarketRefreshAt != null)?.npcMarketRefreshAt ?? now + NPC_MARKET_REFRESH_MS;
+  const refresh = now >= deadline;
+  const rng = npcRandom(deps.randomUUID());
+  const departed = new Set();
+  if (refresh) {
+    for (const [type, count] of [["goods", 2], ["blindbox", 1]]) {
+      const available = NPC_STALLS.filter((rule) => (rule.type || "goods") === type
+        && !existing.some((stall) => stall.id === `bm-npc:${rule.key}`));
+      const leaving = shuffled(existing.filter((stall) => stall.type === type && !stall.blindDraw && !npcRuleForStall(stall).permanent
+        && now - stall.createdAt >= NPC_MARKET_REFRESH_MS), rng).slice(0, Math.min(count, available.length));
+      for (const stall of leaving) {
+        departed.add(stall.id);
+        state.blackStalls.splice(state.blackStalls.indexOf(stall), 1);
+        changed = true;
+      }
+    }
+  }
+  const refreshAt = refresh ? now + NPC_MARKET_REFRESH_MS : deadline;
+  for (const [type, target] of [["goods", NPC_TARGET_STALLS - 6], ["blindbox", 6]]) {
+    const active = state.blackStalls.filter((stall) => isNpcBlackStall(stall) && stall.type === type);
+    const newcomers = shuffled(NPC_STALLS.filter((rule) => (rule.type || "goods") === type
+      && !state.blackStalls.some((stall) => stall.id === `bm-npc:${rule.key}`)
+      && !departed.has(`bm-npc:${rule.key}`)), rng)
+      .sort((left, right) => Number(Boolean(right.permanent)) - Number(Boolean(left.permanent)))
+      .slice(0, target - active.length);
+    for (const rule of newcomers) {
+      state.blackStalls.push({
+        id: `bm-npc:${rule.key}`, ownerId: `npc:blackmarket:${rule.key}`, npc: true, npcRole: rule.role,
+        type, title: rule.title, ownerName: rule.ownerName, blurb: rule.blurb, anonymous: false,
         status: "open", items: [], pool: [], offers: [], createdAt: now, updatedAt: now,
         npcSequence: 0, npcBatch: -1, npcDiscountIssued: 0, npcPremiumIssued: 0,
         ...(isBlackmarketResource(rule.role) ? { npcResourceVersion: 1 } : {}),
-        npcShiftAt: now + NPC_SHIFT_MS
-      };
-      state.blackStalls.push(stall);
+        npcShiftAt: now + NPC_SHIFT_MS, npcMarketRefreshAt: refreshAt
+      });
       changed = true;
     }
+  }
+  for (const stall of state.blackStalls.filter(isNpcBlackStall)) {
+    const rule = npcRuleForStall(stall);
+    if (stall.npcMarketRefreshAt !== refreshAt) { stall.npcMarketRefreshAt = refreshAt; changed = true; }
+    if (stall.type === "blindbox") {
+      if (maintainBlindStock(stall, rule, now, deps, refresh)) changed = true;
+      continue;
+    }
     if (stall.status !== "open") { stall.status = "open"; changed = true; }
-    if (now >= stall.npcShiftAt) {
-      const names = rule.roaming ? ["南来客", "北归商", "山城客"] : [rule.ownerName, `${rule.ownerName}的搭档`];
-      stall.ownerName = names[Math.floor(npcRandom(`${stall.id}:${Math.floor(now / NPC_SHIFT_MS)}`)() * names.length)];
-      stall.npcShiftAt = now + NPC_SHIFT_MS;
+    if (refresh && stall.npcBatch >= 0 && stall.items.length < rule.stock) {
+      const count = Math.min(2, rule.stock - stall.items.length);
+      for (let index = 0; index < count; index += 1) stall.items.push(createRestockRow(stall, rule, now, {}, deps));
       stall.updatedAt = now;
       changed = true;
     }
@@ -222,6 +279,7 @@ function buyNpcBlackmarketGoods(player, stall, listingId, expectedPrice) {
     const now = Date.now();
     // Check scheduled changes before accepting a quote left open in a purchase dialog.
     maintainNpcBlackmarket(now);
+    if (!state.blackStalls.includes(stall)) return { ok: false, message: "摊主已经收摊，请重新选择摊位。" };
     const row = stall.items.find((entry) => entry.id === listingId);
     if (!row) return { ok: false, message: "该商品已售出或收摊换货，请选择其他商品。" };
     if (!row.item || !isNpcGoodsRow(stall, row)) return { ok: false, message: "该类物品不支持在黑市摆摊出售。" };

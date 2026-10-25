@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { bindSidePanelDeps, renderSidePanel, tickSidePanelProgress } from "../public/features/hud/side-panel.js";
 import { bindFormatDeps } from "../public/shell/format-utils.js";
+import { productMatchesOrder } from "../public/jade-rules.js";
 
 let now = 100_000;
 let renders = 0;
@@ -138,5 +139,34 @@ state.me.workshopDeliveries = [];
 renderSidePanel();
 expectDeliveryUpdate([delivery("completed-carving", "carving")], "规划取件完成");
 assert.ok(html.includes('data-side-job="still-processing"'), "one completed batch must not hide another active job");
+
+const readyTab = { innerHTML: "", setAttribute() {} };
+const unread = { hidden: true, textContent: "", setAttribute() {}, removeAttribute() {} };
+let reminderDot = null;
+const reminderTab = { querySelector: () => reminderDot, appendChild: (dot) => { reminderDot = dot; } };
+document.createElement = () => ({ setAttribute() {}, remove() { reminderDot = null; } });
+bindSidePanelDeps({
+  getEls: () => ({ sidePanelBody: body, sidePanelUnread: unread,
+    panelTabs: { querySelector: (selector) => selector === '[data-ptab="order"]' ? readyTab
+      : selector === '[data-ptab="remind"]' ? reminderTab : null } }),
+  matchingBracelets: (order) => (state.me.bracelets || []).filter((product) => product.materialStage === "finished" && productMatchesOrder(product, order))
+});
+state.me.orders = [{ id: "npc-ready", client: "街坊", quantity: 2, pay: 10000,
+  hard: { kind: "dropPendant", kindLabel: "水滴挂件", minValue: 4000 }, requirements: [] }];
+const stockProduct = { id: "stock-1", kind: "dropPendant", materialStage: "finished", value: 1000 };
+state.me.bracelets = [stockProduct];
+renderSidePanel();
+assert.ok(!html.includes('data-side-npc-order="npc-ready"'), "partial quantities do not prompt delivery");
+state.me.bracelets.push({ ...stockProduct, id: "stock-2" });
+renderSidePanel();
+assert.ok(html.includes('data-side-npc-order="npc-ready"'));
+assert.ok(html.includes("库存已备齐"));
+assert.match(readyTab.innerHTML, />1<\/span>/);
+assert.equal(unread.hidden, false, "ready stock is visible on the mobile affairs button");
+state.me.bracelets = [];
+renderSidePanel();
+assert.ok(!html.includes('data-side-npc-order="npc-ready"'), "selling or consuming stock clears the prompt");
+assert.equal(readyTab.innerHTML, "订单");
+assert.equal(unread.hidden, true);
 
 console.log("side-panel-progress-smoke: all three stages auto-claimable, missed updates recover, active jobs coexist and DOM stays stable");

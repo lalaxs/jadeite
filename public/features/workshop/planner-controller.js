@@ -1,33 +1,46 @@
 // Planning draft, drag-safe patches and commit/cancel lifecycle.
 import { activateModalLifecycle } from "../../modal-lifecycle.js";
 import { patchPlannerBody } from "../../planner-dom.js";
-import { activeDragKit } from "../opening/opening-state.js";
-import {
-  ensurePlannerDraft, subscribePlannerDrafts, plannerDraftStatus, persistPlannerDraft,
-  confirmPlannerDraft, replacePlannerDraft, undoPlannerDraft, restoreConfirmedPlannerDraft,
-  loadPlannerDraftVersion, finishPlannerDraftGesture, reconcilePlannerDrafts
-} from "../opening/planner-drafts.js";
 
-export function createWorkshopPlanner({ ui, document, helpers, ports }) {
+export function createWorkshopPlanner({ ui, document, helpers, ports, opening, manageOpeningEvents = false }) {
   const { escapeHtml, kitsFor, roughBoard, roughPlannerControls, placementAnalysisRows, paintJades, showToast, renderInventory } = helpers;
+  const { ensurePlannerDraft, subscribePlannerDrafts, plannerDraftStatus, persistPlannerDraft,
+    confirmPlannerDraft, replacePlannerDraft, undoPlannerDraft, finishPlannerDraftGesture, reconcilePlannerDrafts } = opening.drafts;
+  const { openingPlanValidation } = opening.render;
+  let plannerRoot = null;
+  let stopPointer = null;
+  const removePlannerRoot = () => {
+    stopPointer?.(); stopPointer = null;
+    plannerRoot?.remove(); plannerRoot = null;
+  };
   const { workshopDevices, workshopProcessableItems, workshopStageItems, renderWorkshop } = ports;
 
 function plannerRootEl() {
-  let root = document.getElementById("ws-planner-root");
+  let root = plannerRoot;
   if (root) return root;
   root = document.createElement("div");
   root.id = "ws-planner-root";
   root.className = "ws-picker-overlay";
+  plannerRoot = root;
+  if (manageOpeningEvents) stopPointer = opening.pointer.registerOpeningPointerListeners(root);
   root.addEventListener("click", (event) => {
+    if (manageOpeningEvents) {
+      if (opening.actions.handleOpeningClick(event.target, event)) { event.stopPropagation(); return; }
+      const control = event.target.closest("[data-action]");
+      if (control?.dataset.action === "clearRoughKits") {
+        opening.kits.clearRoughKits(control.dataset.payload); event.stopPropagation(); return;
+      }
+      if (control?.dataset.action === "removeOpeningKit") {
+        opening.kits.removeOpeningKit(control.dataset.payload, control.dataset.kitId); event.stopPropagation(); return;
+      }
+    }
     const action = event.target.closest("[data-draft-action]");
     if (action && ui.activeKitPlanner) {
       const { itemId, originalKits } = ui.activeKitPlanner;
       if (action.dataset.draftAction === "undo") undoPlannerDraft(itemId);
       if (action.dataset.draftAction === "redo") undoPlannerDraft(itemId, true);
       if (action.dataset.draftAction === "revert") replacePlannerDraft(itemId, originalKits);
-      if (action.dataset.draftAction === "confirmed") restoreConfirmedPlannerDraft(itemId);
       if (action.dataset.draftAction === "retry") persistPlannerDraft(itemId);
-      if (action.dataset.draftAction === "version") loadPlannerDraftVersion(itemId, action.dataset.draftVersion);
       workshopRefreshPlanner(itemId);
       return;
     }
@@ -52,13 +65,13 @@ function plannerRootEl() {
   return root;
 }
 
-function buildPlannerShell(device, item) {
+function buildPlannerShell(item) {
   return `
     <section class="ws-planner-modal" role="dialog" aria-modal="true" aria-label="规划套件">
       <header class="ws-picker-head">
         <div class="wsp-head-text">
           <h3>规划套件</h3>
-          <p>${escapeHtml(item.name)} · ${escapeHtml(device.name)}</p>
+          <p>${escapeHtml(item.name)}</p>
         </div>
         <button class="ws-picker-close" data-planner-action="cancel" type="button" aria-label="关闭并保留草稿">×</button>
       </header>
@@ -74,33 +87,28 @@ function buildPlannerShell(device, item) {
 
 function patchDraftToolbar() {
   const planner = ui.activeKitPlanner;
-  const toolbar = document.querySelector("#ws-planner-root [data-planner-draft-toolbar]");
+  const toolbar = plannerRoot?.querySelector("[data-planner-draft-toolbar]");
   if (!planner || !toolbar) return;
   const status = plannerDraftStatus(planner.itemId);
-  const open = Boolean(toolbar.querySelector("details")?.open);
-  const time = (at) => new Date(at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
-  const saved = status.error || (status.pending ? "开工结果待确认，草稿已保留" : status.saved
-    ? `草稿已保存 · ${time(status.savedAt)}` : "修改后自动保存在当前浏览器");
+  const saved = status.error ? "保存失败" : status.pending ? "等待开工确认" : status.saved ? "已保存" : "自动保存";
   toolbar.innerHTML = `<div class="planner-draft-main">
     <div class="planner-draft-history" role="group" aria-label="规划历史">
       <button class="secondary small" type="button" data-draft-action="undo" ${status.canUndo ? "" : "disabled"} title="撤销 Ctrl+Z">撤销</button>
       <button class="secondary small" type="button" data-draft-action="redo" ${status.canRedo ? "" : "disabled"} title="重做 Ctrl+Shift+Z">重做</button>
     </div><span class="planner-draft-status${status.error ? " is-warning" : ""}" role="status" aria-live="polite">${escapeHtml(saved)}</span>
     ${status.error ? '<button class="secondary small" type="button" data-draft-action="retry">重试保存</button>' : ""}
-    ${status.confirmedDiffers ? `<button class="secondary small" type="button" data-draft-action="confirmed" ${status.locked ? "disabled" : ""}>恢复上次确认</button>` : ""}
-  </div>
-  ${status.restored ? '<p class="planner-draft-note">已恢复上次布局。撤销记录从本次打开页面开始。</p>' : ""}
-  ${status.alternatives.length ? `<details class="planner-draft-versions" ${open ? "open" : ""}><summary>另有 ${status.alternatives.length} 个草稿版本 · 各窗口独立保存</summary>
-    <div>${status.alternatives.map((version) => `<button class="secondary small" type="button" data-draft-action="version" data-draft-version="${escapeHtml(version.key)}" ${status.locked ? "disabled" : ""}>载入 ${time(version.savedAt)} · ${version.count} 件</button>`).join("")}</div></details>` : ""}
-  ${status.staleCount ? '<p class="planner-draft-note is-warning">材料或规则已变化，旧草稿副本已保留，本次请重新规划。</p>' : ""}
-  ${status.invalidCount ? '<p class="planner-draft-note is-warning">有无法读取的草稿，已跳过；当前规划仍可正常使用。</p>' : ""}
-  <p class="planner-draft-note">关闭会保留草稿；完成规划后仍需在工坊点击开工。</p>`;
-  const root = document.getElementById("ws-planner-root");
+  </div>`;
+  const root = plannerRoot;
   root?.classList.toggle("is-draft-pending", Boolean(status.locked));
   const revert = root?.querySelector('[data-draft-action="revert"]');
   const confirm = root?.querySelector('[data-planner-action="confirm"]');
   if (revert) revert.disabled = Boolean(status.locked);
-  if (confirm) confirm.disabled = Boolean(status.locked);
+  const item = workshopStageItems().find((entry) => entry.id === planner.itemId);
+  const validation = item ? openingPlanValidation(item) : { ok: false, message: "" };
+  if (confirm) {
+    confirm.disabled = Boolean(status.locked) || !validation.ok;
+    confirm.title = validation.message;
+  }
 }
 
 function workshopOpenPlanner(payload) {
@@ -123,7 +131,7 @@ function workshopOpenPlanner(payload) {
     originalKits: structuredClone(kitsFor(item.id))
   };
   const root = plannerRootEl();
-  root.innerHTML = buildPlannerShell(device, item);
+  root.innerHTML = buildPlannerShell(item);
   ui.plannerDraftSubscription?.();
   ui.plannerDraftSubscription = subscribePlannerDrafts((itemId) => {
     if (ui.activeKitPlanner?.itemId === itemId) patchDraftToolbar();
@@ -141,13 +149,13 @@ function workshopOpenPlanner(payload) {
 function workshopRefreshPlanner(roughId, options = {}) {
   if (!ui.activeKitPlanner || ui.activeKitPlanner.itemId !== roughId) return;
   const item = workshopStageItems().find((entry) => entry.id === roughId);
-  const body = document.querySelector("#ws-planner-root [data-planner-body]");
+  const body = plannerRoot?.querySelector("[data-planner-body]");
   if (!item) {
     ui.activeKitPlanner = null;
     ui.plannerDraftSubscription?.(); ui.plannerDraftSubscription = null;
     ui.plannerModalLifecycleCleanup?.();
     ui.plannerModalLifecycleCleanup = null;
-    document.getElementById("ws-planner-root")?.remove();
+    removePlannerRoot();
     return;
   }
   if (!body) return;
@@ -162,7 +170,7 @@ function workshopRefreshPlanner(roughId, options = {}) {
   const kits = kitsFor(roughId);
   // Socket snapshots also refresh this view. Keep the captured SVG mounted
   // throughout a drag, including those background refreshes.
-  if (options.dragging || activeDragKit?.roughId === roughId) {
+  if (options.dragging || opening.openingState.activeDragKit?.roughId === roughId) {
     const tools = body.querySelector(".ws-planner-tools");
     if (tools) patchPlannerBody(tools, `${roughPlannerControls(item)}${placementAnalysisRows(item, kits)}`);
     return;
@@ -181,13 +189,19 @@ function workshopClosePlanner(commit = false) {
   if (!ui.activeKitPlanner) {
     ui.plannerModalLifecycleCleanup?.();
     ui.plannerModalLifecycleCleanup = null;
-    document.getElementById("ws-planner-root")?.remove();
+    removePlannerRoot();
     return;
   }
   if (commit) {
     const draftKits = typeof kitsFor === "function" ? (kitsFor(ui.activeKitPlanner.itemId) || []) : [];
     if (!draftKits.length) {
       showToast("请先摆放至少一个套件。");
+      return;
+    }
+    const item = workshopStageItems().find((entry) => entry.id === ui.activeKitPlanner.itemId);
+    const validation = item && openingPlanValidation(item, draftKits);
+    if (!validation?.ok) {
+      showToast(validation?.message || "请重新选择石料。");
       return;
     }
     confirmPlannerDraft(ui.activeKitPlanner.itemId);
@@ -198,7 +212,7 @@ function workshopClosePlanner(commit = false) {
   ui.activeKitPlanner = null;
   ui.plannerModalLifecycleCleanup?.();
   ui.plannerModalLifecycleCleanup = null;
-  document.getElementById("ws-planner-root")?.remove();
+  removePlannerRoot();
   ui.lastWorkshopRenderFp = "";
   renderWorkshop();
   if (typeof renderInventory === "function") renderInventory();
@@ -213,7 +227,7 @@ function disposeWorkshopPlanner() {
   ui.activeKitPlanner = null;
   ui.plannerModalLifecycleCleanup?.();
   ui.plannerModalLifecycleCleanup = null;
-  document?.getElementById("ws-planner-root")?.remove();
+  removePlannerRoot();
   ui.lastWorkshopRenderFp = "";
 }
 

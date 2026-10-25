@@ -1,38 +1,16 @@
-// 黑市 shared：DI 闭包状态 + 共用小函数
-
 import {
   bmSellables as buildBmSellables
 } from "../../bm-plan-pool.js";
 import { featureAccess } from "../../player-progression.js";
 import {
-  BLACKMARKET_MIN_PRICE as BM_MIN_PRICE,
   BLACKMARKET_BLIND_MIN as BM_BLIND_MIN
 } from "../../bm-constants.js";
+import { BM_TYPE_META } from "./catalog.js";
 
-export const BM_TYPE_META = {
-  goods: { label: "卖物品", tone: "goods" },
-  blindbox: { label: "盲盒", tone: "blind" },
-  service: { label: "技术支持", tone: "service" }
-};
-export const BM_FILTERS = [
-  { id: "all", label: "全部" },
-  { id: "goods", label: "卖物品" },
-  { id: "jade", label: "玉料与成品" },
-  { id: "employee", label: "员工" },
-  { id: "equipment", label: "设备" },
-  { id: "blindbox", label: "盲盒" },
-  { id: "service", label: "技术支持" }
-];
+export function createBlackmarketSelectors({ document, ui, getState, helpers }) {
+  const { escapeHtml, showToast, kitsFor, roughKits, openingKitsForServer, openingKitFromStored, openingKitProductLabel } = helpers;
 
-export let socketRef = null;
-export let getState = () => null;
-export let elsRef = null;
-export let getActiveView = () => "overview";
-export let leaveLockedBlackmarket = null;
-export let formatMoney, escapeHtml, empty, showToast, openGameModal, closeGameModal, typeName, productCanvas, openingStoneSvg, jadeCanvasMarkup;
-export let kitsFor, roughKits, openingKitsForServer, openingKitFromStored, openingKitProductLabel;
-
-export function bmSellables() {
+function bmSellables() {
   return buildBmSellables(getState() || {}, {
     kitsFor,
     openingKitsForServer,
@@ -41,25 +19,25 @@ export function bmSellables() {
   });
 }
 
-export function clearBmPlanDrafts(parentIds = []) {
+function clearBmPlanDrafts(parentIds = []) {
   if (typeof roughKits?.delete !== "function") return;
   for (const id of parentIds) {
     if (id) roughKits.delete(id);
   }
 }
 
-export function bmFeatureGate(featureId) {
+function bmFeatureGate(featureId) {
   return featureAccess(getState()?.me, featureId);
 }
 
-export function guardBmFeature(featureId) {
+function guardBmFeature(featureId) {
   const access = bmFeatureGate(featureId);
   if (access.ok) return true;
   showToast?.({ text: access.message, tone: "warn" });
   return false;
 }
 
-export function syncBmFeatureChrome() {
+function syncBmFeatureChrome() {
   const buy = bmFeatureGate("bmBuy");
   const stall = bmFeatureGate("bmStall");
   const root = document.querySelector('section.view[data-view="blackmarket"]');
@@ -90,58 +68,11 @@ export function syncBmFeatureChrome() {
   }
 }
 
-export const bmUi = {
-  section: "plaza", // plaza | mine | detail
-  typeFilter: "all",
-  search: "",
-  sort: "latest",
-  detailStallId: null,
-  buyStallId: null,
-  buyListingId: null,
-  buyPrice: null,
-  openType: "goods",
-  openTitle: "",
-  openBlurb: "",
-  openAnonymous: false,
-  goodsPrice: BM_MIN_PRICE,
-  goodsSelectedIds: new Set(),
-  goodsPriceById: new Map(),
-  goodsFocusId: null,
-  goodsSubmitting: false,
-  goodsPendingIds: new Set(),
-  pendingWithdrawId: null,
-  blindSelected: new Set(),
-  blindFocusId: null,
-  blindSubmitting: false,
-  blindPriceTouched: false,
-  blindManageFocusId: null,
-  blindManageTab: "pool",
-  blindWithdrawing: false,
-  blindDraw: null, // { stallId, drawId, price, extras, candidates, selectedIds:Set, phase }
-  blindDrawTimer: null,
-  suppressBlindDrawResume: false,
-  serviceTitle: "",
-  serviceDesc: "",
-  servicePrice: 100,
-  serviceEta: 30,
-  ratingStars: 5,
-  orderItemId: null,
-  orderItemType: null,
-  orderStallId: null,
-  orderOfferId: null,
-  orderNote: "",
-  orderFilter: "all",
-  pendingSetupType: null,
-  pendingAnonymous: null
-};
-export let bmFiltersBound = false;
-export let lastBlindSellableKey = "";
-
-export function bmStalls() {
+function bmStalls() {
   return getState()?.blackStalls || [];
 }
 
-export function bmPublishedStalls() {
+function bmPublishedStalls() {
   return bmStalls().filter((s) => {
     if (s.status === "setup") return false;
     if (s.type === "goods" && !(s.items || []).length) return false;
@@ -149,30 +80,30 @@ export function bmPublishedStalls() {
   });
 }
 
-export function bmMyStall() {
+function bmMyStall() {
   return bmStalls().find((s) => s.isMine) || null;
 }
 
-export function bmStallInSetup(stall = bmMyStall()) {
+function bmStallInSetup(stall = bmMyStall()) {
   return stall?.status === "setup";
 }
 
-export function bmSetupHint(type) {
+function bmSetupHint(type) {
   if (type === "goods") return "请上架至少一件物品，摊才会出现在广场。";
   if (type === "blindbox") return `请补货至少 ${BM_BLIND_MIN} 件，摊才会出现在广场。`;
   return "请添加至少一项服务，摊才会出现在广场。";
 }
 
-export function bmStallById(id) {
+function bmStallById(id) {
   return bmStalls().find((s) => s.id === id) || null;
 }
 
-export function bmClaimable() {
+function bmClaimable() {
   const rows = getState()?.me?.blackPayouts || [];
   return rows.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 }
 
-export function bmPendingRatings() {
+function bmPendingRatings() {
   const now = Date.now();
   return (getState()?.me?.pendingBmRatings || [])
     .filter((r) => Number(r.expiresAt || 0) > now)
@@ -180,7 +111,7 @@ export function bmPendingRatings() {
     .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 }
 
-export function bmPendingRatingLine(rating) {
+function bmPendingRatingLine(rating) {
   const item = String(rating?.itemName || rating?.itemLabel || "").trim();
   if (rating?.tradeKind === "service") {
     const material = String(rating?.inputItemName || "").trim();
@@ -193,7 +124,7 @@ export function bmPendingRatingLine(rating) {
   return item || "卖物品成交";
 }
 
-export function bmPendingRatingsSummary(pending = []) {
+function bmPendingRatingsSummary(pending = []) {
   const labels = pending.map(bmPendingRatingLine).filter(Boolean);
   if (!labels.length) return "";
   if (labels.length === 1) return labels[0];
@@ -201,26 +132,26 @@ export function bmPendingRatingsSummary(pending = []) {
   return `${labels[0]}、${labels[1]} 等${labels.length}笔`;
 }
 
-export function bmServiceOrders() {
+function bmServiceOrders() {
   return getState()?.blackServiceOrders || [];
 }
 
-export function bmAffordable(price) {
+function bmAffordable(price) {
   return Number(getState()?.me?.cash || 0) >= Number(price || 0);
 }
 
-export function starsHtml(n, max = 5) {
+function starsHtml(n, max = 5) {
   const rating = Math.max(0, Math.min(max, Math.round(Number(n) || 0)));
   let s = "";
   for (let i = 1; i <= max; i++) s += i <= rating ? "★" : '<span class="off">★</span>';
   return `<span class="mini-stars bm-stars">${s}</span>`;
 }
 
-export function satisfactionStars(sat) {
+function satisfactionStars(sat) {
   return Math.max(0, Math.min(5, Math.round((Number(sat) || 0) / 20)));
 }
 
-export function bmRatingPublicHtml(stall, { ownerView = false } = {}) {
+function bmRatingPublicHtml(stall, { ownerView = false } = {}) {
   const rd = stall.ratingDisplay;
   if (rd && !rd.visible) {
     const hint = ownerView
@@ -234,7 +165,7 @@ export function bmRatingPublicHtml(stall, { ownerView = false } = {}) {
   return `${starsHtml(stars)} <span class="bm-sat-num">${score}</span>${title}`;
 }
 
-export function bmRatingSortScore(stall) {
+function bmRatingSortScore(stall) {
   const rd = stall.ratingDisplay;
   if (rd && !rd.visible) return -1;
   const score = Number(rd?.score ?? stall.satisfaction ?? 0);
@@ -242,29 +173,17 @@ export function bmRatingSortScore(stall) {
   return score - penalty;
 }
 
-export function typeLabel(type) {
+function typeLabel(type) {
   return BM_TYPE_META[type]?.label || type || "摊位";
 }
 
-export function setBmFiltersBound(v) {
-  bmFiltersBound = v;
+function setBmFiltersBound(v) {
+  ui.bmFiltersBound = v;
 }
 
-export function setLastBlindSellableKey(v) {
-  lastBlindSellableKey = v;
+function setLastBlindSellableKey(v) {
+  ui.lastBlindSellableKey = v;
 }
 
-export function bindBlackmarketDeps(deps) {
-  socketRef = deps.socket;
-  getState = deps.getState;
-  elsRef = deps.els;
-  getActiveView = deps.getActiveView;
-  leaveLockedBlackmarket = typeof deps.leaveLockedBlackmarket === "function"
-    ? deps.leaveLockedBlackmarket
-    : null;
-  ({
-    formatMoney, escapeHtml, empty, showToast, openGameModal, closeGameModal, typeName,
-    productCanvas, openingStoneSvg, jadeCanvasMarkup,
-    kitsFor, roughKits, openingKitsForServer, openingKitFromStored, openingKitProductLabel
-  } = deps.helpers);
+  return { bmSellables, clearBmPlanDrafts, bmFeatureGate, guardBmFeature, syncBmFeatureChrome, bmStalls, bmPublishedStalls, bmMyStall, bmStallInSetup, bmSetupHint, bmStallById, bmClaimable, bmPendingRatings, bmPendingRatingLine, bmPendingRatingsSummary, bmServiceOrders, bmAffordable, starsHtml, satisfactionStars, bmRatingPublicHtml, bmRatingSortScore, typeLabel, setBmFiltersBound, setLastBlindSellableKey };
 }

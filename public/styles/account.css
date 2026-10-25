@@ -75,6 +75,13 @@
   font-size: 14px;
 }
 
+.account-rename-form {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
 .account-form input {
   min-height: 44px;
   width: 100%;

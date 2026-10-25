@@ -1,9 +1,12 @@
 import { inventoryItemDetailHtml } from "../inventory/item-detail-view.js";
 import { inventoryDetailStats } from "../inventory/item-detail-model.js";
 import { workerJobLabel } from "../../worker-detail-view.js";
-import { blackmarketResourceCard } from "./goods-display.js";
+
+export function createBlackmarketItemDetailView({ ports }) {
+  const { blackmarketResourceCard } = ports;
 
 const CATEGORY_LABELS = { rough: "原石", stage: "阶段产物", finished: "成品", external: "镶嵌材料" };
+
 const STAGE_LABELS = { rough: "暗料原石", opened: "明料", material: "明料", planned: "规划产物", carved: "精雕毛坯", polished: "抛光半成品", finished: "最终成品" };
 
 function resourceStats(row) {
@@ -22,7 +25,7 @@ function resourceStats(row) {
   return fields;
 }
 
-export function blackmarketItemDetailHtml(row, { previewHtml, stats = [], lines = [] } = {}) {
+function blackmarketItemDetailHtml(row, { previewHtml, stats = [], lines = [] } = {}) {
   const item = row.item || {};
   const resource = row.type === "employee" || row.type === "equipment";
   const stage = item.materialStage || item.stage || (row.type === "rough" ? item.revealed || item.polished ? "opened" : "rough"
@@ -51,4 +54,7 @@ export function blackmarketItemDetailHtml(row, { previewHtml, stats = [], lines 
     lines: resource && item.specs ? lines.filter((line) => line !== item.specs) : lines,
     ...(resource ? { analysis: null, detailKind: row.type, detailTitle: row.type === "equipment" ? "设备详情" : "员工详情" } : {})
   });
+}
+
+  return { blackmarketItemDetailHtml };
 }

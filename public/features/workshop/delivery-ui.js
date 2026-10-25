@@ -3,12 +3,12 @@ import { createMutationRequestId } from "../../shell/mutation-socket.js";
 import { inlaySummary } from "../../product-meta.js";
 import { scratchItemIds, pendingScratchItemIds } from "../../../shared/domain/workshop/delivery-scratch.js";
 import { createDeliveryScratchUi } from "./delivery-scratch-ui.js";
-import { createDeliveryDetailsUi } from "./delivery-details-ui.js";
+import { createDeliveryDetailsUi, openingResultHtml } from "./delivery-details-ui.js";
 import { createDeliverySpotlightUi } from "./delivery-spotlight-ui.js";
 
 const STAGES = { opening: "开料", carving: "规划取件", finishing: "精加工" };
 
-export function createWorkshopDeliveryUi({ socket, getState, els, registerAction, helpers }) {
+export function createWorkshopDeliveryUi({ socket, getState, els, registerAction, helpers, document = globalThis.document }) {
   const { escapeHtml: esc, productCanvas, openingStoneSvg, materialStageLabel, paintJades, showToast } = helpers;
   let active = null;
   const reducedMotion = () => globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -95,6 +95,8 @@ export function createWorkshopDeliveryUi({ socket, getState, els, registerAction
     session.q("[data-delivery-skip]").hidden = true;
     session.q("[data-delivery-note]").textContent = "";
     session.spotlight.prepare();
+    const outcome = session.q("[data-opening-result]");
+    if (outcome) outcome.hidden = pendingScratchItemIds(session.delivery).length > 0;
     if (session.scratch) {
       updateScratchControls(session);
       session.scratch.enable(pendingScratchItemIds(session.delivery).length > 0);
@@ -122,6 +124,8 @@ export function createWorkshopDeliveryUi({ socket, getState, els, registerAction
   function updateScratchControls(session) {
     if (active !== session || session.phase !== "revealed" || !session.scratch) return;
     const pending = pendingScratchItemIds(session.delivery).length > 0;
+    const outcome = session.q("[data-opening-result]");
+    if (outcome) outcome.hidden = pending;
     session.q("[data-delivery-collect]").hidden = pending || session.spotlight.mode !== "dialog";
     const button = session.q("[data-delivery-reveal-all]");
     button.hidden = !pending;
@@ -262,6 +266,7 @@ export function createWorkshopDeliveryUi({ socket, getState, els, registerAction
       ? openingStoneSvg(item, { revealed: true, kits: [] }) : productCanvas(item, "finished");
     return `<article class="delivery-item${["S", "A"].includes(item.craftGrade) ? " is-excellent" : ""}${covered ? " is-scratch-covered" : scratch ? " is-scratch-ready" : ""}" data-delivery-item data-item-id="${esc(item.id)}" tabindex="-1">
       <div class="delivery-item-visual">${scratch ? `<div class="delivery-scratch-plane"><div class="delivery-scratch-source"${covered ? ' aria-hidden="true"' : ""}>${visual}</div>${covered ? '<canvas class="delivery-scratch-canvas" data-scratch-canvas role="img" aria-label="待揭晓片料，按住拖动刮开，或使用一键揭晓"></canvas>' : ""}</div>${covered ? '<span class="delivery-scratch-hint">按住拖动，刮开片料</span>' : ""}` : visual}</div>
+      ${covered && scratch ? `<div class="delivery-scratch-value" data-scratch-valuation><div><span>已揭露料值</span><strong data-scratch-value data-value="0">${helpers.formatMoney(0)}</strong></div><div><span data-scratch-value-progress>已揭露 0%</span><b data-scratch-value-delta>本笔 +${helpers.formatMoney(0)}</b></div><small>按已擦开的区域估值</small><span class="sr-only" role="status" aria-live="polite" data-scratch-value-status></span></div>` : ""}
       ${covered ? '<div class="delivery-scratch-placeholder"><b>待揭晓片料</b><span>片料 · ×1</span></div>' : ""}
       <div class="delivery-item-info"${covered ? " hidden" : ""}><b>${esc(item.name || "工坊产物")}</b>
       <span>${esc(materialStageLabel(item))}${item.craftGrade ? ` · ${esc(item.craftGrade)}` : ""} · ×1</span>
@@ -287,7 +292,7 @@ export function createWorkshopDeliveryUi({ socket, getState, els, registerAction
         <button type="button" class="delivery-casket" data-delivery-box data-modal-initial-focus aria-label="打开锦匣，揭晓本次加工产物"><span class="delivery-casket-shadow"></span><span class="delivery-casket-visual"><span class="delivery-casket-base"></span><span class="delivery-casket-inside"></span><span class="delivery-casket-lid"><span class="delivery-casket-rule"></span><span class="delivery-casket-seal">玉</span></span><span class="delivery-casket-latch"></span></span></button>
         <p class="delivery-prompt" data-delivery-prompt>点击锦匣 · 揭晓新作</p>
         <div class="delivery-results${delivery.items.length <= 1 ? " is-single" : ""}" data-delivery-results hidden>${delivery.items.map((item) => itemMarkup(item, coveredIds.has(item.id), scratchIds.includes(item.id))).join("")}${!delivery.items.length ? delivery.auxiliaryItems.map((item) => itemMarkup(item)).join("") : ""}</div>
-      </div><aside class="delivery-reveal-summary" data-delivery-summary hidden></aside>${delivery.auxiliaryItems.length ? `<p class="delivery-offcuts">另有余料：${delivery.auxiliaryItems.map((item) => `<button type="button" data-delivery-detail="${esc(item.id)}">${esc(item.name)}</button>`).join("、")}，随本批一同入包</p>` : ""}</div>
+      </div><aside class="delivery-reveal-summary" data-delivery-summary hidden></aside>${delivery.stage === "opening" && delivery.items[0] ? `<div data-opening-result hidden>${openingResultHtml(delivery.items[0], helpers)}</div>` : ""}${delivery.auxiliaryItems.length ? `<p class="delivery-offcuts">另有余料：${delivery.auxiliaryItems.map((item) => `<button type="button" data-delivery-detail="${esc(item.id)}">${esc(item.name)}</button>`).join("、")}，随本批一同入包</p>` : ""}</div>
       <footer class="delivery-footer"><p data-delivery-note role="status" aria-live="polite">本次加工已完成 · 共 ${delivery.items.length} 件产物</p><button type="button" class="delivery-collect" data-delivery-collect hidden>收入背包${delivery.items.length ? `（${delivery.items.length}件${delivery.auxiliaryItems.length ? "及余料" : ""}）` : "（余料）"}</button>${scratchIds.length ? '<button type="button" class="delivery-collect" data-delivery-reveal-all hidden>一键揭晓</button>' : ""}<button type="button" class="delivery-skip" data-delivery-skip hidden>跳过动画</button>
       <button type="button" class="delivery-collect delivery-return" data-delivery-return hidden>点击任意位置，返回领取弹窗</button></footer></section>`;
     document.body.append(root);

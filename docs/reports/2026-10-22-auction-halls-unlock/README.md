@@ -27,9 +27,11 @@
 
 浏览器按 game-playtest 技能在独立 3017 测试服验收，使用与问题截图一致的 372 总经验（Lv.2、122/550），验证两个公盘同时可选、正常入场、刷新恢复入场状态、切换后不重复收费；浏览器错误日志为空。该测试服禁用持久化，未读取或写入玩家真实存档。
 
-- [Lv.2 两个公盘均可选择](lv2-halls.jpg)
-- [再次进入常规公盘，现金保持 ¥28,000](regular-entered.jpg)
+- [Lv.2 两个公盘均可选择](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-auction-halls-unlock/lv2-halls.jpg)
+- [再次进入常规公盘，现金保持 ¥28,000](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-auction-halls-unlock/regular-entered.jpg)
 
 ## 生效状态
 
 代码与独立测试服验收完成。原 3000 端口常驻进程需要重启后加载新代码。此前自动审批拒绝了停止并重启该服务进程的操作，原因仅返回 `blocked by policy`；本次没有将测试服验收表述为常驻服务已生效。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-auction-halls-unlock)。

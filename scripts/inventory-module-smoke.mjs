@@ -2,6 +2,8 @@ import { readWorkshopSource } from "./load-workshop-source.mjs";
 import assert from "node:assert/strict";
 import { readClientShellSource } from "./load-client-shell.mjs";
 import { readFile } from "node:fs/promises";
+import { inventoryPreviewHtml } from "../public/inventory-preview.js";
+import { finishedProductCardContent } from "../public/finished-product-card-view.js";
 import {
   buildInventoryItems,
   countInventoryUnseen,
@@ -42,6 +44,13 @@ const state = {
 };
 const helpers = { materialStageForClient: stageFor, materialStageLabel: stageLabel, typeName };
 const items = buildInventoryItems(state, helpers);
+const previewProduct = items.find(item => item.id === "f1");
+const previewRenderer = (item, size) => `<svg data-product="${item.id}" data-size="${size}"></svg>`;
+const independentPreview = inventoryPreviewHtml(previewProduct, { eager: true, renderProduct: previewRenderer });
+assert.equal(independentPreview, previewRenderer(previewProduct.item, "inventory"), "previews render before inventory initialization");
+assert.match(finishedProductCardContent(state.me.bracelets.at(-1), {
+  escapeHtml: String, formatMoney: String, renderProduct: previewRenderer
+}), /data-product="f1"/, "shared product cards use the caller's renderer before inventory initialization");
 
 assert.deepEqual(items.map((item) => item.id), ["r1", "m1", "s1", "c1", "p1", "f1", "external:gold18k", "external:ruby"]);
 assert.equal(items.find((item) => item.id === "external:gold18k").totalValue, 1900);
@@ -56,13 +65,14 @@ const plannedHelpers = {
   openingKitProductLabel: () => "佛公"
 };
 const plannedItems = buildInventoryItems(state, plannedHelpers);
-const planned = plannedItems.find((item) => item.id === "planned:m1:kit-a");
-assert.ok(planned, "planned kit should appear as inventory stage product");
+const planned = plannedItems.find((item) => item.id === "m1");
+assert.deepEqual(plannedItems.map((item) => item.id), items.map((item) => item.id), "planning keeps only physical inventory items");
 assert.equal(planned.category, "stage");
-assert.equal(planned.stageLabel, "规划产物");
-assert.equal(planned.isPlanned, true);
-assert.equal(planned.plannedParentId, "m1");
-assert.ok(plannedItems.findIndex((item) => item.id === "planned:m1:kit-a") > plannedItems.findIndex((item) => item.id === "m1"));
+assert.equal(planned.stageLabel, "明料");
+assert.deepEqual(plannedItems, items, "planning does not change inventory state");
+assert.equal(planned.item, state.me.materials[0]);
+assert.deepEqual(summarizeInventory(plannedItems), summarizeInventory(items), "planned kits do not inflate inventory counts");
+assert.equal(plannedItems.reduce((total, item) => total + item.totalValue, 0), items.reduce((total, item) => total + item.totalValue, 0), "planned kits do not duplicate the material value");
 
 const escrowState = {
   ...state,
@@ -437,6 +447,9 @@ renderInventory();
 assert.equal(inventoryWarning.hidden, false);
 assert.match(inventoryWarning.innerHTML, /材料目录未加载完整/);
 assert.equal(inventoryPanel.innerHTMLWrites, firstPanelWriteCount);
+
+assert.equal(inventoryPreviewHtml(previewProduct, { eager: true, renderProduct: previewRenderer }), independentPreview,
+  "inventory initialization and redraws cannot redirect an independent preview");
 
 const mainEntry = await readFile(new URL("../public/main.js", import.meta.url), "utf8");
 const main = readClientShellSource();

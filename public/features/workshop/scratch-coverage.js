@@ -23,7 +23,7 @@ export class ScratchCoverage {
 
   get ratio() { return this.total ? this.count / this.total : 0; }
 
-  erase(from, to, radius = SCRATCH_BRUSH_RADIUS) {
+  erase(from, to, radius = SCRATCH_BRUSH_RADIUS, onErase = null) {
     const size = this.size;
     const ax = from.x * size, ay = from.y * size, bx = to.x * size, by = to.y * size;
     const r = radius * size, dx = bx - ax, dy = by - ay, length2 = dx * dx + dy * dy;
@@ -38,6 +38,7 @@ export class ScratchCoverage {
       if ((x + .5 - ax - t * dx) ** 2 + (y + .5 - ay - t * dy) ** 2 <= r * r) {
         this.erased[i] = 1;
         this.count++;
+        onErase?.(i);
       }
     }
     return this.ratio;

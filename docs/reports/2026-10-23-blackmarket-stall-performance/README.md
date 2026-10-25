@@ -32,5 +32,7 @@
 
 这是前端修改，刷新页面生效，不需要重启常驻 3000 服务。
 
-![实际夜间货架](stall-night.png)
-![购买后昼间货架](stall-day.png)
+![实际夜间货架](https://raw.githubusercontent.com/lalaxs/jadeite/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-stall-performance/stall-night.png)
+![购买后昼间货架](https://raw.githubusercontent.com/lalaxs/jadeite/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-stall-performance/stall-day.png)
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-stall-performance)。

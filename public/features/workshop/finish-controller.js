@@ -9,7 +9,6 @@ import { workerProcessingFee } from "../../worker-economy.js";
 import { buildFinishPreviewProduct } from "../../inlay-preview-tester.js";
 import { openMaterialBuyModal } from "../../shop-module.js";
 import { finishItemShape } from "./catalog.js";
-import { publicStationFee } from "../../../shared/domain/economy/public-workstations.js";
 import { equipmentRepairRate } from "../../../shared/domain/economy/equipment-maintenance.js";
 
 export function createWorkshopFinish({ ui, getState, document, helpers, ports }) {
@@ -44,11 +43,13 @@ function updateFinishPlanFromControl(event) {
   ui.finishPlanController.refresh();
 }
 
+let finishRoot = null;
 function finishRootEl() {
-  let root = document.getElementById("finish-plan-root");
-  if (root) return root;
+  let root = finishRoot;
+  if (root?.isConnected) return root;
   root = document.createElement("div");
   root.id = "finish-plan-root";
+  finishRoot = root;
   root.className = "modal-root";
   root.addEventListener("click", (event) => {
     const actionTarget = event.target.closest("[data-finish-action]");
@@ -122,7 +123,7 @@ function mountFinishPlanShell() {
         <div class="finish-plan-summary">
           <div><span>预计增值</span><strong class="pos" data-finish-summary="value"></strong></div>
           <div><span>辅材参考成本</span><strong data-finish-summary="materials"></strong></div>
-          <div><span>工位与维护</span><strong data-finish-summary="operating"></strong></div>
+          <div><span>设备维护</span><strong data-finish-summary="operating"></strong></div>
           <div><span>扣成本后新增货值</span><strong data-finish-summary="margin"></strong></div>
           <p class="finish-cost-note">以上为估值参考，实际售价受客户需求与销售折价影响。</p>
         </div>
@@ -156,7 +157,7 @@ function mountFinishPlanShell() {
 
 function patchFinishPlanModal() {
   if (!ui.activeFinishPlanModal) return;
-  const root = document.getElementById("finish-plan-root");
+  const root = finishRoot;
   const item = workshopStageItems().find((entry) => entry.id === ui.activeFinishPlanModal.itemId);
   if (!root || !item) return closeFinishPlanModal();
   preserveFinishPlanUiState(root, () => patchFinishPlanModalFields(root, item));
@@ -168,10 +169,9 @@ function patchFinishPlanModalFields(root, item) {
   const worker = workshopWorkers()
     .find((entry) => entry.id === ui.activeFinishPlanModal.workerId);
   const device = workshopDevices().find((entry) => entry.id === ui.activeFinishPlanModal.deviceId);
-  const stationFee = publicStationFee(device, item, getState().me.id);
   const risk = Number(device?.attrs?.risk ?? 1);
   const wear = Math.max(1, Math.min(3, Math.round(1 + Math.max(0, risk - 1) * 5)));
-  const upkeep = device?.publicStation ? 0 : Math.ceil(Number(device?.basePrice || 0) * wear / 100 * equipmentRepairRate(device));
+  const upkeep = Math.ceil(Number(device?.basePrice || 0) * wear / 100 * equipmentRepairRate(device));
   const workerFee = workerProcessingFee(worker, 0, {
     stage: "finishing",
     itemValue: item.value ?? item.price
@@ -188,15 +188,11 @@ function patchFinishPlanModalFields(root, item) {
     itemValue: item.value ?? item.price,
     item
   });
-  if (Number(getState().me.cash || 0) < stationFee) {
-    validation.canStart = false;
-    validation.reasons.push(`公共工位费需 ${formatMoney(stationFee)}，当前现金不足。`);
-  }
   ui.activeFinishPlanModal.canStart = validation.canStart;
   if (shape === "bangle") {
     patchBangleFinishUi(root, { item, draft, worker, device, durationMs: workshopDurationMs(device, worker),
       formatMoney, formatDuration, escapeHtml, error: ui.activeFinishPlanModal.error || validation.reasons.join("；"),
-      canStart: validation.canStart, submitting: ui.activeFinishPlanModal.submitting, stationFee, upkeep });
+      canStart: validation.canStart, submitting: ui.activeFinishPlanModal.submitting, upkeep });
     return;
   }
 
@@ -270,8 +266,8 @@ function patchFinishPlanModalFields(root, item) {
   root.querySelector('[data-finish-summary="value"]').textContent =
     `+${formatMoney(validation.quote?.valueBonus || 0)}`;
   root.querySelector('[data-finish-summary="materials"]').textContent = formatMoney(validation.quote?.materialCost || 0);
-  root.querySelector('[data-finish-summary="operating"]').textContent = formatMoney(stationFee + upkeep);
-  const margin = Number(validation.quote?.valueBonus || 0) - Number(validation.quote?.materialCost || 0) - stationFee - upkeep;
+  root.querySelector('[data-finish-summary="operating"]').textContent = formatMoney(upkeep);
+  const margin = Number(validation.quote?.valueBonus || 0) - Number(validation.quote?.materialCost || 0) - upkeep;
   const marginEl = root.querySelector('[data-finish-summary="margin"]');
   marginEl.textContent = `${margin >= 0 ? "+" : "−"}${formatMoney(Math.abs(margin))}`;
   marginEl.classList.toggle("neg", margin < 0);

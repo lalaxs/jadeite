@@ -17,7 +17,7 @@
 
 [浏览器流程](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/browser-flow.json)通过，`pageErrors=[]`。使用测试时长、真实生产与交易处理器完成：12,000开局 → 手动领取180 → 加工并出售赠料 → 补货 → 花3,200买首台机器 → 店主实际使用自有机器开料；购机后下一单净收入由180升至212。目录内01—10及07a截图保留了公共工位、领取、规划、精加工成本、出售、补货、自有设备、购买风险说明及移动端界面；截图上的秒级倒计时仅为加速QA时钟，运行服务为正常时长。
 
-[成长模拟说明](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/simulation-notes.md)及[完整数据](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/simulation.json)：正常加工时长、虚拟时钟，10,000账户×14日，四组各2,500账户；调用真实经营函数，并计入操作间隔、采购与工资，未用赠料出售、任务奖金或借款补收益。
+[成长模拟说明](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/simulation-notes.md)及[完整数据](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-economy-implementation/simulation.json)：正常加工时长、虚拟时钟，10,000账户×14日，四组各2,500账户；调用真实经营函数，并计入操作间隔、采购与工资，未用赠料出售、任务奖金或借款补收益。
 
 | 组别 | 每日计划经营 | 日经营净利P10 | 首套旧机且余4,000：有效小时中位 |
 |---|---:|---:|---:|
@@ -46,3 +46,5 @@ node scripts/economy-overhaul-browser.mjs
 2026-10-23 18:10（北京时间）通过服务既有SIGTERM处理器排空交易、保存存档并正常退出，再以原环境配置重启3000端口服务。[激活记录](C:/Users/ZhuanZ/Desktop/yeyou/jade-market-prototype/docs/reports/2026-10-23-economy-implementation/activation.json)包含备份摘要、兼容性检查及重启前后资产编号摘要。106个现有角色、318台机器、424名员工编号全部保留；没有重置账号。完整存档备份位于被Git忽略的`data/backups/`，报告只记录摘要。
 
 重启后已在运行服务内以不入世界的临时角色验证：现金12,000、自有设备0、付薪员工0、公共工位3、店主可操作、来料净报酬160／180／200；保持正常时钟与原JSON持久化配置。刷新游戏页面即可加载新界面，新开局规则对新角色生效。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-economy-implementation)。

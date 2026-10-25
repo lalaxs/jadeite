@@ -1,2 +1,0 @@
-account-http-e2e: guest bind + password login + HttpOnly cookie resume + live revocation + public-id denial + relogin ok
-production-readiness-smoke: origin + headers + debug lock + graceful shutdown ok

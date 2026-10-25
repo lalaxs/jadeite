@@ -10,8 +10,10 @@
 
 浏览器确认金色、银色空底座以及 60 颗钻石的微镶状态；同时检查佛公包镶与蛋面微镶的共用渲染。
 
-- [修复前](before-desktop.jpg)
-- [金色空底座](after-no-gems-desktop.jpg)
-- [空底座细节](after-no-gems-detail.jpg)
-- [银色空底座](after-no-gems-platinum.jpg)
-- [60 颗钻石](after-diamond-desktop.jpg)
+- [修复前](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge/before-desktop.jpg)
+- [金色空底座](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge/after-no-gems-desktop.jpg)
+- [空底座细节](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge/after-no-gems-detail.jpg)
+- [银色空底座](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge/after-no-gems-platinum.jpg)
+- [60 颗钻石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge/after-diamond-desktop.jpg)
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-22-buddha-mount-edge)。

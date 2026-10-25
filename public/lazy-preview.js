@@ -8,7 +8,6 @@ import {
 } from "./preview-bitmap-cache.js";
 
 const HYDRATED = "1";
-let observer = null;
 
 function escapeAttr(value) {
   return String(value || "")
@@ -18,10 +17,9 @@ function escapeAttr(value) {
     .replaceAll(">", "&gt;");
 }
 
-function ensureObserver() {
-  if (observer) return observer;
+function createObserver() {
   if (typeof IntersectionObserver === "undefined") return null;
-  observer = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       hydrateLazyPreview(entry.target);
@@ -34,6 +32,25 @@ function ensureObserver() {
   });
   return observer;
 }
+
+export function createLazyPreviewObserver() {
+  let observer = null;
+  return {
+    observe(root = document) {
+      if (!root?.querySelectorAll) return 0;
+      const nodes = [...root.querySelectorAll("[data-lazy-preview].is-pending")];
+      if (!nodes.length) return 0;
+      observer ||= createObserver();
+      if (observer) nodes.forEach(node => observer.observe(node));
+      else nodes.forEach(node => hydrateLazyPreview(node));
+      return nodes.length;
+    },
+    unobserve(node) { observer?.unobserve(node); },
+    disconnect() { observer?.disconnect(); observer = null; }
+  };
+}
+
+const defaultObserver = createLazyPreviewObserver();
 
 /** 把重预览包进懒加载壳；有位图缓存时直接出图；eager 时原样返回。 */
 export function lazyPreviewMarkup(innerHtml, options = {}) {
@@ -94,16 +111,7 @@ export function hydrateLazyPreview(node) {
 
 /** 观察 root 内尚未 hydrate 的懒预览；无 IO 时立即全部展开。 */
 export function observeLazyPreviews(root = document) {
-  if (!root?.querySelectorAll) return 0;
-  const nodes = [...root.querySelectorAll("[data-lazy-preview].is-pending")];
-  if (!nodes.length) return 0;
-  const obs = ensureObserver();
-  if (!obs) {
-    nodes.forEach((node) => hydrateLazyPreview(node));
-    return nodes.length;
-  }
-  nodes.forEach((node) => obs.observe(node));
-  return nodes.length;
+  return defaultObserver.observe(root);
 }
 
 /** 强制 hydrate（选中态、开窗中等必须立刻可见的场景）。 */
@@ -111,7 +119,7 @@ export function hydrateLazyPreviewsNow(root = document) {
   if (!root?.querySelectorAll) return 0;
   const nodes = [...root.querySelectorAll("[data-lazy-preview].is-pending")];
   nodes.forEach((node) => {
-    ensureObserver()?.unobserve(node);
+    defaultObserver.unobserve(node);
     hydrateLazyPreview(node);
   });
   return nodes.length;

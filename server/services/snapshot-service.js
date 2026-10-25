@@ -6,7 +6,6 @@ import { customerRatingTierInfo } from "../../shared/domain/economy/metric-histo
 import { publicAuctionRounds } from "./auction-rounds.js";
 import { systemDemandSnapshot } from "../../shared/domain/economy/system-demand.js";
 import { operatingReserveFor } from "../../shared/domain/economy/operating-reserve.js";
-import { publicWorkshopStations } from "../../shared/domain/economy/public-workstations.js";
 import {
   publicAuctionSnapshot,
   publicAuctionHistoryEntry
@@ -111,7 +110,6 @@ export function createSnapshotService(deps) {
       ...(typeof commissionSnapshotForPlayer === "function" ? { commissions: commissionSnapshotForPlayer(player, now) } : {}),
       workshop: {
         ...player.workshop,
-        publicStations: publicWorkshopStations(),
         ...(player.workshop.owner ? { owner: { ...player.workshop.owner,
           busy: isWorkerBusy(player, player.workshop.owner.id) || Boolean(player.commissions?.active) } } : {}),
         devices: player.workshop.devices.map(({ tradeHistory, ...device }) => device),
@@ -171,6 +169,7 @@ export function createSnapshotService(deps) {
         auction: TIMING.auction
       },
       roughPool: state.roughPool.map(publicStone),
+      equipmentShop: structuredClone(state.equipmentShop || null),
       listings: state.listings.map(publicListing),
       livestreamRooms: [...state.players.values()]
         .map((owner) => publicLivestreamRoom(owner, {

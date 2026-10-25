@@ -4,7 +4,7 @@ import {
 } from "../public/features/opening/planner-draft-store.js";
 import {
   bindPlannerDraftDeps, ensurePlannerDraft, replacePlannerDraft, beginPlannerDraftGesture,
-  finishPlannerDraftGesture, undoPlannerDraft, confirmPlannerDraft, restoreConfirmedPlannerDraft,
+  finishPlannerDraftGesture, undoPlannerDraft, confirmPlannerDraft,
   plannerDraftStatus, beginPlannerSubmission, settlePlannerSubmission, reconcilePlannerDrafts,
   resetPlannerDraftRuntime, loadPlannerDraftVersion
 } from "../public/features/opening/planner-drafts.js";
@@ -46,13 +46,11 @@ assert.equal(roughKits.get(material.id)[0].x, 360);
 confirmPlannerDraft(material.id);
 replacePlannerDraft(material.id, [piece("one", 400)]);
 
-// Reload restores the exact latest layout and separately retains the last confirmation.
+// Reload restores the latest layout; subsequent edits remain undoable.
 boot("after-reload");
 assert.equal(roughKits.get(material.id)[0].x, 400);
 assert.equal(plannerDraftStatus(material.id).canUndo, false, "undo history starts afresh after a page reload");
-assert.equal(plannerDraftStatus(material.id).confirmedDiffers, true);
-assert.ok(restoreConfirmedPlannerDraft(material.id));
-assert.equal(roughKits.get(material.id)[0].x, 360);
+replacePlannerDraft(material.id, [piece("one", 360)]);
 assert.ok(undoPlannerDraft(material.id));
 assert.equal(roughKits.get(material.id)[0].x, 400);
 replacePlannerDraft(material.id, [piece("one", 410)]);
@@ -136,7 +134,6 @@ try {
   assert.equal(undoPlannerDraft(material.id, true), false);
   assert.equal(beginPlannerDraftGesture(material.id), false);
   assert.equal(confirmPlannerDraft(material.id), false);
-  assert.equal(restoreConfirmedPlannerDraft(material.id), false);
   assert.equal(loadPlannerDraftVersion(material.id, otherVersion.key), false);
   assert.deepEqual(roughKits.get(material.id), frozen);
   ui.selectedWorkshopWorkerId = "different-worker-after-timeout";

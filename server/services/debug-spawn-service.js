@@ -1,3 +1,4 @@
+import { initializeInventory } from "./inventory-items.js";
 /**
  * Dev-only helpers: spawn varied finished products into inventory.
  */
@@ -256,7 +257,7 @@ function materializeFinishedProduct(spec, rng = Math.random) {
  */
 export function spawnDebugFinishedProducts(player, { count = 50, rng = Math.random } = {}) {
   if (!player) return { ok: false, message: "未找到玩家。", items: [] };
-  player.bracelets ||= [];
+  initializeInventory(player, "bracelet");
   const target = Math.max(1, Math.min(200, Math.floor(Number(count) || 50)));
   const candidates = shuffle(buildCandidateSpecs(rng), rng);
   const seen = new Set();

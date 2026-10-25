@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createCommissionService } from '../server/services/commission-service.js';
 import { claimWorkshopOutputs } from './workshop-test-utils.mjs';
+import { installOwnedWorkshopFixture } from './fixtures/owned-workshop.mjs';
 process.env.JADE_WORLD_PERSIST = '0';
 const { __testHooks: H } = await import('../server.js');
 let now = Date.parse('2026-10-23T04:00:00Z');
@@ -17,13 +18,17 @@ try {
   now = job.commission.readyAt + 1;
   assert.equal(commissions.claimCommissionForPlayer(p, { commissionId: job.commission.id }, now).ok, true);
   assert.ok(p.onboarding.firstSaleAt, 'paid labor counts as genuine business activity');
+  installOwnedWorkshopFixture(p);
+  p.workshop.workers = [];
+  H.normalizePlayer(p);
   const roughId = p.rough[0].id;
   for (const stage of ['opening', 'carving', 'finishing']) {
     const payload = stage === 'opening' ? { itemId: roughId }
       : stage === 'carving' ? { itemId: roughId, kits: [{ type: 'peacePendant', x: 50, y: 50, rot: 0, size: 'M' }] }
         : { itemId: p.bracelets[0].id, finishPlan: { productType: 'pendant', settingId: 'cord', metalId: null, gemId: null,
           gemCount: 0, polishId: 'bright', backingId: null } };
-    const started = H.startWorkshopJobForPlayer(p, `public-${stage}`, payload);
+    const device = p.workshop.devices.find((row) => row.stage === stage);
+    const started = H.startWorkshopJobForPlayer(p, device.id, payload);
     assert.equal(started.ok, true, started.message);
     now = started.job.readyAt + 1;
     p.jobs = p.jobs.filter(row => row.id !== started.job.id);

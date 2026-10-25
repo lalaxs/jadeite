@@ -1,3 +1,4 @@
+import { initializeInventory, takeInventoryItem, restoreInventoryItem } from "./inventory-items.js";
 /**
  * 藏宝阁：成品入库冻结 / 放回仓库解冻。
  * 从 socket-handlers 剥离，handlers 只做 requestId + toast/broadcast。
@@ -31,7 +32,7 @@ export function createCollectionService(deps) {
 
   function collectBraceletForPlayer(player, braceletId) {
     if (!player) return { ok: false, message: "玩家状态不可用。" };
-    player.collection = Array.isArray(player.collection) ? player.collection : [];
+    initializeInventory(player, "collection");
     if (player.collection.length >= MAX_COLLECTION_SIZE) {
       return {
         ok: false,
@@ -63,7 +64,7 @@ export function createCollectionService(deps) {
         ? Math.max(0, Math.round(Number(bracelet.collectRepGrantedAmount) || 0))
         : repGain
     };
-    player.collection.push(stored);
+    restoreInventoryItem(player, "collection", stored);
     if (!alreadyGranted) {
       player.stats ||= {};
       player.stats.collectionUniqueCount = Math.max(0, Math.round(Number(player.stats.collectionUniqueCount) || 0)) + 1;
@@ -115,12 +116,8 @@ export function createCollectionService(deps) {
     if (!id) {
       return { ok: false, message: "缺少藏品编号。" };
     }
-    player.collection = Array.isArray(player.collection) ? player.collection : [];
-    const index = player.collection.findIndex((item) => String(item?.id) === id);
-    if (index < 0) {
-      return { ok: false, message: "藏宝阁中找不到这件藏品。" };
-    }
-    const [item] = player.collection.splice(index, 1);
+    initializeInventory(player, "collection");
+    const item = takeInventoryItem(player, "collection", id);
     if (!item) {
       return { ok: false, message: "藏宝阁中找不到这件藏品。" };
     }
@@ -130,8 +127,7 @@ export function createCollectionService(deps) {
     try {
       restoreWorkshopItem(player, item);
     } catch (_) {
-      player.bracelets = Array.isArray(player.bracelets) ? player.bracelets : [];
-      player.bracelets.push(item);
+      restoreInventoryItem(player, "bracelet", item);
     }
     const toast = `${item.name || "藏品"} 已放回仓库，可继续交易或加工。`;
     return { ok: true, message: toast, toast, item };

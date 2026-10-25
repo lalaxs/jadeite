@@ -32,12 +32,12 @@
 
 截图：
 
-- [桌面黑市广场](plaza-desktop.png)
-- [桌面设备摊](equipment-desktop.png)
-- [手机设备确认](equipment-confirm-mobile.png)
-- [手机设备摊](equipment-mobile.png)
+- [桌面黑市广场](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/plaza-desktop.png)
+- [桌面设备摊](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/equipment-desktop.png)
+- [手机设备确认](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/equipment-confirm-mobile.png)
+- [手机设备摊](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/equipment-mobile.png)
 
-回归输出见 [regression.log](regression.log)。后端修改需重启原有服务后加载；验收使用独立端口及临时数据库，没有改动玩家正式存档。
+回归输出见 [regression.log](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/regression.log)。后端修改需重启原有服务后加载；验收使用独立端口及临时数据库，没有改动玩家正式存档。
 
 ## 成品标签与毛坯预览不一致的修复
 
@@ -49,10 +49,10 @@
 
 新增 `scripts/blackmarket-npc-finish-smoke.mjs` 验证七种题材的真实成品渲染、毛坯分流、取样坐标、旧货架与已购商品兼容。NPC 交易/重启、玉件一致性、镶嵌、市场卡片、库存及玩家服务测试均通过。
 
-- [修复后的成品货架](finished-after.png)
-- [修复后的佛公购买预览](finished-buddha-after.png)
-- [购买后库存中的相同成品](finished-inventory-after.png)
-- [修复后的完整回归输出](finished-regression.log)
+- [修复后的成品货架](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/finished-after.png)
+- [修复后的佛公购买预览](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/finished-buddha-after.png)
+- [购买后库存中的相同成品](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/finished-inventory-after.png)
+- [修复后的完整回归输出](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/finished-regression.log)
 
 此次完整回归为 87 组中 85 组通过。两条既有断言为：`server-idle-smoke.mjs:496` 的配石数量旧规则，以及 `simplified-flow-smoke.mjs:529` 仅接受 `visual: rough.visual`、不接受当前工坊 `visual: structuredClone(rough.visual || {})` 的静态正则。后者失败条件直接检查本次未修改的工坊取件源码，并不反映素材丢失；真实取件/成品/持久化测试均已通过。未修改这两条无关断言。
 
@@ -66,7 +66,7 @@
 
 维护工具为 `ops/refresh-blackmarket.mjs`，默认只预演，使用 `--apply` 才写入；要求本地服务停止、没有进行中的盲盒或服务单，并自动保留独立备份，再通过现有持久化流程保存。实际执行记录及备份路径见 [refresh-live-result.json](refresh-live-result.json)。服务已重启并验证监听 3000，存档确认旧 NPC 商品全部移除、4 件玩家货品均已归还。
 
-本次验证通过：`blackmarket-refresh-smoke.mjs`、`blackmarket-npc-smoke.mjs`（240 次购买）和 `blackmarket-npc-finish-smoke.mjs`。浏览器确认显示 6 个摊位、两种身份标签均已移除，见 [换新后的黑市广场](refresh-plaza.png)。
+本次验证通过：`blackmarket-refresh-smoke.mjs`、`blackmarket-npc-smoke.mjs`（240 次购买）和 `blackmarket-npc-finish-smoke.mjs`。浏览器确认显示 6 个摊位、两种身份标签均已移除，见 [换新后的黑市广场](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/refresh-plaza.png)。
 
 ## 边角余料的轮廓、布局与镂空显示
 
@@ -80,4 +80,6 @@ NPC 余料改用实际石形生成取件布局，支持蛋面、圆角牌、叶�
 
 验证通过：新增 `blackmarket-offcut-smoke.mjs` 检查 60 组布局、1～5 件数量、21 种组合、边界与间距、可加工空间、购买后几何一致、无效规划拒绝、实际再次加工、存档恢复及兼容升级；另通过 NPC 240 次购买、NPC SQLite 交易/重启、成品、黑市服务、工坊、规划权威校验、玉件一致性、市场卡片、库存、缓存及架构门禁等相关测试。新增测试纳入 `test:blackmarket-npc`。
 
-浏览器验收截图：[五种数量的实际生成效果](offcut-variants.png)、[当前黑市真实货架](offcut-live-shelf.png)、[余料购买预览](offcut-live-confirm.png)。五种布局预览使用与游戏相同的生成器与 SVG 渲染器，查看页为 [offcut-variants.html](offcut-variants.html)。
+浏览器验收截图：[五种数量的实际生成效果](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/offcut-variants.png)、[当前黑市真实货架](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/offcut-live-shelf.png)、[余料购买预览](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/offcut-live-confirm.png)。五种布局预览使用与游戏相同的生成器与 SVG 渲染器，查看页为 [offcut-variants.html](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc/offcut-variants.html)。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-blackmarket-npc)。

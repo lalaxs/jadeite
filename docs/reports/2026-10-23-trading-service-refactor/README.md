@@ -4,7 +4,7 @@
 
 原重构冻结副本通过 164/164 项回归和 8/8 组界面对比，原始等价证明对应 632 文件的重构快照。后续功能全部完成后，最终集成基线固定为 2026-10-23 20:29:33（Asia/Shanghai）的 655 文件版本，见 [integration-manifest.json](./integration-manifest.json)。没有覆盖其他任务的代码。后续授权的财务功能有意修改部分业务函数，因此保留历史函数体等价证明，另用当前业务规则、服务隔离和完整集成回归验证最新版本。
 
-最终验收完成：最新集成 166/166 项回归全部通过；8/8 组界面对比覆盖 160 个状态、320 张截图；草稿/财务真实服务浏览器 10 项、库存详情 6 种布局、黑市详情 24 个视图均通过。工作区 655 个源码、配置与夹具文件与被测副本逐字节一致，全部 394 个运行时文件通过基线哈希检查。JSON/SQLite 重启、旧状态恢复、跨玩家回滚、幂等、协议、安全与既有发布检查均已执行。代表截图：[黑市详情](./screenshots/integrated-blackmarket-desktop.png)、[手机成本详情](./screenshots/integrated-04-cost-detail-mobile.png)、[最新材料分析](./screenshots/integrated-desktop-material-analysis.png)。
+最终验收完成：最新集成 166/166 项回归全部通过；8/8 组界面对比覆盖 160 个状态、320 张截图；草稿/财务真实服务浏览器 10 项、库存详情 6 种布局、黑市详情 24 个视图均通过。工作区 655 个源码、配置与夹具文件与被测副本逐字节一致，全部 394 个运行时文件通过基线哈希检查。JSON/SQLite 重启、旧状态恢复、跨玩家回滚、幂等、协议、安全与既有发布检查均已执行。代表截图：[黑市详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-trading-service-refactor/screenshots/integrated-blackmarket-desktop.png)、[手机成本详情](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-trading-service-refactor/screenshots/integrated-04-cost-detail-mobile.png)、[最新材料分析](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-trading-service-refactor/screenshots/integrated-desktop-material-analysis.png)。
 
 **最新基线**
 
@@ -71,3 +71,5 @@ npm run test:trading:browser
 回退时须区分重构和后续功能：原始重构对应 20 个修改文件、18 个新增实现，但后续财务功能已在实例文件中继续开发，不能直接删除它们或覆盖旧源码。应在保留最新业务函数的前提下逆转实例装配，并重跑完整集成；也可整体还原最终集成快照用于复现。不要重置整个共享工作树或回退其他任务已确认的玩法与界面。
 
 本批完成交易服务的实例边界。其他领域仍保留历史奖励入口；完整 `create-game` 生命周期、玩家初始化/迁移以及钱包/库存的进一步收敛，继续按原方案分批推进。此次没有把整个应用宣称为已经支持多游戏进程或完成全部阶段 2 工作。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-trading-service-refactor)。

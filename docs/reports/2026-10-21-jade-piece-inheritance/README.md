@@ -18,11 +18,13 @@
 
 浏览器在隔离的 3011 端口、关闭持久化的测试世界实测，未向玩家存档注入测试物品。叶子原件为 19.2 × 36.0 mm：微镶预览 48 颗，真实开工扣除 48 颗，完工库存显示 48 颗；前后材质签名相同。390px 页面及弹窗无横向溢出，浏览器无 error 日志。完整记录见 `browser-checks.json`。
 
-- `desktop.png`：桌面精加工原件对照。
-- `mobile.png`：390px 实际精加工界面。
-- `finished-origin-mobile.png`：真实完工后的库存原件回看。
-- `finished-origin-desktop.png`：刷新页面后，以最终前端版本再次核对的成品与原件。
+- [desktop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-piece-inheritance/desktop.png)：桌面精加工原件对照。
+- [mobile.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-piece-inheritance/mobile.png)：390px 实际精加工界面。
+- [finished-origin-mobile.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-piece-inheritance/finished-origin-mobile.png)：真实完工后的库存原件回看。
+- [finished-origin-desktop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-piece-inheritance/finished-origin-desktop.png)：刷新页面后，以最终前端版本再次核对的成品与原件。
 
 复现隔离界面：在 PowerShell 中设置 `$env:PORT='3011'`、`$env:JADE_WORLD_PERSIST='0'`，运行 `node --import ./scripts/jade-piece-browser-fixture.mjs server.js`。夹具只允许该端口与禁用存档的组合。
 
 本地 3000 端口服务已更新并恢复原存档，健康检查通过。更新前备份：`backups/before-jade-piece-inheritance-20261021-155427.json`。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-jade-piece-inheritance)。

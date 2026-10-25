@@ -1,3 +1,4 @@
+import { restoreInventoryItem } from "./inventory-items.js";
 import { playersMatching } from "../persistence/mutation-scope.js";
 import { registerFinanceItem } from "../../shared/domain/economy/finance-book.js";
 import {
@@ -425,7 +426,7 @@ function settleAuctionHallIfDue(now, round) {
           materialStage: "rough"
         });
         registerFinanceItem(winner, acquiredRough, { acquisition: true, at: now });
-        winner.rough.push(acquiredRough);
+        restoreInventoryItem(winner, "rough", acquiredRough);
         advanceTask(winner, "auction_win");
         if (winner.onboarding?.firstSaleAt && !winner.onboarding.completedAt) winner.onboarding.completedAt = now;
         const hall = auctionHallForId(settled.hallId);

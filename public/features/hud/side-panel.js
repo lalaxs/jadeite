@@ -4,6 +4,9 @@ import { formatMoney, formatDuration, nowMs, escapeHtml } from "../../shell/form
 import { achievementViewModels } from "../../player-progression.js";
 import { isFeatureAvailable } from "../../feature-availability.js";
 import { employeePayrollQuote, employeePayrollStatus } from "../../worker-economy.js";
+import { KIND_LABELS } from "../../jade-categories.js";
+import { setMobileContentPane } from "../../shell/navigation.js";
+import { showToast } from "../../shell/toast-fx.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -17,6 +20,45 @@ let requestState = () => {};
 let sidePanelFilter = "workshop";
 let renderedWorkshopDeliveries = null;
 let lastWorkshopStateRequestAt = null;
+let focusedDeliveryId = null;
+
+export function focusWorkshopDelivery(deliveryId) {
+  if (!(getState()?.me?.workshopDeliveries || []).some((delivery) => delivery.id === deliveryId)) return;
+  focusedDeliveryId = deliveryId;
+  sidePanelFilter = "workshop";
+  const els = getEls();
+  setMobileContentPane("side");
+  els.panelTabs?.querySelectorAll("[data-ptab]").forEach((button) => {
+    const selected = button.dataset.ptab === "workshop";
+    button.classList.toggle("on", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  renderSidePanel();
+  const card = [...(els.sidePanelBody?.querySelectorAll("[data-side-delivery]") || [])]
+    .find((node) => node.dataset.sideDelivery === deliveryId);
+  card?.scrollIntoView({ block: "center", behavior: "auto" });
+  card?.focus({ preventScroll: true });
+}
+
+function syncWorkshopNotices(deliveries) {
+  if (!globalThis.document?.body) return;
+  const host = getEls()?.toast || document.querySelector("#toast");
+  if (!host) return;
+  const alive = new Set(deliveries.map((delivery) => delivery.id));
+  for (const notice of host.querySelectorAll("[data-delivery-notice]")) {
+    if (!alive.has(notice.dataset.deliveryNotice)) notice.remove();
+  }
+  for (const delivery of deliveries) {
+    const label = delivery.stage === "finishing" ? "成品" : delivery.stage === "carving" ? "取件产物" : "开料产物";
+    const notice = showToast({
+      dedupeKey: `workshop-delivery:${delivery.id}`,
+      title: `${delivery.items.length} 件${label}待领取`, text: delivery.inputName,
+      tone: "success", sticky: true,
+      onClick: () => focusWorkshopDelivery(delivery.id)
+    });
+    if (notice) notice.dataset.deliveryNotice = delivery.id;
+  }
+}
 
 function sideWorkshopJobs(me) {
   const active = me?.commissions?.active;
@@ -73,7 +115,7 @@ export function reminderRows() {
   const jobs = productionJobsFor(me);
   const workshopResults = pendingWorkshopResults(me);
   const deliveries = me.workshopDeliveries || [];
-  const completable = (me.orders || []).filter((order) => matchingBracelets(order).length >= order.quantity);
+  const completable = (me.orders || []).filter((order) => matchingBracelets(order).length >= (order.quantity || 1));
   const bmSubmitReady = (state.blackServiceOrders || []).filter((o) => o.isSeller && o.status === "escrow" && o.isFinished);
   const payroll = employeePayrollQuote(me, nowMs());
   const payrollStatus = employeePayrollStatus(me, nowMs());
@@ -164,8 +206,8 @@ export function reminderRows() {
   if (completable.length) {
     reminders.push({
       id: "orders",
-      title: "订单可交",
-      detail: "有客户订单已可交付",
+      title: "订单可交付",
+      detail: "库存已有符合要求的成品",
       focus: String(completable.length),
       tone: "action",
       action: { label: "去订单", payload: "orders" }
@@ -317,10 +359,18 @@ export function renderSidePanel() {
     o.isSeller && (o.status === "pending" || o.status === "escrow")
   ));
   const reminders = reminderRows();
+  const readyOrders = (me.orders || []).filter((order) => matchingBracelets(order).length >= (order.quantity || 1));
+  const orderTab = els.panelTabs?.querySelector('[data-ptab="order"]');
+  if (orderTab) {
+    orderTab.innerHTML = `订单${readyOrders.length ? `<span class="workshop-delivery-count">${readyOrders.length}</span>` : ""}`;
+    orderTab.setAttribute("aria-label", `订单${readyOrders.length ? `，${readyOrders.length} 单库存已备齐` : ""}`);
+  }
 
   const deliveries = [...(me.workshopDeliveries || [])].sort((a, b) => b.completedAt - a.completedAt);
+  if (!deliveries.some((delivery) => delivery.id === focusedDeliveryId)) focusedDeliveryId = null;
+  syncWorkshopNotices(deliveries);
   const stageNames = { opening: "开料", carving: "规划取件", finishing: "精加工" };
-  const deliveryHtml = deliveries.map((delivery) => `<article class="side-workshop-delivery" data-side-delivery="${escapeHtml(delivery.id)}">
+  const deliveryHtml = deliveries.map((delivery) => `<article class="side-workshop-delivery${focusedDeliveryId === delivery.id ? " is-highlighted" : ""}" tabindex="-1" data-side-delivery="${escapeHtml(delivery.id)}">
     <div class="side-delivery-heading"><b>${escapeHtml(stageNames[delivery.stage] || "加工")}完成</b><span>待领取</span></div>
     <p>${escapeHtml(delivery.inputName)}</p>
     <div class="side-delivery-foot"><small>${escapeHtml(delivery.workerName)} · ${delivery.items.length} 件${delivery.auxiliaryItems.length ? " + 余料" : ""}</small>
@@ -328,7 +378,8 @@ export function renderSidePanel() {
   </article>`).join("");
   const workshopTab = els.panelTabs?.querySelector('[data-ptab="workshop"]');
   if (workshopTab) {
-    workshopTab.innerHTML = `工坊${deliveries.length ? `<span class="workshop-delivery-count">${deliveries.length}</span>` : ""}`;
+    workshopTab.innerHTML = `工坊${deliveries.length ? `<span class="workshop-delivery-count">${deliveries.length}</span><span class="workshop-ready-dot" aria-hidden="true"></span>` : ""}`;
+    workshopTab.classList?.toggle("has-workshop-delivery", deliveries.length > 0);
     workshopTab.setAttribute("aria-label", `工坊${deliveries.length ? `，${deliveries.length} 批待领取` : ""}`);
   }
   if (els.sidePanelToggle) {
@@ -349,7 +400,12 @@ export function renderSidePanel() {
       </div>`;
   }).join("") : deliveries.length ? "" : `<div class="side-empty">暂无加工任务</div>`);
 
-  const ordersHtml = bmOrders.length ? bmOrders.map((order) => {
+  const npcOrdersHtml = readyOrders.map((order) => `<article class="side-order side-npc-order" data-side-npc-order="${escapeHtml(order.id)}">
+    <div class="side-order-head"><b>${escapeHtml(order.hard?.kindLabel || KIND_LABELS[order.hard?.kind] || "成品")} × ${Number(order.quantity || 1)}</b><span class="side-order-status ready">可交付</span></div>
+    <div class="side-order-req">${escapeHtml(order.client || "街坊客人")}</div>
+    <div class="side-order-foot"><span class="side-order-meta">库存已备齐</span><button class="side-order-submit" type="button" data-view-link="orders">去交付</button></div>
+  </article>`).join("");
+  const ordersHtml = npcOrdersHtml + (bmOrders.length ? bmOrders.map((order) => {
     const isPending = order.status === "pending";
     const deadline = isPending ? order.acceptExpiresAt : order.expiresAt;
     const minutes = Math.max(0, Math.ceil((Number(deadline || nowMs()) - nowMs()) / 60000));
@@ -374,13 +430,14 @@ export function renderSidePanel() {
           </div>
         </div>
       </div>`;
-  }).join("") : `<div class="side-empty">暂无黑市技术单</div>`;
+  }).join("") : readyOrders.length ? "" : `<div class="side-empty">暂无待处理订单</div>`);
 
   const remindHtml = reminders.length
     ? `<div class="side-remind-list">${reminders.map(reminderCardHtml).join("")}</div>`
     : `<div class="side-empty">暂无提醒</div>`;
 
   els.sidePanelBody.innerHTML = `
+    ${readyOrders.length ? `<div class="side-order-ready-notice"><span><strong>${readyOrders.length} 单可交付</strong> · 库存已备齐</span><button type="button" class="side-order-link" data-view-link="orders">查看</button></div>` : ""}
     <div data-pplane="workshop">${workshopHtml}</div>
     <div data-pplane="order" hidden>${ordersHtml}</div>
     <div data-pplane="remind" hidden>${remindHtml}</div>
@@ -428,7 +485,8 @@ export function syncMiningReminderDot() {
     && Number(mining.skippedApplicationRounds) > 0
     && !(mining.acceptingApplications && mining.myApplication)
   );
-  const needsAttention = needsApplication || rosterWarning;
+  const readyOrderCount = (state?.me?.orders || []).filter((order) => matchingBracelets(order).length >= (order.quantity || 1)).length;
+  const needsAttention = needsApplication || rosterWarning || readyOrderCount > 0;
   let dot = btn.querySelector(".panel-tab-dot");
   if (needsAttention) {
     if (!dot) {
@@ -436,7 +494,7 @@ export function syncMiningReminderDot() {
       dot.className = "panel-tab-dot";
       btn.appendChild(dot);
     }
-    const attentionLabel = needsApplication ? "矿权申请等待提交" : "竞租席位参与提醒";
+    const attentionLabel = needsApplication ? "矿权申请等待提交" : rosterWarning ? "竞租席位参与提醒" : `${readyOrderCount} 单库存已备齐，可交付`;
     dot.setAttribute("aria-label", attentionLabel);
     if (els.sidePanelUnread) {
       els.sidePanelUnread.hidden = false;

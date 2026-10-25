@@ -104,7 +104,7 @@ assert.match(packageSource, /"test:inlay-preview-tester":\s*"node scripts\/inlay
 
 const workshopSource = readWorkshopSource();
 assert.match(workshopSource, /(?:export )?function openInlayPreviewTester\(\)/);
-assert.match(workshopSource, /data-action="openInlayPreviewTester"/);
+assert.doesNotMatch(workshopSource, /data-action="openInlayPreviewTester"/, "preview testing has no player-facing workshop action");
 assert.match(workshopSource, /data-inlay-preview-field="shape"/);
 assert.match(workshopSource, /data-inlay-preview-action="select-setting"/);
 assert.match(workshopSource, /data-inlay-preview-action="select-metal"/);

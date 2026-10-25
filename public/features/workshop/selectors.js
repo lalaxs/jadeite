@@ -3,7 +3,6 @@ import { isBangle } from "../../../shared/domain/workshop/bangle-finish.js";
 import { speedTimeScale, workerStepPreview as baseWorkerStepPreview } from "../../workshop-craft-scoring.js";
 import { workerProcessingFee } from "../../worker-economy.js";
 import { equipmentRepairQuote } from "../../equipment-maintenance.js";
-import { publicStationFee } from "../../../shared/domain/economy/public-workstations.js";
 import { WORKSHOP_DURATION_FALLBACK, WORKSHOP_DEVICE_FALLBACKS, WORKSHOP_WORKER_FALLBACKS, deviceStep } from "./catalog.js";
 
 export function createWorkshopSelectors({ ui, getState, helpers }) {
@@ -12,8 +11,8 @@ export function createWorkshopSelectors({ ui, getState, helpers }) {
 function workshopDevices() {
   const workshop = getState().me.workshop;
   const serverDevices = workshop?.devices;
-  if (!Array.isArray(serverDevices)) return WORKSHOP_DEVICE_FALLBACKS;
-  return [...serverDevices, ...(workshop.publicStations || [])].map((device) => ({
+  if (!Array.isArray(serverDevices)) return [];
+  return serverDevices.map((device) => ({
     ...(WORKSHOP_DEVICE_FALLBACKS.find((fallback) => fallback.type === device.stage) || {}),
     ...device,
     type: device.stage || device.type,
@@ -114,9 +113,7 @@ function workshopJobEstimate(device, item) {
   const worker = (ui.selectedWorkshopWorkerId
     && workshopWorkers().find((entry) => entry.id === ui.selectedWorkshopWorkerId))
     || workshopWorkerFor(device);
-  const fee = device.publicStation
-    ? publicStationFee(device, item, getState().me.id)
-    : workerProcessingFee(worker, 0, {
+  const fee = workerProcessingFee(worker, 0, {
     stage: device.stage,
     itemValue: item?.value ?? item?.price
   });
@@ -127,7 +124,7 @@ function workshopJobEstimate(device, item) {
     output: workshopOutputLabel(device),
     workerImpact: workshopWorkerImpact(worker, device),
     deviceImpact: workshopDeviceImpact(device),
-    summary: `预计：${fee ? `工位费 ${fee}` : "免加工费"}，${duration}，产出${workshopOutputLabel(device)}。`
+    summary: `预计：${fee ? `加工费 ${fee}` : "免加工费"}，${duration}，产出${workshopOutputLabel(device)}。`
   };
 }
 

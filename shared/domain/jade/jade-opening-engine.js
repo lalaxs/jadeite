@@ -1,4 +1,4 @@
-import { sampleCubicOutline, pointInOutline } from "./outline-geometry.js";
+import { sampleCubicOutline, pointInOutline, transformOutline } from "./outline-geometry.js";
 
 export const SVG_FILTER_IDS = [
   "jadeVar",
@@ -766,7 +766,7 @@ export function openingKitHit(tplId, x, y) {
   return false;
 }
 
-export function evaluateOpeningKit(kit, stone) {
+export function evaluateOpeningKit(kit, stone, { withinStone = false } = {}) {
   const tpl = tplById(kit.tpl);
   const palList = stone.palList;
   const { jadeMap } = stone;
@@ -777,12 +777,16 @@ export function evaluateOpeningKit(kit, stone) {
   let crackCount = 0;
   let catRarSum = 0;
   let cvSum = 0;
+  const boundary = withinStone ? openingStoneOutline(stone) : null;
   for (let r = 0; r < jadeMap.RES; r += 1) {
     for (let c = 0; c < jadeMap.RES; c += 1) {
       const gx = c * jadeMap.CELL + jadeMap.CELL / 2;
       const gy = r * jadeMap.CELL + jadeMap.CELL / 2;
+      if (boundary && !pointInOutline(gx, gy, boundary)) continue;
       const [lx, ly] = toLocal(gx, gy, kit);
-      if (!openingKitHit(tpl.id, lx, ly)) continue;
+      const hit = withinStone && !["ping", "bangle"].includes(tpl.id)
+        ? pointInOutline(lx, ly, openingKitOutline(tpl.id)) : openingKitHit(tpl.id, lx, ly);
+      if (!hit) continue;
       total += 1;
       const cell = jadeMap.grid[r * jadeMap.RES + c];
       if (cell.waste) {
@@ -904,6 +908,12 @@ export function computeOverlaps(kits) {
   return overlaps;
 }
 
+export function openingKitsOutsideStone(kits, stone) {
+  const boundary = openingStoneOutline(stone);
+  return new Set(kits.filter((kit) => !kit.extracted && !transformOutline(openingKitOutline(kit.tpl), kit)
+    .every(([x, y]) => pointInOutline(x, y, boundary))).map((kit) => kit.uid ?? kit.id));
+}
+
 export function defectPenalty(cr, wr) {
   const crackPen = cr > 0.02 ? Math.min(0.70, 0.15 + cr * 1.2) : 0;
   const wastePen = wr > 0.10 ? Math.min(0.55, 0.10 + wr * 0.6) : 0;
@@ -1020,7 +1030,8 @@ export function renderOpeningKitSvg(kit, options = {}) {
   const selected = options.selected;
   const overlapping = options.overlap;
   const extracted = options.extracted || kit.extracted;
-  const stroke = extracted ? "rgba(0,0,0,.6)" : selected ? "#d4af37" : overlapping ? "#ff4636" : "rgba(255,255,255,.58)";
+  const invalid = overlapping || options.outside;
+  const stroke = extracted ? "rgba(0,0,0,.6)" : invalid ? "#ff4636" : selected ? "#d4af37" : "rgba(255,255,255,.58)";
   const fill = "none";
   const uid = kit.uid ?? kit.id ?? `${tpl.id}-kit`;
   const outline = kitOutlineWithAttrs(tpl.shape, `fill="${fill}" stroke="${stroke}" stroke-width="${selected || overlapping ? 3 : 2}" stroke-opacity=".95" stroke-linejoin="round" fill-rule="evenodd"`);
@@ -1061,8 +1072,11 @@ export function renderJadeOpeningProductSvg(stone, kit, options = {}) {
   ].join("::");
   let svg = openingSvgMarkupCache.get(cacheKey);
   if (!svg) {
-    const materialStone = options.surfaceOnly ? { ...stone, material: stone.material.replace(/<rect[^>]*fill="url\(#sheenGrad\)"[^>]*\/>/g, "") } : stone;
-    const defs = defsForStone(materialStone, "");
+    const material = stone.material.replace(/<rect[^>]*filter="url\(#grain\)"[^>]*\/>/g, "");
+    const materialStone = { ...stone, material: options.surfaceOnly ? material.replace(/<rect[^>]*fill="url\(#sheenGrad\)"[^>]*\/>/g, "") : material };
+    const defs = defsForStone(materialStone, "")
+      .replace('in="variation" stdDeviation="2"', 'in="variation" stdDeviation=".6"')
+      .replace('in="marbled" stdDeviation="1.5"', 'in="marbled" stdDeviation=".5"');
     const useTf = openingKitMaterialTransform({ x, y, rot }, scale);
     const pad = Math.ceil(tpl.r * 1.18);
     const outline = kitOutlineWithAttrs(shape, `fill="none" stroke="rgba(28,49,45,.50)" stroke-width="${Math.max(2, tpl.r * 0.026).toFixed(2)}" stroke-opacity=".95" stroke-linejoin="round" fill-rule="evenodd"`);
@@ -1106,14 +1120,16 @@ export function renderJadeOpeningSvg(stone, options = {}) {
     const cutMask = cutouts ? `<mask id="remainingStoneMask" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="600" style="mask-type:luminance"><rect x="0" y="0" width="600" height="600" fill="#fff"/>${cutouts}</mask>` : "";
     const defs = defsForStone(stone, scratchSvg(scratches), windowHoles).replace("</defs>", `${cutMask}</defs>`);
     const overlapUids = computeOverlaps(kits);
+    const outsideUids = openingKitsOutsideStone(kits, stone);
     const kitLayer = kits.map((kit) => renderOpeningKitSvg(kit, {
       selected: options.selectedUid === (kit.uid ?? kit.id),
       overlap: overlapUids.has(kit.uid ?? kit.id),
+      outside: outsideUids.has(kit.uid ?? kit.id),
       extracted: kit.extracted,
       outlineOnly: options.outlineOnly
     })).join("");
     const roughStyle = options.revealed ? ' style="opacity:0"' : "";
-    svg = `<svg class="jade-opening-svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${options.label || "翡翠原石开料"}">${defs}<g clip-path="url(#stoneClip)"${cutouts ? ' mask="url(#remainingStoneMask)"' : ""}><use href="#jadeMaterial" id="jadeUse"/><g id="roughExterior" mask="url(#scratchMask)"${roughStyle}><rect x="0" y="0" width="600" height="600" fill="url(#roughBase)" filter="url(#rock)"/><rect x="0" y="0" width="600" height="600" fill="#fff" filter="url(#skinMottle)" opacity="0.7"/></g></g><g id="kitLayer" clip-path="url(#stoneClip)">${kitLayer}</g><path id="stoneOutline" d="${stone.stonePath}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/></svg>`;
+    svg = `<svg class="jade-opening-svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${options.label || "翡翠原石开料"}">${defs}<g clip-path="url(#stoneClip)"${cutouts ? ' mask="url(#remainingStoneMask)"' : ""}><use href="#jadeMaterial" id="jadeUse"/><g id="roughExterior" mask="url(#scratchMask)"${roughStyle}><rect x="0" y="0" width="600" height="600" fill="url(#roughBase)" filter="url(#rock)"/><rect x="0" y="0" width="600" height="600" fill="#fff" filter="url(#skinMottle)" opacity="0.7"/></g></g><g id="kitLayer"${options.outlineOnly ? "" : ' clip-path="url(#stoneClip)"'}>${kitLayer}</g><path id="stoneOutline" d="${stone.stonePath}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/></svg>`;
     if (cacheKey) rememberOpeningSvgMarkup(cacheKey, svg);
   }
   const instanceId = options.idPrefix || `jo-${sanitizeSvgIdPart(stone.id || stone.seed)}-${openingSvgInstanceCounter += 1}`;

@@ -1,3 +1,4 @@
+import { readCommerceClientSource } from "./load-commerce-client-source.mjs";
 import { readWorkshopSource } from "./load-workshop-source.mjs";
 import assert from "node:assert/strict";
 import { readClientShellSource } from "./load-client-shell.mjs";
@@ -92,7 +93,7 @@ for (const file of [
   "public/features/shop/shop-module.js",
   "public/features/hire/hire-module.js"
 ]) {
-  const source = file === "public/features/workshop/workshop-module.js" ? readWorkshopSource() : readFileSync(file, "utf8");
+  const source = file === "public/features/workshop/workshop-module.js" ? readWorkshopSource() : file === "public/features/market/market-module.js" ? readCommerceClientSource("market") : readFileSync(file, "utf8");
   assert.match(source, /deps\.registerAction|options\.registerAction/, `${file} should accept registerAction`);
   assert.match(source, /register\("/, `${file} should register data-action handlers`);
 }

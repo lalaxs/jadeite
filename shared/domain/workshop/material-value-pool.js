@@ -25,8 +25,11 @@ export function partitionMaterialValue(material, nextRemainingRatio, weights = [
     process: Math.max(0, Number(contribution.process) || 0) * ratio,
     equipment: Math.max(0, Number(contribution.equipment) || 0) * ratio
   }]));
-  const leftoverValue = asMoney(inputValue * valueRetainedRatio);
-  const leftoverBase = asMoney(inputBase * valueRetainedRatio);
+  const sourceWeight = Number(options.sourceWeight) || 0;
+  const independent = sourceWeight > 0;
+  const fractions = weights.map((weight) => Math.max(0, Number(weight) || 0) / sourceWeight);
+  const leftoverValue = independent ? Math.max(0, inputValue - fractions.reduce((sum, fraction) => sum + Math.floor(inputValue * fraction), 0)) : asMoney(inputValue * valueRetainedRatio);
+  const leftoverBase = independent ? Math.max(0, inputBase - fractions.reduce((sum, fraction) => sum + Math.floor(inputBase * fraction), 0)) : asMoney(inputBase * valueRetainedRatio);
   let valueRest = inputValue - leftoverValue;
   let baseRest = inputBase - leftoverBase;
   const consumedValue = valueRest;
@@ -35,8 +38,8 @@ export function partitionMaterialValue(material, nextRemainingRatio, weights = [
   const pieces = weights.map((weight, index) => {
     const fraction = totalWeight > 0 ? Math.max(0, Number(weight) || 0) / totalWeight : 0;
     const isLastValuedPiece = totalWeight > 0 && fraction > 0 && !weights.slice(index + 1).some((next) => Number(next) > 0);
-    const value = isLastValuedPiece ? valueRest : Math.min(valueRest, asMoney(consumedValue * fraction));
-    const baseValue = isLastValuedPiece ? baseRest : Math.min(baseRest, asMoney(consumedBase * fraction));
+    const value = independent ? Math.min(valueRest, Math.floor(inputValue * fractions[index])) : isLastValuedPiece ? valueRest : Math.min(valueRest, asMoney(consumedValue * fraction));
+    const baseValue = independent ? Math.min(baseRest, Math.floor(inputBase * fractions[index])) : isLastValuedPiece ? baseRest : Math.min(baseRest, asMoney(consumedBase * fraction));
     valueRest -= value;
     baseRest -= baseValue;
     return { value, baseValue, craftValueContributions: contributionFor(inputValue > 0 ? value / inputValue : 0) };

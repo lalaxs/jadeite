@@ -14,9 +14,11 @@
 
 截图：
 
-- [修改前](before.png) / [修改后](after.png)
-- [槽镶蓝宝石](channel-sapphire.png)
-- [铂金微镶](micro-platinum.png)
-- [真实取件的精加工预览](real-piece-channel.png)
-- [手机显示](mobile.png)
+- [修改前](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/before.png) / [修改后](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/after.png)
+- [槽镶蓝宝石](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/channel-sapphire.png)
+- [铂金微镶](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/micro-platinum.png)
+- [真实取件的精加工预览](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/real-piece-channel.png)
+- [手机显示](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style/mobile.png)
 - [浏览器核对记录](checks.json)
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-accessory-style)。

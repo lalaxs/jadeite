@@ -9,3 +9,5 @@
 - 3000 正式端口返回更新后的 JS、CSS（均 200），刷新页面生效；测试使用 3013 无存档世界，结束后关闭测试服务并恢复默认浏览器尺寸。
 
 截图：desktop-covered.jpg、desktop-partial.jpg、desktop-revealed.jpg、mobile-partial.jpg。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-standalone-slice)。

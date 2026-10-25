@@ -8,6 +8,9 @@ import {
 } from "../../shared/domain/economy/inventory-recycle.js";
 import { setAcquisitionCost } from "../../shared/domain/economy/item-cost.js";
 import { registerFinanceItem, recordFinanceSale } from "../../shared/domain/economy/finance-book.js";
+import { inventoryBucketName, initializeInventory, inventoryEntries, takeInventoryItem, restoreInventoryItem } from "./inventory-items.js";
+export { inventoryBucketName, inventoryEntries, findInventoryItem, takeInventoryItem, takeInventoryItems,
+  restoreInventoryItem, restoreInventoryItems } from "./inventory-items.js";
 
 export { INVENTORY_RECYCLE_RATE };
 
@@ -38,15 +41,11 @@ export function itemValue(item) {
 export function takeItem(player, type, itemId) {
   const id = String(itemId || "");
   if (!id || !player) return null;
-  const bucketNames = type === "rough" ? ["rough", "materials", "slices"]
-    : type === "material" ? ["materials"]
-    : type === "slice" ? ["slices"]
-    : ["bracelets"];
-  for (const bucketName of bucketNames) {
-    const bucket = player[bucketName];
-    if (!Array.isArray(bucket)) continue;
-    const index = bucket.findIndex((item) => String(item?.id) === id);
-    if (index >= 0) return bucket.splice(index, 1)[0];
+  const types = type === "rough" ? ["rough", "material", "slice"]
+    : type === "material" || type === "slice" ? [type] : ["bracelet"];
+  for (const inventoryType of types) {
+    const item = takeInventoryItem(player, inventoryType, id);
+    if (item) return item;
   }
   return null;
 }
@@ -68,20 +67,15 @@ export function markExternalMaterialNew(player, key) {
 export function addItem(player, item, options = {}) {
   if (!player || !item) return null;
   const type = String(options.type || item.type || "");
-  const bucketName = type === "rough" ? "rough"
-    : type === "material" ? "materials"
-      : type === "slice" ? "slices"
-        : type === "bracelet" ? "bracelets" : "";
-  if (!bucketName) return null;
-  player[bucketName] ||= [];
+  if (!inventoryBucketName(type) || type === "collection") return null;
+  initializeInventory(player, type);
   item.type = type;
   if (options.acquisitionCost != null) {
     setAcquisitionCost(item, options.acquisitionCost);
     registerFinanceItem(player, item, { acquisition: true });
   }
   if (options.asNew !== false) markInventoryItemNew(item);
-  player[bucketName].push(item);
-  return item;
+  return restoreInventoryItem(player, type, item);
 }
 
 export function markInventoryItemsSeen(player, rawIds = []) {
@@ -130,18 +124,7 @@ export function inventoryUnseenCount(player) {
 function findOwnedJadeItem(player, itemId) {
   const id = String(itemId || "");
   if (!id || !player) return null;
-  const buckets = [
-    ["rough", "rough"],
-    ["materials", "material"],
-    ["slices", "slice"],
-    ["bracelets", "bracelet"]
-  ];
-  for (const [bucketName, type] of buckets) {
-    const list = player[bucketName] || [];
-    const index = list.findIndex((item) => String(item?.id) === id);
-    if (index >= 0) return { item: list[index], type, bucketName, index };
-  }
-  return null;
+  return inventoryEntries(player).find(({ item }) => String(item?.id) === id) || null;
 }
 
 function resolveRecycleValue(rawValue, asMoney) {
@@ -261,7 +244,7 @@ export function recycleInventoryItemForPlayer(player, payload = {}, deps = {}) {
   })) {
     return { ok: false, code: "ECONOMY_UNAVAILABLE", message: "回收入账暂不可用，物品已保留。" };
   }
-  const [removed] = player[owned.bucketName].splice(owned.index, 1);
+  const removed = takeInventoryItem(player, owned.type, owned.item.id);
   if (!removed) return { ok: false, message: "回收失败，物品不存在。" };
   registerFinanceItem(player, removed);
   recordFinanceSale(player, [removed], payout, { id: `recycle:${removed.financeBatchId}:${removed.id}`, channel: "recycle" });

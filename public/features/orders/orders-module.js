@@ -1,23 +1,16 @@
 // orders-module.js — persona orders UI (confirm on mismatch, paid refresh)
 import { inlaySummary } from "../../product-meta.js";
 import { activateModalLifecycle } from "../../modal-lifecycle.js";
-import { evaluateOrderFit, estimateOrderSettlement, finishedProductKind, orderCareLine, productSizeBand, ORDER_SIZE_BANDS } from "../../jade-rules.js";
+import { evaluateOrderFit, estimateOrderSettlement, finishedProductKind, productSizeBand, ORDER_SIZE_BANDS } from "../../jade-rules.js";
 import { KIND_LABELS } from "../../jade-categories.js";
 import { collectRepLabel, collectRepFromValue, MAX_COLLECTION_SIZE } from "../../player-progression.js";
-import { inventoryPreview } from "../../inventory-module.js";
+import { inventoryPreviewHtml } from "../../inventory-preview.js";
 import { finishedProductCardEntry, finishedProductCardContent } from "../../finished-product-card-view.js";
 import { typeName } from "../inventory-helpers.js";
 import { inventoryDetailStats } from "../inventory/item-detail-model.js";
 import { inventoryItemDetailHtml } from "../inventory/item-detail-view.js";
-import { orderValueFloor } from "../../../shared/domain/economy/new-player-economy.js";
 import { quoteSystemDemand, systemSalePriceCap } from "../../../shared/domain/economy/system-demand.js";
 import { lazyPreviewMarkup, observeLazyPreviews } from "../../lazy-preview.js";
-import {
-  CUSTOMER_RATING_PUBLIC_MIN_SAMPLES,
-  customerRatingSampleTotal,
-  isCustomerRatingPublic,
-  customerRatingTierInfo
-} from "../../metric-history.js";
 import {
   ORDER_SINGLE_REFRESH_DAILY_CAP,
   ORDER_BATCH_REFRESH_DAILY_CAP,
@@ -44,14 +37,6 @@ let pendingOrderPick = null;
 /** 用户确认过的槽位选择，跨重绘保留 */
 const orderSlotSelections = new Map();
 let orderMenusBound = false;
-
-function clientBmRatingSamples(me, state) {
-  const fromCounter = Number(me?.bmRatingSampleCount) || 0;
-  const fromService = (state?.blackServiceOrders || []).filter(
-    (order) => order.isSeller && order.buyerRating?.stars
-  ).length;
-  return fromCounter + fromService;
-}
 
 export function initOrdersModule(deps) {
   socketRef = deps.socket;
@@ -301,10 +286,6 @@ function requirementsBlock(order, product) {
   const qualityTarget = qualityReq?.label?.replace(/^种水\s*[：:]?\s*/, "")
     || (minScore ? `${qualityNames[minScore] || minScore}及以上` : "不限");
   const size = product ? productSizeBand(product) : "";
-  const value = product ? Number(product.value || product.price || 0) : 0;
-  const floor = Math.max(orderValueFloor(order), Number(hard.minValue) || 0);
-  const hasBudget = !hard.budgetUnlimited && hard.budgetMax != null && Number.isFinite(Number(hard.budgetMax));
-  const quantity = Number(order.quantity || 1);
   const row = (name, target, actual = "", tone = "pass") => `
     <div class="order-demand-row"><dt>${escapeHtml(name)}</dt><dd><span class="order-demand-target">${escapeHtml(target)}</span>${actual ? `<span class="order-demand-actual is-${tone}">${tone === "pass" ? "✓" : tone === "warn" ? "!" : "×"} ${escapeHtml(actual)}</span>` : ""}</dd></div>`;
   const rows = [];
@@ -312,15 +293,12 @@ function requirementsBlock(order, product) {
     rows.push(row("题材", hard.kindLabel || KIND_LABELS[hard.kind] || hard.kind,
       KIND_LABELS[finishedProductKind(product)] || finishedProductKind(product), "fail"));
   }
-  rows.push(row("种水偏好", qualityTarget, product ? product.quality || "未标注" : "", !minScore || Number(product?.score || 0) >= minScore ? "pass" : "warn"));
-  rows.push(row("尺寸要求", ORDER_SIZE_BANDS[hard.sizeBand]?.label || hard.sizeBand || "不限",
+  if (qualityReq || minScore > 1) rows.push(row("种水", qualityTarget, product ? product.quality || "未标注" : "", !minScore || Number(product?.score || 0) >= minScore ? "pass" : "warn"));
+  if (hard.sizeBand) rows.push(row("尺寸", ORDER_SIZE_BANDS[hard.sizeBand]?.label || hard.sizeBand,
     product ? ORDER_SIZE_BANDS[size]?.label || size : "", !hard.sizeBand || size === hard.sizeBand ? "pass" : "fail"));
-  rows.push(row(quantity > 1 ? "单件货值" : "最低货值", `≥ ${formatMoney(floor)}`, product ? formatMoney(value) : "", value >= floor ? "pass" : "fail"));
-  rows.push(row(quantity > 1 ? "单件预算" : "客人预算", hasBudget ? `≤ ${formatMoney(hard.budgetMax)}` : "不设上限",
-    product ? formatMoney(value) : "", !hasBudget || value <= hard.budgetMax ? "pass" : value <= hard.budgetMax * 1.1 ? "warn" : "fail"));
-  const names = { requireBrightColor: "色泽偏好", forbidDullColor: "色泽偏好", forbidCrack: "净度偏好",
-    requireMetal: "镶嵌金属", requireFineMetal: "镶嵌金属", forbidCheapMetal: "镶嵌金属",
-    requireSetting: "镶法偏好", forbidFlashySetting: "镶法偏好", requirePolish: "抛光偏好", requireKind: "题材要求" };
+  const names = { requireBrightColor: "色泽", forbidDullColor: "色泽", forbidCrack: "净度",
+    requireMetal: "金属", requireFineMetal: "金属", forbidCheapMetal: "金属",
+    requireSetting: "镶法", forbidFlashySetting: "镶法", requirePolish: "抛光", requireKind: "题材" };
   const fallbacks = { requireBrightColor: "要明艳正色", forbidDullColor: "避免灰闷色", forbidCrack: "无纹裂",
     requireMetal: "指定金属", requireFineMetal: "18K金、足金或铂金", forbidCheapMetal: "不用925银",
     requireSetting: "指定镶法", forbidFlashySetting: "素雅镶法", requirePolish: "指定抛光" };
@@ -330,6 +308,7 @@ function requirementsBlock(order, product) {
       .replace(/^(种水|色泽|净度|镶嵌金属|金属|镶法|抛光|题材)\s*[：:]?\s*/, "").replace(/[。；;]+$/, "");
     rows.push(row(names[req.type] || "其他偏好", target));
   }
+  if (!rows.length) return "";
   return `
     <section class="order-demand" aria-label="客人具体要求">
       ${product ? `<div class="order-demand-heading"><span>客人要求</span><span>本件成品</span></div>` : ""}
@@ -365,7 +344,6 @@ function orderPickRequirements(order) {
   const kindLabel = hard.kindLabel || KIND_LABELS[hard.kind] || hard.kind || "成品";
   const bits = [kindLabel, ...heroMetaBits(order)];
   if (!hard.budgetUnlimited && Number(hard.budgetMax) > 0) bits.push(`预算≤${formatMoney(hard.budgetMax)}`);
-  bits.push(`货值≥${formatMoney(Math.max(orderValueFloor(order), Number(hard.minValue) || 0))}`);
   if (Number(order.quantity || 1) > 1) bits.push(`${order.quantity}件`);
   for (const req of Array.isArray(order.requirements) ? order.requirements : []) {
     if (req?.label && req.type !== "requireKind" && !HERO_REQ_TYPES.has(req.type)) bits.push(req.label);
@@ -526,7 +504,7 @@ function renderOrderPickList() {
     return `
       <article class="inventory-slot order-pick-card${selected ? " is-selected" : ""}" role="listitem">
         <button type="button" class="order-pick-inspect" data-action="inspectOrderPickProduct" data-product-id="${escapeHtml(product.id)}" aria-label="查看${escapeHtml(product.name)}详情">
-          ${finishedProductCardContent(product, { escapeHtml, formatMoney,
+          ${finishedProductCardContent(product, { escapeHtml, formatMoney, renderProduct: productCanvas,
             selectionHtml: selected ? '<span class="order-pick-selected">✓ 已选择</span>' : ""
           })}
         </button>
@@ -554,7 +532,7 @@ function openOrderPickDetails(productId) {
   dialog.setAttribute("aria-labelledby", "orderPickDetailTitle");
   dialog.innerHTML = `
     <div class="game-modal-head"><div class="game-modal-title"><h3 id="orderPickDetailTitle">${escapeHtml(entry.name)}</h3><p>${escapeHtml(entry.typeLabel)}</p></div><button type="button" class="modal-close" data-action="backToOrderPickProducts" aria-label="关闭成品详情">×</button></div>
-    <div class="game-modal-body">${inventoryItemDetailHtml(entry, { previewHtml: inventoryPreview(entry, { eager: true, size: "finished" }), stats })}</div>
+    <div class="game-modal-body">${inventoryItemDetailHtml(entry, { previewHtml: inventoryPreviewHtml(entry, { eager: true, size: "finished", renderProduct: productCanvas }), stats })}</div>
     <div class="game-modal-actions"><button type="button" class="secondary" data-action="backToOrderPickProducts">返回列表</button><button type="button" data-action="pickOrderProductOption" data-product-id="${escapeHtml(product.id)}">${pendingOrderPick.draftId === product.id ? "使用此件" : "选择此件"}</button></div>
   `;
   observeLazyPreviews(dialog);
@@ -702,7 +680,8 @@ function ensureMismatchModal() {
 export function previewOrderIncome(player, order, products, fit, now = Date.now()) {
   const estimate = estimateOrderSettlement(fit, order);
   const late = Number(order.expiresAt || 0) > 0 && now > Number(order.expiresAt);
-  const amount = Math.min(Math.round(Number(order.pay || 0) * Number(estimate.payMult || 0) * (late ? 0.72 : 1)), systemSalePriceCap(player, products));
+  const basePay = Math.min(Number(order.pay || 0), systemSalePriceCap(player, products));
+  const amount = Math.round(basePay * Number(estimate.payMult || 0) * (late ? 0.72 : 1));
   return { amount, late, estimate, demand: quoteSystemDemand(player, products, amount, now, { exempt: order.starterOrder === true }) };
 }
 
@@ -753,12 +732,6 @@ export function renderOrders() {
     }
   }
   const completable = getState().me.orders.filter((order) => matchingBracelets(order).length >= (order.quantity || 1)).length;
-  const bmSamples = clientBmRatingSamples(me, getState());
-  const hasCustomerRating = isCustomerRatingPublic(me, bmSamples);
-  const tierTitle = hasCustomerRating ? customerRatingTierInfo(me.satisfaction).title : null;
-  const satLabel = hasCustomerRating
-    ? `客户评级 ${Math.round(me.satisfaction)}% · ${tierTitle}`
-    : `评分人数不足，暂未开分 · ${customerRatingSampleTotal(me, bmSamples)}/${CUSTOMER_RATING_PUBLIC_MIN_SAMPLES}`;
   const dailyLeft = formatCountdown(msUntilNextOrderDailyRefresh());
   const refreshUsage = refreshCounts();
   const batchFee = batchRefreshFee();
@@ -768,8 +741,6 @@ export function renderOrders() {
     elsRef.orderBrief.innerHTML = `
       <span>可完成 ${completable}/${me.orders.length}</span>
       <span>成品库存 ${bracelets.length}</span>
-      <span>${satLabel}</span>
-      ${me.systemDemand ? `<span>今日客户收购余 ${formatMoney(me.systemDemand.remaining.cash)} · 溢价余 ${formatMoney(me.systemDemand.remaining.premiumCash)}</span>` : ""}
     `;
   }
   if (elsRef.orderRefreshCountdown) {
@@ -788,7 +759,6 @@ export function renderOrders() {
   }
 
   elsRef.orders.innerHTML = me.orders.map((order) => {
-    const candidates = matchingBracelets(order);
     const qty = order.quantity || 1;
     const slots = Array.from({ length: qty }, (_, index) => ({
       product: bracelets.find((item) => item.id === getSlotSelection(order, index)),
@@ -807,10 +777,9 @@ export function renderOrders() {
       : { label: "可交付", tone: "is-ready" };
     const canDeliver = bracelets.length >= qty && (!preview || preview.demand.ok);
     const reqHtml = requirementsBlock(order, qty === 1 ? selected[0]?.product : null);
-    const careLine = orderCareLine(order);
     const feedback = rejected ? (worst.hardFails || worst.clauses || []).slice(0, 2).join("；")
       : partial ? (worst.aversionHits || worst.clauses || []).slice(0, 2).join("；")
-      : allSelected ? "所有要求均符合" : "";
+      : "";
     const actions = !allSelected ? slots.filter((slot) => !slot.product).map((slot) => slot.html).join("")
       : rejected ? `<button type="button" class="secondary" data-action="openOrderProductPicker" data-payload="${escapeHtml(order.id)}" data-slot="${fits.findIndex((fit) => fit.rejected || fit.tier === "hard_fail")}">重新选择成品</button>`
       : `<button type="button" data-action="completeOrder" data-payload="${escapeHtml(order.id)}" aria-label="交付订单，预计收入 ${formatMoney(preview?.amount ?? order.pay)}，声望 +${Number(order.rep || 0)}" ${canDeliver ? "" : "disabled"}>${partial ? "折价交付" : "交付订单"}</button>`;
@@ -818,12 +787,13 @@ export function renderOrders() {
       <article class="order-card ${status.tone}" data-order-card="${escapeHtml(order.id)}">
         <div class="order-card-main">
           ${orderHeroBlock(order, status, refreshUsage)}
+          <div class="order-budget"><span>${qty > 1 ? "单件预算" : "客人预算"}</span><strong>${order.hard?.budgetUnlimited ? "不限" : formatMoney(order.hard?.budgetMax ?? order.pay)}</strong></div>
           ${reqHtml}
         </div>
         <div class="order-card-foot">
           <div class="order-delivery-choice">
             <div class="order-selects">${selected.map((slot) => slot.html).join("")}</div>
-            ${!allSelected ? `<p class="order-stock-note">${selected.length ? `已选 ${selected.length}/${qty} 件，还需补选` : `库存匹配 <strong>${candidates.length} 件完全符合</strong>`}</p>` : ""}
+            ${!allSelected && selected.length ? `<p class="order-stock-note">已选 ${selected.length}/${qty} 件</p>` : ""}
             ${feedback ? `<p class="order-fit-feedback ${status.tone}">${rejected ? "×" : partial ? "!" : "✓"} ${escapeHtml(feedback)}</p>` : ""}
             ${preview && !preview.demand.ok ? `<p class="order-stock-note">${escapeHtml(preview.demand.message)}</p>` : ""}
           </div>
@@ -831,13 +801,12 @@ export function renderOrders() {
             ${orderPersonaBlock(order)}
             <span class="order-reputation">声望 +${Number(order.rep || 0)}</span>
           </div>
-          ${careLine ? `<p class="order-care">${escapeHtml(careLine)}</p>` : ""}
-          <div class="order-settlement" aria-label="订单回报">
+          ${preview ? `<div class="order-settlement" aria-label="订单回报">
             <div class="order-settlement-primary">
-              <span>${preview ? "预计收入" : "满额报价"}</span>
-              <strong>${formatMoney(preview?.amount ?? order.pay)}</strong>
+              <span>预计收入</span>
+              <strong>${formatMoney(preview.amount)}</strong>
             </div>
-          </div>
+          </div>` : ""}
           <div class="card-actions order-card-actions">
             ${actions}
           </div>

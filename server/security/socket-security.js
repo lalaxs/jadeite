@@ -44,6 +44,7 @@ export function socketServerOptions(config) {
     maxHttpBufferSize: config.socketMaxBufferBytes,
     cors: {
       origin(origin, callback) {
+        if (!origin) return callback(null, false);
         const allowed = originAllowed(config, origin);
         callback(allowed ? null : new Error("origin not allowed"), allowed);
       },
@@ -51,7 +52,11 @@ export function socketServerOptions(config) {
       methods: ["GET", "POST"]
     },
     allowRequest(req, callback) {
-      callback(null, originAllowed(config, req.headers.origin));
+      const origin = req.headers.origin;
+      const sameOriginPolling = !origin && req.headers["sec-fetch-site"] === "same-origin";
+      const protocol = req.headers["x-forwarded-proto"] || (req.socket?.encrypted ? "https" : "http");
+      const requestOrigin = sameOriginPolling ? `${protocol}://${req.headers.host}` : origin;
+      callback(null, originAllowed(config, requestOrigin));
     }
   };
 }

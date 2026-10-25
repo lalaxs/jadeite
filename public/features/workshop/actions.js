@@ -1,9 +1,10 @@
 // Workshop navigation, actions and command submission.
 import { WORKSHOP_STEPS, deviceStep } from "./catalog.js";
-import { ensurePlannerDraft, persistPlannerDraft, beginPlannerSubmission, settlePlannerSubmission,
-  plannerSubmissionRequestId, plannerSubmissionRequest, reconcilePlannerDrafts } from "../opening/planner-drafts.js";
+import { defaultPlannerDraftRuntime } from "../opening/planner-drafts.js";
 
-export function createWorkshopActions({ ui, socketRef, elsRef, helpers, ports }) {
+export function createWorkshopActions({ ui, socketRef, elsRef, helpers, ports, drafts = defaultPlannerDraftRuntime }) {
+  const { ensurePlannerDraft, persistPlannerDraft, beginPlannerSubmission, settlePlannerSubmission,
+    plannerSubmissionRequestId, plannerSubmissionRequest, reconcilePlannerDrafts } = drafts;
   const { openingKitsForServer, paintJades, showToast } = helpers;
   const { workshopDevices, workshopProcessableItems, workshopRecommendedWorkerId, renderWorkshop, openFinishPlanModal } = ports;
   let keyboardCleanup = null;
@@ -149,10 +150,6 @@ function workshopAssignWorker(target, payload) {
   const workerId = target.dataset.workerId;
   if (!workerId || !deviceId) return;
   ui.selectedWorkshopWorkerId = workerId;
-  if (workshopDevices().find((device) => device.id === deviceId)?.publicStation) {
-    renderWorkshop();
-    return;
-  }
   socketRef.emit("assignWorkshopWorker", { deviceId, workerId });
 }
 
@@ -162,7 +159,7 @@ function workshopRecommendWorker(payload) {
   const workerId = device && workshopRecommendedWorkerId(device);
   if (workerId) {
     ui.selectedWorkshopWorkerId = workerId;
-    if (!device.publicStation) socketRef.emit("assignWorkshopWorker", { deviceId, workerId });
+    socketRef.emit("assignWorkshopWorker", { deviceId, workerId });
     renderWorkshop();
   }
 }

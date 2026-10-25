@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createMemoryWorldStore } from "../server/world-store.js";
 import { createSqliteWorldPersister } from "../server/shell/sqlite-world-persist.js";
+import { NPC_TARGET_STALLS } from "../shared/domain/blackmarket/npc-rules.js";
 
 process.env.JADE_WORLD_PERSIST = "0";
 const { __testHooks: H } = await import("../server.js");
@@ -83,6 +84,18 @@ for (let index = 0; index < PLAYER_COUNT; index += 1) {
   }
 }
 
+// Keep a full catalog throughout the asset/persistence soak. NPC rotation,
+// repricing and replenishment have their own clock-driven regressions.
+const simulationEndsAt = baseNow + SIMULATION_DAYS * 24 * 60 * 60 * 1000;
+H.reconcileWorld(baseNow, { broadcast: false });
+const npcStalls = H.state.blackStalls.filter(stall => stall.npc);
+assert.equal(npcStalls.length, NPC_TARGET_STALLS);
+for (const stall of npcStalls) {
+  stall.npcMarketRefreshAt = simulationEndsAt + 1;
+  stall.npcRotateAt = simulationEndsAt + 1;
+  stall.npcRefillAt = null;
+}
+
 const dir = mkdtempSync(path.join(tmpdir(), "jade-runtime-soak-"));
 const sqlitePath = path.join(dir, "world.sqlite");
 let persister = createSqliteWorldPersister({ world: H.world, filePath: sqlitePath });
@@ -116,9 +129,10 @@ try {
   }
 
   const finalSnapshot = H.world.exportSnapshot({
-    savedAt: baseNow + SIMULATION_DAYS * 24 * 60 * 60 * 1000
+    savedAt: simulationEndsAt
   });
   assert.equal(finalSnapshot.players.length, PLAYER_COUNT);
+  assert.equal(finalSnapshot.blackStalls.filter(stall => stall.npc).length, NPC_TARGET_STALLS);
   assert.ok(H.state.auctionHistory.length <= 24, "auction history must remain bounded");
   assert.equal(H.state.listings.length, 4, "unaccepted listings remain owned throughout the soak run");
   assert.ok(H.state.listings.every((listing) => listing.npcOffer?.amount > 0), "stale listings receive optional NPC offers");

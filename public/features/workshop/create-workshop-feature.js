@@ -12,12 +12,27 @@ import { createWorkshopInlayPreview } from "./inlay-preview-controller.js";
 import { createWorkshopActions } from "./actions.js";
 import { createFinishPlanModalController } from "../../finish-plan-modal-controller.js";
 import { createWorkshopDeliveryUi } from "./delivery-ui.js";
-import { bindPlannerDraftDeps } from "../opening/planner-drafts.js";
+import { createOpeningRuntime } from "../opening/create-opening-runtime.js";
 
 export function createWorkshopFeature(deps) {
-  const { socket: socketRef, getState, els: elsRef, helpers } = deps;
-  bindPlannerDraftDeps({ getState });
+  const { socket: socketRef, getState, els: elsRef } = deps;
   const document = deps.document || globalThis.document;
+  const opening = deps.opening || createOpeningRuntime({
+    ...deps.plannerDrafts, getState, document,
+    materialStageForClient: deps.helpers.materialStageForClient
+  });
+  const helpers = {
+    ...deps.helpers,
+    productCanvas: deps.helpers.productCanvas || opening.render.productCanvas,
+    openingStoneSvg: deps.helpers.openingStoneSvg || opening.render.openingStoneSvg,
+    openingKitsForRender: opening.render.openingKitsForRender,
+    roughBoard: opening.render.roughBoard,
+    roughPlannerControls: opening.render.roughPlannerControls,
+    placementAnalysisRows: opening.render.placementAnalysisRows,
+    kitsFor: opening.kits.kitsFor,
+    openingKitsForServer: opening.kits.openingKitsForServer,
+    roughKits: opening.openingState.roughKits
+  };
   const ui = createWorkshopUiState();
   const scope = createWorkshopScope({ socket: socketRef, registerAction: deps.registerAction });
   let mounted = false;
@@ -79,7 +94,7 @@ export function createWorkshopFeature(deps) {
     }
   }));
   Object.assign(api, createWorkshopPlanner({
-    ui, document, helpers,
+    ui, document, helpers, opening, manageOpeningEvents: !deps.opening,
     ports: {
       workshopDevices: forward("workshopDevices"),
       workshopProcessableItems: forward("workshopProcessableItems"),
@@ -105,7 +120,7 @@ export function createWorkshopFeature(deps) {
     }
   }));
   Object.assign(api, createWorkshopActions({
-    ui, socketRef: scope.socket, elsRef, helpers,
+    ui, socketRef: scope.socket, elsRef, helpers, drafts: opening.drafts,
     ports: {
       workshopDevices: forward("workshopDevices"),
       workshopProcessableItems: forward("workshopProcessableItems"),
@@ -114,13 +129,18 @@ export function createWorkshopFeature(deps) {
       openFinishPlanModal: forward("openFinishPlanModal"),
     }
   }));
+  if (!deps.opening) opening.kits.bindOpeningKitsUiDeps({
+    workshopRefreshPlanner: forward("workshopRefreshPlanner"),
+    renderWorkshop: forward("renderWorkshop"), paintJades: helpers.paintJades
+  });
 
   function mount() {
     if (mounted) return feature;
     mounted = true;
     scope.activate();
+    opening.drafts.bindPlannerDraftDeps();
     api.bindWorkshopStepKeyboard();
-    delivery = createWorkshopDeliveryUi({ socket: scope.socket, getState, els: elsRef, registerAction: scope.registerAction, helpers: deps.helpers });
+    delivery = createWorkshopDeliveryUi({ socket: scope.socket, getState, els: elsRef, registerAction: scope.registerAction, helpers, document });
     ui.finishPlanController = createFinishPlanModalController({
       mount: api.mountFinishPlanShell,
       patch: api.patchFinishPlanModal,
@@ -180,6 +200,7 @@ export function createWorkshopFeature(deps) {
     scope.dispose();
     api.disposeWorkshopKeyboard();
     api.disposeWorkshopPlanner();
+    opening.drafts.dispose();
     ui.finishPlanController?.close();
     if (document) api.closeInlayPreviewTester();
     api.disposeWorkshopPicker();
@@ -188,7 +209,7 @@ export function createWorkshopFeature(deps) {
   }
 
   const feature = {
-    mount, dispose,
+    mount, dispose, opening,
     workshopDevices: api.workshopDevices,
     workshopWorkers: api.workshopWorkers,
     workshopWorkerFor: api.workshopWorkerFor,

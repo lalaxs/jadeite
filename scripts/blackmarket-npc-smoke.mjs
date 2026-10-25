@@ -4,7 +4,7 @@ import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
 import { maintainNpcBlackmarket } from "../server/services/blackmarket/npc.js";
 import { bindBlackmarketApi, publicBlackStall, buyGoodsFromStallForPlayer, reconcileBlackmarketReferences, sweepEmptyBlackGoodsStalls } from "../server/services/blackmarket-service.js";
 import { requireApi } from "../server/services/blackmarket/context.js";
-import { NPC_STALLS, NPC_SHIFT_MS } from "../shared/domain/blackmarket/npc-rules.js";
+import { NPC_STALLS, NPC_SHIFT_MS, NPC_TARGET_STALLS, npcRuleForStall } from "../shared/domain/blackmarket/npc-rules.js";
 import { createMemoryWorldStore } from "../server/world-store.js";
 import { itemCost } from "../shared/domain/economy/item-cost.js";
 import { BLACKMARKET_GOODS_TYPES, isBlackmarketGoodsType } from "../shared/domain/blackmarket/bm-constants.js";
@@ -13,6 +13,9 @@ import { marketMakerOffer } from "../server/services/market-liquidity-service.js
 import { publicStone } from "../server/services/snapshot-public.js";
 import { itemValue } from "../server/services/inventory-service.js";
 import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
+
+const BASE_STALLS = NPC_STALLS.filter((rule) => rule.permanent);
+const permanentStalls = (state) => state.blackStalls.filter((stall) => npcRuleForStall(stall)?.permanent);
 
 const api = requireApi();
 const realNow = Date.now;
@@ -29,13 +32,13 @@ try {
   H.state.players.set(buyer.id, buyer);
   assert.equal(maintainNpcBlackmarket(now).changed, true);
   assert.equal(H.state.players.size, 1, "NPCs must not appear as players");
-  assert.equal(H.state.blackStalls.length, NPC_STALLS.length);
-  assert.equal(H.state.blackStalls.filter((stall) => stall.npcRole !== "traveler").length, 5);
-  assert.equal(H.state.blackStalls.reduce((n, stall) => n + stall.items.length, 0), 32);
-  const flat = () => H.state.blackStalls.flatMap((stall) => stall.items);
+  assert.equal(H.state.blackStalls.length, NPC_TARGET_STALLS);
+  assert.equal(permanentStalls(H.state).filter((stall) => stall.npcRole !== "traveler").length, 5);
+  assert.equal(permanentStalls(H.state).reduce((n, stall) => n + stall.items.length, 0), 32);
+  const flat = () => permanentStalls(H.state).flatMap((stall) => stall.items);
   for (const type of BLACKMARKET_GOODS_TYPES) assert.ok(flat().some((row) => row.type === type), `missing ${type}`);
   assert.ok(flat().every((row) => isBlackmarketGoodsType(row.type)));
-  assert.equal(flat().filter((row) => row.npcDiscount).length, NPC_STALLS.length);
+  assert.equal(flat().filter((row) => row.npcDiscount).length, BASE_STALLS.length);
   assert.equal(flat().filter((row) => row.npcPremium).length, 2);
   for (const row of flat()) {
     if (["employee", "equipment"].includes(row.type)) continue; // Resource pricing and usability have their own suite.
@@ -45,7 +48,7 @@ try {
   }
   const frozen = structuredClone(H.state.blackStalls);
   assert.equal(maintainNpcBlackmarket(now).changed, false);
-  for (const stall of H.state.blackStalls) {
+  for (const stall of permanentStalls(H.state)) {
     const pub = publicBlackStall(stall, buyer.id, publicStone);
     assert.equal(pub.npc, true);
     assert.equal(pub.isMine, false);
@@ -132,22 +135,22 @@ try {
   assert.ok(remainder.item.extractionKits.length > 0, "remainders must retain consumed cutouts");
 
   // Exhaust every discount/high-goods offer, then repeatedly drain all ordinary categories.
-  for (const stall of H.state.blackStalls) {
+  for (const stall of permanentStalls(H.state)) {
     for (const row of [...stall.items].filter((entry) => entry.npcDiscount || entry.npcPremium)) assert.equal(buy(stall, row).ok, true);
   }
   for (let index = 0; index < 240; index += 1) {
-    const jadeStalls = H.state.blackStalls.filter((entry) => !["employee", "equipment"].includes(entry.npcRole));
+    const jadeStalls = permanentStalls(H.state).filter((entry) => !["employee", "equipment"].includes(entry.npcRole));
     const stall = jadeStalls[index % jadeStalls.length];
     if (!stall.items.length) {
       now = Math.min(stall.npcRefillAt, stall.npcRotateAt);
       maintainNpcBlackmarket(now);
     }
     assert.equal(buy(stall, stall.items[0]).ok, true);
-    assert.equal(H.state.blackStalls.filter((entry) => entry.status === "open").length, NPC_STALLS.length);
-    assert.ok(H.state.blackStalls.every((entry) => entry.items.length <= NPC_STALLS.find((rule) => rule.role === entry.npcRole).stock));
+    assert.equal(H.state.blackStalls.filter((entry) => entry.status === "open").length, NPC_TARGET_STALLS);
+    assert.ok(H.state.blackStalls.every((entry) => entry.items.length <= npcRuleForStall(entry).stock));
     assert.ok(flat().every((row) => isBlackmarketGoodsType(row.type)));
   }
-  for (const stall of H.state.blackStalls) {
+  for (const stall of permanentStalls(H.state)) {
     for (const row of [...stall.items].filter((entry) => entry.npcDiscount || entry.npcPremium)) assert.equal(buy(stall, row).ok, true);
   }
   assert.equal(flat().filter((row) => row.npcDiscount || row.npcPremium).length, 0);
@@ -162,15 +165,15 @@ try {
   bindBlackmarketApi({ ...api, getState: () => restored.raw });
   assert.equal(reconcileBlackmarketReferences(restored.raw, now).orphanStalls, 0);
   assert.equal(maintainNpcBlackmarket(now).changed, false);
-  assert.equal(restored.raw.blackStalls.flatMap((stall) => stall.items).filter((row) => row.npcDiscount || row.npcPremium).length, 0);
+  assert.equal(permanentStalls(restored.raw).flatMap((stall) => stall.items).filter((row) => row.npcDiscount || row.npcPremium).length, 0);
   now = Math.max(...restored.raw.blackStalls.map((stall) => stall.npcRotateAt));
   maintainNpcBlackmarket(now);
-  assert.equal(restored.raw.blackStalls.flatMap((stall) => stall.items).filter((row) => row.npcDiscount).length, NPC_STALLS.length);
-  assert.equal(restored.raw.blackStalls.flatMap((stall) => stall.items).filter((row) => row.npcPremium).length, 2);
+  assert.equal(permanentStalls(restored.raw).flatMap((stall) => stall.items).filter((row) => row.npcDiscount).length, BASE_STALLS.length);
+  assert.equal(permanentStalls(restored.raw).flatMap((stall) => stall.items).filter((row) => row.npcPremium).length, 2);
   now += 40 * NPC_SHIFT_MS;
   maintainNpcBlackmarket(now);
-  assert.equal(restored.raw.blackStalls.flatMap((stall) => stall.items).filter((row) => row.npcDiscount).length, NPC_STALLS.length, "downtime must not accumulate old discounts");
-  assert.equal(restored.raw.blackStalls.length, NPC_STALLS.length);
+  assert.equal(permanentStalls(restored.raw).flatMap((stall) => stall.items).filter((row) => row.npcDiscount).length, BASE_STALLS.length, "downtime must not accumulate old discounts");
+  assert.equal(restored.raw.blackStalls.length, NPC_TARGET_STALLS);
   restored.exportSnapshot({ savedAt: now });
   const badSave = structuredClone(saved);
   badSave.blackStalls.push(structuredClone(legacySupplies));
@@ -188,7 +191,7 @@ try {
   const legacyPlayers = structuredClone([...legacyStore.raw.players]);
   bindBlackmarketApi({ ...api, getState: () => legacyStore.raw });
   assert.equal(maintainNpcBlackmarket(now).changed, true);
-  assert.equal(legacyStore.raw.blackStalls.length, NPC_STALLS.length);
+  assert.equal(legacyStore.raw.blackStalls.length, NPC_TARGET_STALLS);
   assert.ok(legacyStore.raw.blackStalls.flatMap((stall) => stall.items).every((row) => isBlackmarketGoodsType(row.type)));
   assert.deepEqual([...legacyStore.raw.players], legacyPlayers);
   const upgradedLegacy = structuredClone(legacyStore.raw.blackStalls);
@@ -218,7 +221,7 @@ try {
   now = Math.min(empty.npcRefillAt, empty.npcRotateAt);
   maintainNpcBlackmarket(now);
   assert.equal(empty.items.length, 6);
-  assert.equal(NPC_STALLS.filter((rule) => !rule.roaming).length, 5);
+  assert.equal(BASE_STALLS.filter((rule) => !rule.roaming).length, 5);
   console.log("blackmarket-npc-smoke: ok (240 purchases, pricing, inventory, batch limits, save/restore, rollback)");
 } finally {
   Date.now = realNow;

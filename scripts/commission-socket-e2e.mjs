@@ -118,7 +118,7 @@ try {
   assert.equal(fresh.state.me.cash, 12_000);
   assert.deepEqual(fresh.state.me.workshop.devices, []);
   assert.deepEqual(fresh.state.me.workshop.workers, []);
-  assert.equal(fresh.state.me.workshop.publicStations.length, 3);
+  assert.equal(Object.hasOwn(fresh.state.me.workshop, "publicStations"), false);
   assert.equal(fresh.state.me.workshop.owner.isOwner, true);
 
   // Strict schemas must reject client-authored rewards, timers and claim values.

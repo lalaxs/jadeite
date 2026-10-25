@@ -1,0 +1,62 @@
+{
+  "clientCount": 10,
+  "savedPlayerCount": 100,
+  "stockCount": 30,
+  "sustainedMs": 45233,
+  "cycles": 5,
+  "counts": {
+    "purchases": 50,
+    "trades": 10,
+    "productions": 30,
+    "shattered": 0,
+    "shifts": 0,
+    "reconnects": 1,
+    "duplicates": 10
+  },
+  "sampledRss": 391180288,
+  "peakSampledQueue": 14,
+  "percentiles": {
+    "connect": {
+      "count": 14,
+      "p95": 1165.0159810000005,
+      "p99": 1165.0159810000005
+    },
+    "miningApply": {
+      "count": 1,
+      "p95": 96.19223499999953,
+      "p99": 96.19223499999953
+    },
+    "buyMaterialPack": {
+      "count": 50,
+      "p95": 2255.741399999999,
+      "p99": 2259.170321999998
+    },
+    "listItem": {
+      "count": 10,
+      "p95": 1166.7970819999991,
+      "p99": 1166.7970819999991
+    },
+    "startPolish": {
+      "count": 30,
+      "p95": 2403.5379720000055,
+      "p99": 2587.222683
+    },
+    "revealWorkshopDelivery": {
+      "count": 60,
+      "p95": 1291.0949360000013,
+      "p99": 1427.8998610000017
+    },
+    "buyListing": {
+      "count": 10,
+      "p95": 2155.9657850000003,
+      "p99": 2155.9657850000003
+    },
+    "claimWorkshopDelivery": {
+      "count": 30,
+      "p95": 1582.8960279999992,
+      "p99": 1605.5649599999997
+    }
+  },
+  "violations": [],
+  "assetRecoveryChecksPassed": true
+}

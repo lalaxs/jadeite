@@ -3,6 +3,17 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
+FROM dependencies AS static
+COPY public ./public
+COPY shared ./shared
+COPY scripts/build-static.mjs ./scripts/build-static.mjs
+ARG APP_VERSION
+RUN APP_VERSION=${APP_VERSION} node scripts/build-static.mjs
+
+FROM caddy:2.11.4-alpine AS web
+COPY --from=static /app/dist/static /srv
+COPY ops/Caddyfile /etc/caddy/Caddyfile
+
 FROM node:24.20.0-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app

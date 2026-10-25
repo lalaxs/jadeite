@@ -556,10 +556,10 @@ Create `docs/reports/2026-07-24-desktop-mobile-qa.md`:
 
 Save and link these captures:
 
-- `docs/reports/screenshots/2026-07-24/desktop-1280-overview.png`
-- `docs/reports/screenshots/2026-07-24/desktop-1280-workshop.png`
-- `docs/reports/screenshots/2026-07-24/desktop-1440-overview.png`
-- `docs/reports/screenshots/2026-07-24/desktop-1440-workshop.png`
+- [docs/reports/screenshots/2026-07-24/desktop-1280-overview.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/screenshots/2026-07-24/desktop-1280-overview.png)
+- [docs/reports/screenshots/2026-07-24/desktop-1280-workshop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/screenshots/2026-07-24/desktop-1280-workshop.png)
+- [docs/reports/screenshots/2026-07-24/desktop-1440-overview.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/screenshots/2026-07-24/desktop-1440-overview.png)
+- [docs/reports/screenshots/2026-07-24/desktop-1440-workshop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/screenshots/2026-07-24/desktop-1440-workshop.png)
 
 - [ ] **Step 7: Commit the desktop fix**
 

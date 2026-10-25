@@ -30,7 +30,7 @@
 
 以上金额是本次随机样本的真实记录，并非每位新手固定收入。原始结果见 [browser-flow.json](./browser-flow.json)。
 
-截图：[领取资源](./01-initial.png)、[排版](./02-planning.png)、[加工](./03-finishing.png)、[出售](./04-sold.png)、[再次进货](./05-replenished.png)、[手机页面](./06-mobile.png)。
+截图：[领取资源](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/01-initial.png)、[排版](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/02-planning.png)、[加工](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/03-finishing.png)、[出售](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/04-sold.png)、[再次进货](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/05-replenished.png)、[手机页面](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy/06-mobile.png)。
 
 ## 回归与边界验证
 
@@ -59,3 +59,5 @@ node scripts/starter-economy-browser.mjs
 新账号使用新起步资源，原账号不重置。前述流程与回归测试均使用隔离数据。
 
 本次验收确认了新手经营闭环可完成，以及相应奖励、订单和收购边界。长期利润率、玩家群体的资产分布与中后期资金压力仍需上线后的经营数据持续校准；30 日运行测试验证的是运行与存储稳定性，不能替代长期经济平衡结论。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-starter-economy)。

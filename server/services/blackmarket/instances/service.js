@@ -23,7 +23,7 @@ import {
   customerRatingTierInfo,
   isCustomerRatingPublic
 } from "../../../../shared/domain/economy/metric-history.js";
-import { wantBucketName } from "../../market-instance.js";
+import { findInventoryItem, inventoryEntries } from "../../inventory-items.js";
 import { attemptAtomicMutation } from "../../atomic-mutation.js";
 import { addFinanceItemCost, registerFinanceItem } from "../../../../shared/domain/economy/finance-book.js";
 
@@ -155,9 +155,7 @@ function eligibleHeadlineTagIds(autoSnap) {
 }
 
 function findOwnerInventoryItem(owner, type, itemId) {
-  const bucket = wantBucketName(type);
-  if (!bucket || !owner) return null;
-  return (owner[bucket] || []).find((item) => item.id === itemId) || null;
+  return findInventoryItem(owner, type, itemId);
 }
 
 function isShowcaseableItem(item, type) {
@@ -170,8 +168,7 @@ function isShowcaseableItem(item, type) {
 function showcaseCandidatesForOwner(owner) {
   const rows = [];
   for (const type of ["bracelet", "slice", "material"]) {
-    const bucket = wantBucketName(type);
-    for (const item of owner?.[bucket] || []) {
+    for (const { item } of inventoryEntries(owner, [type])) {
       if (!isShowcaseableItem(item, type)) continue;
       rows.push({
         type,

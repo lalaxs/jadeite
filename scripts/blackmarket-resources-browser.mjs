@@ -17,6 +17,14 @@ for (const id of ["bm-resource-qa-seller", "bm-resource-qa-buyer", "bm-empty-qa-
   sessions[id] = { playerId: id, resumeToken: H.playerSessions.issueSession(player) };
 }
 const owner = H.state.players.get("bm-resource-qa-seller");
+for (let index = 0; index < 2; index++) {
+  const recruited = H.recruitWorker(owner, owner.recruitCandidates[0].id, { spendCash: H.spendCash });
+  assert.equal(recruited.ok, true, recruited.message);
+}
+for (let index = 0; index < 5; index++) {
+  const purchased = H.buyEquipment(owner, "cuijie-opening-2", { spendCash: H.spendCash, makeId: randomUUID });
+  assert.equal(purchased.ok, true, purchased.message);
+}
 const starterIds = [...owner.workshop.workers, ...owner.workshop.devices].map((item) => item.id);
 const worker = H.recruitWorker(owner, owner.recruitCandidates[0].id, { spendCash: H.spendCash }).worker;
 worker.skills.cut.jieliao.exp = 29;
@@ -25,7 +33,7 @@ device.condition = 61;
 const directory = mkdtempSync(path.join(tmpdir(), "jade-bm-resources-"));
 const seed = path.join(directory, "seed.json");
 writeFileSync(seed, JSON.stringify(H.world.exportSnapshot()));
-const report = path.resolve("docs/reports/2026-10-23-blackmarket-outline-cards");
+const report = path.resolve(process.env.JADE_QA_REPORT_PATH || "docs/reports/2026-10-23-blackmarket-outline-cards");
 mkdirSync(report, { recursive: true });
 const port = 45000 + process.pid % 1000, origin = `http://127.0.0.1:${port}`;
 let server, browser, output = "";
@@ -84,23 +92,24 @@ async function buyFirst(page) {
 }
 async function checkResourceCards(page) {
   const cards = await page.locator("#bmGrid .bm-goods-card").evaluateAll((rows) => rows.map((row) => ({
+    expectedSummaries: row.querySelector(".inventory-slot-badge")?.textContent.includes("设备") ? 1 : 2,
     art: row.querySelectorAll(".bm-resource-art svg").length,
     summaries: row.querySelectorAll(".inventory-slot-copy > p").length,
     artText: row.querySelector(".bm-resource-art")?.textContent.trim()
   })));
   assert.ok(cards.length);
-  assert.ok(cards.every((card) => card.art === 1 && card.summaries === 2 && card.artText === ""), "resource cards use an outline and two short metadata lines");
+  assert.ok(cards.every((card) => card.art === 1 && card.summaries === card.expectedSummaries && card.artText === ""), "resource cards use an outline and their category summaries");
 }
 try {
   await start(); browser = await chromium.launch({ channel: "msedge", headless: true });
   const seller = await pageFor(owner.id, { width: 1440, height: 900 });
-  await go(seller, "hireMarket");
-  await seller.locator(`[data-action='openOwnedWorkerDetail'][data-payload='${worker.id}']`).click();
-  await seller.locator("[data-action='sellBmResource']").click();
+  await go(seller, "blackmarket");
+  await seller.locator("[data-action='openBmOpenModal']").first().click();
   await seller.locator("#bmOpenModal:not([hidden])").waitFor();
   await seller.locator("#bmOpenTitle").fill("山路经营资源");
   await seller.locator("[data-action='confirmBmOpenStall']").click();
   await seller.locator("#bmListModal:not([hidden])").waitFor();
+  await seller.locator(`#bmMlGrid [data-payload='${worker.id}']`).click();
   assert.match(await seller.locator("#bmMlDetail").innerText(), /挂牌期间继续占名额/);
   await seller.locator("#bmMlPrice").fill("18000"); await shot(seller, "employee-list-desktop.png");
   await seller.locator("[data-action='confirmBmList']").click();
@@ -135,7 +144,7 @@ try {
   await shot(buyer, "employee-purchase-mobile.png");
   await buyer.locator("#bmBuyModal [data-action='confirmBmBuy']").click();
   await go(buyer, "hireMarket");
-  await buyer.locator(`[data-action='openOwnedWorkerDetail'][data-payload='${worker.id}']`).click();
+  await buyer.locator(`[data-action='openOwnedWorkerDetail'][data-payload='${worker.id}']`).first().click();
   assert.match(await buyer.locator(".owned-worker-detail-modal").innerText(), /29 \/ /);
   await shot(buyer, "employee-received-mobile.png");
   await buyer.locator("[data-action='closeOwnedWorkerDetail']").first().click();
@@ -164,15 +173,14 @@ try {
   await buyer.locator("#bmWithdrawConfirmModal:not([hidden])").waitFor(); await buyer.locator("[data-action='confirmBmWithdraw']").click();
   await buyer.locator("#bmWithdrawConfirmModal").waitFor({ state: "hidden" });
 
-  // Sell all seven initial resources through the real listing/purchase UI.
-  await go(seller, "hireMarket");
-  await seller.locator(`[data-action='openOwnedWorkerDetail'][data-payload='${starterIds[0]}']`).click();
-  await seller.locator(`[data-action='sellBmResource'][data-payload='${starterIds[0]}']`).click();
+  // Sell all seven fixture resources through the real listing/purchase UI.
+  await go(seller, "blackmarket");
+  await seller.locator("[data-action='openBmOpenModal']").first().click();
   await seller.locator("#bmOpenModal:not([hidden])").waitFor();
   await seller.locator("#bmOpenTitle").fill("山路经营资源");
   await seller.locator("[data-action='confirmBmOpenStall']").click();
   await seller.locator("#bmListModal:not([hidden])").waitFor();
-  for (const id of starterIds.slice(1)) await seller.locator(`#bmMlGrid [data-payload='${id}']`).click();
+  for (const id of starterIds) await seller.locator(`#bmMlGrid [data-payload='${id}']`).click();
   assert.equal(await seller.locator("#bmMlGrid .selected").count(), 7);
   await shot(seller, "all-initial-resources-selected.png");
   await seller.locator("[data-action='confirmBmList']").click();
@@ -191,7 +199,7 @@ try {
   await go(seller, "workshop");
   await seller.locator("#workshopRoot [data-action='openWorkshopDevice']").first().waitFor({ state: "detached" });
   assert.equal(await seller.locator("#workshopRoot [data-action='openWorkshopDevice']").count(), 0);
-  assert.match(await seller.locator("#workshopRoot").innerText(), /还没有可用设备/);
+  assert.match(await seller.locator("#workshopRoot").innerText(), /暂无开料设备/);
   await shot(seller, "empty-workshop-desktop.png");
   await stop(); await start(); await buyer.reload();
   await buyer.locator("#mainNav button[data-nav-view='workshop']").waitFor();
@@ -207,7 +215,7 @@ try {
   await go(seller, "workshop");
   assert.equal(await seller.locator("#workshopRoot [data-action='openWorkshopDevice']").count(), 0, "SQLite restart preserves zero devices");
   await shot(seller, "empty-workshop-restored-mobile.png"); assert.deepEqual(errors, []);
-  writeFileSync(path.join(report, "browser-result.json"), JSON.stringify({ passed: true, viewports: ["1440x900", "390x844"], checks: ["shared outline cards and two-line summaries", "day/night themes", "employee shortcut and listing", "repricing", "equipment shortcut and listing", "category filtering", "P2P employee and equipment purchases", "preserved skills and durability", "NPC employee and equipment purchases", "resale and withdrawal", "sale of all seven initial resources with one listing confirmation", "empty roster and workshop", "SQLite restart preserves empty resources", "no overflow or browser errors"], errors }, null, 2));
+  writeFileSync(path.join(report, "browser-result.json"), JSON.stringify({ passed: true, viewports: ["1440x900", "390x844"], checks: ["shared outline cards and category summaries", "day/night themes", "employee listing", "repricing", "equipment shortcut and listing", "category filtering", "P2P employee and equipment purchases", "preserved skills and durability", "NPC employee and equipment purchases", "resale and withdrawal", "sale of all seven fixture resources with one listing confirmation", "empty roster and workshop", "SQLite restart preserves empty resources", "no overflow or browser errors"], errors }, null, 2));
   console.log(`blackmarket-resources-browser: full player flows passed; screenshots: ${report}`);
 } catch (error) {
   if (browser) for (const [index, context] of browser.contexts().entries()) for (const page of context.pages()) await page.screenshot({ path: path.join(report, `failure-${index}.png`), fullPage: true }).catch(() => {});

@@ -176,9 +176,9 @@ try {
   await page.evaluate(() => document.documentElement.dataset.theme = "day");
   // Verify all stages read the selected catalogue entry rather than stale card data.
   for (const stage of ["opening", "carving", "finishing"]) {
-    await page.locator(`[data-eq-stage='${stage}']`).click();
-    const card = page.locator("#equipmentShop .equipment-listing").nth(1);
-    const modelKey = await card.getAttribute("data-shop-equipment-model");
+    const offered = await page.locator("#equipmentShop .equipment-listing").evaluateAll(nodes => nodes.map(node => node.dataset.shopEquipmentModel));
+    const modelKey = equipmentCatalog().filter(item => item.stage === stage && offered.includes(item.modelKey)).at(-1).modelKey;
+    const card = page.locator(`#equipmentShop [data-shop-equipment-model='${modelKey}']`);
     const item = equipmentCatalog().find(item => item.modelKey === modelKey);
     await card.locator(".inventory-slot-name").click();
     const text = await page.locator(detailSelector).innerText();

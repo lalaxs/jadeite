@@ -18,7 +18,7 @@
 - [ ] `JADE_DEBUG_TOOLS=0`。
 - [ ] 启用持久化时 `JADE_WORLD_PERSIST_DRIVER=postgres`。
 - [ ] 调试 Socket 事件在生产环境不存在。
-- [ ] `PUBLIC_ORIGIN` 只包含正式 HTTPS 域名。
+- [ ] `PUBLIC_ORIGIN` 只包含实际使用的 HTTPS 来源（域名或持有可信证书的公网 IP）。
 - [ ] 数据库密码与管理令牌互不相同。
 - [ ] 生产配置中不再含有 `replace_with` / `change_me` 等占位值。
 - [ ] `.env.production` 未进入 Git 或镜像。
@@ -47,6 +47,8 @@
 - [ ] `JADE_AUDIT_RETENTION_DAYS` 已按合规需求设置，默认 90 天。
 - [ ] 上一镜像版本和回滚步骤可用。
 - [ ] 服务器防火墙只开放 22、80、443。
+- [ ] 静态资源由 Caddy 提供，发布版本路径长期缓存，入口 HTML 重新验证，API 不缓存。
+- [ ] IP 证书自动续期及 Caddy 证书加载通过演练。
 
 ## 发布门槛
 

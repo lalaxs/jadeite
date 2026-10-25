@@ -14,4 +14,6 @@
 
 另通过精加工模型与控制器、原料裁片、工坊、库存、直播 UI、响应式、夜间主题和架构检查；浏览器检查了四种金属、三种成品连接结构、三种抛光及 390px 手机布局。
 
-`desktop.png` 与 `mobile.png` 是游戏内真实截图。
+[desktop.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-finished-product-ui/desktop.png) 与 [mobile.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-finished-product-ui/mobile.png) 是游戏内真实截图。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-21-finished-product-ui)。

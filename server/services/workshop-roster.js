@@ -3,8 +3,8 @@
  */
 import { randomUUID } from "node:crypto";
 import { normalizeDevices } from "../systems/equipment-system.js";
-import { OWNER_OPERATOR_ID, publicWorkshopStations } from "../../shared/domain/economy/public-workstations.js";
-export { OWNER_OPERATOR_ID, publicWorkshopStations } from "../../shared/domain/economy/public-workstations.js";
+import { OWNER_OPERATOR_ID } from "../../shared/domain/economy/public-workstations.js";
+export { OWNER_OPERATOR_ID } from "../../shared/domain/economy/public-workstations.js";
 import {
   ensureRecruitCandidates,
   baseWageForTier,
@@ -143,7 +143,7 @@ export function createWorkshopRoster({ clamp, makeId = randomUUID } = {}) {
         }
       }
     } else {
-      // New accounts purchase their own machines; public stations stay virtual.
+      // New accounts purchase their own machines.
       player.workshop.devices = starterDevices();
     }
     player.workshop.resourceTradingVersion = 1;
@@ -181,8 +181,8 @@ export function createWorkshopRoster({ clamp, makeId = randomUUID } = {}) {
       rng: Math.random,
       makeId
     });
-    if (!player.workshop.selectedDeviceId || ![...player.workshop.devices, ...publicWorkshopStations()].some((device) => device.id === player.workshop.selectedDeviceId)) {
-      player.workshop.selectedDeviceId = player.workshop.devices[0]?.id || "public-opening";
+    if (!player.workshop.selectedDeviceId || !player.workshop.devices.some((device) => device.id === player.workshop.selectedDeviceId)) {
+      player.workshop.selectedDeviceId = player.workshop.devices[0]?.id || null;
     }
     return player.workshop;
   }
@@ -190,7 +190,6 @@ export function createWorkshopRoster({ clamp, makeId = randomUUID } = {}) {
   return {
     WORKSHOP_WORKER_DEFS,
     starterDevices,
-    publicWorkshopStations,
     mergeWorkerSkills,
     normalizeWorkshop
   };

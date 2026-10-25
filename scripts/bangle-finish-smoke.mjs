@@ -1,3 +1,4 @@
+import { readCommerceClientSource } from "./load-commerce-client-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { __testHooks as H } from "../server.js";
@@ -123,16 +124,20 @@ assert.equal(quoteFinishPlan(blank, { ...plan, polishId: "soft" }).valueBonus, q
 // Failure preserves the exact blank and leaves external stock/cash untouched.
 device.attrs.risk = 1.6;
 worker.flaws = ["易裂", "手重"];
-player.bracelets.push(structuredClone(blank));
+H.addItem(player, structuredClone(blank), { acquisitionCost: 0, asNew: false });
 H.normalizePlayer(player);
 const failed = H.startWorkshopJobForPlayer(player, device.id, { itemId: blank.id, finishPlan: plan });
 assert.equal(failed.ok, true, failed.message);
 const beforeFailure = structuredClone(failed.job.item);
+const failureCash = player.cash;
+const failureMaterials = structuredClone(player.externalMaterials);
 failed.job.readyAt = 0;
 const random = Math.random;
 try { Math.random = () => 0; H.processProductionJobs(Date.now(), { onlineOnly: false }); }
 finally { Math.random = random; }
 assert.deepEqual(player.bracelets.find((entry) => entry.id === blank.id), beforeFailure);
+assert.equal(player.cash, failureCash);
+assert.deepEqual(player.externalMaterials, failureMaterials);
 assert.deepEqual(blank, source);
 
 const legacy = { ...source, materialStage: "finished", inlaid: true, inlay: { productType: "handpiece", settingId: "cord", polishId: "soft", productTypeName: "把件", settingName: "编绳/配链" }, components: [{ type: "jade", kind: "bracelet" }, { type: "cord", productType: "handpiece" }] };
@@ -155,7 +160,7 @@ for (let i = 0; i < 250; i++) {
   assert.ok(PRODUCT_CATEGORIES[generated.hard.kind]);
   if (generated.hard.kind === "bracelet") assert.ok(generated.requirements.every((entry) => !["requireMetal", "requireSetting", "requireFineMetal"].includes(entry.type)));
 }
-for (const file of ["public/features/inventory/inventory-module.js", "public/features/inventory/item-detail-model.js", "public/features/orders/orders-module.js", "public/features/market/market-module.js"]) assert.match(readFileSync(file, "utf8"), /inlaySummary/);
+for (const file of ["public/features/inventory/inventory-module.js", "public/features/inventory/item-detail-model.js", "public/features/orders/orders-module.js", "public/features/market/market-module.js"]) assert.match(file === "public/features/market/market-module.js" ? readCommerceClientSource("market") : readFileSync(file, "utf8"), /inlaySummary/);
 assert.match(readFileSync("public/features/inventory-helpers.js", "utf8"), /inventoryDetailStats/, "inventory details use the shared model after extraction");
 console.log("bangle-finish-smoke: 6 real finish workflows, quotes, time/quality, immutable jade, delivery, snapshots, legacy compatibility, failure rollback and order matching ok");
 process.exit(0);

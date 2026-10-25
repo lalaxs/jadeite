@@ -19,6 +19,7 @@ import { validatePlayerState } from "./player-snapshot-schema.js";
 import { validateMiningWorld } from "./mining-snapshot-schema.js";
 import { validateNpcBlackStall } from "./blackmarket-npc-schema.js";
 import { validateAuctionState } from "./auction-snapshot-schema.js";
+import { equipmentCatalog } from "../systems/equipment-system.js";
 
 export { requireCanonicalId } from "./world-schema-utils.js";
 
@@ -255,6 +256,22 @@ export function validateSnapshotShape(snapshot) {
   }
 
   validateAuctionState(snapshot);
+  if (snapshot.equipmentShop != null) {
+    const shop = snapshot.equipmentShop;
+    const models = new Set(equipmentCatalog().map((row) => row.modelKey));
+    const seen = new Set();
+    if (!Number.isSafeInteger(shop.day) || !Number.isFinite(shop.refreshAt) || !Array.isArray(shop.items)) {
+      throw new Error("world-store: invalid equipment shop schedule");
+    }
+    for (const row of shop.items) {
+      if (!models.has(row.modelKey) || seen.has(row.modelKey)
+        || !Number.isSafeInteger(row.stock) || !Number.isSafeInteger(row.initialStock)
+        || row.stock < 0 || row.initialStock < 1 || row.stock > row.initialStock) {
+        throw new Error("world-store: invalid equipment shop stock");
+      }
+      seen.add(row.modelKey);
+    }
+  }
 
   // JSON.stringify silently converts NaN and infinities to null. Reject those
   // values anywhere in the authoritative world before a healthy save rotates.

@@ -13,6 +13,7 @@ import { createRating } from "./instances/rating.js";
 import { createRecovery } from "./instances/recovery.js";
 import { createService } from "./instances/service.js";
 import { createStall } from "./instances/stall.js";
+import { createBlackmarketCustomers } from "./npc-customers.js";
 
 export function createBlackmarketModules(getApi, settlePlayerAchievements) {
   const context = createContext({
@@ -195,6 +196,7 @@ import {
 
 export function createBlackmarketService(deps) {
   const modules = createBlackmarketModules(() => deps, createAchievementRewards({ earnCash: deps?.earnCash }).settlePlayerAchievements);
+  const customers = createBlackmarketCustomers({ ...deps, closeGoodsStallIfEmpty: modules.helpers.closeGoodsStallIfEmpty, bumpBmDeal: modules.context.bumpBmDeal });
   return {
     BM_SERVICE_TEMPLATES: BM_SERVICE_TEMPLATES,
     BLACKMARKET_TAX: BLACKMARKET_TAX,
@@ -213,6 +215,8 @@ export function createBlackmarketService(deps) {
     BLACKMARKET_PER_PLAYER_CAP: BLACKMARKET_PER_PLAYER_CAP,
     BM_SERVICE_PROFILE_CAPS: BM_SERVICE_PROFILE_CAPS,
     maintainNpcBlackmarket: modules["npc"].maintainNpcBlackmarket,
+    processBlackmarketCustomers: customers.processBlackmarketCustomers,
+    visitBlackStallForPlayer: modules.stall.visitBlackStallForPlayer,
     reconcileBlackmarketReferences: modules["recovery"].reconcileBlackmarketReferences,
     blackMaskForPlayerId: modules["helpers"].blackMaskForPlayerId,
     findStallByOwner: modules["helpers"].findStallByOwner,

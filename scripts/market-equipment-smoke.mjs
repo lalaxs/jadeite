@@ -16,7 +16,7 @@ H.state.blackStalls.length = 0;
 H.state.blackServiceOrders.length = 0;
 let failNews = false;
 bindMarketApi({ getState: () => H.state, money: (value) => Math.max(0, Math.round(Number(value) || 0)), randomUUID, takeItem, addItem,
-  spendCash: H.spendCash, earnCash: H.earnCash, advanceTask: H.advanceTask,
+  spendCash: H.spendCash, earnCash: H.earnCash, advanceTask: H.advanceTask, uiMoney: (value) => String(value),
   addNews: (...args) => { if (failNews) throw new Error("injected news failure"); return H.addNews(...args); }
 });
 function player(id, cash = 100000) {
@@ -146,7 +146,7 @@ for (const listing of H.state.listings.filter((row) => row.ownerId === empty.id)
 }
 H.normalizePlayer(empty);
 assert.deepEqual(empty.workshop.devices, [], "selling every device must leave the workshop empty");
-assert.equal(empty.workshop.selectedDeviceId, "public-opening");
+assert.equal(empty.workshop.selectedDeviceId, null);
 for (const device of emptiedDevices) assert.equal(buyer.workshop.devices.filter((row) => row.id === device.id).length, 1);
 console.log("market-equipment-smoke: listing all devices, occupancy, withdrawal, payment, rollback, ownership snapshots and empty workshop normalization ok");
 process.exit(0);

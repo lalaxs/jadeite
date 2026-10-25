@@ -19,11 +19,11 @@
 
 截图来自独立无存档测试服务（3019、3020），未改动主服务玩家：
 
-- `grace.png`：工资 1,500、现金 800 时保留全部现金并开始宽限。
-- `stopped.png`：逾期停工，工资冻结，补薪按钮显示实际扣款与余额。
-- `paid-awaiting-resume.png`：已结清欠薪，仍需主动复工。
-- `workshop-stopped.png`：工坊停工提示及前往复工入口。
-- `resumed.png`：主动复工后恢复排工和当日计薪。
+- [grace.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears/grace.png)：工资 1,500、现金 800 时保留全部现金并开始宽限。
+- [stopped.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears/stopped.png)：逾期停工，工资冻结，补薪按钮显示实际扣款与余额。
+- [paid-awaiting-resume.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears/paid-awaiting-resume.png)：已结清欠薪，仍需主动复工。
+- [workshop-stopped.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears/workshop-stopped.png)：工坊停工提示及前往复工入口。
+- [resumed.png](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears/resumed.png)：主动复工后恢复排工和当日计薪。
 
 ## 验证
 
@@ -38,3 +38,5 @@
 2026-10-23 12:46（北京时间）已完成本机 3000 服务重启，进程由 17692 更新为 35356，健康和持久化状态均为 ready，连续持久化失败为 0，错误日志为空。
 
 备份：`data/world.json.before-payroll-arrears-20261023-124557.bak`。核对重启前后 104 名玩家、416 名员工完整保留，现金、既有欠薪及结薪游标均未改变，所有员工工资符合新表。101 个已有欠薪的存档已获得本次启用起的 24 小时宽限，没有立即扣空现金或立即停工。验证结果见 `activation.json`。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-payroll-arrears)。

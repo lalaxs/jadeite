@@ -31,9 +31,9 @@
 
 按 game-playtest 在独立 3019 测试服验收，禁用持久化。为覆盖外观，测试夹具只从真实生成器的结果中筛选六种方案，没有手工伪造加工字段。验证货架图片、购买预览及实际买入：铂金槽镶钻石蛋面戒指在库存中保留相同器型、配材、抛光与估值，浏览器错误/警告日志为空。未做本轮移动端窗口尺寸验收。
 
-- [实际货架](finished-shelf.jpg)
-- [铂金钻石戒指购买预览](ring-preview.jpg)
-- [购买后的相同戒指](purchased-ring.jpg)
+- [实际货架](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-finish-variety/finished-shelf.jpg)
+- [铂金钻石戒指购买预览](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-finish-variety/ring-preview.jpg)
+- [购买后的相同戒指](https://github.com/lalaxs/jadeite/blob/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-finish-variety/purchased-ring.jpg)
 
 ## 常驻服务生效状态
 
@@ -44,3 +44,5 @@
 重启前备份为 `data/world.json.before-npc-finish-variety-restart-20261023-1792728297813.bak`。重启后核对 104 名玩家均保留，112 件已有完整成品的玉件、组件、加工记录、名称与估值完全一致。没有强制清空或重抽当前货架；后续正常换货和补货生成的成品使用新规则。
 
 详细记录见 [activation.json](activation.json)。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-blackmarket-finish-variety)。

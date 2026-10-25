@@ -28,7 +28,7 @@ assert.doesNotMatch(
 }
 assert.match(`${main}\n${workshop}`, /openWorkshopPlanner/);
 assert.match(styles, /\.ws-planner-modal/);
-assert.match(workshop, /options\.dragging \|\| activeDragKit\?\.roughId === roughId/, "background snapshots must preserve the captured board while dragging");
+assert.match(workshop, /options\.dragging \|\| opening\.openingState\.activeDragKit\?\.roughId === roughId/, "background snapshots must preserve the instance's captured board while dragging");
 assert.match(styles, /@media \(max-width: 767px\)[\s\S]*\.ws-planner-modal[\s\S]*100dvh/);
 
 {

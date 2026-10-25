@@ -26,6 +26,19 @@ if (existsSync(workbuddy)) {
   }
 }
 
+function collectReportOutputs(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const location = path.join(directory, entry.name);
+    if (entry.isDirectory()) collectReportOutputs(location);
+    else if (/\.(?:png|jpe?g|log|html)$/i.test(entry.name)) {
+      targets.push(path.relative(root, location));
+    }
+  }
+}
+
+collectReportOutputs(path.join(root, "docs/reports"));
+targets.push("docs/reports/2026-10-23-economy-implementation/simulation.json");
+
 for (const target of targets) {
   const location = path.join(root, target);
   if (!existsSync(location)) continue;

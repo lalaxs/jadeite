@@ -1,4 +1,5 @@
 import { createGameLifecycle } from "./game-lifecycle.js";
+import { createEquipmentShopService } from "../services/equipment-shop-service.js";
 import { createAchievementRewards } from "../services/achievement-rewards-instance.js";
 import { randomUUID } from "node:crypto";
 import { isFeatureAvailable } from "../../shared/domain/feature-availability.js";
@@ -362,6 +363,10 @@ export function wireServer({
     spendCash
   });
 
+  const { ensureEquipmentShop, buyShopEquipmentForPlayer } = createEquipmentShopService({
+    getState: () => state, spendCash, makeId: randomUUID
+  });
+
   const {
     publicPlayer,
     privatePlayerSnapshot,
@@ -483,7 +488,8 @@ export function wireServer({
     addNews,
     randomUUID,
     emitUiEventToPlayer,
-    notifyPlayerToast
+    notifyPlayerToast,
+    queueOfflineEvent
   };
   const {
     wantEscrowAmountForBudget,
@@ -523,10 +529,13 @@ export function wireServer({
     revealPolishedRough: (rough) => revealPolishedRough(rough),
     materialMeta: MATERIAL_META,
     refreshPlayerReport,
-    notifyPlayerToast
+    notifyPlayerToast,
+    queueOfflineEvent
   };
   const {
     maintainNpcBlackmarket,
+    processBlackmarketCustomers,
+    visitBlackStallForPlayer,
     publicBlackStall,
     publicBlackListing,
     openBlackStallForPlayer,
@@ -721,7 +730,9 @@ export function wireServer({
     reconcileAuctionEscrows,
     reconcileMarketReferences,
     reconcileBlackmarketReferences,
+    ensureEquipmentShop,
     maintainNpcBlackmarket,
+    processBlackmarketCustomers,
     processExpiredWants,
     processMarketLiquidity,
     processExpiredBlackServiceOrders,
@@ -787,6 +798,7 @@ export function wireServer({
   });
 
   registerSocketHandlers(io, {
+    getState: () => state,
     settlePlayerAchievements, claimPlayerAchievement, claimAllPlayerAchievements,
     runtimeConfig,
     logger,
@@ -854,7 +866,7 @@ export function wireServer({
     debugUnlockMining,
     normalizePlayer,
     playerOwnsWorkshop,
-    buyEquipment,
+    buyShopEquipmentForPlayer,
     workshopJobsForDevice,
     repairEquipment,
     startWorkshopJobForPlayer,
@@ -889,6 +901,8 @@ export function wireServer({
     withdrawListingForPlayer,
     collectMarketPayoutForPlayer,
     openBlackStallForPlayer,
+    visitBlackStallForPlayer,
+    publicBlackStall,
     closeBlackStallForPlayer,
     setBlackStallPausedForPlayer,
     updateBlackStallMetaForPlayer,
@@ -974,6 +988,7 @@ export function wireServer({
       workshopJobsForDevice, workshopProcessableItems, startWorkshopJobForPlayer, startProductionJob,
       completeProductionJob, revealWorkshopDeliveryForPlayer, claimWorkshopDeliveryForPlayer, applyJobDurability, validateFinishPlan, quoteFinishPlan,
       reserveFinishMaterials, refundFinishMaterials, applyInlay, equipmentCatalog, buyEquipment,
+      ensureEquipmentShop, buyShopEquipmentForPlayer,
       repairEquipment, repairQuote, ensureRecruitCandidates, refreshRecruitCandidates, recruitWorker,
       dismissWorker, mergeWorkers, normalizeDismissedStarterIds, isWorkerBusy, grantActivityExperience,
       miningConfig, grantMiningLicenseIfDue, canPlayerMine, submitMiningApplication,

@@ -11,3 +11,5 @@
 - 测试运行在 3013 端口的无存档隔离世界，验证后关闭测试服务并恢复浏览器默认尺寸。
 
 截图：desktop-covered.jpg、desktop-partial.jpg、desktop-revealed.jpg、mobile-covered.jpg、mobile-partial.jpg、mobile-revealed.jpg、carving-unchanged.jpg、finishing-unchanged.jpg。布局测量：geometry.json。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-scratch-focus)。

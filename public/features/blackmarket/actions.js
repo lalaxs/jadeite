@@ -1,91 +1,13 @@
-// 黑市 actions：initBlackmarketModule + registerAction
 
-import {
-  socketRef,
-  getState,
-  bmUi,
-  bindBlackmarketDeps,
-  bmMyStall,
-  bmStallById,
-  guardBmFeature,
-  showToast,
-  closeGameModal,
-  formatMoney
-} from "./shared.js";
-import { setView } from "../../shell/navigation.js";
-import { openGameModal } from "./shared.js";
-import {
-  openBmSetupModal,
-  guardBmPlazaLeave,
-  renderBlackmarket,
-  openBmOpenModal,
-  syncBmOpenTypeHint,
-  confirmBmOpenStall,
-  openBmBuy,
-  openBmItemDetail,
-  confirmBmBuy,
-  openBmRatingModal,
-  openBmRatingForm,
-  closeBmModals
-} from "./plaza.js";
-import {
-  openBmListModal,
-  toggleBmListItem,
-  confirmBmList,
-  finishGoodsList,
-  requestBmWithdraw,
-  confirmBmWithdraw
-} from "./goods.js";
-import {
-  isBmBlindStockModalOpen,
-  applyBmBlindSuggestedPrice,
-  confirmBmBlindStockPrice,
-  confirmBmBlindManageMeta,
-  openBmBlindStockModal,
-  toggleBmBlindItem,
-  confirmBmBlindStock,
-  finishBlindStock,
-  setBmBlindManageTab,
-  openBmBlindManageModal,
-  closeBmBlindManageModal,
-  selectBmBlindManageItem,
-  openBmBlindStockFromManage,
-  openBmBlindMetaModal,
-  confirmBmBlindMeta,
-  promptBmToggleAnonymous,
-  confirmBmToggleAnonymous,
-  bmBlindManageBuyerPreview,
-  requestBmBlindManageWithdraw,
-  finishBmBlindManageWithdraw,
-  openBmBlindDrawModal,
-  skipBmBlindDrawAnim,
-  toggleBmBlindDrawPick,
-  renderBmBlindDrawModal,
-  settleBmBlindDraw,
-  requestBmBlindDrawClose,
-  confirmBmBlindDrawClose,
-  finishBmBlindDrawUi
-} from "./blind-ui.js";
-import {
-  openBmServiceOfferModal,
-  openBmServiceInfoModal,
-  confirmBmServiceOffer,
-  setBmProfileTab,
-  confirmBmServiceProfile,
-  bindBmServiceProfileModal,
-  openBmOrderServiceModal,
-  setBmOrderFilter,
-  bindBmOrderServiceModal,
-  confirmBmOrderService,
-  promptBmEarlySubmit
-} from "./service-ui.js";
 
-let blackmarketTabKeyboardBound = false;
+export function createBlackmarketActions({ document, scope, ui, socketRef, getState, bmUi, setView, helpers, ports }) {
+  const { showToast, closeGameModal, formatMoney, openGameModal } = helpers;
+  const { bmMyStall, bmStallById, guardBmFeature, openBmSetupModal, guardBmPlazaLeave, renderBlackmarket, openBmOpenModal, syncBmOpenTypeHint, confirmBmOpenStall, openBmBuy, openBmItemDetail, confirmBmBuy, openBmRatingModal, openBmRatingForm, closeBmModals, openBmListModal, toggleBmListItem, confirmBmList, finishGoodsList, requestBmWithdraw, confirmBmWithdraw, isBmBlindStockModalOpen, applyBmBlindSuggestedPrice, confirmBmBlindStockPrice, confirmBmBlindManageMeta, openBmBlindStockModal, toggleBmBlindItem, confirmBmBlindStock, finishBlindStock, setBmBlindManageTab, openBmBlindManageModal, closeBmBlindManageModal, selectBmBlindManageItem, openBmBlindStockFromManage, openBmBlindMetaModal, confirmBmBlindMeta, promptBmToggleAnonymous, confirmBmToggleAnonymous, bmBlindManageBuyerPreview, requestBmBlindManageWithdraw, finishBmBlindManageWithdraw, openBmBlindDrawModal, skipBmBlindDrawAnim, toggleBmBlindDrawPick, renderBmBlindDrawModal, settleBmBlindDraw, requestBmBlindDrawClose, confirmBmBlindDrawClose, finishBmBlindDrawUi, openBmServiceOfferModal, openBmServiceInfoModal, confirmBmServiceOffer, setBmProfileTab, confirmBmServiceProfile, bindBmServiceProfileModal, openBmOrderServiceModal, setBmOrderFilter, bindBmOrderServiceModal, confirmBmOrderService, promptBmEarlySubmit } = ports;
 
 function bindBlackmarketTabKeyboard() {
-  if (blackmarketTabKeyboardBound) return;
-  blackmarketTabKeyboardBound = true;
-  document.addEventListener("keydown", (event) => {
+  if (ui.blackmarketTabKeyboardBound) return;
+  ui.blackmarketTabKeyboardBound = true;
+  scope.listen(document, "keydown", (event) => {
     const current = event.target.closest?.(
       "#bmBlindManageModal .bm-blind-manage-tab[role='tab'], #bmProfileTabs [role='tab']"
     );
@@ -105,33 +27,39 @@ function bindBlackmarketTabKeyboard() {
   });
 }
 
-export function initBlackmarketModule(deps) {
-  bindBlackmarketDeps(deps);
+function registerBlackmarketActions() {
   bindBlackmarketTabKeyboard();
-  const register = deps.registerAction;
+  const register = scope.register;
   if (typeof register !== "function") return;
 
-  socketRef.off("bmWithdrawResult");
+  function applyStallState(result) {
+    const state = getState();
+    if (!result.ok || !state || !("stall" in result)) return;
+    state.blackStalls = (state.blackStalls || []).filter((stall) => !stall.isMine);
+    if (result.stall) state.blackStalls.unshift(result.stall);
+  }
+
   socketRef.on("bmWithdrawResult", (res = {}) => {
+    applyStallState(res);
     if (res.stallClosed) bmUi.section = "plaza";
     renderBlackmarket();
   });
 
-  socketRef.off("bmWithdrawBlindResult");
   socketRef.on("bmWithdrawBlindResult", (res = {}) => {
     finishBmBlindManageWithdraw(res);
   });
 
-  socketRef.off("bmStallResult");
   socketRef.on("bmStallResult", (res = {}) => {
-    if (!res.ok || res.action !== "open") return;
+    if (!res.ok) return;
+    applyStallState(res);
+    if (res.action !== "open") { renderBlackmarket(); return; }
     bmUi.section = "mine";
     bmUi.pendingSetupType = res.stallType || bmUi.openType;
     renderBlackmarket();
   });
 
-  socketRef.off("bmListResult");
   socketRef.on("bmListResult", (res = {}) => {
+    applyStallState(res);
     if (bmUi.goodsSubmitting) {
       finishGoodsList(res);
       return;
@@ -145,7 +73,6 @@ export function initBlackmarketModule(deps) {
     renderBlackmarket();
   });
 
-  socketRef.off("bmServiceOfferResult");
   socketRef.on("bmServiceOfferResult", (res = {}) => {
     if (!res.ok) return;
     const modal = document.getElementById("bmServiceOfferModal");
@@ -200,6 +127,7 @@ export function initBlackmarketModule(deps) {
     }
     bmUi.section = "detail";
     bmUi.detailStallId = payload;
+    if (stall && !stall.isMine) socketRef.emit("bmVisitStall", { stallId: payload });
     renderBlackmarket();
     const stage = document.getElementById("mainStage");
     if (stage) stage.scrollTop = 0;
@@ -334,7 +262,6 @@ export function initBlackmarketModule(deps) {
   register("bmBlindDrawClose", () => requestBmBlindDrawClose());
   register("bmConfirmBlindDrawClose", () => confirmBmBlindDrawClose());
 
-  socketRef.off("bmBlindDrawStart");
   socketRef.on("bmBlindDrawStart", (res = {}) => {
     if (!res.ok || !res.draw) {
       if (res.message) showToast({ text: res.message, tone: "warn" });
@@ -342,7 +269,7 @@ export function initBlackmarketModule(deps) {
     }
     openBmBlindDrawModal(res.draw, { skipAnim: Boolean(res.resumed) });
   });
-  socketRef.off("bmBlindDrawSettle");
+
   socketRef.on("bmBlindDrawSettle", (res = {}) => {
     if (!res.ok) {
       bmUi.suppressBlindDrawResume = false;
@@ -402,7 +329,6 @@ export function initBlackmarketModule(deps) {
     socketRef.emit("bmCancelService", payload);
   });
 
-  socketRef.off("bmSubmitServiceConfirm");
   socketRef.on("bmSubmitServiceConfirm", ({ orderId, message, penalty } = {}) => {
     promptBmEarlySubmit(orderId, { message, penalty });
   });
@@ -421,7 +347,7 @@ export function initBlackmarketModule(deps) {
     closeBmModals();
   });
 
-  document.addEventListener("click", (e) => {
+  scope.listen(document, "click", (e) => {
     const modal = document.getElementById("bmListModal");
     if (!modal || modal.hidden || !modal.contains(e.target)) return;
     if (e.target.closest("[data-action='confirmBmList']")) {
@@ -430,4 +356,7 @@ export function initBlackmarketModule(deps) {
       confirmBmList();
     }
   }, true);
+}
+
+  return { registerBlackmarketActions };
 }

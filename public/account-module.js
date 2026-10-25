@@ -24,7 +24,7 @@ async function accountRequest(path, options = {}) {
   return { response, payload };
 }
 
-export function initAccountModule({ socket, showToast = () => {} } = {}) {
+export function initAccountModule({ socket, getState = () => null, showToast = () => {} } = {}) {
   const entry = document.getElementById("accountButton");
   const root = document.getElementById("accountModal");
   const dialog = root?.querySelector('[role="dialog"]');
@@ -37,6 +37,7 @@ export function initAccountModule({ socket, showToast = () => {} } = {}) {
   const sessionName = document.getElementById("accountSessionName");
   const bindForm = document.getElementById("accountBindForm");
   const loginForm = document.getElementById("accountLoginForm");
+  const renameForm = document.getElementById("accountRenameForm");
   const logoutButton = document.getElementById("accountLogoutButton");
   if (!entry || !root || !dialog || !bindForm || !loginForm) return;
 
@@ -98,6 +99,7 @@ export function initAccountModule({ socket, showToast = () => {} } = {}) {
     shell?.setAttribute("inert", "");
     document.body.classList.add("account-modal-open");
     setStatus("正在读取账号状态…");
+    if (renameForm) renameForm.elements.name.value = getState()?.me?.name || "";
     selectTab("bind");
     refreshSession().catch(() => {
       showGuest();
@@ -163,6 +165,23 @@ export function initAccountModule({ socket, showToast = () => {} } = {}) {
   loginForm.addEventListener("submit", (event) => {
     event.preventDefault();
     submitCredentials(loginForm, "/api/account/login", false);
+  });
+  renameForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (pending || !renameForm.reportValidity()) return;
+    const name = renameForm.elements.name.value.trim();
+    if (!name) return setStatus("请输入角色名。", "error");
+    if (!socket?.connected) return setStatus("连接尚未恢复，请稍后保存。", "error");
+    setPending(true, "正在保存名字…");
+    socket.timeout(10_000).emit("setName", { name }, (error, result) => {
+      setPending(false);
+      renameForm.elements.name.focus();
+      if (error) return setStatus("保存结果待确认，请重新打开账号查看当前名字。", "error");
+      if (!result?.ok) return setStatus(result?.message || "名字未能保存，请重试。", "error");
+      renameForm.elements.name.value = result.name;
+      setStatus("角色名已更新。", "success");
+      showToast({ text: "角色名已更新。", tone: "success" });
+    });
   });
   logoutButton?.addEventListener("click", async () => {
     if (pending) return;

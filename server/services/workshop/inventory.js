@@ -1,3 +1,4 @@
+import { restoreInventoryItem } from "../inventory-items.js";
 // Inventory restoration and escrow metadata; keep existing saved buckets.
 
 export function createWorkshopInventory({
@@ -5,24 +6,19 @@ export function createWorkshopInventory({
 }) {
 function restoreWorkshopItem(player, item) {
   if (!item) return;
-  if (item.type === "slice") { player.slices.push(item); return; }
+  if (item.type === "slice") { restoreInventoryItem(player, "slice", item); return; }
   if (item.type === "rough" || item.type === "material") {
     restoreRoughToInventory(player, item);
     return;
   }
-  player.bracelets.push(item);
+  restoreInventoryItem(player, "bracelet", item);
 }
 
 function restoreRoughToInventory(player, rough) {
   // —materialStage 决定归属桶：已开窗的明料—materials，其余回 rough
   const stage = materialStageFor(rough);
-  const bucket = stage === "opened" || rough.type === "material" ? player.materials : player.rough;
-  const existingIndex = bucket.findIndex((item) => item.id === rough.id);
-  if (existingIndex >= 0) {
-    bucket[existingIndex] = { ...bucket[existingIndex], ...rough };
-    return;
-  }
-  bucket.push(rough);
+  const type = stage === "opened" || rough.type === "material" ? "material" : "rough";
+  restoreInventoryItem(player, type, rough, { merge: true });
 }
 
 function inheritEscrowMeta(source, ...targets) {

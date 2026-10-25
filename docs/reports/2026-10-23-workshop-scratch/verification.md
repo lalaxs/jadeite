@@ -10,3 +10,5 @@
 - 游戏服务已在原端口 3000 重启，恢复 106 名玩家，readiness 200；重启前已备份 world.json。
 
 截图：covered.jpg、partial.jpg、manual-revealed.jpg、mobile-covered.jpg、mobile-revealed.jpg。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-workshop-scratch)。

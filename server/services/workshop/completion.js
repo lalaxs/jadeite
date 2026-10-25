@@ -1,6 +1,6 @@
 // Durability and authoritative production outcomes; preserve effect order.
 import { applyCraftStepValue, stageToStep as wsStageToStep, stepScore as wsStepScore, workshopShatterChance } from "../../../shared/domain/workshop/workshop-craft-scoring.js";
-import { evaluateLeftoverMaterial } from "../../../shared/domain/jade/jade-opening-engine.js";
+import { evaluateLeftoverMaterial, evaluateOpeningKit } from "../../../shared/domain/jade/jade-opening-engine.js";
 import { isBangle, bangleStepScore } from "../../../shared/domain/workshop/bangle-finish.js";
 import { durabilityLoss } from "../../systems/equipment-system.js";
 import { grantActivityExperience } from "../../systems/employee-system.js";
@@ -35,7 +35,6 @@ function applyJobDurability(player, job) {
   job.durabilityApplied = true;
   const device = workshopDeviceForPlayer(player, job.deviceId);
   if (!device) return 0;
-  if (device.publicStation) return 0;
   const loss = durabilityLoss(device);
   device.condition = clamp(Number(device.condition ?? 100) - loss, 0, 100);
   return loss;
@@ -148,7 +147,10 @@ function completeProductionJob(player, job) {
     const leftoverEval = evaluateLeftoverMaterial(allOpeningKits, stone, geometryOptions);
     const extracted = extractProductsFromJob(job);
     const previousMaterialWeight = materialEvaluationWeight(beforeEval, stone);
-    const pool = partitionMaterialValue(job.item, leftoverEval.remainRatio, extracted.map((product) => product.value), {
+    const pieceWeights = expandKitPlacements(job.options?.kits || []).map(openingKitForPlacement)
+      .map((kit) => materialEvaluationWeight(evaluateOpeningKit(kit, stone, geometryOptions), stone));
+    const pool = partitionMaterialValue(job.item, leftoverEval.remainRatio, pieceWeights, {
+      sourceWeight: previousMaterialWeight,
       valueRetainedRatio: previousMaterialWeight > 0 ? materialEvaluationWeight(leftoverEval, stone) / previousMaterialWeight : undefined
     });
     const { remainingRatio, retainedRatio } = pool;

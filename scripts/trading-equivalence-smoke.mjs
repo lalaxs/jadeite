@@ -79,7 +79,9 @@ function harness(original = false) {
   } else {
     c.services = Object.fromEntries(Object.entries(factories).map(([key, create]) => [key, create(deps)]));
     for (const domain of ["auction", "market", "blackmarket"]) {
-      assert.deepEqual(Object.keys(c.services[domain]).sort(), Object.keys(oracle[domain]).filter(key => !key.startsWith("bind")).sort(), `${domain}: original public members remain available`);
+      const expected = Object.keys(oracle[domain]).filter(key => !key.startsWith("bind"));
+      if (currentRules && domain === "blackmarket") expected.push("processBlackmarketCustomers", "visitBlackStallForPlayer");
+      assert.deepEqual(Object.keys(c.services[domain]).sort(), expected.sort(), `${domain}: public members match the selected rules`);
     }
   }
   c.call = (domain, method, ...args) => { const value = c.services[domain][method](...args); outputs.push([domain, method, structuredClone(value)]); return value; };

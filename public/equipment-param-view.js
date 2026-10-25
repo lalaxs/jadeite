@@ -41,6 +41,15 @@ export function formatEquipmentParamValue(key, value) {
   return `+${compactNumber(value, 0, 1)}%`;
 }
 
+export function equipmentParamTone(key, value) {
+  const number = Number(value ?? (key === "risk" ? 1 : 0));
+  if (key === "risk") return number > 1 ? "poor" : number < 1 ? "good" : "neutral";
+  if (number < 0) return "poor";
+  if (number <= (key === "quality" ? 0.5 : 0)) return "neutral";
+  if (number >= ({ quality: 8, speed: 30, perfectFloor: 5 }[key] ?? Infinity)) return "excellent";
+  return "good";
+}
+
 export function renderEquipmentParamPill(key, value, escapeHtml, options = {}) {
   const help = EQUIPMENT_PARAM_HELP[key];
   if (!help) return "";
@@ -50,7 +59,7 @@ export function renderEquipmentParamPill(key, value, escapeHtml, options = {}) {
   const label = htmlEscape(escapeHtml, help.label);
   const formattedValue = htmlEscape(escapeHtml, formatEquipmentParamValue(key, value));
   const interactiveAttrs = interactive ? ' type="button"' : "";
-  return `<${tag} class="equipment-param-pill equipment-param-help"${interactiveAttrs} aria-label="${tooltip}" data-tooltip="${tooltip}"><em>${label}</em><strong>${formattedValue}</strong></${tag}>`;
+  return `<${tag} class="equipment-param-pill equipment-param-help is-${equipmentParamTone(key, value)}"${interactiveAttrs} aria-label="${label} ${formattedValue}。${tooltip}" data-tooltip="${tooltip}"><em>${label}</em><strong>${formattedValue}</strong></${tag}>`;
 }
 
 export function renderEquipmentParamPills(values = {}, escapeHtml, options = {}) {

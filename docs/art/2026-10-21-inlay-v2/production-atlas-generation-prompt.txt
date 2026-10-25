@@ -1,7 +1,7 @@
 Generation mode: built-in image_gen
 Production output: public/assets/inlay/accessories-handpainted-v1.png (1254x1254 RGBA)
 The original generated PNG was copied without pixel edits. Runtime SVG symbols crop the independent components using public/inlay-artwork.js.
-Gem output: public/assets/inlay/gems-handpainted-v1.png, copied from inlay-gems-atlas-v1.png without pixel edits.
+Gem output: public/assets/inlay/gems-handpainted-v1.png (1536x1024 RGBA).
 Source reference: inlay-all-parts-overview-v1.png
 
 Final production-atlas prompt:

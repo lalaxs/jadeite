@@ -76,6 +76,19 @@ import {
   registerOpeningActions
 } from "./opening-actions.js";
 import { bindPlannerDraftDeps } from "./planner-drafts.js";
+import { defaultOpeningState } from "./opening-state.js";
+import { defaultPlannerDraftRuntime } from "./planner-drafts.js";
+import { defaultOpeningKits } from "./opening-kits.js";
+import { defaultOpeningRender } from "./opening-render.js";
+import { defaultOpeningPointer } from "./opening-pointer.js";
+import { defaultOpeningActions } from "./opening-actions.js";
+
+export { createOpeningRuntime } from "./create-opening-runtime.js";
+export const defaultOpeningRuntime = {
+  openingState: defaultOpeningState, drafts: defaultPlannerDraftRuntime,
+  kits: defaultOpeningKits, render: defaultOpeningRender,
+  pointer: defaultOpeningPointer, actions: defaultOpeningActions
+};
 
 // Wire kits ↔ render as soon as this barrel loads (avoid stub helpers).
 bindOpeningKitsRenderDeps({

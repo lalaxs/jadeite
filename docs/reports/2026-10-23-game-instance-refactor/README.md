@@ -64,3 +64,5 @@ await game.shutdown("host-stop");
 本批完成实例创建与生命周期边界。`wire-server.js` 仍承担领域装配；钱包／库存写入口进一步收窄、玩家初始化与迁移职责拆分、时钟／随机源的系统性注入留在后续批次。保持现在默认随机算法和调用序列。
 
 PostgreSQL 适配器回归包含在完整套件内；当前没有配置 `TEST_DATABASE_URL`，不将适配器测试描述为真实 PostgreSQL 实库集成验收。全部实际存档写入只发生在独立临时测试目录。
+
+验收附件：[文件列表](https://github.com/lalaxs/jadeite/tree/f26a1d5312e9bcf17546f1bae6fce47af7fdaa2e/docs/reports/2026-10-23-game-instance-refactor)。

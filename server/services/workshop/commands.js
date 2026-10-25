@@ -5,9 +5,9 @@ import { speedTimeScale as wsSpeedTimeScale } from "../../../shared/domain/works
 import { productionDuration } from "../../../shared/domain/economy/jade-loop.js";
 import { isWorkerBusy, workerProcessingFee } from "../../systems/employee-system.js";
 import { canonicalizeFinishPlan, quoteFinishPlan, reserveFinishMaterials, refundFinishMaterials } from "../../systems/inlay-system.js";
-import { addFinanceItemCost } from "../../../shared/domain/economy/finance-book.js";
 import { canonicalizeExtractionKitIntents } from "../workshop-planning.js";
-import { OWNER_OPERATOR_ID, publicStationFee } from "../../../shared/domain/economy/public-workstations.js";
+import { OWNER_OPERATOR_ID } from "../../../shared/domain/economy/public-workstations.js";
+import { openingKitsOutsideStone } from "../../../shared/domain/jade/jade-opening-engine.js";
 
 export function createWorkshopCommands({
   money,
@@ -34,10 +34,7 @@ export function createWorkshopCommands({
 function startProductionJob(player, stage, item, options = {}) {
   if (enterEmployeePayrollDay(player, { spendCash, reason: "continued" }).changed) broadcast?.();
   if (!options.ownerOperated && employeeWorkBlock(player)) return null;
-  const stageCost = money(options.publicStationFee || 0);
-  if (stageCost && !spendCash(player, stageCost, `公共工位使用：${options.label || stage}`, { source: "workshop-station", itemId: item.id })) return null;
   const now = Date.now();
-  addFinanceItemCost(player, item, stageCost);
   const durationStage = options.durationStage || stage;
   const durationMs = Math.max(1, Math.round(
     productionDuration(durationStage, TIMING_PROFILE) * (options.timeScale || 1)
@@ -53,7 +50,7 @@ function startProductionJob(player, stage, item, options = {}) {
     outputPreview: options.outputPreview,
     item,
     options,
-    fee: stageCost,
+    fee: 0,
     startedAt: now,
     readyAt: now + durationMs
   };
@@ -109,8 +106,6 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     }
     const canonicalPlan = canonicalizeFinishPlan(previewItem, payload.finishPlan);
     if (!canonicalPlan.ok) return canonicalPlan;
-    const stationFee = publicStationFee(device, previewItem, player.id);
-    if (player.cash < stationFee) return { ok: false, code: "INSUFFICIENT_CASH", message: `本次公共工位费 ¥${stationFee}，当前现金不足。` };
     const quote = quoteFinishPlan(
       previewItem,
       canonicalPlan.plan,
@@ -136,7 +131,6 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
       deviceAttrs: device.attrs,
       workerId: worker.id,
       ownerOperated: Boolean(worker.isOwner),
-      publicStationFee: stationFee,
       timeScale: wsSpeedTimeScale(worker) * devTimeScale * (device.timeMultiplier || 1) * (quote.timeMultiplier || 1),
       outputStage: device.outputStage,
       outputPreview: { materialStage: device.outputStage }
@@ -144,7 +138,7 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     if (!job) {
       refundFinishMaterials(player, reserve.reservedMaterials, reserve.reservedMaterialCosts);
       restoreWorkshopItem(player, item);
-      return { ok: false, code: "INSUFFICIENT_CASH", message: "工位费不足，翡翠与辅材已退回。" };
+      return { ok: false, code: "WORK_BLOCKED", message: "暂时无法开工，翡翠与辅材已退回。" };
     }
     job.finishPlan = structuredClone(canonicalPlan.plan);
     job.inlayQuote = quote;
@@ -159,8 +153,6 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     stage: device.stage,
     itemValue: processingItem.value ?? processingItem.price
   });
-  const stationFee = publicStationFee(device, processingItem, player.id);
-  if (player.cash < stationFee) return { ok: false, code: "INSUFFICIENT_CASH", message: `本次公共工位费 ¥${stationFee}，当前现金不足。` };
   const inputStage = materialStageFor(processingItem);
   if (inputStage !== device.inputStage) {
     return { ok: false, message: "这台设备不能处理当前阶段的物料。" };
@@ -193,8 +185,11 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     if (normalizedKits.some((kit) => existingIds.has(String(kit.id)))) {
       return { ok: false, code: "INVALID_PLANNING", message: "套件编号已被这块料使用。" };
     }
+    const stone = openingStoneForRough(processingItem);
+    if (openingKitsOutsideStone(normalizedKits.map(openingKitFromExtractionKit), stone).size) {
+      return { ok: false, code: "INVALID_PLANNING", message: "套件超出石料边缘，请移回料内再开工。" };
+    }
     if (processingItem.leftoverGeometryVersion === 2) {
-      const stone = openingStoneForRough(processingItem);
       const consumed = existingKits.map(openingKitFromExtractionKit);
       for (const kit of normalizedKits.map(openingKitFromExtractionKit)) {
         if (!kitFitsRemainingStone(kit, stone, consumed)) return { ok: false, code: "INVALID_PLANNING", message: "取件必须完整放在剩余料内，且不能覆盖已取走的部分。" };
@@ -222,7 +217,6 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
     deviceAttrs: device.attrs,
     workerId: worker?.id || device.workerId,
     ownerOperated: Boolean(worker.isOwner),
-    publicStationFee: stationFee,
     timeScale: (worker ? wsSpeedTimeScale(worker) : 1) * devTimeScale * (device.timeMultiplier || 1),
     outputStage: device.outputStage,
     outputPreview: { materialStage: device.outputStage },
@@ -248,7 +242,6 @@ function assignWorkshopWorkerForPlayer(player, payload = {}) {
     if (!worker) return { ok: false, message: "这位师傅不存在。" };
     if (isWorkerBusy(player, worker.id) || (worker.isOwner && player.commissions?.active)) return { ok: false, message: "这位师傅正在执行其他任务。" };
     if (player.commissions?.active?.deviceIds?.includes(device.id)) return { ok: false, code: "BUSY", message: "设备正在用于来料单，请先交付。" };
-    if (device.publicStation) return { ok: false, message: "公共工位不保存长期员工安排，请在开工时选择操作人。" };
     if (device.workerId === worker.id) return { ok: false, message: `${worker.name} 已在本台。` };
     // Looking up a worker normalizes saved devices, so mutate the current
     // owned instance rather than a reference from the previous normalization.
