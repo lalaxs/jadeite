@@ -1,8 +1,9 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { TASK_DEFINITIONS, TASK_REFRESH_MS } from "../server/services/task-service.js";
 
-const player = H.makePlayer("task-smoke-player");
+const player = makeEstablishedPlayer(H, "task-smoke-player");
 H.normalizePlayer(player);
 assert.equal(player.tasks.length, H.TASK_COUNT);
 assert.equal(new Set(player.tasks.map((task) => task.uid)).size, H.TASK_COUNT);
@@ -43,7 +44,7 @@ assert.equal(second.ok, true);
 assert.equal(second.cost, 1000);
 assert.equal(player.cash, cashBeforeReset - 1000);
 
-const legacy = H.makePlayer("task-commission-retirement");
+const legacy = makeEstablishedPlayer(H, "task-commission-retirement");
 H.normalizePlayer(legacy);
 const now = Date.now();
 const task = (uid, type, status, progress, target = 1) => ({

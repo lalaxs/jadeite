@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { createCommissionService } from "../server/services/commission-service.js";
 import { quoteCommission } from "../shared/domain/economy/commission-rules.js";
@@ -41,7 +42,7 @@ try {
   assert.ok(positivePool.pieces[0].value > 0, "a real jade cell must transfer value even when the leftover's global defect appraisal rises");
   assert.equal(positivePool.pieces[0].value + positivePool.leftover.value, 10_000);
   H.world.clear();
-  const p = H.makePlayer("owned-workshop-new");
+  const p = makeEstablishedPlayer(H, "owned-workshop-new");
   H.state.players.set(p.id, p);
   assert.equal(p.cash, 12_000);
   assert.equal(p.workshop.devices.length, 0);
@@ -100,7 +101,7 @@ try {
   assert.equal(commissions.startCommissionForPlayer(p, { offerId: "standard" }, clock).code, "WORKER_BUSY");
   finish(p, paidStart);
 
-  const broken = H.makePlayer("public-workshop-broke");
+  const broken = makeEstablishedPlayer(H, "public-workshop-broke");
   H.state.players.set(broken.id, broken);
   broken.cash = 0;
   broken.employeePayroll.status = "stopped";
@@ -144,7 +145,7 @@ try {
   assert.equal(H.workshopJobsForDevice(broken, used[0].id)[0].type, "commissionJob");
   assert.equal(H.startWorkshopJobForPlayer(broken, used[0].id, { itemId: broken.rough[0].id }).code, "BUSY");
 
-  const old = H.makePlayer("legacy-workshop-preserve");
+  const old = makeEstablishedPlayer(H, "legacy-workshop-preserve");
   old.cash = 4321;
   old.workshop.workers = structuredClone(WORKSHOP_WORKER_DEFS);
   old.workshop.devices = [createDeviceInstance("opening", "cuijie-opening-1", "legacy-device")];
@@ -154,7 +155,7 @@ try {
   assert.equal(old.workshop.workers.length, 4);
   assert.equal(old.workshop.workers.find((worker) => worker.id === "worker-carving").tier, 8);
   assert.equal(old.workshop.devices[0].workerId, "worker-opening", "valid saved staffing must be preserved");
-  const selfRun = H.makePlayer("new-owned-machine-default");
+  const selfRun = makeEstablishedPlayer(H, "new-owned-machine-default");
   selfRun.workshop.devices = [createDeviceInstance("opening", "cuijie-opening-1", "new-machine")];
   H.normalizePlayer(selfRun);
   assert.equal(selfRun.workshop.devices[0].workerId, "owner-operator", "unowned legacy default worker ids must fall back to the proprietor");

@@ -21,6 +21,8 @@ import { registerWorkshopDeliveryCommands } from "./commands/workshop-delivery-c
 import { registerCommissionCommands } from "./commands/commission-commands.js";
 import { registerPayrollCommands } from "./commands/payroll-commands.js";
 import { enterEmployeePayrollDay } from "../systems/employee-payroll.js";
+import { registerBusinessCommands } from "./commands/business-commands.js";
+import { businessCommandAccess } from "../../shared/domain/progression/business-commands.js";
 
 export function registerSocketHandlers(io, deps) {
   const settlePlayerAchievements = deps.settlePlayerAchievements || legacySettlePlayerAchievements;
@@ -173,7 +175,12 @@ export function registerSocketHandlers(io, deps) {
   });
   socket.use((packet, next) => {
     normalizeMutationPacketPayload(packet);
-    next();
+    if (!DURABLE_SOCKET_EVENTS.has(packet[0])) return next();
+    const access = businessCommandAccess(getPlayer(socket), packet[0], packet[1]);
+    if (access.ok) return next();
+    socket.emit("toast", access.message);
+    const acknowledge = packet.at(-1);
+    if (typeof acknowledge === "function") acknowledge(access);
   });
   socket.on("disconnect", () => {
     const playerId = world.playerIdForSocket(socket.id);
@@ -333,6 +340,7 @@ export function registerSocketHandlers(io, deps) {
 
   registerWorkshopDeliveryCommands(socket, { ...deps, getPlayer, acceptMutation, broadcast });
   registerCommissionCommands(socket, { ...deps, getPlayer, acceptMutation, broadcast });
+  if (deps.businessService) registerBusinessCommands(socket, { ...deps, getPlayer, acceptMutation, broadcast });
 
   socket.on("setName", (payload, acknowledge) => {
     const player = getPlayer(socket);

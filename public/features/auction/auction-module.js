@@ -604,7 +604,7 @@ export function enterAuctionHall(hallId, options = {}) {
   const hall = (state?.auctionHalls || []).find((item) => item.id === hallId);
   if (!hall) return;
   if (!hall.unlocked || !hall.active) {
-    showToast({ text: !hall.unlocked ? `需要经营 Lv.${hall.requiredLevel} 才能进入${hall.label}。` : "该公盘暂未开放。", tone: "warn" });
+    showToast({ text: !hall.unlocked ? hall.unlockMessage || `需要经营 Lv.${hall.requiredLevel} 才能进入${hall.label}。` : "该公盘暂未开放。", tone: "warn" });
     return;
   }
   const targetAuction = state.auctionRounds?.[hallId] || state.auction;
@@ -687,7 +687,7 @@ export function renderAuctionHalls(now = nowMs()) {
     const fee = hall.entryFee ?? getState().auction?.entryFee ?? hall.deposit;
     const entered = hall.entered ?? Boolean(auction?.entered);
     const enough = me.cash >= fee;
-    const unlockNote = hall.unlocked ? "" : `经营 Lv.${hall.requiredLevel} 解锁`;
+    const unlockNote = hall.unlocked ? "" : hall.unlockMessage || `经营 Lv.${hall.requiredLevel} 解锁`;
     const selected = selectedAuctionHallId === hall.id ? "selected" : "";
     const canOpenHall = hall.active && hall.unlocked && (entered || !entryLocked);
     const disabled = canOpenHall ? "" : "disabled";
@@ -708,7 +708,7 @@ export function renderAuctionHalls(now = nowMs()) {
     } else if (!hall.active) {
       enterRow = "";
     } else if (!hall.unlocked) {
-      enterRow = `<div class="auction-hall-enter"><span class="auction-hall-status">本场开放 · 经营 Lv.${hall.requiredLevel} 可入场</span></div>`;
+      enterRow = `<div class="auction-hall-enter"><span class="auction-hall-status">本场开放 · 已取得经营资格</span></div>`;
     } else {
       enterRow = "";
     }

@@ -1,12 +1,20 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 import { io } from "socket.io-client";
+import { createGame } from "../server/create-game.js";
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 
 const directory = mkdtempSync(path.join(tmpdir(), "jade-auction-halls-"));
+const seedGame = createGame({ env: { NODE_ENV: "test", JADE_WORLD_PERSIST: "0", PORT: "3196" } });
+const seedPlayer = makeEstablishedPlayer(seedGame.__testHooks, "auction-saved-owner");
+seedGame.__testHooks.state.players.set(seedPlayer.id, seedPlayer);
+const seedAuth = { playerId: seedPlayer.id, resumeToken: seedGame.__testHooks.playerSessions.issueSession(seedPlayer) };
+writeFileSync(path.join(directory, "seed.json"), JSON.stringify(seedGame.__testHooks.world.exportSnapshot()));
+await seedGame.shutdown();
 const port = 38000 + process.pid % 1000;
 const origin = `http://127.0.0.1:${port}`;
 let server;
@@ -20,7 +28,7 @@ function once(socket, event) {
 }
 async function start() {
   server = spawn(process.execPath, ["server.js"], {
-    env: { ...process.env, NODE_ENV: "test", HOST: "127.0.0.1", PORT: String(port), LOG_LEVEL: "warn", JADE_WORLD_PERSIST: "1", JADE_WORLD_PERSIST_DRIVER: "sqlite", JADE_WORLD_SQLITE_PATH: path.join(directory, "world.sqlite"), JADE_WORLD_PATH: path.join(directory, "none.json") },
+    env: { ...process.env, NODE_ENV: "test", HOST: "127.0.0.1", PORT: String(port), LOG_LEVEL: "warn", JADE_WORLD_PERSIST: "1", JADE_WORLD_PERSIST_DRIVER: "sqlite", JADE_WORLD_SQLITE_PATH: path.join(directory, "world.sqlite"), JADE_WORLD_PATH: path.join(directory, "seed.json") },
     stdio: ["ignore", "pipe", "pipe"]
   });
   server.stdout.on("data", (chunk) => { output += chunk; });
@@ -40,6 +48,7 @@ async function stop() {
 }
 async function connect(auth = {}) {
   const socket = io(origin, { transports: ["websocket"], autoConnect: false, auth });
+  socket.on("toast", message => { output += `\ntoast: ${JSON.stringify(message)}`; });
   sockets.push(socket);
   const hello = once(socket, "hello");
   const state = once(socket, "state");
@@ -48,8 +57,12 @@ async function connect(auth = {}) {
 }
 
 async function action(client, event, payload) {
-  const state = once(client.socket, "state");
+  output += `\naction: ${event} ${JSON.stringify(payload)}`;
+  const completed = once(client.socket, "toast");
   client.socket.emit(event, payload);
+  await completed;
+  const state = once(client.socket, "state");
+  client.socket.emit("requestState");
   return state;
 }
 function savedWorld() {
@@ -67,7 +80,7 @@ function assertSharedClock(state) {
 }
 try {
   await start();
-  const first = await connect();
+  const first = await connect(seedAuth);
   assertSharedClock(first.state);
   assert.equal(first.state.auctionHalls.filter((hall) => hall.active).length, 1);
   const upgraded = await action(first, "debugGrant", { exp: 250, cash: 100000 });
@@ -94,13 +107,13 @@ try {
   const newcomer = await connect();
   const denied = once(newcomer.socket, "toast");
   newcomer.socket.emit("enterAuction", { hallId: "regular", requestId: "level-blocked" });
-  assert.match(String(await denied), /经营 Lv\.2/);
+  assert.match(String(await denied), /选择开局经营方式/);
   newcomer.socket.close();
   const persisted = savedWorld();
   const persistedRounds = [persisted.auction, ...Object.values(persisted.auctionRounds)];
   assert.equal(persistedRounds.length, 5);
   assert.equal(persistedRounds.find((round) => round.hallId === "regular").bids.length, 1);
-  const session = { playerId: first.hello.playerId, resumeToken: first.hello.resumeToken };
+  const session = { playerId: first.hello.playerId, resumeToken: first.hello.resumeToken || seedAuth.resumeToken };
   const cash = bidState.me.cash;
   first.socket.close();
   await stop();

@@ -1,4 +1,5 @@
 import { initializeInventory, takeInventoryItem, restoreInventoryItem } from "./inventory-items.js";
+import { businessAccess, businessCapacity } from "../../shared/domain/progression/business-growth.js";
 /**
  * 藏宝阁：成品入库冻结 / 放回仓库解冻。
  * 从 socket-handlers 剥离，handlers 只做 requestId + toast/broadcast。
@@ -32,11 +33,13 @@ export function createCollectionService(deps) {
 
   function collectBraceletForPlayer(player, braceletId) {
     if (!player) return { ok: false, message: "玩家状态不可用。" };
+    const growthAccess = businessAccess(player, "collection");
+    if (!growthAccess.ok) return growthAccess;
     initializeInventory(player, "collection");
-    if (player.collection.length >= MAX_COLLECTION_SIZE) {
+    if (player.collection.length >= businessCapacity(player, "collection")) {
       return {
         ok: false,
-        message: `藏宝阁已满（上限 ${MAX_COLLECTION_SIZE} 件），请先放回仓库。`
+        message: `藏宝阁已满（本阶段上限 ${businessCapacity(player, "collection")} 件），请先放回仓库。`
       };
     }
     const bracelet = takeItem(player, "bracelet", braceletId);

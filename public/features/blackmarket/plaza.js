@@ -1,4 +1,5 @@
 import { paintJadeCanvases } from "../../jade-renderer.js";
+import { businessPurchaseAccess } from "../../../shared/domain/progression/business-growth.js";
 import { lazyPreviewMarkup } from "../../lazy-preview.js";
 import { materialStageForClient, materialStageLabel } from "../inventory-helpers.js";
 import { inlaySummary } from "../../product-meta.js";
@@ -473,7 +474,7 @@ function mineManageHtml(mine) {
     const items = mine.items || [];
     return `
       <div class="bm-manage-head">
-        <span>货架 ${items.length}/${BM_GOODS_CAP}</span>
+        <span>货架 ${items.length}/${stall.goodsCapacity || (stall.isMine ? getState()?.me?.business?.capacity?.goods : null) || BM_GOODS_CAP}</span>
         <button class="jm-hero-btn primary" data-action="openBmListModal" type="button">＋ 上架物品</button>
       </div>
       <div class="bm-manage-grid inventory-grid">${items.length ? items.map((row) => goodsRowHtml(mine, row, true)).join("") : `
@@ -522,12 +523,13 @@ function goodsRowHtml(stall, row, isMine) {
   const summary = inlaySummary(item);
   const detailAction = `data-action="openBmItemDetail" data-stall="${escapeHtml(stall.id)}" data-payload="${escapeHtml(row.id)}"`;
   const can = bmAffordable(row.price);
-  const buy = bmFeatureGate("bmBuy");
+  const feature = bmFeatureGate("bmBuy");
+  const buy = feature.ok ? businessPurchaseAccess(getState()?.me, item) : feature;
   let buyBtn;
   if (isMine) {
     buyBtn = `<button class="jm-buy jm-buy-mine" data-action="bmReprice" data-payload="${escapeHtml(row.id)}" type="button">改价</button><button class="jm-buy jm-buy-mine" data-action="bmWithdraw" data-payload="${escapeHtml(row.id)}" type="button">撤下</button>`;
   } else if (!buy.ok) {
-    buyBtn = `<button class="jm-buy" disabled type="button" title="${escapeHtml(buy.message)}">积分未解锁</button>`;
+    buyBtn = `<button class="jm-buy" disabled type="button" title="${escapeHtml(buy.message)}">${escapeHtml(buy.message)}</button>`;
   } else {
     buyBtn = `<button class="jm-buy" data-action="openBmBuyGoods" data-stall="${escapeHtml(stall.id)}" data-payload="${escapeHtml(row.id)}" ${can ? "" : "disabled"} type="button">${can ? "买入" : "现金不足"} · ${formatMoney(row.price)}</button>`;
   }
@@ -908,6 +910,8 @@ function openBmBuy(listingId, stallId) {
   const stall = bmStallById(stallId);
   const row = (stall?.items || []).find((r) => r.id === listingId);
   if (!stall || !row || stall.isMine) return;
+  const purchaseAccess = businessPurchaseAccess(getState()?.me, row.item);
+  if (!purchaseAccess.ok) { showToast(purchaseAccess.message); return; }
   bmUi.buyStallId = stallId;
   bmUi.buyListingId = listingId;
   bmUi.buyPrice = row.price;
@@ -916,7 +920,8 @@ function openBmBuy(listingId, stallId) {
   if (!modal || !body) return;
   const roster = getState()?.me?.workshop?.workers || [];
   const payroll = getState()?.me?.employeePayroll;
-  const blocked = row.type === "employee" && (roster.length >= 8 ? "员工名额已满（8/8）" : payroll?.debt > 0 || payroll?.status === "stopped" ? "请先结清欠薪并复工" : "");
+  const capacity = getState()?.me?.business?.capacity?.workers ?? 8;
+  const blocked = row.type === "employee" && (roster.length >= capacity ? `员工名额已满（${roster.length}/${capacity}）` : payroll?.debt > 0 || payroll?.status === "stopped" ? "请先结清欠薪并复工" : "");
   const can = bmAffordable(row.price) && !blocked;
   const cash = Number(getState()?.me?.cash || 0);
   const balanceAfter = cash - Number(row.price || 0);

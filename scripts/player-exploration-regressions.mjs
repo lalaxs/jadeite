@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
 import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
@@ -17,7 +18,7 @@ process.env.JADE_WORLD_PERSIST = "0";
 process.env.JADE_MINING_APPLICATION_MS = "100";
 process.env.JADE_MINING_LEASE_MS = "4000";
 const { __testHooks: H } = await import("../server.js");
-const player = installOwnedWorkshopFixture(H.makePlayer("exploration-regression"));
+const player = installOwnedWorkshopFixture(makeEstablishedPlayer(H, "exploration-regression"));
 player.cash = 200_000;
 H.state.players.set(player.id, player);
 
@@ -129,12 +130,12 @@ const online = { rep: 150, lastRepDecayAt: 1_000_000 };
 const offline = structuredClone(online);
 const later = 1_000_000 + 35 * 60_000;
 applyReputationDecay(online, later);
-const offlinePlayer = Object.assign(H.makePlayer("offline-decay-two"), offline);
+const offlinePlayer = Object.assign(makeEstablishedPlayer(H, "offline-decay-two"), offline);
 H.settleOfflinePlayer(offlinePlayer, later);
 assert.equal(offlinePlayer.rep, offline.rep, "offline reputation retains its original settlement rule");
 assert.equal(offlinePlayer.lastRepDecayAt, later);
 
-const stuck = H.makePlayer("minor-material-recovery");
+const stuck = makeEstablishedPlayer(H, "minor-material-recovery");
 for (const field of ["rough", "materials", "slices", "bracelets", "collection", "jobs"]) stuck[field] = [];
 stuck.cash = 250;
 stuck.externalMaterials.silver925 = 1;
@@ -152,7 +153,7 @@ const mining = H.snapshotFor(player).mining;
 assert.equal(mining.unlocked, false);
 assert.equal(mining.requiredPlayers, 50);
 for (let i = 0; i < 49; i++) {
-  const qualified = H.makePlayer(`qualified-${i}`);
+  const qualified = makeEstablishedPlayer(H, `qualified-${i}`);
   qualified.rep = 100;
   H.state.players.set(qualified.id, qualified);
 }

@@ -279,7 +279,7 @@ export function renderOwnedWorkers() {
   const payrollDebt = Number(getState().me.employeePayroll?.debt || 0);
   refreshEmployeePayrollInfo();
   if (elsRef.hireMarketBrief) {
-    elsRef.hireMarketBrief.textContent = `在册 ${workers.length}/8${stopped ? " · 已停工" : ""}`;
+    elsRef.hireMarketBrief.textContent = `在册 ${workers.length}/${getState()?.me?.business?.capacity?.workers ?? 8}${stopped ? " · 已停工" : ""}`;
   }
   if (!workers.length) {
     elsRef.ownedWorkerList.innerHTML = `
@@ -535,9 +535,9 @@ export function renderRecruitCandidates() {
   }).join("") || `
     <div class="game-empty-state recruit-empty-state">
       <span class="game-empty-state-mark" aria-hidden="true">募</span>
-      <strong>${workers.length >= 8 ? "员工人数已达上限" : "暂时没有候选人"}</strong>
-      <p>${workers.length >= 8 ? "当前最多可管理 8 位员工，可先调整现有花名册。" : "刷新候选池后会出现新一批师傅。"}</p>
-      ${workers.length >= 8 ? "" : `<button type="button" data-action="refreshRecruitCandidates" ${cash < RECRUIT_REFRESH_COST || payrollBlocked ? "disabled" : ""}>${payrollBlocked ? "请先补薪并复工" : cash < RECRUIT_REFRESH_COST ? `现金不足 · 还差 ${formatMoney(RECRUIT_REFRESH_COST - cash)}` : `刷新候选人 · ¥${RECRUIT_REFRESH_COST}`}</button>`}
+      <strong>${workers.length >= (getState()?.me?.business?.capacity?.workers ?? 8) ? "员工人数已达上限" : "暂时没有候选人"}</strong>
+      <p>${workers.length >= (getState()?.me?.business?.capacity?.workers ?? 8) ? "当前最多可管理 8 位员工，可先调整现有花名册。" : "刷新候选池后会出现新一批师傅。"}</p>
+      ${workers.length >= (getState()?.me?.business?.capacity?.workers ?? 8) ? "" : `<button type="button" data-action="refreshRecruitCandidates" ${cash < RECRUIT_REFRESH_COST || payrollBlocked ? "disabled" : ""}>${payrollBlocked ? "请先补薪并复工" : cash < RECRUIT_REFRESH_COST ? `现金不足 · 还差 ${formatMoney(RECRUIT_REFRESH_COST - cash)}` : `刷新候选人 · ¥${RECRUIT_REFRESH_COST}`}</button>`}
     </div>`;
   recruitDetailController?.refresh();
 }
@@ -582,10 +582,10 @@ function patchRecruitCandidateDetail(modal, root) {
   const signingFee = Number(candidate.price || 0);
   const balanceAfter = cash - signingFee;
   const payrollBlocked = Number(getState().me.employeePayroll?.debt || 0) > 0 || employeePayrollStatus(getState().me, nowMs()) === "stopped";
-  const disabledReason = payrollBlocked ? "请先结清欠薪并恢复工作" : workers.length >= 8
-    ? "员工人数已达到 8 人上限"
+  const disabledReason = payrollBlocked ? "请先结清欠薪并恢复工作" : workers.length >= (getState()?.me?.business?.capacity?.workers ?? 8)
+    ? `本阶段员工名额为 ${getState()?.me?.business?.capacity?.workers ?? 8} 人`
     : cash < signingFee ? "现金不足" : "";
-  const actionLabel = payrollBlocked || workers.length >= 8
+  const actionLabel = payrollBlocked || workers.length >= (getState()?.me?.business?.capacity?.workers ?? 8)
     ? disabledReason
     : cash < signingFee
       ? `现金不足 · 还差 ${formatMoney(Math.abs(balanceAfter))}`

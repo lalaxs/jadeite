@@ -43,7 +43,7 @@ export function financeReportHtml(finance) {
       <div><dt>本营业日未结工资（预估）</dt><dd>${money(summary.currentPayrollEstimate ?? 0)}</dd></div>
       ${Number(summary.currentPayrollEstimate || 0) > 0 ? `<div><dt>扣除未结工资预估后</dt><dd>${signed(summary.operatingNetAfterPayrollEstimate)}</dd></div>` : ""}
     </dl><p class="finance-note">未知历史成本不补记为零；购机、售机、借款和本金还款单独影响资金，不等同当期经营盈亏。</p></details>
-    <div class="finance-equipment"><h4>设备与许可资金</h4><dl class="finance-rows"><div><dt>购机与许可投入</dt><dd>${money(summary.equipmentOutflow)}</dd></div><div><dt>售机回款</dt><dd>${money(summary.equipmentInflow)}</dd></div></dl><p class="finance-note">设备与许可采购计入现金支出；此处不把整项采购直接记作销售亏损。</p></div>
+    <div class="finance-equipment"><h4>设备与经营资源资金</h4><dl class="finance-rows"><div><dt>购机与许可投入</dt><dd>${money(summary.equipmentOutflow)}</dd></div><div><dt>设备与人员转让回款</dt><dd>${money(summary.equipmentInflow)}</dd></div></dl><p class="finance-note">设备与许可采购计入现金支出；此处不把整项采购直接记作销售亏损。</p></div>
     <div class="finance-equipment finance-funds"><h4>资金往来</h4><dl class="finance-rows">
       <div><dt>借款到账</dt><dd>${money(summary.financingInflow)}</dd></div>
       <div><dt>累计借款还款</dt><dd>${money(summary.debtRepayment)}</dd></div>
@@ -89,7 +89,7 @@ export function saleComparisonHtml(model) {
       const payload = row.listingId || (row.action ? model.productId : `${row.destination}|${model.productId}`);
       const cash = row.cash;
       return `<article class="finance-channel${row.available ? "" : " is-unavailable"}"><header><h4>${esc(row.channel)}</h4><span>${esc(row.label || "暂无报价")}</span></header>
-        ${row.kind === "bundle" ? `<p class="finance-bundle">${money(row.bundlePay)} / ${row.quantity} 件整单</p>` : row.revenue != null ? `<dl class="finance-channel-stats"><div><dt>${row.kind === "target" ? "若成交回款" : "预计回款"}</dt><dd>${money(row.revenue)}</dd></div><div class="${tone(row.grossProfit)}"><dt>销售毛利</dt><dd>${signed(row.grossProfit)}</dd></div><div><dt>自动还款后现金增加</dt><dd>${cash ? money(cash.cashIncrease) : "待核实"}</dd></div></dl>${cash ? `<p class="finance-cash-detail">补薪 ${money(cash.payrollRepayment)} · 纾困还款 ${money(cash.recoveryRepayment)} · 入账后现金 ${money(cash.cashAfter)}</p>` : ""}` : ""}
+        ${row.kind === "bundle" ? `<p class="finance-bundle">${money(row.bundlePay)} / ${row.quantity} 件整单</p>` : row.revenue != null ? `<dl class="finance-channel-stats"><div><dt>${row.kind === "target" ? "若成交回款" : "预计回款"}</dt><dd>${money(row.revenue)}</dd></div><div class="${tone(row.grossProfit)}"><dt>销售毛利</dt><dd>${signed(row.grossProfit)}</dd></div><div><dt>自动还款后现金增加</dt><dd>${cash ? money(cash.cashIncrease) : "待核实"}</dd></div></dl>${cash ? `<p class="finance-cash-detail">补薪 ${money(cash.payrollRepayment)} · 经营贷款 ${money(cash.businessLoanRepayment)} · 纾困还款 ${money(cash.recoveryRepayment)} · 入账后现金 ${money(cash.cashAfter)}</p>` : ""}` : ""}
         <p class="finance-channel-note">${esc(row.note || "")}</p>
         ${action && row.available ? `<button type="button" class="${row.id === "recycle" ? "secondary" : ""}" data-action="${esc(action)}" data-payload="${esc(payload)}">${row.id === "recycle" ? "去回收确认" : row.listingId ? "查看报价并确认" : "去原渠道选择并确认"}</button>` : ""}
       </article>`;

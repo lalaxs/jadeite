@@ -1,4 +1,5 @@
 import { workerDailyWage } from './worker-economy.js';
+import { businessReserveBase } from '../progression/business-growth.js';
 
 export const BASE_OPERATING_RESERVE = 4_000;
 const PROCUREMENT_SOURCES = new Set(['auction', 'market', 'blackmarket', 'material', 'livestream-buy']);
@@ -12,7 +13,7 @@ export function operatingReserveFor(player) {
     PROCUREMENT_SOURCES.has(row?.source) && (row?.kind === 'expense' || Number(row?.amount) < 0)
   )).slice(0, 12);
   const procurement = recentPurchases.reduce((largest, row) => Math.max(largest, Math.abs(Number(row.amount) || 0)), 0);
-  return Math.ceil(Math.max(BASE_OPERATING_RESERVE, procurement + wages * 2));
+  return Math.ceil(Math.max(businessReserveBase(player), procurement + wages * 2));
 }
 
 export function availableDebtRepayment(player) {

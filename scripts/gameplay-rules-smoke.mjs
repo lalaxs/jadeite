@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import { payEmployeePayroll, enterEmployeePayrollDay } from "../server/systems/employee-payroll.js";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
@@ -49,7 +50,7 @@ poor.cash = 1500;
 assert.equal(payEmployeePayroll(poor, 200, { spendCash: H.spendCash, now: start + day * 1.5 + 1 }).paid, 200);
 assert.equal(poor.cash, 1300);
 
-const recruit = H.makePlayer("payroll-recruit");
+const recruit = makeEstablishedPlayer(H, "payroll-recruit");
 const candidate = recruit.recruitCandidates[0];
 const beforeSigning = recruit.cash = 100_000;
 const hired = recruitWorker(recruit, candidate.id, { spendCash: H.spendCash });
@@ -58,7 +59,7 @@ assert.equal(recruit.cash, beforeSigning - candidate.price);
 assert.ok(hired.worker.payrollAt >= start);
 
 // Runtime/offline progress never opens salary dates; explicit login does.
-const offline = installOwnedWorkshopFixture(H.makePlayer("payroll-offline"));
+const offline = installOwnedWorkshopFixture(makeEstablishedPlayer(H, "payroll-offline"));
 const bill = offline.workshop.workers.reduce((sum, worker) => sum + workerDailyWage(worker), 0);
 assert.equal(bill, 1500, "the explicitly saved four-worker roster retains its ¥1500 daily wages");
 enterEmployeePayrollDay(offline, { spendCash: H.spendCash, now: start - day });
@@ -72,7 +73,7 @@ H.reconcileWorld(start + day, { broadcast: false });
 assert.equal(offline.cash, 12_000);
 assert.equal(enterEmployeePayrollDay(offline, { spendCash: H.spendCash, now: start + day }).paid, bill);
 
-const fresh = H.makePlayer("access-zero");
+const fresh = makeEstablishedPlayer(H, "access-zero");
 H.state.players.set(fresh.id, fresh);
 assert.equal(fresh.achievementPoints, 0);
 const listing = H.listItemForPlayer(fresh, { type: "rough", itemId: fresh.rough[0].id, price: 1000 });
@@ -88,8 +89,8 @@ assert.ok(finishing.quote.metalAmount > 0);
 
 // Real submissions on both sides of the boundary preserve escrow but hide competitors.
 H.state.auction = null;
-const bidder1 = H.makePlayer("phase-one");
-const bidder2 = H.makePlayer("phase-two");
+const bidder1 = makeEstablishedPlayer(H, "phase-one");
+const bidder2 = makeEstablishedPlayer(H, "phase-two");
 for (const player of [bidder1, bidder2]) {
   player.cash = 100_000;
   H.state.players.set(player.id, player);

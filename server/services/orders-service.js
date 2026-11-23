@@ -1,4 +1,5 @@
 import { findInventoryItem } from "./inventory-items.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
 /**
  * Customer orders — persona generation, negative-filter requirements,
  * mismatch bad-review dice, daily 05:00 pool replace, paid refresh.
@@ -701,6 +702,12 @@ export function createOrdersService(deps) {
       allowUnlimited: !poolHasUnlimited && !opts.forceSparse,
       satisfaction
     });
+    const premiumCustomer = player.business?.built.includes("store") && !opts.forceSparse && rng() < .25;
+    if (premiumCustomer) {
+      persona.wealth = "富有";
+      persona.title = "名店雅客";
+      persona.label = persona.title;
+    }
     if (opts.forceSparse) {
       persona = {
         ...persona,
@@ -740,6 +747,7 @@ export function createOrdersService(deps) {
     return {
       id: randomUUID(),
       client: title,
+      premiumCustomer,
       persona: {
         age: persona.age,
         ageBand: persona.ageBand,
@@ -772,6 +780,7 @@ export function createOrdersService(deps) {
 
   function refillOrders(player) {
     player.orders ||= [];
+    if (!businessAccess(player, "orders").ok) return;
     if (player.onboarding?.starterOrderCompletedAt) player.orders = player.orders.filter((order) => !order.starterOrder);
     // Drop legacy template orders missing persona so pool migrates on refill.
     player.orders = player.orders.filter((order) => (order?.persona || order?.hard) && (!order.hard?.kind || Object.hasOwn(PRODUCT_CATEGORIES, order.hard.kind)));
@@ -790,6 +799,20 @@ export function createOrdersService(deps) {
     ensureUnlimitedCap(player);
     while (player.orders.length < ORDER_SLOT_CAP) player.orders.push(makeOrder(player, { forceSparse: true }));
     ensureLowBarrierOrder(player, (opts) => makeOrder(player, opts));
+    const regular = player.business?.regularCustomer;
+    if (regular && regular.completed < 3 && !player.orders.some(order => order.regularCustomer)) {
+      const followup = makeOrder(player, { forceSparse: true });
+      const quantity = regular.completed >= 2 ? 2 : 1;
+      followup.regularCustomer = true;
+      followup.client = `${regular.name} · ${regular.completed >= 2 ? "成套收藏" : "送礼回购"}`;
+      followup.hard = { ...followup.hard, kind: regular.kind, kindLabel: PRODUCT_CATEGORIES[regular.kind]?.label || "成品", sizeBand: null,
+        budgetUnlimited: false, budgetMax: Math.ceil(regular.referenceValue * 1.25) };
+      followup.requirements = [];
+      followup.quantity = quantity;
+      followup.pay = Math.round(regular.referenceValue * quantity * (regular.completed >= 2 ? 1.16 : 1.13));
+      followup.targetMid = regular.referenceValue * quantity;
+      player.orders[player.orders.length - 1] = followup;
+    }
     if (player.onboarding && !player.onboarding.starterOrderCompletedAt) {
       const product = (player.bracelets || []).find((item) => item.starterOriginId
         && item.starterOwnerId === player.id && materialStageFor(item) === "finished");
@@ -841,6 +864,8 @@ export function createOrdersService(deps) {
 
   function completeOrderForPlayer(player, { orderId, braceletIds } = {}) {
     if (!player) return { ok: false, message: "未找到玩家。" };
+    const access = businessAccess(player, "orders");
+    if (!access.ok) return access;
     const order = (player.orders || []).find((item) => item.id === orderId);
     if (!order) return { ok: false, message: "订单不存在。" };
     const selectedIds = [...new Set(Array.isArray(braceletIds) ? braceletIds : [])].slice(0, order.quantity || 1);
@@ -968,6 +993,13 @@ export function createOrdersService(deps) {
     });
 
     player.stats.orderCount += 1;
+    if (player.business && worst.tier === "full" && onTime) {
+      if (!player.business.regularCustomer) player.business.regularCustomer = {
+        name: order.client, kind: selected[0].kind || selected[0].jadeKind || "bracelet",
+        referenceValue: Math.max(1, Math.round(Number(selected[0].value) || 1)), completed: 1
+      };
+      else if (order.regularCustomer) player.business.regularCustomer.completed += 1;
+    }
     player.orders = player.orders.filter((item) => item.id !== order.id);
     advanceTask(player, "order_complete");
     grantPlayerExp(player, worst.tier === "full" && onTime ? "order_ok" : "order_bad");

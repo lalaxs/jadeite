@@ -146,7 +146,7 @@ const BUSINESS_INCOME_SOURCES = new Set(["market-payout", "order", "livestream",
   "blackmarket-blind-sale", "blackmarket-blind-extra-sale", "inventory-recycle", "salvage", "commission"]);
 
 export function repayEmployeePayrollFromIncome(player, income, meta = {}, { spendCash, now = Date.now(), maxPayment = Infinity } = {}) {
-  if (!BUSINESS_INCOME_SOURCES.has(meta.source)) return 0;
+  if (!BUSINESS_INCOME_SOURCES.has(meta.source) && !["neighborhood-sale", "consignment"].includes(meta.source)) return 0;
   const payroll = normalizeEmployeePayroll(player, now);
   const payment = Math.min(payroll.debt, Math.floor(Math.max(0, income) * EMPLOYEE_PAYROLL_REPAY_RATE),
     Math.max(0, maxPayment), availableDebtRepayment(player));

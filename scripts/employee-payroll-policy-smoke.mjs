@@ -76,7 +76,7 @@ try {
   for (const source of ["auctionRefund", "market-refund", "blackmarket-service-refund", "recovery-advance", "debug", "taskReward", "achievement", undefined]) {
     const p = firstFailure();
     economy.earnCash(p, 1000, "其他收入", { source });
-    assert.equal(p.cash, source === "taskReward" ? 1100 : 1800, source);
+    assert.equal(p.cash, source === "taskReward" ? 800 : 1800, source);
     assert.equal(p.employeePayroll.debt, 1500, source);
   }
 

@@ -3,6 +3,7 @@
 import { escapeHtml } from "./format-utils.js";
 import { showToast } from "./toast-fx.js";
 import { isFeatureAvailable, MINING_UNAVAILABLE_MESSAGE } from "../feature-availability.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -77,6 +78,10 @@ export function renderMainNav() {
     const active = getActiveView() === it.view ? " active" : "";
     const ico = `<span class="nav-ico">${NAV_ICONS[it.icon] || ""}</span>`;
     const navView = `data-nav-view="${escapeHtml(it.view)}"`;
+    const growthAccess = businessAccess(me, it.view);
+    if (!["overview", "inventory", "rankings", "blackmarket"].includes(it.view) && !growthAccess.ok) {
+      return `<button class="main-nav-item locked" ${navView} data-action="openLocation" data-payload="overview" type="button" title="${escapeHtml(growthAccess.message)}">${ico}${escapeHtml(it.label)} · 未开放</button>`;
+    }
     if (it.type === "locked") {
       return `<button class="main-nav-item locked" disabled type="button" title="即将开放">${ico}${escapeHtml(it.label)}</button>`;
     }
@@ -236,6 +241,11 @@ export function setView(view) {
   const state = getState();
   const els = getEls();
   if (!isFeatureAvailable(view)) view = "overview";
+  const growthAccess = businessAccess(state?.me, view);
+  if (state?.me?.business && !["overview", "inventory", "rankings", "blackmarket"].includes(view) && !growthAccess.ok) {
+    showToast(growthAccess.message);
+    view = "overview";
+  }
 
   setMobileContentPane("main");
   if (getActiveView() === "inventory" && view !== "inventory") {

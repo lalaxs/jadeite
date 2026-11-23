@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 /**
  * Two-player livestream buy flow: seller opens room → buyer purchases → inventory/cash/snapshot.
  */
@@ -12,7 +13,7 @@ function reset() {
 }
 
 function install(id, name, { cash = 100_000, permit = false, bracelets = 0 } = {}) {
-  const player = H.makePlayer(id);
+  const player = makeEstablishedPlayer(H, id);
   H.normalizePlayer(player);
   player.id = id;
   player.name = name;

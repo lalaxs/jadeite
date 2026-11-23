@@ -59,7 +59,7 @@ export function createLivestreamFeature(deps = {}) {
     }
   }));
   Object.assign(api, createLivestreamOwnerView({
-    ui, helpers,
+    getState, ui, helpers,
     ports: {
       hostSubtitle: forward("hostSubtitle"),
       stockPickerMarkup: forward("stockPickerMarkup"),

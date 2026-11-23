@@ -3,6 +3,7 @@ import { normalizeTalkStyle } from "../../livestream-host-bonuses.js";
 import { requestId, trimLivestreamSelection } from "./catalog.js";
 
 export function createLivestreamActions({ socketRef, getState, elsRef, ui, helpers, ports }) {
+  const maxRoomItems = () => getState()?.me?.business?.capacity?.live ?? MAX_ROOM_ITEMS;
   const { selectedProductIds, priceDrafts } = ui;
   const { finishedProducts, showToast } = helpers;
   const { roomForId, itemValue, defaultPrice, resolveSelectedHost, selectedListings, renderLivestream } = ports;
@@ -81,7 +82,7 @@ function applyPricePreset(mult) {
 
 function emitStart() {
   const host = resolveSelectedHost();
-  const items = selectedListings(MAX_ROOM_ITEMS);
+  const items = selectedListings(maxRoomItems());
   if (items.length < MIN_ROOM_ITEMS) return;
   ui.hostModalOpen = false;
   ui.modalHostId = null;
@@ -95,7 +96,7 @@ function emitStart() {
 
 function emitReplenish() {
   const roomCount = Number(getState()?.me?.livestreamRoom?.items?.length || 0);
-  const items = selectedListings(Math.max(0, MAX_ROOM_ITEMS - roomCount));
+  const items = selectedListings(Math.max(0, maxRoomItems() - roomCount));
   if (!items.length) return;
   socketRef.emit("replenishLivestreamRoom", {
     items,

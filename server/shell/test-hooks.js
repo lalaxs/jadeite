@@ -3,6 +3,7 @@
  */
 
 export const TEST_HOOK_KEYS = [
+  "businessService",
   "world",
   "state",
   "persister",

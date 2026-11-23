@@ -52,7 +52,8 @@ function visibleChatRoomIds() {
 }
 
 function availableHosts() {
-  return rankLivestreamHosts(getState()?.me?.workshop?.workers || []);
+  const workshop = getState()?.me?.workshop;
+  return rankLivestreamHosts([...(workshop?.owner ? [workshop.owner] : []), ...(workshop?.workers || [])]);
 }
 
 function ensureDraftHost() {

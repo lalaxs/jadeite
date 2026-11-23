@@ -38,6 +38,7 @@ assert.deepEqual(publicWindowReveal({ id: "w", x: 1, leak: true }), { id: "w", x
 
 assert.equal(typeof H.snapshotFor, "function");
 const player = H.makePlayer("snap-test");
+player.rough = H.makeStarterRoughs(player.id);
 H.state.players.set(player.id, player);
 H.state.auction = null;
 H.state.news.push({ id: "snapshot-news", text: "快照隔离", meta: { source: "world" } });
@@ -98,13 +99,13 @@ assert.deepEqual(structuredClone(H.state), worldBeforeInitialRead, "snapshot ass
 assert.equal(H.state.auction, null, "snapshot reads must not create or advance auction rounds");
 assert.equal(H.state.news.length, newsCountBeforeInitialRead, "snapshot reads must not announce auction rounds");
 snap.me.stats.tradeCount = 999;
-snap.me.assets.workshopOwned = false;
+snap.me.assets.workshopOwned = true;
 snap.news[0].meta.source = "snapshot";
 snap.worldChat[0].meta.source = "snapshot";
 snap.listings[0].item.provenance.source = "snapshot";
 snap.news.push({ id: "snapshot-only" });
 assert.notEqual(player.stats.tradeCount, 999, "mutating snapshot stats must not affect player state");
-assert.equal(player.assets.workshopOwned, true, "mutating snapshot assets must not affect player state");
+assert.equal(player.assets.workshopOwned, false, "mutating snapshot assets must not affect player state");
 assert.equal(H.state.news[0].meta.source, "world", "snapshot news rows must be detached");
 assert.equal(H.state.worldChat[0].meta.source, "world", "snapshot chat rows must be detached");
 assert.equal(H.state.listings[0].item.provenance.source, "world", "nested listing items must be detached");

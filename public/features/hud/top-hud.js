@@ -20,6 +20,7 @@ import {
   sourceLabel
 } from "../../metric-history.js";
 import { playerExpProgress } from "../../player-progression.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -39,7 +40,11 @@ export function tickHudClock(now = nowMs()) {
 
   if (!els.topHud) return;
   const clockEl = els.topHud.querySelector('[data-hud="clock"]');
-  if (clockEl) clockEl.textContent = formatDuration(auctionPhaseMeta(undefined, now).remain);
+  if (clockEl) {
+    const me = getState()?.me;
+    clockEl.textContent = me?.business?.contract?.status === "active" ? formatDuration(Math.max(0, me.business.contract.endsAt-now))
+      : businessAccess(me, "auction").ok ? formatDuration(auctionPhaseMeta(undefined, now).remain) : "未开放";
+  }
 }
 
 export function clientBmRatingSamples(me) {
@@ -230,7 +235,9 @@ export function renderTopHud() {
   const ratingLabel = hasCustomerRating
     ? `客户评级：${Math.round(satisfaction)}分`
     : `暂未开分 · ${ratingSamples}/${CUSTOMER_RATING_PUBLIC_MIN_SAMPLES}`;
-  const countdown = formatDuration(auctionPhaseMeta().remain);
+  const contractActive = me.business?.contract?.status === "active";
+  const countdown = contractActive ? formatDuration(Math.max(0, me.business.contract.endsAt-nowMs()))
+    : businessAccess(me, "auction").ok ? formatDuration(auctionPhaseMeta().remain) : "未开放";
 
   const ratingHtml = hasCustomerRating
     ? starsGlyphHtml(rating)
@@ -265,7 +272,7 @@ export function renderTopHud() {
     </button>
     <div class="hud-stat is-muted">
       <span class="hud-ico">${ico.clock}</span>
-      <div class="hud-meta"><b data-hud="clock">${countdown}</b><span>公盘结束</span></div>
+      <div class="hud-meta"><b data-hud="clock">${countdown}</b><span>${contractActive ? "合约剩余" : "公盘结束"}</span></div>
     </div>
   `;
   const cashEl = els.topHud.querySelector('[data-hud="cash"]');

@@ -1,5 +1,6 @@
 import { economyDayKey } from './new-player-economy.js';
 import { itemCost } from './item-cost.js';
+import { businessDemandCaps } from '../progression/business-growth.js';
 
 export const SYSTEM_DEMAND_RULES = Object.freeze({
   dailyCashBase: 24_000,
@@ -19,11 +20,11 @@ export const SYSTEM_DEMAND_RULES = Object.freeze({
 
 function nonnegative(value) { return Math.max(0, Math.round(Number(value) || 0)); }
 
-export function systemDemandSnapshot(player, now = Date.now()) {
+export function systemDemandSnapshot(player, now = Date.now(), excludeItemIds = []) {
   const level = Math.max(1, Math.floor(Number(player?.level) || 1));
   const extra = level - 1;
   const rules = SYSTEM_DEMAND_RULES;
-  const caps = {
+  const caps = businessDemandCaps(player) || {
     cash: Math.min(rules.dailyCashMax, rules.dailyCashBase + extra * rules.dailyCashPerLevel),
     count: Math.min(rules.dailyCountMax, rules.dailyCountBase + extra * rules.dailyCountPerLevel),
     premiumCash: Math.min(rules.dailyPremiumMax, rules.dailyPremiumBase + extra * rules.dailyPremiumPerLevel),
@@ -33,9 +34,12 @@ export function systemDemandSnapshot(player, now = Date.now()) {
   const stored = player?.systemDemandBudget?.day === day ? player.systemDemandBudget
     : player?.systemDemand?.day === day ? player.systemDemand.spent : {};
   const spent = Object.fromEntries(Object.keys(caps).map(key => [key, nonnegative(stored[key])]));
+  const reserved = Object.fromEntries(Object.keys(caps).map(key => [key,
+    (player?.business?.reservations || []).filter(row => !excludeItemIds.includes(row.itemId)).reduce((sum, row) => sum + nonnegative(row[key]), 0)]));
   return {
     day, caps, spent,
-    remaining: Object.fromEntries(Object.keys(caps).map(key => [key, Math.max(0, caps[key] - spent[key])])),
+    reserved,
+    remaining: Object.fromEntries(Object.keys(caps).map(key => [key, Math.max(0, caps[key] - spent[key] - reserved[key])])),
     nextResetAt: (day + 1) * 86_400_000 - 8 * 3_600_000,
     ordinaryMaxRatio: rules.ordinaryMaxRatio,
     rareMaxRatio: rules.rareMaxRatio,
@@ -83,7 +87,7 @@ export function quoteSystemDemand(player, products = [], payout, now = Date.now(
       : '系统客户最高接受参考估值的125%，更高报价可面向其他玩家出售。' };
   }
   if (exempt) return quote;
-  const { remaining } = systemDemandSnapshot(player, now);
+  const { remaining } = systemDemandSnapshot(player, now, products.map(item => item.id));
   if (amount > remaining.cash || quantity > remaining.count) {
     return { ...quote, ok: false, code: 'SYSTEM_DEMAND_EXHAUSTED', message: '今日订单、直播与黑市客户的收购额度不足，明日恢复；仍可与其他玩家交易。' };
   }

@@ -8,6 +8,9 @@ import { canonicalizeFinishPlan, quoteFinishPlan, reserveFinishMaterials, refund
 import { canonicalizeExtractionKitIntents } from "../workshop-planning.js";
 import { OWNER_OPERATOR_ID } from "../../../shared/domain/economy/public-workstations.js";
 import { openingKitsOutsideStone } from "../../../shared/domain/jade/jade-opening-engine.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
+import { publicStationFee } from "../../../shared/domain/economy/public-workstations.js";
+import { addItemCost } from "../../../shared/domain/economy/item-cost.js";
 
 export function createWorkshopCommands({
   money,
@@ -66,9 +69,11 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
   if (!player) return { ok: false, message: "未找到玩家。" };
   normalizePlayer(player);
   if (enterEmployeePayrollDay(player, { spendCash, reason: "continued" }).changed) broadcast?.();
-  if (!playerOwnsWorkshop(player)) return { ok: false, message: "先去交易行买下街角小工坊。" };
+  if (!playerOwnsWorkshop(player)) return { ok: false, message: "请先在主页取得资格并建设开料工坊。" };
   const device = workshopDeviceForPlayer(player, deviceId);
   if (!device) return { ok: false, message: "这台设备不存在。" };
+  const growthAccess = businessAccess(player, device.stage);
+  if (!growthAccess.ok) return growthAccess;
   if (player.commissions?.active?.deviceIds?.includes(device.id)) {
     return { ok: false, code: "BUSY", message: "这台设备正在用于来料单，请先交付来料单。" };
   }
@@ -120,6 +125,13 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
       restoreWorkshopItem(player, item);
       return reserve;
     }
+    const stationFee = publicStationFee(device, item, player.id);
+    if (stationFee && !spendCash(player, stationFee, `使用${device.name}`, { source: "processing", itemId: item.id })) {
+      refundFinishMaterials(player, reserve.reservedMaterials, reserve.reservedMaterialCosts);
+      restoreWorkshopItem(player, item);
+      return { ok: false, message: `公共工位需要 ¥${stationFee}。` };
+    }
+    if (stationFee) addItemCost(item, stationFee, true, "processing");
     const devSpeed = Number(device.attrs?.speed || 0);
     const devTimeScale = Math.max(0.2, 1 - Math.min(0.8, devSpeed / 100));
     const job = startProductionJob(player, device.stage, item, {
@@ -202,6 +214,16 @@ function startWorkshopJobForPlayer(player, deviceId, payload = {}) {
 
   const item = takeItem(player, device.inputType, itemId);
   if (!item) return { ok: false, message: "找不到可加工物料。" };
+  if (item.customerCommissionId && device.stage !== "opening") {
+    restoreWorkshopItem(player, item);
+    return { ok: false, message: "客户来料仅委托开料，请按约交还明料。" };
+  }
+  const stationFee = item.customerCommissionId ? 0 : publicStationFee(device, item, player.id);
+  if (stationFee && !spendCash(player, stationFee, `使用${device.name}`, { source: "processing", itemId: item.id })) {
+    restoreWorkshopItem(player, item);
+    return { ok: false, message: `公共工位需要 ¥${stationFee}。` };
+  }
+  if (stationFee) addItemCost(item, stationFee, true, "processing");
   if (device.needsKits) {
     item.extractionKits = [...existingKits, ...normalizedKits].slice(0, 10);
     item.braceletPlacements = item.extractionKits;
@@ -237,6 +259,7 @@ function assignWorkshopWorkerForPlayer(player, payload = {}) {
     if (!playerOwnsWorkshop(player)) return { ok: false, message: "先去交易行买下街角小工坊。" };
     const device = workshopDeviceForPlayer(player, payload.deviceId);
     if (!device) return { ok: false, message: "这台设备不存在。" };
+    if (device.publicStation) return { ok: false, message: "公共工位由掌柜亲自操作，无需分配员工。" };
     if (device.blackmarketListingId) return { ok: false, message: "设备正在黑市挂牌，请先撤回再换人。" };
     const worker = workshopWorkerForPlayer(player, payload.workerId);
     if (!worker) return { ok: false, message: "这位师傅不存在。" };

@@ -106,7 +106,7 @@ export function openGameModal(payload = {}) {
           <h3 id="gameModalTitle">${escapeHtml(payload.title || "提示")}</h3>
           ${payload.subtitle ? `<p>${escapeHtml(payload.subtitle)}</p>` : ""}
         </div>
-        <button class="modal-close" data-modal-close type="button" aria-label="关闭弹窗">×</button>
+        ${payload.confirmation ? "" : '<button class="modal-close" data-modal-close type="button" aria-label="关闭弹窗">×</button>'}
       </div>
       <div class="game-modal-body">
         ${payload.previewHtml || ""}

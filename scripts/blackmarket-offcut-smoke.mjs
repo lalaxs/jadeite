@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { __testHooks as H } from "../server.js";
@@ -100,7 +101,7 @@ assert.deepEqual(oldPolicyRow, migratedPolicyRow);
 
 H.state.players.clear(); H.state.blackStalls.length = 0; H.state.sockets.clear();
 maintainNpcBlackmarket();
-const buyer = H.makePlayer("offcut-buyer"); H.normalizePlayer(buyer);
+const buyer = makeEstablishedPlayer(H, "offcut-buyer"); H.normalizePlayer(buyer);
 buyer.cash = 1_000_000; buyer.achievementPoints = buyer.achievementPointsBonus = 680;
 H.state.players.set(buyer.id, buyer);
 const equipment = buyEquipment(buyer, "used-carving-1", { spendCash: H.spendCash, makeId: () => "offcut-carving" });

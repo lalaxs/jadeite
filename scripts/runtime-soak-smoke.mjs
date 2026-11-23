@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -52,7 +53,7 @@ assert.equal(H.persister, null, "soak test must not touch the configured user sa
 const baseNow = Date.now();
 for (let index = 0; index < PLAYER_COUNT; index += 1) {
   const id = `soak-player-${index}`;
-  const player = H.makePlayer(id);
+  const player = makeEstablishedPlayer(H, id);
   player.name = `耐久掌柜${index}`;
   player.achievementPoints = 100;
   player.achievementPointsBonus = 100;

@@ -1,6 +1,6 @@
 // Shared rules for the starter economy; cash awards are budgeted independently of sales.
-export const INITIAL_PLAYER_CASH = 12_000;
-export const DAILY_TASK_CASH_CAP = 300;
+export const INITIAL_PLAYER_CASH = 500;
+export const DAILY_TASK_CASH_CAP = 0;
 export const INTRO_REWARD_CASH_CAP = 1_000;
 export const ORDER_MAX_VALUE_MULTIPLIER = 1.25;
 const DAY_MS = 86_400_000;
@@ -10,6 +10,7 @@ export function economyDayKey(now = Date.now()) {
 }
 
 export function rewardCashQuote(player, amount, source, now = Date.now()) {
+  if (player?.business && ["taskReward", "achievementReward"].includes(source)) return 0;
   const requested = Math.max(0, Math.round(Number(amount) || 0));
   const intro = player?.onboarding;
   const duringIntro = intro && (!intro.completedAt

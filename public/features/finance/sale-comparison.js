@@ -5,12 +5,13 @@ import { quoteSystemDemand, systemSalePriceCap } from "../../../shared/domain/ec
 import { inventoryRecyclePayout } from "../../../shared/domain/economy/inventory-recycle.js";
 import { MARKET_LISTING_MIN_PRICE, MARKET_LISTING_PER_PLAYER_CAP, MARKET_LISTING_GLOBAL_CAP } from "../../../shared/domain/economy/market-rules.js";
 import { previewIncomeCash } from "../../../shared/domain/economy/finance-book.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 
 const amount = (value) => Math.max(0, Math.round(Number(value) || 0));
 
 function saleResult(player, product, revenue, source) {
   const cost = itemCost(product);
-  const cash = previewIncomeCash(player, revenue, { source });
+  const cash = previewIncomeCash(player, revenue, { source, profit: cost.complete ? revenue-cost.amount : null });
   return {
     revenue,
     soldCost: cost.complete ? cost.amount : null,
@@ -77,6 +78,11 @@ export function buildSaleComparison(state, product, { targetPrice, now = Date.no
   const recycle = inventoryRecyclePayout(value);
   rows.push({ id: "recycle", channel: "立即回收", kind: "quote", label: "当前回收价", available: !block && recycle > 0,
     ...saleResult(player, product, recycle, "inventory-recycle"), note: block || "按参考估值20%急售；确认后移除物品，无法恢复。", action: "recycleInventoryItem" });
+  for (const row of rows) {
+    if (!row.destination) continue;
+    const access = businessAccess(player, row.destination);
+    if (!access.ok) { row.available = false; row.note = access.message; }
+  }
   return { productId: String(product?.id || ""), name: product?.name || "成品", value, target, targetValid,
     cost: itemCost(product), rows, block };
 }

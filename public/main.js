@@ -1,4 +1,5 @@
 import { jadeCanvasMarkup } from "./jade-renderer.js";
+import { initBusinessFeature, tickBusinessClocks } from "./features/business/index.js";
 import {
   featureAccess
 } from "./player-progression.js";
@@ -636,3 +637,5 @@ wireFeatureModules({
   }
 });
 initFinanceModule({ getState: () => state, registerAction });
+initBusinessFeature({ getState: () => state, registerAction, socket, openGameModal, closeGameModal, escapeHtml, nowMs });
+setInterval(tickBusinessClocks, 1000);

@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import {
   NPC_PRICING_VERSION,
@@ -46,7 +47,7 @@ for (const [role, item] of [
   }
   assert.deepEqual(item, before, "quoting must not change intrinsic jade value or appearance");
 }
-assert.equal(quoteNpcGoods("offcut", "material", { value: 125 }, { discount: true, roll: 0 }).price, 100, "respect the existing minimum listing price");
+assert.equal(quoteNpcGoods("offcut", "material", { value: 125 }, { discount: true, roll: 0 }).price, 85, "ordinary goods use the low-price trading floor");
 
 for (let tier = 1; tier <= 10; tier++) {
   const worker = { tier, baseWage: 1, skills: { cut: { jieliao: { level: 3, exp: 29 } } } };
@@ -128,8 +129,8 @@ function assertStockPrices() {
       const reference = npcPriceReference(row.type, row.item);
       assert.equal(row.referencePrice, reference);
       assert.equal(row.npcPricingVersion, NPC_PRICING_VERSION);
-      assert.ok(total >= Math.max(100 + repair, reference * min - 1));
-      assert.ok(total <= Math.max(100 + repair, reference * max + 1), `${rule.role}: high goods must not add another markup`);
+      assert.ok(total >= Math.max(10 + repair, reference * min - 1));
+      assert.ok(total <= Math.max(10 + repair, reference * max + 1), `${rule.role}: high goods must not add another markup`);
     }
   }
 }
@@ -139,7 +140,7 @@ try {
   H.state.sockets.clear();
   H.state.blackStalls.length = 0;
   H.state.blackServiceOrders.length = 0;
-  const buyer = installOwnedWorkshopFixture(H.makePlayer("npc-price-buyer"));
+  const buyer = installOwnedWorkshopFixture(makeEstablishedPlayer(H, "npc-price-buyer"));
   H.normalizePlayer(buyer);
   buyer.cash = 100_000_000;
   buyer.achievementPoints = buyer.achievementPointsBonus = 9999;
@@ -212,7 +213,7 @@ try {
   for (const stall of H.state.blackStalls.filter(entry => entry.npc && npcRuleForStall(entry).discount > 0)) {
     const clearance = stall.items.find((row) => row.npcDiscount);
     assert.ok(clearance);
-    const clearanceBuyer = H.makePlayer(`clearance-buyer-${stall.id}`);
+    const clearanceBuyer = makeEstablishedPlayer(H, `clearance-buyer-${stall.id}`);
     clearanceBuyer.cash = 100_000_000;
     H.state.players.set(clearanceBuyer.id, clearanceBuyer);
     const sale = buyGoodsFromStallForPlayer(clearanceBuyer, stall.id, clearance.id, clearance.price);

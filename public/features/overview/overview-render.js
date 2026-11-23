@@ -3,6 +3,7 @@
 import { formatMoney, signedMoney, escapeHtml } from "../../shell/format-utils.js";
 import { button, viewButton } from "../../shell/navigation.js";
 import { MARKET_LISTING_PER_PLAYER_CAP } from "../../market-rules.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -102,6 +103,13 @@ export function statusRows() {
 
   const { me } = state;
   const rows = [];
+  if (me.business) {
+    for (const [label, feature, view] of [["工坊", "workshop", "workshop"], ["公盘", "auction", "auction"], ["客人订单", "orders", "orders"], ["直播间", "livestream", "livestream"]]) {
+      const access = businessAccess(me, feature);
+      rows.push(statusRow(label, access.ok ? "已开放" : access.message, viewButton(access.ok ? "前往" : "查看成长", access.ok ? view : "overview", "s-go")));
+    }
+    return rows;
+  }
   if (!me.assets?.livestreamPermitOwned) {
     rows.push(statusRow("直播间", `未开通 · 直播经营许可 ${formatMoney(assetPriceByPurchase("livestream-permit", "livestreamPermit"))}`, viewButton("前往", "shop", "s-go")));
   }
@@ -124,6 +132,11 @@ export function statusRows() {
 export function businessFocusModel() {
   const state = getState();
   const me = state?.me || {};
+  if (me.business && !businessAccess(me, "orders").ok) return {
+    stage: "sell", tone: "profit", kicker: "下一步经营", title: "从街坊买卖积累利润",
+    detail: "先看进价和收购价，完成交易后在主页查看利润与下一阶段建设条件。",
+    actionLabel: "去黑市经营", view: "blackmarket"
+  };
   const rough = Array.isArray(me.rough) ? me.rough : [];
   const orders = Array.isArray(me.orders) ? me.orders : [];
   const products = (Array.isArray(me.bracelets) ? me.bracelets : [])
@@ -232,6 +245,7 @@ function businessFocusHtml(model) {
 export function businessAttentionItems() {
   const state = getState();
   const me = state?.me || {};
+  if (me.business && !businessAccess(me, "orders").ok) return [];
   const readyOrders = (Array.isArray(me.orders) ? me.orders : [])
     .filter((order) => matchingBracelets(order).length >= Number(order.quantity || 1));
   const readyMaterials = [
@@ -508,18 +522,20 @@ export function renderOverview() {
       { id: "cash", label: "现金榜" }
     ];
     const { goalSlot, focusSlot, economySlot, pipelineSlot, ranksSlot, rowsSlot } = ensureOverviewStatusShell();
+    const growing = state.me.business && state.me.business.choice !== "established";
+    const early = growing && !businessAccess(state.me, "orders").ok;
     const focus = businessFocusModel();
-    if (focusSlot) focusSlot.innerHTML = businessFocusHtml(focus);
+    if (focusSlot) focusSlot.innerHTML = early ? "" : businessFocusHtml(focus);
     if (goalSlot) patchCurrentGoal(goalSlot, currentGoalViewModel());
     if (economySlot) {
       const keepAttentionOpen = Boolean(economySlot.querySelector(".business-attention")?.open);
-      economySlot.innerHTML = businessEconomyHtml();
+      economySlot.innerHTML = growing ? "" : businessEconomyHtml();
       if (keepAttentionOpen) {
         const attention = economySlot.querySelector(".business-attention");
         if (attention) attention.open = true;
       }
     }
-    if (pipelineSlot) pipelineSlot.innerHTML = businessTurnoverHtml();
+    if (pipelineSlot) pipelineSlot.innerHTML = early ? "" : businessTurnoverHtml();
     if (ranksSlot) {
       ranksSlot.innerHTML = rankBoards.map((board) => {
         let rank = "—";

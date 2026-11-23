@@ -64,6 +64,7 @@ import { createMarketService, bindMarketApi } from "../services/market-service.j
 import { createBlackmarketService, bindBlackmarketApi, BLACKMARKET_MIN_PRICE, BLACKMARKET_PER_PLAYER_CAP, BLACKMARKET_GOODS_CAP, BLACKMARKET_BLIND_MIN, BLACKMARKET_BLIND_CAP, BLACKMARKET_BLIND_DRAW_COUNT, BLACKMARKET_BLIND_DRAW_TIMEOUT_MS, BLACKMARKET_BLIND_EXTRA_RATES } from "../services/blackmarket-service.js";
 import { createWorkshopService } from "../services/workshop-service.js";
 import { createCommissionService } from "../services/commission-service.js";
+import { createBusinessService } from "../services/business-service.js";
 import {
   createMaterialsService,
   createMaterialPriceRuntime
@@ -246,6 +247,7 @@ export function wireServer({
     randomUUID
   });
 
+  let businessService;
   const {
     recordLedger,
     spendCash,
@@ -253,8 +255,13 @@ export function wireServer({
     holdDeposit,
     releaseDeposit
   } = createEconomyService({
-    refreshPlayerReport
+    refreshPlayerReport,
+    repayBusinessFromIncome: (...args) => businessService?.repayBusinessFromIncome(...args),
+    businessIncomeBudget: (...args) => businessService?.businessIncomeBudget(...args)
   });
+  businessService = createBusinessService({ earnCash, spendCash, addItem, takeItem, makeRoughStone,
+    startWorkshopJobForPlayer: (...args) => startWorkshopJobForPlayer(...args),
+    revealPolishedRough: (...args) => revealPolishedRough(...args), refreshPlayerReport, notifyPlayerToast, makeId: randomUUID });
   const { settlePlayerAchievements, claimPlayerAchievement, claimAllPlayerAchievements } = createAchievementRewards({ earnCash });
   if (legacyBindings) bindAchievementRewards({ earnCash });
 
@@ -339,7 +346,8 @@ export function wireServer({
   } = createAssetsService({
     normalizePlayer,
     spendCash,
-    refreshPlayerReport
+    refreshPlayerReport,
+    buildBusiness: (...args) => businessService.buildBusiness(...args)
   });
 
 
@@ -711,6 +719,7 @@ export function wireServer({
     startServer: startHttpServer,
     stopServer: stopHttpServer
   } = createRuntimeTicks({
+    settleBusinessForPlayer: businessService.settleBusinessForPlayer,
     settlePlayerAchievements,
     miningAvailable: isFeatureAvailable("mining"),
     settleEmployeePayroll: (player, now) => settleEmployeePayroll(player, { spendCash, now }),
@@ -798,6 +807,7 @@ export function wireServer({
   });
 
   registerSocketHandlers(io, {
+    businessService,
     getState: () => state,
     settlePlayerAchievements, claimPlayerAchievement, claimAllPlayerAchievements,
     runtimeConfig,
@@ -955,6 +965,7 @@ export function wireServer({
     status,
     persister,
     testHookBindings: {
+      businessService,
       world, state, persister, playerSessions, makePlayer, normalizePlayer, recordLedger, spendCash, consumeRequestId,
       normalizeMutationPayload, emitUiEvent, broadcast, addNews, getPlayer, earnCash, holdDeposit,
       releaseDeposit, applyAuctionBidEscrow, auctionEscrowForRough, normalizeAuctionEscrow,

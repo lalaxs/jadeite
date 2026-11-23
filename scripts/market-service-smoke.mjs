@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import { buyListingForPlayer } from "../server/services/market-service.js";
 import { readTradingServiceSource } from "./load-trading-service-source.mjs";
 import assert from "node:assert/strict";
@@ -24,7 +25,7 @@ function reset() {
 }
 
 function installPlayer(id, cash) {
-  const player = H.makePlayer(id);
+  const player = makeEstablishedPlayer(H, id);
   H.normalizePlayer(player);
   player.id = id;
   player.cash = cash;

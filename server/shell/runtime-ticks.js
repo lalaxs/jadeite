@@ -296,7 +296,7 @@ export function createRuntimeTicks(deps) {
     checkMiningHealth();
     startMaterialPriceTicker();
     refreshRoughPool();
-    addNews("本地翡翠街开市，公盘、工坊、订单与交易行已开放。", "great");
+    addNews("本地翡翠街开市，从街坊买卖起步，逐步建设工坊、参与公盘。", "great");
 
     every(MINING_HEALTH_CHECK_INTERVAL_MS, () => {
       Promise.resolve(runReadOperation("inspection:mining", () => checkMiningHealth()))
@@ -352,7 +352,11 @@ export function createRuntimeTicks(deps) {
 
     every(1000, () => runTick("tick:due-jobs", () => {
       const now = Date.now();
-      let changed = processProductionJobs(now, { broadcast: false });
+      let changed = false;
+      if (deps.settleBusinessForPlayer) for (const player of getState().players.values()) {
+        if (deps.settleBusinessForPlayer(player, now)) changed = true;
+      }
+      changed = processProductionJobs(now, { broadcast: false }) || changed;
       if (typeof processMiningJobs === "function") {
         const miningJobResult = processMiningJobs(now);
         reportMiningRecovery(miningJobResult);

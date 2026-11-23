@@ -1,4 +1,4 @@
-export const LIVESTREAM_MIN_ITEMS = 3;
+export const LIVESTREAM_MIN_ITEMS = 1;
 export const LIVESTREAM_MAX_ITEMS = 12;
 export const LIVESTREAM_MIN_PRICE = 1;
 export const LIVESTREAM_BASE_DURATION_MS = 12 * 60 * 1000;

@@ -1,5 +1,6 @@
 // 玩家经营经验 / 成就值：前后端共用。与声望(rep)、员工技能经验相互独立。
 import { recordExpGain, EXP_TYPE_LABELS } from "../economy/metric-history.js";
+import { businessAccess } from "./business-growth.js";
 
 export const PLAYER_LEVEL_THRESHOLDS = [
   { level: 1, exp: 0, label: "新人" },
@@ -1163,6 +1164,8 @@ export function canAccessFeature(player, featureId) {
 }
 
 export function featureAccess(player, featureId) {
+  const growth = businessAccess(player, featureId);
+  if (!growth.ok) return { ...growth, current: 0, required: 0, label: featureId };
   const def = featureGateDef(featureId);
   const current = playerAchievementPoints(player);
   if (!def) {

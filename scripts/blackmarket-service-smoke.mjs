@@ -94,7 +94,7 @@ function findEscrowItem(seller, orderId) {
 }
 
 reset();
-assert.equal(BLACKMARKET_MIN_PRICE, 100);
+assert.equal(BLACKMARKET_MIN_PRICE, 10);
 assert.equal(BLACKMARKET_BLIND_MIN, 6);
 assert.equal(BLACKMARKET_BLIND_CAP, 50);
 assert.equal(BLACKMARKET_BLIND_DRAW_COUNT, 3);
@@ -347,7 +347,7 @@ assert.equal(H.closeBlackStallForPlayer(seller).ok, true);
     title: "均价兜底摊",
     anonymous: false
   }).ok, true);
-  assert.equal(H.state.blackStalls[0].blindPrice, BLACKMARKET_MIN_PRICE);
+  assert.equal(H.state.blackStalls[0].blindPrice, 100);
   const autoEntries = [];
   const values = [];
   for (let i = 0; i < BLACKMARKET_BLIND_MIN; i++) {
@@ -382,7 +382,7 @@ assert.equal(H.closeBlackStallForPlayer(seller).ok, true);
     oneEntries.push({ type: "bracelet", itemId: piece.id });
   }
   const expectedOneAvg = Math.round(oneValues.reduce((sum, value) => sum + value, 0) / oneValues.length);
-  const withOne = H.addBlindboxItemsForPlayer(oneSeller, oneEntries, { blindPrice: BLACKMARKET_MIN_PRICE });
+  const withOne = H.addBlindboxItemsForPlayer(oneSeller, oneEntries, { blindPrice: 100 });
   assert.equal(withOne.ok, true, withOne.message);
   assert.equal(withOne.activated, true);
   assert.equal(H.state.blackStalls[0].blindPrice, expectedOneAvg, "blindPrice=1 should fall back to pool average on activate");
@@ -391,7 +391,7 @@ assert.equal(H.closeBlackStallForPlayer(seller).ok, true);
   assert.equal(pubAuto.blindPrice, expectedOneAvg, "public stall must expose non-1 activated price");
 
   // 占位 1 写入 meta 不得抹掉已激活的有效定价
-  const metaOne = H.updateBlackStallMetaForPlayer(oneSeller, { blindPrice: BLACKMARKET_MIN_PRICE });
+  const metaOne = H.updateBlackStallMetaForPlayer(oneSeller, { blindPrice: 100 });
   assert.equal(metaOne.ok, true, metaOne.message);
   assert.equal(H.state.blackStalls[0].blindPrice, expectedOneAvg, "meta blindPrice=1 must keep existing valid price");
   assert.equal(H.closeBlackStallForPlayer(oneSeller).ok, true);

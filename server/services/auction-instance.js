@@ -1,4 +1,5 @@
 import { restoreInventoryItem } from "./inventory-items.js";
+import { businessHallAccess } from "../../shared/domain/progression/business-growth.js";
 import { playersMatching } from "../persistence/mutation-scope.js";
 import { registerFinanceItem } from "../../shared/domain/economy/finance-book.js";
 import {
@@ -232,8 +233,9 @@ function publicAuctionHalls(player) {
       entryFee: auctionEntryFee(hall),
       tone: hall.tone,
       priceNote: hall.priceNote,
-      unlocked: level >= hall.requiredLevel,
-      active: level >= hall.requiredLevel,
+      unlocked: businessHallAccess(player, hall.id, level)?.ok ?? level >= hall.requiredLevel,
+      active: businessHallAccess(player, hall.id, level)?.ok ?? level >= hall.requiredLevel,
+      unlockMessage: businessHallAccess(player, hall.id, level)?.message || "",
       next: false,
       entered: playerEnteredAuction(round, player?.id),
       startsAt: round?.startsAt,
@@ -594,7 +596,9 @@ function enterAuctionForPlayer(player, payload = {}, now = Date.now()) {
   const hallId = payload?.hallId || state.auction?.hallId || DEFAULT_AUCTION_HALL_ID;
   if (!AUCTION_HALLS.some((hall) => hall.id === hallId)) return { ok: false, message: "该公盘不存在。" };
   const hall = auctionHallForId(hallId);
-  if (playerLevelForExp(player?.exp) < hall.requiredLevel) {
+  const growthAccess = businessHallAccess(player, hallId, playerLevelForExp(player?.exp));
+  if (growthAccess && !growthAccess.ok) return growthAccess;
+  if (!growthAccess && playerLevelForExp(player?.exp) < hall.requiredLevel) {
     return { ok: false, message: `需要经营 Lv.${hall.requiredLevel} 才能进入${hall.label}。` };
   }
   const round = ensureAuctionRound(now, hallId);

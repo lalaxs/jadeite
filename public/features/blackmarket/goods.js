@@ -58,7 +58,7 @@ function defaultGoodsPrice(item) {
 function bmListSlotsLeft() {
   const mine = bmMyStall();
   if (!mine || mine.type !== "goods") return 0;
-  return Math.max(0, BM_GOODS_CAP - (mine.items || []).length);
+  return Math.max(0, (getState()?.me?.business?.capacity?.goods ?? BM_GOODS_CAP) - (mine.items || []).length);
 }
 
 function goodsPriceForItem(item) {

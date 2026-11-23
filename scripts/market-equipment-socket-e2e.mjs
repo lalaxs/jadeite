@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -13,7 +14,7 @@ H.state.players.clear();
 H.state.listings.length = 0;
 const auth = {};
 for (const id of ["equipment-socket-seller", "equipment-socket-buyer", "equipment-socket-rival"]) {
-  const player = installOwnedWorkshopFixture(H.makePlayer(id));
+  const player = installOwnedWorkshopFixture(makeEstablishedPlayer(H, id));
   player.cash = 100000;
   player.assets.workshopOwned = true;
   H.state.players.set(id, player);

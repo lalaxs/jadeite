@@ -1,6 +1,7 @@
 // Shell render pipeline (moved from main.js)
 
 import { paintJadeCanvases } from "../jade-renderer.js";
+import { renderBusinessView } from "../features/business/index.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -78,6 +79,7 @@ export function renderShell() {
 export function renderActiveView() {
   const renderView = VIEW_RENDERERS[getActiveView()];
   if (renderView) renderView();
+  renderBusinessView(getActiveView(), activeViewRoot(), getState());
 }
 
 export function render(changedKeys = null) {

@@ -98,7 +98,7 @@ const { quoteMaterialPurchase } = await import("../shared/domain/economy/materia
 assert.equal(typeof quoteMaterialPurchase, "function");
 
 const bmConstants = await import("../shared/domain/blackmarket/bm-constants.js");
-assert.equal(bmConstants.BLACKMARKET_MIN_PRICE, 100);
+assert.equal(bmConstants.BLACKMARKET_MIN_PRICE, 10);
 assert.equal(bmConstants.BLACKMARKET_GOODS_CAP, 24);
 assert.equal(bmConstants.BLACKMARKET_BLIND_MIN, 6);
 assert.equal(bmConstants.BLACKMARKET_BLIND_CAP, 50);

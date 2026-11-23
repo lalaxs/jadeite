@@ -13,6 +13,7 @@ import { normalizeRequestIdHistory } from "./request-id-policy.js";
 import { repairPurchasedNpcJade } from "./blackmarket/npc-jade-finish.js";
 import { INITIAL_PLAYER_CASH } from "../../shared/domain/economy/new-player-economy.js";
 import { registerFinanceItem } from "../../shared/domain/economy/finance-book.js";
+import { newBusinessState, normalizeBusiness } from "../../shared/domain/progression/business-growth.js";
 
 export function createPlayerService(deps) {
   const settlePlayerAchievements = deps.settlePlayerAchievements || legacySettlePlayerAchievements;
@@ -32,7 +33,8 @@ export function createPlayerService(deps) {
     const player = {
       id: playerId,
       name: `新手掌柜${suffix}`,
-      cash: INITIAL_PLAYER_CASH,
+      cash: 0,
+      business: newBusinessState(),
       onboarding: { startedAt: Date.now(), rewardCash: 0, firstSaleAt: 0, starterOrderCompletedAt: 0, completedAt: 0 },
       rep: 0,
       exp: 0,
@@ -45,7 +47,7 @@ export function createPlayerService(deps) {
       bmSat: null,
       buyerCredit: null,
       assets: {
-        workshopOwned: true,
+        workshopOwned: false,
         livestreamPermitOwned: false
       },
       offlineSummary: null,
@@ -58,7 +60,7 @@ export function createPlayerService(deps) {
       lastSeenAt: Date.now(),
       lastRepDecayAt: Date.now(),
       reports: [],
-      rough: makeStarterRoughs(playerId),
+      rough: [],
       starterRoughGranted: true,
       jobs: [],
       workshopDeliveries: [],
@@ -121,6 +123,7 @@ export function createPlayerService(deps) {
     player.rep = Number.isFinite(Number(player.rep)) ? Number(player.rep) : 0;
     normalizePlayerProgression(player);
     normalizeAssets(player);
+    normalizeBusiness(player);
     player.rough ||= [];
     player.materials ||= [];
     // 修复旧存—脏数据：rough 桶里已开窗的明料应归—materials

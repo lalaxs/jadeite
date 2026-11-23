@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { __testHooks as H } from "../server.js";
@@ -20,7 +21,7 @@ bindMarketApi({ getState: () => H.state, money: (value) => Math.max(0, Math.roun
   addNews: (...args) => { if (failNews) throw new Error("injected news failure"); return H.addNews(...args); }
 });
 function player(id, cash = 100000) {
-  const row = installOwnedWorkshopFixture(H.makePlayer(id));
+  const row = installOwnedWorkshopFixture(makeEstablishedPlayer(H, id));
   row.cash = cash;
   H.state.players.set(id, row);
   return row;

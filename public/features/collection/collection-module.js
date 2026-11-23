@@ -1,6 +1,6 @@
 // collection-module.js — 藏品柜
 import { inlaySummary } from "../../product-meta.js";
-import { MAX_COLLECTION_SIZE, collectRepLabel } from "../../player-progression.js";
+import { MAX_COLLECTION_SIZE as DEFAULT_COLLECTION_SIZE, collectRepLabel } from "../../player-progression.js";
 
 let getState, elsRef, socketRef;
 let formatMoney, escapeHtml, empty, productCanvas;
@@ -45,6 +45,7 @@ export function initCollectionModule(deps) {
 }
 
 export function renderCollection() {
+  const MAX_COLLECTION_SIZE = getState()?.me?.business?.capacity?.collection ?? DEFAULT_COLLECTION_SIZE;
   bindCollectionListOnce();
   const collection = getState()?.me?.collection || [];
   const totalValue = collection.reduce((sum, item) => sum + Number(item?.value || 0), 0);

@@ -208,7 +208,7 @@ export function recycleInventoryItemForPlayer(player, payload = {}, deps = {}) {
     if (!parentId || !kitId) return { ok: false, message: "规划产物无效。" };
     const owned = findOwnedJadeItem(player, parentId);
     if (!owned) return { ok: false, message: "找不到对应明料。" };
-    if (owned.item.escrowOrderId) return { ok: false, message: "委托物不可回收。" };
+    if (owned.item.escrowOrderId || owned.item.customerCommissionId) return { ok: false, message: "委托物不可回收。" };
     // Planning kits live only in browser memory and are not authoritative
     // inventory. Let the client remove the draft, but never mint cash from an
     // unverifiable kit id while the source material remains owned.
@@ -227,7 +227,7 @@ export function recycleInventoryItemForPlayer(player, payload = {}, deps = {}) {
   const itemId = String(payload.itemId || payload.id || "");
   const owned = findOwnedJadeItem(player, itemId);
   if (!owned) return { ok: false, message: "找不到该物品。" };
-  if (owned.item.escrowOrderId) return { ok: false, message: "委托物不可回收。" };
+  if (owned.item.escrowOrderId || owned.item.customerCommissionId) return { ok: false, message: "委托物不可回收。" };
   const totalValue = resolveRecycleValue(itemValue(owned.item), asMoney);
   if (totalValue == null) {
     return {

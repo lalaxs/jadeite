@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from 'node:assert/strict';
 import { createCommissionService } from '../server/services/commission-service.js';
 import { claimWorkshopOutputs } from './workshop-test-utils.mjs';
@@ -10,7 +11,7 @@ const originalRandom = Math.random;
 Date.now = () => now;
 try {
   H.world.clear();
-  const p = H.makePlayer('commission-before-gift');
+  const p = makeEstablishedPlayer(H, 'commission-before-gift');
   H.state.players.set(p.id, p);
   const commissions = createCommissionService({ normalizePlayer: H.normalizePlayer, earnCash: H.earnCash });
   const job = commissions.startCommissionForPlayer(p, { offerId: 'standard' }, now);

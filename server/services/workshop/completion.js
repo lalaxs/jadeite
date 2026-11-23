@@ -113,6 +113,8 @@ function completeProductionJob(player, job) {
     priceByCraft(polished);
     polished.stage = "material";
     polished.materialStage = "opened";
+    polished.openedByPlayerId = player.id;
+    if (job.item.customerCommissionId) polished.customerCommissionId = job.item.customerCommissionId;
     deliver([polished]);
     applyRepDelta(
       player,

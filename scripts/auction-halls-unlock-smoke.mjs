@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { AUCTION_HALLS } from "../shared/domain/auction/jade-auction.js";
@@ -8,7 +9,7 @@ import { initAuctionModule, renderAuction, enterAuctionHall, backAuctionHalls } 
 const now = Date.now();
 function setup(exp = 3_600) {
   H.world.clear();
-  const player = H.makePlayer("auction-halls-qa");
+  const player = makeEstablishedPlayer(H, "auction-halls-qa");
   player.exp = exp;
   player.cash = 100_000_000;
   H.normalizePlayer(player);
@@ -162,7 +163,7 @@ assert.equal(els.auctionHeadTitle.textContent, "常规公盘");
 backAuctionHalls();
 assert.match(regularCard(), /已入场/);
 // A closing hall must not disable another hall's entrance.
-const other = H.makePlayer("near-close-qa");
+const other = makeEstablishedPlayer(H, "near-close-qa");
 other.exp = 250; other.cash = 30_000; H.normalizePlayer(other);
 H.state.players.set(other.id, other);
 roundFor("regular").endsAt = now + 9_000;

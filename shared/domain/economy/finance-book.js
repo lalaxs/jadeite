@@ -1,6 +1,7 @@
 // Private business accounting. Valuation never creates cash or realized income.
 import { itemCost, addItemCost, itemCostComponents } from "./item-cost.js";
 import { operatingReserveFor } from "./operating-reserve.js";
+import { observeBusinessProgress, BUSINESS_AUTO_REPAY_SOURCES } from "../progression/business-growth.js";
 
 const TOTAL_KEYS = ["salesRevenue", "soldCost", "salesFees", "unknownCostSales", "commissionNet", "serviceNet",
   "operatingExpenses", "materialLoss", "unknownLosses", "unknownOperatingCosts", "financeCosts", "equipmentOutflow", "equipmentInflow", "cashIn", "cashOut", "knownSalesProfit", "otherOperatingIncome",
@@ -37,6 +38,7 @@ function event(player, id, deltas, at = Date.now()) {
     book.totals[field] = (Number(book.totals[field]) || 0) + Number(amount || 0);
     daily[field] = (Number(daily[field]) || 0) + Number(amount || 0);
   }
+  observeBusinessProgress(player, at);
   const days = Object.keys(book.days).sort((a, b) => Number(b) - Number(a));
   for (const key of days.slice(365)) delete book.days[key];
   return true;
@@ -109,6 +111,18 @@ export function recordFinanceSale(player, items, revenue, { id, channel = "sale"
   });
   const soldCost = snapshots.reduce((sum, item) => sum + item.cost, 0);
   const unknown = snapshots.filter(item => !item.costComplete).length;
+  if (player.business) {
+    const milestones = player.business.milestones;
+    if (rows.some(item => !item.customerCommissionId && item.openedByPlayerId === player.id && item.materialStage === "opened")) milestones.openedSold = true;
+    if (rows.some(item => item.extractedByPlayerId === player.id && item.materialStage === "carved")) milestones.carvedSold = true;
+    const signature = rows.find(item => item.craftedByPlayerId === player.id && item.materialStage === "finished");
+    if (signature) {
+      milestones.finishedSold = true;
+      player.business.signatureWork ||= { id: signature.id, name: signature.name, at };
+    }
+    if (channel === "livestream") milestones.liveSold = true;
+    player.business.reservations = (player.business.reservations || []).filter(row => !rows.some(item => item.id === row.itemId));
+  }
   const sale = { id: String(id || key), at, channel, revenue: money(revenue), salesFees: money(salesFees), soldCost,
     costComplete: unknown === 0, grossProfit: unknown ? null : money(revenue) - soldCost - money(salesFees), pending,
     items: snapshots };
@@ -152,15 +166,19 @@ export function recordFinanceCash(player, kind, amount, meta = {}) {
   const source = meta.source || kind;
   const deltas = { [expense ? "cashOut" : "cashIn"]: money(amount) };
   if (!expense && source === "commission") deltas.commissionNet = money(amount);
+  if (!expense && source === "consignment") deltas.serviceNet = money(amount);
   if (!expense && ["blackmarket-service-payout", "blackmarket-service-recovery-payout"].includes(source)) deltas.serviceNet = money(amount);
   if (expense && ["equipment", "asset"].includes(source)) deltas.equipmentOutflow = money(amount);
   if (expense && EXPENSE_SOURCES.has(source)) deltas.operatingExpenses = money(amount);
   if (meta.financeCategory === "equipment-sale") deltas.equipmentInflow = expense ? 0 : money(amount);
   if (meta.financeCategory === "equipment-purchase") deltas.equipmentOutflow = expense ? money(amount) : 0;
   if (meta.financeCategory === "operating") deltas.operatingExpenses = expense ? money(amount) : 0;
-  if (!expense && meta.financeCategory === "personnel-sale") deltas.otherOperatingIncome = money(amount);
+  if (!expense && meta.financeCategory === "personnel-sale") deltas.equipmentInflow = money(amount);
   if (!expense && source === "recovery-advance") deltas.financingInflow = money(amount);
   if (expense && source === "recovery-repayment") deltas.debtRepayment = money(amount);
+  if (!expense && source === "business-loan") deltas.financingInflow = money(amount);
+  if (expense && source === "business-repayment") deltas.debtRepayment = money(amount);
+  if (!expense && ["business-start", "business-reward"].includes(source)) deltas.nonOperatingIncome = money(amount);
   if (expense && DEPOSIT_SOURCES.has(source)) deltas.depositsHeld = money(amount);
   if (!expense && DEPOSIT_REFUNDS.has(source)) deltas.depositsReleased = money(amount);
   if (!expense && ["taskReward", "achievementReward", "debug", "debug-cash"].includes(source)) deltas.nonOperatingIncome = money(amount);
@@ -258,18 +276,25 @@ export function refundFinanceItemCost(player, { id, feeKey, batchId, amount, ite
   return reversed;
 }
 
-/** Mirrors earnCash's reserve, 10% borrowing repayment and eligible 20% payroll repayment. */
-export function previewIncomeCash(player, amount, { source = "sale", recoveryDebtExempt = false } = {}) {
+/** Read-only cash projection using the same reserve and income repayment limits. */
+export function previewIncomeCash(player, amount, { source = "sale", profit = null, recoveryDebtExempt = false } = {}) {
   const gross = money(amount);
   const reserve = operatingReserveFor(player);
   const cashBefore = money(player?.cash);
   const available = Math.max(0, cashBefore + gross - reserve);
   const recoveryRepayment = recoveryDebtExempt || gross <= 0 ? 0 : Math.min(money(player?.recovery?.debt),
     Math.max(1, Math.round(gross * .1)), Math.floor(gross * .3), available);
-  const payrollRepayment = BUSINESS_SOURCES.has(source) ? Math.min(money(player?.employeePayroll?.debt),
-    Math.floor(gross * .2), Math.max(0, Math.floor(gross * .3) - recoveryRepayment), Math.max(0, available - recoveryRepayment)) : 0;
-  return { gross, recoveryRepayment, payrollRepayment, cashIncrease: gross - recoveryRepayment - payrollRepayment,
-    cashAfter: cashBefore + gross - recoveryRepayment - payrollRepayment, reserve };
+  const growth = player?.business && player.business.choice !== "established";
+  const budget = Math.floor((growth ? money(profit) : gross) * .3);
+  const eligible = BUSINESS_SOURCES.has(source) || ["neighborhood-sale", "consignment"].includes(source);
+  const payrollRepayment = eligible ? Math.min(money(player?.employeePayroll?.debt),
+    Math.floor(gross * .2), Math.max(0, budget - recoveryRepayment), Math.max(0, available - recoveryRepayment)) : 0;
+  const debt = (player?.business?.loans || []).reduce((sum, loan) => sum + loan.principal + loan.interest + loan.penalty, 0);
+  const businessLoanRepayment = BUSINESS_AUTO_REPAY_SOURCES.has(source) ? Math.min(debt,
+    Math.floor(money(profit) * .2), Math.max(0, budget-recoveryRepayment-payrollRepayment), Math.max(0, available-recoveryRepayment-payrollRepayment)) : 0;
+  const cashIncrease = gross-recoveryRepayment-payrollRepayment-businessLoanRepayment;
+  return { gross, recoveryRepayment, payrollRepayment, ...(player?.business ? { businessLoanRepayment } : {}), cashIncrease,
+    cashAfter: cashBefore+cashIncrease, reserve };
 }
 
 /** Read-only projection: inventory rows carry status, never mutate old saves during snapshots. */

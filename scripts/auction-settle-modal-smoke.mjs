@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import { readFileSync } from "node:fs";
 import { readClientShellSource } from "./load-client-shell.mjs";
 import assert from "node:assert/strict";
@@ -14,7 +15,6 @@ assert.doesNotMatch(
 );
 
 const {
-  makePlayer,
   normalizePlayer,
   enterAuctionForPlayer,
   ensureAuctionRound,
@@ -22,6 +22,8 @@ const {
   ackAuctionSettleForPlayer,
   state
 } = __testHooks;
+
+const makePlayer = id => makeEstablishedPlayer(__testHooks, id);
 
 state.players.clear();
 state.sockets.clear();

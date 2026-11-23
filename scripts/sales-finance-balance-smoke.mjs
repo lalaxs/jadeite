@@ -43,13 +43,13 @@ const createPlayer = (id = 'balance') => ({ id, cash: 0, level: 1, ledger: [], r
   p.ledger.push({ kind: 'expense', source: 'auction', amount: -10000 });
   assert.equal(operatingReserveFor(p), 10200);
 }
-assert.equal(DAILY_TASK_CASH_CAP, 300);
+assert.equal(DAILY_TASK_CASH_CAP, 0);
 {
   const p = createPlayer('rewards');
-  assert.equal(bookRewardCash(p, 250, 'taskReward', now), 250);
-  assert.equal(bookRewardCash(p, 250, 'taskReward', now), 50);
   assert.equal(bookRewardCash(p, 250, 'taskReward', now), 0);
-  assert.equal(bookRewardCash(p, 250, 'taskReward', now + 86400000), 250);
+  assert.equal(bookRewardCash(p, 250, 'taskReward', now), 0);
+  assert.equal(bookRewardCash(p, 250, 'taskReward', now), 0);
+  assert.equal(bookRewardCash(p, 250, 'taskReward', now + 86400000), 0);
 }
 const item = (id, extra = {}) => ({ id, name: id, type: 'bracelet', materialStage: 'finished', value: 1000, score: 2, ...extra });
 {

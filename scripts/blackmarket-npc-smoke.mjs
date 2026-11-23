@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
@@ -25,7 +26,7 @@ try {
   H.state.blackStalls.length = 0;
   H.state.players.clear();
   H.state.sockets.clear();
-  const buyer = installOwnedWorkshopFixture(H.makePlayer("npc-buyer"));
+  const buyer = installOwnedWorkshopFixture(makeEstablishedPlayer(H, "npc-buyer"));
   H.normalizePlayer(buyer);
   buyer.cash = 100_000_000;
   buyer.achievementPoints = buyer.achievementPointsBonus = 680;
@@ -210,7 +211,7 @@ try {
   buyer.cash = 0;
   assert.equal(buy(stallFor("finished"), stallFor("finished").items[0]).ok, false);
   buyer.cash = 100_000;
-  const newBuyer = H.makePlayer("new-npc-buyer");
+  const newBuyer = makeEstablishedPlayer(H, "new-npc-buyer");
   newBuyer.cash = 0;
   assert.equal(buyGoodsFromStallForPlayer(newBuyer, stallFor("finished").id, stallFor("finished").items[0].id).ok, false);
   const empty = stallFor("stone");

@@ -40,6 +40,7 @@ export function createAssetsService(deps) {
   }
 
   function assetListingsForPlayer(player) {
+    if (player?.business && player.business.choice !== "established") return [];
     return ASSET_LISTINGS.filter((listing) => {
       if (listing.type === "workshop") return !player?.assets?.workshopOwned;
       if (listing.type === "livestreamPermit") return !player?.assets?.livestreamPermitOwned;
@@ -50,6 +51,9 @@ export function createAssetsService(deps) {
   function buyAssetListingForPlayer(player, listingId) {
     if (!player) return { ok: false, message: "未找到玩家。" };
     normalizePlayer(player);
+    if (player.business && player.business.choice !== "established" && deps.buildBusiness) {
+      return deps.buildBusiness(player, listingId === "starter-workshop" ? "workshop" : listingId === "livestream-permit" ? "livestream" : listingId);
+    }
     const listing = ASSET_LISTINGS.find((item) => item.id === listingId);
     if (!listing) return { ok: false, message: "资产挂单不存在。" };
     if (listing.type === "workshop" && player.assets.workshopOwned) {

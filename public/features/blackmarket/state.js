@@ -1,4 +1,4 @@
-import { BLACKMARKET_MIN_PRICE as BM_MIN_PRICE } from "../../bm-constants.js";
+import { BLACKMARKET_BLIND_MIN_PRICE as BM_MIN_PRICE } from "../../bm-constants.js";
 
 export function createBlackmarketUiState() {
   return {

@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { __testHooks as H } from "../server.js";
@@ -21,7 +22,7 @@ function reset() {
 }
 
 reset();
-const player = H.makePlayer("asset-svc-1");
+const player = makeEstablishedPlayer(H, "asset-svc-1");
 H.normalizePlayer(player);
 player.assets.workshopOwned = false;
 player.assets.livestreamPermitOwned = false;

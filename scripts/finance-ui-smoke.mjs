@@ -23,6 +23,15 @@ assert.equal(order.cash.cashIncrease, 700, "debt repayment reduces cash without 
 assert.equal(order.cash.cashAfter, 5700);
 assert.equal(order.cash.recoveryRepayment, 100);
 assert.equal(order.cash.payrollRepayment, 200);
+const startup = { ...player, employeePayroll: { debt: 0 }, recovery: { debt: 0 }, business: {
+  choice: "ordinary", built: [], loans: [{ principal: 500, interest: 5, penalty: 0 }]
+} };
+const startupModel = buildSaleComparison({ ...state, me: startup }, product, { targetPrice: 1100, now });
+const startupOrder = startupModel.rows.find(row => row.id === "order:one");
+assert.equal(startupOrder.cash.businessLoanRepayment, 40, "现金预估按200元利润的20%还经营贷款");
+assert.equal(startupOrder.cash.cashIncrease, 960);
+assert.equal(startupOrder.available, false, "未建精加工室不能从渠道比较绕过订单权限");
+assert.equal(startupModel.rows.find(row => row.id === "market").available, false);
 const bundle = model.rows.find(row => row.id === "order:bundle");
 assert.equal(bundle.kind, "bundle");
 assert.equal(bundle.bundlePay, 2400);
@@ -75,7 +84,7 @@ assert.match(html, /整单报价不能当成本件收入/);
 assert.doesNotMatch(html, /data-modal-emit=/, "comparison cannot transact directly");
 const reports = financeReportHtml({ ...finance, summary: { ...finance.summary, grossProfit: null, grossProfitKnown: 1000, unknownCostSales: 1, operatingNet: null } });
 assert.match(reports, /非完整利润/);
-assert.match(reports, /设备与许可资金/);
+assert.match(reports, /设备与经营资源资金/);
 assert.match(reports, /资金往来/);
 assert.match(reports, /累计借款还款/);
 assert.match(reports, /开始记录：2026/);

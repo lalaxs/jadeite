@@ -1,4 +1,5 @@
 import { playersMatching } from "../persistence/mutation-scope.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
 import { employeeWorkBlock, enterEmployeePayrollDay } from "../systems/employee-payroll.js";
 /**
  * Livestream service — single authority: public stall rooms.
@@ -154,13 +155,16 @@ export function createLivestreamService(deps) {
   function startLivestreamRoomForPlayer(player, listings, workerId = null, now = Date.now(), talkStyle = "balanced") {
     normalizePlayer(player);
     if (enterEmployeePayrollDay(player, { spendCash, now, reason: "continued" }).changed) broadcast?.();
+    const growthAccess = businessAccess(player, "livestream");
+    if (!growthAccess.ok) return growthAccess;
+    const requestedId = String(workerId || player.workshop?.owner?.id || "").trim();
     const blocked = employeeWorkBlock(player, now);
-    if (blocked) return blocked;
+    if (blocked && requestedId !== player.workshop?.owner?.id) return blocked;
+    if (requestedId === player.workshop?.owner?.id && player.commissions?.active) return { ok: false, message: "掌柜正在处理来料单，请先交付。" };
     retireLegacyLivestreamJobs(player);
-    const requestedId = String(workerId || "").trim();
     let host = null;
     if (requestedId) {
-      const worker = (player.workshop?.workers || []).find((entry) => entry.id === requestedId);
+      const worker = requestedId === player.workshop?.owner?.id ? player.workshop.owner : (player.workshop?.workers || []).find((entry) => entry.id === requestedId);
       if (!worker) {
         return { ok: false, message: "找不到这位员工。" };
       }
@@ -200,7 +204,7 @@ export function createLivestreamService(deps) {
     normalizePlayer(player);
     if (enterEmployeePayrollDay(player, { spendCash, now, reason: "continued" }).changed) broadcast?.();
     const blocked = employeeWorkBlock(player, now);
-    if (blocked) return blocked;
+    if (blocked && player.livestreamRoom?.hostSnapshot?.id !== player.workshop?.owner?.id) return blocked;
     const result = replenishLivestreamRoomState(
       player,
       listings,

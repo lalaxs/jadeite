@@ -1,4 +1,5 @@
 import { equipmentRepairQuote } from "../../shared/domain/economy/equipment-maintenance.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
 import { OWNER_OPERATOR_ID } from "../../shared/domain/economy/public-workstations.js";
 
 const BRAND_LINES = [
@@ -589,6 +590,8 @@ export function buyEquipment(player, modelKey, { spendCash, makeId }) {
     return { ok: false, code: "NOT_FOUND", message: "设备型号不存在。" };
   }
   const instanceIndex = nextInstanceIndex(player, model);
+  const growthAccess = businessAccess(player, model.stage);
+  if (!growthAccess.ok) return growthAccess;
   player.workshop ||= {};
   player.workshop.devices ||= [];
   const deviceId = typeof makeId === "function" ? String(makeId() || "").trim() : "";

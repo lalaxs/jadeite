@@ -8,6 +8,7 @@ import { LIVESTREAM_MIN_PRICE, LIVESTREAM_MIN_ITEMS as MIN_ROOM_ITEMS, LIVESTREA
 import { BASE_DURATION_MINUTES, MAX_DURATION_MINUTES, skillLevel } from "./catalog.js";
 
 export function createLivestreamStockView({ getState, ui, helpers, ports }) {
+  const maxRoomItems = () => getState()?.me?.business?.capacity?.live ?? MAX_ROOM_ITEMS;
   const { selectedProductIds, priceDrafts } = ui;
   const { formatMoney, escapeHtml, productCanvas } = helpers;
   const { draftPrice, resolveModalHost, selectionSummary, sortHostsForPicker, visibleStockProducts } = ports;
@@ -232,7 +233,7 @@ function stockPickerMarkup(products, { mode, capacity, selectedHost = null }) {
 
 function startWizardMarkup(hosts, selectedHost, products) {
   return `
-    ${stockPickerMarkup(products, { mode: "start", capacity: MAX_ROOM_ITEMS, selectedHost })}
+    ${stockPickerMarkup(products, { mode: "start", capacity: maxRoomItems(), selectedHost })}
     ${ui.hostModalOpen ? hostModalMarkup(hosts, resolveModalHost()) : ""}
   `;
 }

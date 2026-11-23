@@ -457,6 +457,10 @@ function takeBmListEntries(player, entries) {
     if (!item) {
       return { ok: false, message: "库存中找不到部分货品。", taken, returned };
     }
+    if (item.customerCommissionId) {
+      restoreInventoryItem(player, entry.type, item);
+      return { ok: false, message: "客户委托物需交还客户，不能挂牌出售。", taken, returned };
+    }
     taken.push({
       type: entry.type,
       listingId: resource?.listingId,

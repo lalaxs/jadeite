@@ -4,7 +4,8 @@
  */
 
 export const BLACKMARKET_TAX = 0;
-export const BLACKMARKET_MIN_PRICE = 100;
+export const BLACKMARKET_MIN_PRICE = 10;
+export const BLACKMARKET_BLIND_MIN_PRICE = 100;
 export const BLACKMARKET_GOODS_CAP = 24;
 /** Player inventory and NPC stock share the same tradable goods categories. */
 export const BLACKMARKET_GOODS_BUCKETS = Object.freeze({

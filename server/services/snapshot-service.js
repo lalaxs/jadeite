@@ -6,6 +6,9 @@ import { customerRatingTierInfo } from "../../shared/domain/economy/metric-histo
 import { publicAuctionRounds } from "./auction-rounds.js";
 import { systemDemandSnapshot } from "../../shared/domain/economy/system-demand.js";
 import { operatingReserveFor } from "../../shared/domain/economy/operating-reserve.js";
+import { businessSnapshot } from "../../shared/domain/progression/business-growth.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
+import { publicWorkshopStations } from "../../shared/domain/economy/public-workstations.js";
 import {
   publicAuctionSnapshot,
   publicAuctionHistoryEntry
@@ -104,6 +107,7 @@ export function createSnapshotService(deps) {
     } = player;
     return {
       ...safePlayer,
+      business: businessSnapshot(player, now),
       reports: currentReport ? [currentReport] : [],
       systemDemand: systemDemandSnapshot(player, now),
       operatingReserve: operatingReserveFor(player),
@@ -113,6 +117,9 @@ export function createSnapshotService(deps) {
         ...(player.workshop.owner ? { owner: { ...player.workshop.owner,
           busy: isWorkerBusy(player, player.workshop.owner.id) || Boolean(player.commissions?.active) } } : {}),
         devices: player.workshop.devices.map(({ tradeHistory, ...device }) => device),
+        ...(player.business?.choice && player.business.choice !== "established" && player.assets?.workshopOwned ? {
+          publicStations: publicWorkshopStations().filter(device => businessAccess(player, device.stage).ok)
+        } : {}),
         workers: player.workshop.workers.map(({ tradeHistory, ...worker }) => ({
           ...worker,
           busy: isWorkerBusy(player, worker.id)

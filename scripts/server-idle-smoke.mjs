@@ -1,10 +1,10 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks } from "../server.js";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
 import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
 
 const {
-  makePlayer: makeFreshPlayer,
   normalizePlayer,
   spendCash,
   consumeRequestId,
@@ -58,6 +58,8 @@ const {
   refreshPlayerReport,
   state
 } = __testHooks;
+
+const makeFreshPlayer = id => makeEstablishedPlayer(__testHooks, id);
 
 function resetState() {
   state.players.clear();

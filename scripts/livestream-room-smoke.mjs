@@ -107,7 +107,7 @@ function listingsFor(owner, count, price = 10_000) {
   }));
 }
 
-assert.equal(LIVESTREAM_MIN_ITEMS, 3);
+assert.equal(LIVESTREAM_MIN_ITEMS, 1);
 assert.equal(LIVESTREAM_MAX_ITEMS, 12);
 assert.equal(LIVESTREAM_MIN_PRICE, 1);
 assert.equal(LIVESTREAM_BASE_DURATION_MS, 12 * 60 * 1000);
@@ -165,9 +165,9 @@ assert.equal(LIVESTREAM_AI_TUNING.maxPriceRatio, 1.25);
 
 {
   const owner = player("small", 3);
-  const result = startLivestreamRoom(owner, listingsFor(owner, 2), makeDependencies());
+  const result = startLivestreamRoom(owner, [], makeDependencies());
   assert.equal(result.ok, false);
-  assert.match(result.message, /至少 3 件/);
+  assert.match(result.message, /至少 1 件/);
   assert.equal(owner.bracelets.length, 3);
 }
 

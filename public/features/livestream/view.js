@@ -5,6 +5,7 @@ import { payrollWorkNotice } from "../../payroll-work-notice.js";
 import { HALL_SORTS, sortHallRooms, trimLivestreamSelection } from "./catalog.js";
 
 export function createLivestreamView({ getState, elsRef, observeLazyPreviews, ui, helpers, ports }) {
+  const maxRoomItems = () => getState()?.me?.business?.capacity?.live ?? MAX_ROOM_ITEMS;
   const { selectedProductIds, priceDrafts, shelfScrollByRoom } = ui;
   const { finishedProducts, formatMoney, escapeHtml, paintProductCanvases } = helpers;
   const { roomForId, availableHosts, resolveSelectedHost, selectionSummary, visibleStockProducts, pruneChatFeeds, captureChatScroll, restoreChatScroll, startWizardMarkup, ownerDashboardMarkup, visitorRoomCardMarkup, visitorWatchMarkup, tabsMarkup, mineEntryCardMarkup, captureShelfScroll, restoreShelfScroll, capturePreservedShelves, restorePreservedShelves, reconcileSelection, clearWatchingRoom } = ports;
@@ -13,7 +14,7 @@ function syncSelectionControls() {
   const picker = elsRef.livestream?.querySelector(".livestream-stock-picker:not(.is-empty)");
   if (!picker) return;
   const isStart = picker.dataset.pickerMode === "start";
-  const capacity = Math.max(0, Number(picker.dataset.capacity || MAX_ROOM_ITEMS));
+  const capacity = Math.max(0, Number(picker.dataset.capacity || maxRoomItems()));
   trimLivestreamSelection(selectedProductIds, capacity);
   const selected = [...selectedProductIds];
   const validPrices = selected.every((productId) => {
@@ -73,7 +74,7 @@ function renderLivestream() {
   if (!state?.me || !elsRef.livestream) return;
   const products = finishedProducts();
   const myRoom = state.me.livestreamRoom;
-  const capacity = myRoom ? Math.max(0, MAX_ROOM_ITEMS - myRoom.items.length) : MAX_ROOM_ITEMS;
+  const capacity = myRoom ? Math.max(0, maxRoomItems() - myRoom.items.length) : maxRoomItems();
   if (myRoom) {
     if (capacity <= 0) ui.replenishOpen = false;
   } else {
@@ -166,7 +167,7 @@ function renderLivestream() {
       <section class="livestream-locked-panel">
         <span class="livestream-live-badge"><i></i> LOCKED</span>
         <h3>还不能开启自己的直播间</h3>
-        <p>购买经营许可后，可选 ${MIN_ROOM_ITEMS}–${MAX_ROOM_ITEMS} 件成品开播，主播可稍后安排；逛直播间和购买商品无需许可。</p>
+        <p>购买经营许可后，可选 ${MIN_ROOM_ITEMS}–${maxRoomItems()} 件成品开播，主播可稍后安排；逛直播间和购买商品无需许可。</p>
         <button type="button" data-view-link="shop">前往商铺</button>
       </section>
     `;

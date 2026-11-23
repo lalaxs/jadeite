@@ -7,6 +7,7 @@ import { employeePayrollQuote, employeePayrollStatus } from "../../worker-econom
 import { KIND_LABELS } from "../../jade-categories.js";
 import { setMobileContentPane } from "../../shell/navigation.js";
 import { showToast } from "../../shell/toast-fx.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 
 let getState = () => null;
 let getEls = () => null;
@@ -111,6 +112,7 @@ export function reminderRows() {
 
   if (!state?.me) return [];
   const { me } = state;
+  if (me.business && !me.business.choice) return [{ id: "business-start", title: "选择经营方式", detail: "普通500元开局，或签订24小时经营合约", tone: "action", action: { label: "前往主页", payload: "overview" } }];
   const reminders = [];
   const jobs = productionJobsFor(me);
   const workshopResults = pendingWorkshopResults(me);
@@ -189,12 +191,12 @@ export function reminderRows() {
     reminders.push({
       id: "workshop",
       title: "工坊未开",
-      detail: "去商铺买下街角小工坊",
+      detail: me.business ? "累计净利润达到1万元，在主页建设开料工坊" : "去商铺买下街角小工坊",
       tone: "action",
-      action: { label: "去商铺", payload: "shop" }
+      action: { label: me.business ? "查看成长" : "去商铺", payload: me.business ? "overview" : "shop" }
     });
   }
-  if (!me.assets?.livestreamPermitOwned && (me.bracelets || []).length) {
+  if (!me.business && !me.assets?.livestreamPermitOwned && (me.bracelets || []).length) {
     reminders.push({
       id: "livestream",
       title: "直播未开",
@@ -233,17 +235,17 @@ export function reminderRows() {
       action: { label: "去工坊", payload: "workshop" }
     });
   }
-  if (me.cash < 1000) {
+  if (me.cash < (me.business ? 60 : 1000)) {
     reminders.push({
       id: "cash",
       title: "现金紧张",
-      detail: "可整理库存，挂牌出售暂不加工的物品，补充周转金",
+      detail: me.business ? "交付已有货品，或接无需垫资的街坊寄售" : "可整理库存，挂牌出售暂不加工的物品，补充周转金",
       tone: "warn",
-      action: { label: "查看库存", payload: "inventory" }
+      action: { label: me.business ? "去黑市" : "查看库存", payload: me.business ? "blackmarket" : "inventory" }
     });
   }
   // 公盘时间提醒：开标倒计时实时跟随
-  if (state?.auction) {
+  if (state?.auction && businessAccess(me, "auction").ok) {
     const a = auctionPhaseMeta(state.auction);
     reminders.unshift({
       id: "auction-eta",

@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { requireApi } from "../server/services/blackmarket/context.js";
@@ -127,7 +128,7 @@ for (let batch = 0; batch < 20; batch += 1) {
   assert.equal(new Set(signatures).size, signatures.length);
   now = Math.max(...H.state.blackStalls.map((entry) => entry.npcRotateAt)) + 1;
 }
-const buyer = H.makePlayer("variety-buyer");
+const buyer = makeEstablishedPlayer(H, "variety-buyer");
 buyer.cash = 10_000_000; H.state.players.set(buyer.id, buyer);
 const stall = H.state.blackStalls.find((entry) => entry.npcRole === "finished");
 const row = stall.items[0];

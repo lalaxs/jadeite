@@ -6,7 +6,7 @@ import {
 } from "../../bm-plan-pool.js";
 import { inlaySummary } from "../../product-meta.js";
 import {
-  BLACKMARKET_MIN_PRICE as BM_MIN_PRICE,
+  BLACKMARKET_BLIND_MIN_PRICE as BM_MIN_PRICE,
   BLACKMARKET_BLIND_MIN as BM_BLIND_MIN,
   BLACKMARKET_BLIND_CAP as BM_BLIND_CAP
 } from "../../bm-constants.js";

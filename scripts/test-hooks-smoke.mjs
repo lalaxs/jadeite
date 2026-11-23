@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { TEST_HOOK_KEYS, createTestHooks } from "../server/shell/test-hooks.js";
 import { __testHooks as H } from "../server.js";
 
-assert.equal(TEST_HOOK_KEYS.length, 176);
+assert.equal(TEST_HOOK_KEYS.length, 177);
 assert.equal(Object.isFrozen(H), true);
 
 for (const key of TEST_HOOK_KEYS) {
@@ -23,7 +23,7 @@ assert.equal(typeof H.buyShopEquipmentForPlayer, "function");
 
 assert.throws(
   () => createTestHooks({ world: H.world }),
-  /test-hooks: missing state/
+  /test-hooks: missing businessService/
 );
 
 const serverSource = readFileSync("server.js", "utf8") + readFileSync("server/create-game.js", "utf8");

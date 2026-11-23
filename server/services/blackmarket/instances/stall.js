@@ -1,6 +1,8 @@
 // Instance-owned implementation; legacy entry points remain one directory above.
+import { businessCapacity, businessAccess, businessPurchaseAccess } from "../../../../shared/domain/progression/business-growth.js";
 import {
   BLACKMARKET_MIN_PRICE,
+  BLACKMARKET_BLIND_MIN_PRICE,
   BLACKMARKET_GOODS_CAP,
   BLACKMARKET_BLIND_MIN
 } from "../../../../shared/domain/blackmarket/bm-constants.js";
@@ -112,6 +114,7 @@ function publicBlackStall(stall, viewerId, publicStone) {
     satisfaction,
     ratingDisplay,
     summary,
+    goodsCapacity: businessCapacity(state.players.get(stall.ownerId), "goods"),
     createdAt: stall.createdAt,
     updatedAt: stall.updatedAt,
     views: Number(stall.views || 0),
@@ -198,6 +201,8 @@ function openBlackStallForPlayer(player, payload = {}) {
   const locked = denyUnlessBmStall(player);
   if (locked) return locked;
   const type = String(payload.type || "");
+  const growthAccess = businessAccess(player, type === "blindbox" ? "bmBlind" : type === "service" ? "bmService" : "blackmarket");
+  if (!growthAccess.ok) return growthAccess;
   if (!STALL_TYPES.has(type)) {
     return { ok: false, message: "请选择摊位类型：卖物品 / 盲盒 / 技术支持。" };
   }
@@ -226,7 +231,7 @@ function openBlackStallForPlayer(player, payload = {}) {
     items: [],
     pool: [],
     offers: [],
-    blindPrice: BLACKMARKET_MIN_PRICE,
+    blindPrice: BLACKMARKET_BLIND_MIN_PRICE,
     blindDescription: "",
     serviceProfile: type === "service" ? defaultServiceProfile() : undefined
   };
@@ -334,14 +339,14 @@ function updateBlackStallMetaForPlayer(player, payload = {}) {
     }
     if (payload.blindPrice != null) {
       const p = money(Number(payload.blindPrice));
-      if (p < BLACKMARKET_MIN_PRICE) return { ok: false, message: `盲盒定价最低 ¥${BLACKMARKET_MIN_PRICE}。` };
+      if (p < BLACKMARKET_BLIND_MIN_PRICE) return { ok: false, message: `盲盒定价最低 ¥${BLACKMARKET_BLIND_MIN_PRICE}。` };
       const current = money(Number(stall.blindPrice) || 0);
       const poolAvg = averageBlindPoolRefPrice(stall);
       // 占位—1：保留已有有效定价，或回退到池内均价，避免刷新后「保存设定」把价写—1
-      if (p <= BLACKMARKET_MIN_PRICE) {
-        if (current > BLACKMARKET_MIN_PRICE) {
+      if (p <= BLACKMARKET_BLIND_MIN_PRICE) {
+        if (current > BLACKMARKET_BLIND_MIN_PRICE) {
           stall.blindPrice = current;
-        } else if (poolAvg != null && poolAvg > BLACKMARKET_MIN_PRICE) {
+        } else if (poolAvg != null && poolAvg > BLACKMARKET_BLIND_MIN_PRICE) {
           stall.blindPrice = poolAvg;
         } else {
           stall.blindPrice = p;
@@ -408,7 +413,7 @@ function addGoodsBatchToStallForPlayer(player, entries = []) {
   const stall = findStallByOwner(getState(), player.id);
   if (!stall) return { ok: false, message: "请先开摊。" };
   if (stall.type !== "goods") return { ok: false, message: "当前不是卖物品摊位。" };
-  const slotsLeft = BLACKMARKET_GOODS_CAP - (stall.items || []).length;
+  const slotsLeft = businessCapacity(player, "goods") - (stall.items || []).length;
   if (list.length > slotsLeft) {
     return { ok: false, message: `货架剩余 ${slotsLeft} 格，无法一次上架${list.length} 件。` };
   }
@@ -474,6 +479,8 @@ function buyGoodsFromStallForPlayer(player, stallId, listingId, expectedPrice) {
   if (idx < 0) return { ok: false, message: "货品不存在。" };
   const row = stall.items[idx];
   const itemType = row?.type || row?.item?.type;
+  const purchaseAccess = businessPurchaseAccess(player, row?.item);
+  if (!purchaseAccess.ok) return purchaseAccess;
   if (!row?.item || !ITEM_TYPES.has(itemType)) {
     stall.items.splice(idx, 1);
     closeGoodsStallIfEmpty(state, stall, { force: true });

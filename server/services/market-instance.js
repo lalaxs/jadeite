@@ -363,6 +363,9 @@ function listItemForPlayer(player, { type, itemId, price } = {}) {
   }
   const state = getState();
   const mine = state.listings.filter((listing) => listing.ownerId === player.id).length;
+  if ([...(player.rough || []), ...(player.materials || []), ...(player.bracelets || [])].some(item => item.id === itemId && item.customerCommissionId)) {
+    return { ok: false, message: "客户委托物需交还客户，不能挂牌出售。" };
+  }
   if (mine >= MARKET_LISTING_PER_PLAYER_CAP) {
     return {
       ok: false,

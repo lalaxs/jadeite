@@ -1,3 +1,4 @@
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 // shop-module.js — 商铺：建筑 / 设备 / 镶嵌材料
 import { EQUIPMENT_PARAM_HELP, equipmentParamTone, formatEquipmentParamValue, renderEquipmentParamPills } from "../../equipment-param-view.js";
 import { renderResourceCard } from "../../resource-card-view.js";
@@ -100,7 +101,7 @@ function openShopEquipmentDetail(modelKey) {
 
 function renderEquipmentShopHtml() {
   const offered = new Set((getState().equipmentShop?.items || []).map((row) => row.modelKey));
-  const equipment = (getState().equipmentCatalog || []).filter((row) => offered.has(row.modelKey));
+  const equipment = (getState().equipmentCatalog || []).filter((row) => offered.has(row.modelKey) && businessAccess(getState()?.me, row.stage).ok);
   return `<div class="eq-shop">
     <div class="equipment-shop-schedule"><strong>今日设备</strong><span>全服共享库存 · 每日 05:00 补货</span></div>
     <div class="eq-shop-body">${equipment.length
@@ -253,6 +254,12 @@ export function renderShop() {
 
     // ---- 镶嵌材料：材料卡片 + 购买弹窗 ----
     if (!elsRef.materialInventory) return;
+    const materialAccess = businessAccess(getState().me, "finishing");
+    if (!materialAccess.ok) {
+      elsRef.materialInventory.innerHTML = `<div class="mat-empty">${escapeHtml(materialAccess.message)}</div>`;
+      applyShopTab();
+      return;
+    }
     const cat = getState().materialCatalog || [];
     const inv = getState().me.externalMaterials || {};
     if (!cat.length) {

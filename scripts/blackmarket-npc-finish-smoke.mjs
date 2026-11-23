@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { maintainNpcBlackmarket } from "../server/services/blackmarket/npc.js";
@@ -67,7 +68,7 @@ assert.deepEqual({ id: legacyRow.item.id, value: legacyRow.item.value, price: le
   "repairing existing stock must not change IDs, prices, appraisals or offer budgets");
 assert.equal(maintainNpcBlackmarket().changed, false, "the compatibility repair runs only once");
 
-const buyer = H.makePlayer("legacy-npc-product-buyer");
+const buyer = makeEstablishedPlayer(H, "legacy-npc-product-buyer");
 const bought = legacyItem(legacyRow.item);
 bought.costBasis = { amount: 850, complete: true };
 buyer.bracelets = [bought];
@@ -79,7 +80,7 @@ assert.match(productCanvas(buyer.bracelets[0]), /data-jade-view="finished"/);
 assert.equal(buyer.bracelets[0].value, oldValue);
 assert.deepEqual(buyer.bracelets[0].costBasis, bought.costBasis);
 assert.equal(buyer.cash, oldCash);
-const unrelated = H.makePlayer("ordinary-legacy-product");
+const unrelated = makeEstablishedPlayer(H, "ordinary-legacy-product");
 unrelated.bracelets = [legacyItem(legacyRow.item)];
 H.normalizePlayer(unrelated);
 assert.equal(unrelated.bracelets[0].jadePiece, undefined, "do not rewrite unrelated legacy products without NPC purchase evidence");

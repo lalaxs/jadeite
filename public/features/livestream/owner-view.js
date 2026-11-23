@@ -1,7 +1,8 @@
 import { LIVESTREAM_MAX_ITEMS as MAX_ROOM_ITEMS } from "../../livestream-rules.js";
 import { formatRelativeMinutes, formatSaleAgo } from "./catalog.js";
 
-export function createLivestreamOwnerView({ ui, helpers, ports }) {
+export function createLivestreamOwnerView({ getState, ui, helpers, ports }) {
+  const maxRoomItems = () => getState()?.me?.business?.capacity?.live ?? MAX_ROOM_ITEMS;
   const { escapeHtml } = helpers;
   const { hostSubtitle, stockPickerMarkup, hostLiveChips, shelfMarkup, roomHeroMarkup } = ports;
 
@@ -116,7 +117,7 @@ function ownerDashboardMarkup(room, products, capacity) {
         <div class="livestream-owner-actions">
           ${capacity > 0
             ? `<button type="button" class="ghost" data-livestream-action="open-replenish-modal">补货</button>`
-            : `<span>货盘已满（${MAX_ROOM_ITEMS} 件）</span>`}
+            : `<span>货盘已满（${maxRoomItems()} 件）</span>`}
           <button class="danger ghost" type="button" data-livestream-action="close">关闭直播</button>
         </div>
       </footer>

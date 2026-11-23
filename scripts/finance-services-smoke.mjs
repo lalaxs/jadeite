@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -19,7 +20,7 @@ H.world.clear();
 assert.equal(H.persister, null, "test import must have persistence disabled");
 const results = [];
 function make(id, workshopStages = []) {
-  const player = H.makePlayer(id);
+  const player = makeEstablishedPlayer(H, id);
   H.normalizePlayer(player);
   player.cash = 200_000; player.level = 9; player.rep = 20;
   player.rough = []; player.materials = []; player.slices = []; player.bracelets = [];

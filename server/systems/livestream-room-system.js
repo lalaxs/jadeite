@@ -1,5 +1,6 @@
 import { takeInventoryItems, initializeInventory, restoreInventoryItems } from "../services/inventory-items.js";
 import { recordFinanceSale } from "../../shared/domain/economy/finance-book.js";
+import { businessAccess, businessCapacity } from "../../shared/domain/progression/business-growth.js";
 import {
   applyHostPurchaseBonuses,
   applyTalkStyleToBonuses,
@@ -210,6 +211,8 @@ function moveListingsIntoRoom(player, resolved, room, options = {}) {
 }
 
 export function startLivestreamRoom(player, listings, options = {}) {
+  const growthAccess = businessAccess(player, "livestream");
+  if (!growthAccess.ok) return growthAccess;
   normalizeLivestreamRoom(player);
   if (!player?.assets?.livestreamPermitOwned) {
     return { ok: false, message: "请先取得直播经营许可。" };
@@ -226,8 +229,8 @@ export function startLivestreamRoom(player, listings, options = {}) {
   if (!Array.isArray(listings) || listings.length < LIVESTREAM_MIN_ITEMS) {
     return { ok: false, message: `至少 ${LIVESTREAM_MIN_ITEMS} 件成品才可开启直播间。` };
   }
-  if (listings.length > LIVESTREAM_MAX_ITEMS) {
-    return { ok: false, message: `单个直播间最多 ${LIVESTREAM_MAX_ITEMS} 件在售成品。` };
+  if (listings.length > businessCapacity(player, "live")) {
+    return { ok: false, message: `本阶段直播货架最多 ${businessCapacity(player, "live")} 件。` };
   }
 
   const validation = validateListings(player, listings, options);
@@ -264,10 +267,10 @@ export function replenishLivestreamRoom(player, listings, options = {}) {
   if (!Array.isArray(listings) || listings.length < 1) {
     return { ok: false, message: "请至少选择 1 件补货成品。" };
   }
-  if (room.items.length + listings.length > LIVESTREAM_MAX_ITEMS) {
+  if (room.items.length + listings.length > businessCapacity(player, "live")) {
     return {
       ok: false,
-      message: `补货后不能超过 ${LIVESTREAM_MAX_ITEMS} 件在售成品。`
+      message: `本阶段补货后不能超过 ${businessCapacity(player, "live")} 件在售成品。`
     };
   }
 

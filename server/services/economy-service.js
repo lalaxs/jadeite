@@ -137,9 +137,11 @@ export function createEconomyService(deps) {
         after: money(player.cash)
       });
     }
-    repayEmployeePayrollFromIncome(player, income, meta, {
-      spendCash, now, maxPayment: Math.min(availableDebtRepayment(player), Math.max(0, Math.floor(income * 0.3) - repayment))
+    const incomeBudget = deps.businessIncomeBudget?.(player, income, meta) ?? Math.floor(income * .3);
+    const payrollPaid = repayEmployeePayrollFromIncome(player, income, meta, {
+      spendCash, now, maxPayment: Math.min(availableDebtRepayment(player), Math.max(0, incomeBudget - repayment))
     });
+    deps.repayBusinessFromIncome?.(player, income, meta, now, Math.max(0, incomeBudget - repayment - payrollPaid));
     return income;
   }
 

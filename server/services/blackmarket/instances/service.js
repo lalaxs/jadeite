@@ -1,4 +1,5 @@
 // Instance-owned implementation; legacy entry points remain one directory above.
+import { businessAccess } from "../../../../shared/domain/progression/business-growth.js";
 import { isWorkerBusy } from "../../../systems/employee-system.js";
 import { PROCESS_SKILLS, WORKER_SKILL_DEFS } from "../../../../shared/domain/workshop/workshop-craft-scoring.js";
 import {
@@ -645,6 +646,8 @@ function updateServiceProfileForPlayer(player, payload = {}) {
 }
 
 function addServiceOfferForPlayer(player, payload = {}) {
+  const growthAccess = businessAccess(player, "bmService");
+  if (!growthAccess.ok) return growthAccess;
   const { getState, money, randomUUID } = requireApi();
   if (!player) return { ok: false, message: "未找到玩家。" };
   const locked = denyUnlessBmStall(player);
@@ -704,6 +707,8 @@ function removeServiceOfferForPlayer(player, offerId) {
 }
 
 function orderBlackServiceForPlayer(player, stallId, offerId, payload = {}) {
+  const growthAccess = businessAccess(player, "bmService");
+  if (!growthAccess.ok) return growthAccess;
   const { getState, money, holdDeposit, randomUUID, addNews, takeItem, addItem, materialStageFor } = requireApi();
   if (!player) return { ok: false, message: "未找到玩家。" };
   const locked = denyUnlessBmBuy(player);

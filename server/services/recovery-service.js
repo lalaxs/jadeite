@@ -130,6 +130,7 @@ export function createRecoveryService({ getState, earnCash, refreshPlayerReport 
   }
 
   function recoverPlayerIfNeeded(player, now = Date.now(), { requested = false } = {}) {
+    if (player.business && player.business.choice !== "established") return { ok: false, applied: false, message: "请在经营账房申请阶段周转贷款。" };
     const status = recoveryStatus(player, now);
     if (!status.eligible) return { ok: false, applied: false, ...status };
     if (!requested) return { ok: false, applied: false, ...status, message: "可在经营账房申请周转借款。" };

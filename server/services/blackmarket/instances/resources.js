@@ -1,4 +1,5 @@
 // Instance-owned implementation; legacy entry points remain one directory above.
+import { businessAccess, businessCapacity } from "../../../../shared/domain/progression/business-growth.js";
 import { resourceBucket, resourceSaleBlock, isBlackmarketResource } from "../../../../shared/domain/blackmarket/bm-resources.js";
 import { MAX_WORKERS, isStarterWorkerId, normalizeDismissedStarterIds } from "../../../systems/employee-system.js";
 import { enterEmployeePayrollDay, employeeRecruitmentBlock, recordEmployeePayrollRoster, settleEmployeePayroll } from "../../../systems/employee-payroll.js";
@@ -25,10 +26,12 @@ function unlockResource(player, type, id) {
 }
 
 function resourceBuyerBlock(player, type, item, price) {
+  const growthAccess = businessAccess(player, type === "employee" ? "hireMarket" : item.stage);
+  if (!growthAccess.ok) return growthAccess.message;
   const legacyStarter = type === "employee" && isStarterWorkerId(item.id);
   if (!legacyStarter && (player?.workshop?.[resourceBucket(type)] || []).some((entry) => entry.id === item.id)) return "资源编号冲突，请重新选择商品。";
   if (type === "employee") {
-    if ((player.workshop?.workers || []).length >= MAX_WORKERS) return "员工人数已经达到 8 人上限。";
+    if ((player.workshop?.workers || []).length >= businessCapacity(player, "workers")) return `本阶段员工名额为 ${businessCapacity(player, "workers")} 人。`;
     const blocked = employeeRecruitmentBlock(player);
     if (blocked) return blocked.message;
   }

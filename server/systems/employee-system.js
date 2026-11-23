@@ -1,3 +1,4 @@
+import { businessAccess, businessCapacity } from "../../shared/domain/progression/business-growth.js";
 import {
   baseWageForTier,
   workerDailyWage,
@@ -250,13 +251,15 @@ export function refreshRecruitCandidates(player, { rng, makeId, spendCash }) {
 }
 
 export function recruitWorker(player, candidateId, { spendCash, now = Date.now() }) {
+  const growthAccess = businessAccess(player, "hireMarket");
+  if (!growthAccess.ok) return growthAccess;
   enterEmployeePayrollDay(player, { spendCash, now, reason: "continued" });
   const blocked = employeeRecruitmentBlock(player, now);
   if (blocked) return blocked;
   player.workshop ||= {};
   player.workshop.workers ||= [];
-  if (player.workshop.workers.length >= MAX_WORKERS) {
-    return { ok: false, code: "ROSTER_FULL", message: "员工人数已经达到 8 人上限。" };
+  if (player.workshop.workers.length >= businessCapacity(player, "workers")) {
+    return { ok: false, code: "ROSTER_FULL", message: `本阶段员工名额为 ${businessCapacity(player, "workers")} 人。` };
   }
   const candidates = (player.recruitCandidates || [])
     .filter((item) => item.id === candidateId);

@@ -41,7 +41,8 @@ const sampleQuality = qualityByKey(sample.trueQualityKey);
 assert.equal(sample.trueValue, Math.round(sample.price * sampleQuality.value));
 
 const player = H.makePlayer("rough-svc-1");
-assert.equal(player.rough.length, STARTER_ROUGH_COUNT);
+assert.equal(player.rough.length, 0);
+player.rough = H.makeStarterRoughs(player.id);
 assert.equal(player.rough.every((item) => item.starter === true), true);
 assert.ok(["glutinous", "bean"].includes(player.rough[0].trueQualityKey));
 assert.equal(player.rough.filter((item) => item.starterProtection === true).length, 1);

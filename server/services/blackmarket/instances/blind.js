@@ -1,7 +1,8 @@
 import { isNpcBlackStall } from "../../../../shared/domain/blackmarket/npc-rules.js";
+import { businessAccess } from "../../../../shared/domain/progression/business-growth.js";
 // Instance-owned implementation; legacy entry points remain one directory above.
 import {
-  BLACKMARKET_MIN_PRICE,
+  BLACKMARKET_BLIND_MIN_PRICE as BLACKMARKET_MIN_PRICE,
   BLACKMARKET_BLIND_MIN,
   BLACKMARKET_BLIND_CAP,
   BLACKMARKET_BLIND_DRAW_COUNT,
@@ -53,6 +54,8 @@ function ensureBlindStallResolvedPrice(stall, now = Date.now()) {
 }
 
 function addBlindboxItemsForPlayer(player, entries = [], options = {}) {
+  const growthAccess = businessAccess(player, "bmBlind");
+  if (!growthAccess.ok) return growthAccess;
   const { getState, addNews, money, randomUUID } = requireApi();
   if (!player) return { ok: false, message: "未找到玩家。" };
   const locked = denyUnlessBmStall(player);
@@ -237,6 +240,8 @@ function normalizeBlindSelection(draw, selectedItemIds) {
 }
 
 function startBlindboxDrawForPlayer(player, stallId) {
+  const growthAccess = businessAccess(player, "bmBlind");
+  if (!growthAccess.ok) return growthAccess;
   const { getState, money, spendCash, addNews, randomUUID } = requireApi();
   if (!player) return { ok: false, message: "未找到玩家。" };
   const locked = denyUnlessBmBuy(player);

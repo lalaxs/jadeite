@@ -3,6 +3,7 @@ import { isBangle } from "../../../shared/domain/workshop/bangle-finish.js";
 import { speedTimeScale, workerStepPreview as baseWorkerStepPreview } from "../../workshop-craft-scoring.js";
 import { workerProcessingFee } from "../../worker-economy.js";
 import { equipmentRepairQuote } from "../../equipment-maintenance.js";
+import { publicStationFee } from "../../../shared/domain/economy/public-workstations.js";
 import { WORKSHOP_DURATION_FALLBACK, WORKSHOP_DEVICE_FALLBACKS, WORKSHOP_WORKER_FALLBACKS, deviceStep } from "./catalog.js";
 
 export function createWorkshopSelectors({ ui, getState, helpers }) {
@@ -12,7 +13,7 @@ function workshopDevices() {
   const workshop = getState().me.workshop;
   const serverDevices = workshop?.devices;
   if (!Array.isArray(serverDevices)) return [];
-  return serverDevices.map((device) => ({
+  return [...serverDevices, ...(workshop.publicStations || [])].map((device) => ({
     ...(WORKSHOP_DEVICE_FALLBACKS.find((fallback) => fallback.type === device.stage) || {}),
     ...device,
     type: device.stage || device.type,
@@ -116,8 +117,8 @@ function workshopJobEstimate(device, item) {
   const fee = workerProcessingFee(worker, 0, {
     stage: device.stage,
     itemValue: item?.value ?? item?.price
-  });
-  const duration = workshopDurationLabel(device, worker);
+    }) + (item?.customerCommissionId ? 0 : publicStationFee(device, item, getState()?.me?.id));
+    const duration = workshopDurationLabel(device, worker);
   return {
     fee,
     duration,

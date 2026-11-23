@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import { readTradingServiceSource } from "./load-trading-service-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,7 +9,6 @@ import {
 } from "../server/services/auction-service.js";
 
 const {
-  makePlayer,
   normalizePlayer,
   enterAuctionForPlayer,
   submitAuctionBidForPlayer,
@@ -22,6 +22,8 @@ const {
   ackAuctionSettleForPlayer,
   state
 } = __testHooks;
+
+const makePlayer = id => makeEstablishedPlayer(__testHooks, id);
 
 function reset() {
   state.players.clear();

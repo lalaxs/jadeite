@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { starterQualityForRoll, createRoughPoolService } from "../server/services/rough-pool-service.js";
@@ -11,7 +12,7 @@ import { hostBonusesFromLevels } from "../shared/domain/livestream/livestream-ho
 import { WORKSHOP_WORKER_DEFS } from "../server/services/workshop-roster.js";
 import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
 
-assert.equal(INITIAL_PLAYER_CASH, 12_000);
+assert.equal(INITIAL_PLAYER_CASH, 500);
 assert.equal(auctionEntryFee(auctionHallForId("novice")), 200);
 const draws = Array.from({ length: 10_000 }, (_, i) => starterQualityForRoll((i + 0.5) / 10_000));
 assert.equal(draws.filter((key) => key === "glutinous").length, 7_000);
@@ -33,12 +34,12 @@ for (let i = 0; i < 100; i += 1) {
 const day = Date.parse("2026-10-23T08:00:00Z");
 const budgetPlayer = { onboarding: { startedAt: day, rewardCash: 0, completedAt: 0 } };
 assert.equal(bookRewardCash(budgetPlayer, 800, "achievementReward", day), 800);
-assert.equal(bookRewardCash(budgetPlayer, 800, "taskReward", day), 200);
-assert.equal(rewardCashQuote(budgetPlayer, 800, "achievementReward", day), 0);
+assert.equal(bookRewardCash(budgetPlayer, 800, "taskReward", day), 0);
+assert.equal(rewardCashQuote(budgetPlayer, 800, "achievementReward", day), 200);
 budgetPlayer.onboarding.completedAt = day;
 budgetPlayer.rewardCashBudget = { day: economyDayKey(day), taskCash: "1000" };
 assert.equal(bookRewardCash(budgetPlayer, 800, "taskReward", day), 0);
-assert.equal(bookRewardCash(budgetPlayer, 800, "taskReward", day + 86_400_000), 300);
+assert.equal(bookRewardCash(budgetPlayer, 800, "taskReward", day + 86_400_000), 0);
 for (const ratio of [1.5, 1.65, 1.8]) {
   const chance = aiPurchaseChance({ rep: 100_000 }, { price: 10_000 * ratio,
     product: { value: 10_000, score: 6 } }, { hostSnapshot: {
@@ -67,7 +68,7 @@ function complete(player, result, roll = 0.99) {
 try {
   H.world.clear();
   for (const [key, roll] of [["glutinous", 0.5], ["bean", 0.9]]) {
-    const p = withRandom(roll, () => H.makePlayer(`starter-loop-${key}`));
+    const p = withRandom(roll, () => makeEstablishedPlayer(H, `starter-loop-${key}`));
     H.state.players.set(p.id, p);
     assert.equal(p.cash, 12_000);
     assert.equal(p.workshop.devices.length, 0);
@@ -159,10 +160,10 @@ try {
   const inexpensiveProduct = { type: "bracelet", kind: "cabochon", materialStage: "finished", value: 659 };
   assert.equal(evaluateOrderFit(inexpensiveProduct, { persona: { motive: "撑场面" },
     hard: { kind: "cabochon", budgetUnlimited: true }, requirements: [], pay: 52000 }).tier, "full");
-  const fresh = H.makePlayer("starter-no-recovery");
+  const fresh = makeEstablishedPlayer(H, "starter-no-recovery");
   fresh.cash = 0; fresh.rough = [];
   assert.equal(H.recoverPlayerIfNeeded(fresh, clock, { requested: true }).applied, false);
-  const legacy = H.makePlayer("existing-assets");
+  const legacy = makeEstablishedPlayer(H, "existing-assets");
   delete legacy.onboarding; delete legacy.starterRoughGranted;
   legacy.cash = 4321; legacy.rough = [];
   H.normalizePlayer(legacy);

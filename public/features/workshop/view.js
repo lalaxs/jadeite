@@ -263,6 +263,7 @@ function workshopBigMaterialCard(device, selected, { locked = false } = {}) {
 }
 
 function workshopBigWorkerCard(device, worker, { locked = false } = {}) {
+  const fixed = Boolean(device.publicStation);
   const payload = JSON.stringify({ kind: "worker", deviceId: device.id });
   const openWorkerButton = (label) => locked ? "" : `
     <button class="secondary small wsp-select-worker" data-action="openWorkshopPicker" data-payload='${payload}' type="button">${label}</button>`;
@@ -282,14 +283,14 @@ function workshopBigWorkerCard(device, worker, { locked = false } = {}) {
     type: "employee", name: worker.name, badge: locked ? "加工中" : worker.busy ? "工作中" : "已选员工",
     className: `ws-big-card ws-big-worker ${locked ? "is-locked" : ""}`,
     attributes: locked ? 'aria-disabled="true"' : "",
-    visualAttributes: locked ? "" : `data-action="openWorkshopPicker" data-payload='${escapeHtml(payload)}' aria-label="更换员工：${escapeHtml(worker.name)}"`,
+    visualAttributes: locked || fixed ? "" : `data-action="openWorkshopPicker" data-payload='${escapeHtml(payload)}' aria-label="更换员工：${escapeHtml(worker.name)}"`,
     summary: [`${workerJobLabel(worker.job)} · ${tierLabel(worker)}`, worker.busy ? "工作中" : "空闲"],
     body: `<span class="ws-big-worker-preview">
         <span>工分 <strong>${pv.quality.toFixed(0)}</strong> ${craftGradeBadge(pv.grade)}</span>
         <span>提速 <strong>${pv.speed > 0 ? "+" + pv.speed + "%" : "—"}</strong></span>
         <span>完美度 <strong>${pv.perfectLabel || "—"}</strong></span>
       </span><span class="ws-big-worker-flaws">${flaws}</span>`,
-    footer: locked
+    footer: fixed ? `<span class="ws-big-locked-hint">公共工位 · 掌柜亲自操作</span>` : locked
         ? `<span class="ws-big-locked-hint">加工中，暂不可更换</span>`
         : `<span class="ws-big-worker-actions">${openWorkerButton("更换员工")}<button class="secondary small wsp-recommend" data-action="recommendWorkshopWorker" data-payload="${escapeHtml(device.id)}" type="button">智能推荐</button></span>`
   });

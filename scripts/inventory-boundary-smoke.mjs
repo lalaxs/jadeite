@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { createGame } from "../server/create-game.js";
 import { createDurableMutationCoordinator } from "../server/services/durable-mutation-coordinator.js";
@@ -33,7 +34,7 @@ const H = game.__testHooks;
 let coordinator;
 try {
   for (const id of ["owner", "buyer"]) {
-    const player = H.makePlayer(id);
+    const player = makeEstablishedPlayer(H, id);
     H.normalizePlayer(player);
     player.cash = 100_000;
     player.achievementPoints = 100;

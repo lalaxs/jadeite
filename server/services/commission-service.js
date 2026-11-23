@@ -32,7 +32,7 @@ export function createCommissionService({ normalizePlayer, earnCash, refreshPlay
     const busyDeviceIds = (player.jobs || []).map((job) => job.deviceId);
     return {
       version: 1,
-      offers: COMMISSION_OFFERS.map((offer) => quoteCommission(player.workshop?.devices || [], offer.id, TIMING_PROFILE, busyDeviceIds)),
+      offers: player.business && player.business.choice !== "established" ? [] : COMMISSION_OFFERS.map((offer) => quoteCommission(player.workshop?.devices || [], offer.id, TIMING_PROFILE, busyDeviceIds)),
       active: state.active ? { ...structuredClone(state.active), ready: Number(state.active.readyAt) <= now } : null,
       completedCount: Math.max(0, Math.floor(Number(state.completedCount) || 0)),
       totalEarned: Math.max(0, Math.round(Number(state.totalEarned) || 0)),
@@ -43,6 +43,7 @@ export function createCommissionService({ normalizePlayer, earnCash, refreshPlay
   function startCommissionForPlayer(player, payload = {}, now = Date.now()) {
     if (!player) return { ok: false, code: "NOT_FOUND", message: "未找到玩家。" };
     const state = prepare(player);
+    if (player.business && player.business.choice !== "established") return { ok: false, message: "请在主页接开料委托，使用自己的工坊完成加工。" };
     if (state.active) return { ok: false, code: "BUSY", message: "请先完成并领取当前来料单。" };
     if ((player.jobs || []).some((job) => job.workerId === OWNER_OPERATOR_ID)) {
       return { ok: false, code: "WORKER_BUSY", message: "掌柜正在加工自己的货，完成后再接来料单。" };

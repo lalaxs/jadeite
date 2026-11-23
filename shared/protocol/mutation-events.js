@@ -5,6 +5,9 @@
  * and do not consume the player's production request-id history.
  */
 export const MUTATION_SOCKET_EVENTS = new Set([
+  "chooseBusinessStart", "buildBusiness", "borrowBusinessLoan", "repayBusinessLoan",
+  "buyNeighborhoodItem", "sellNeighborhoodItem", "startConsignment", "claimConsignment",
+  "startOpeningCommission", "claimOpeningCommission",
   "setName",
   "sendWorldChat",
   "submitAuctionBid",

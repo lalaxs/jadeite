@@ -3,6 +3,7 @@
  * Use createMaterialsService(deps) after spendCash / normalizePlayer exist.
  */
 import { markExternalMaterialNew } from "./inventory-service.js";
+import { businessAccess } from "../../shared/domain/progression/business-growth.js";
 import {
   smoothMaterialDiscount,
   quoteMaterialPurchase
@@ -158,6 +159,8 @@ export function createMaterialsService(deps) {
   }
 
   function buyMaterialPack(player, materialId, amount) {
+    const access = businessAccess(player, "finishing");
+    if (!access.ok) return access;
     if (!player) return { ok: false, message: "未找到玩家。" };
     normalizePlayer(player);
     const cat = MATERIAL_CATALOG.find((m) => m.id === materialId);

@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { __testHooks as H } from "../server.js";
 import { auctionRoundDuration } from "../server/services/auction-service.js";
@@ -15,7 +16,7 @@ const rounds = () => auctionRoundsForState(H.state);
 const roundFor = (hallId) => auctionRoundForHall(H.state, hallId);
 function reset() {
   H.world.clear();
-  const player = H.makePlayer("auction-clock-qa");
+  const player = makeEstablishedPlayer(H, "auction-clock-qa");
   player.exp = 3_600;
   player.cash = 100_000_000;
   H.normalizePlayer(player);

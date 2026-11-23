@@ -1,6 +1,7 @@
 import { inventoryEntries } from "../inventory-items.js";
 // Device/worker lookup, reservations and processable items.
-import { OWNER_OPERATOR_ID } from "../../../shared/domain/economy/public-workstations.js";
+import { OWNER_OPERATOR_ID, publicWorkshopStations } from "../../../shared/domain/economy/public-workstations.js";
+import { businessAccess } from "../../../shared/domain/progression/business-growth.js";
 
 export function createWorkshopQueries({
   normalizePlayer,
@@ -9,7 +10,7 @@ export function createWorkshopQueries({
 }) {
 function workshopDevicesForPlayer(player) {
   normalizeWorkshop(player);
-  return player.workshop.devices;
+  return [...player.workshop.devices, ...publicWorkshopStations().filter(device => player.business?.choice && player.business.choice !== "established" && businessAccess(player, device.stage).ok && player.assets?.workshopOwned)];
 }
 
 function workshopDeviceForPlayer(player, deviceId) {

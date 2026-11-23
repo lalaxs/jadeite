@@ -8,6 +8,7 @@ import { NPC_PRICING_VERSION } from "../../../../shared/domain/blackmarket/npc-p
 import { attemptAtomicMutation } from "../../atomic-mutation.js";
 import { BLACKMARKET_BLIND_MIN, BLACKMARKET_MIN_PRICE } from "../../../../shared/domain/blackmarket/bm-constants.js";
 import { isBlackmarketResource } from "../../../../shared/domain/blackmarket/bm-resources.js";
+import { businessPurchaseAccess } from "../../../../shared/domain/progression/business-growth.js";
 
 export function createNpc({
   requireApi,
@@ -283,6 +284,8 @@ function buyNpcBlackmarketGoods(player, stall, listingId, expectedPrice) {
     const row = stall.items.find((entry) => entry.id === listingId);
     if (!row) return { ok: false, message: "该商品已售出或收摊换货，请选择其他商品。" };
     if (!row.item || !isNpcGoodsRow(stall, row)) return { ok: false, message: "该类物品不支持在黑市摆摊出售。" };
+    const access = businessPurchaseAccess(player, row.item);
+    if (!access.ok) return access;
     const total = deps.money(row.price);
     if (expectedPrice != null && Number(expectedPrice) !== total) return { ok: false, code: "PRICE_CHANGED", message: "报价已变化，请重新确认。" };
     if (isBlackmarketResource(row.type)) {

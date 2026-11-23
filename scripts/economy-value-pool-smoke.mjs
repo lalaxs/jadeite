@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { installOwnedWorkshopFixture } from "./fixtures/owned-workshop.mjs";
 import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
@@ -5,7 +6,7 @@ import { claimWorkshopOutputs } from "./workshop-test-utils.mjs";
 process.env.JADE_WORLD_PERSIST = "0";
 const { __testHooks: H } = await import("../server.js");
 H.world.clear();
-const player = installOwnedWorkshopFixture(H.makePlayer("value-pool-regression"));
+const player = installOwnedWorkshopFixture(makeEstablishedPlayer(H, "value-pool-regression"));
 H.normalizePlayer(player);
 H.state.players.set(player.id, player);
 const material = { id: "value-pool-source", type: "material", materialStage: "opened", stage: "material",

@@ -123,7 +123,7 @@ assert.match(moduleSource, /livestream-stock-empty/);
 assert.match(moduleSource, /data-view-link="workshop"/);
 assert.match(moduleSource, /LIVESTREAM_MIN_ITEMS as MIN_ROOM_ITEMS/);
 assert.match(moduleSource, /LIVESTREAM_MAX_ITEMS as MAX_ROOM_ITEMS/);
-assert.equal(LIVESTREAM_MIN_ITEMS, 3);
+assert.equal(LIVESTREAM_MIN_ITEMS, 1);
 assert.equal(LIVESTREAM_MAX_ITEMS, 12);
 assert.equal(LIVESTREAM_BASE_DURATION_MS, 12 * 60 * 1000);
 assert.equal(LIVESTREAM_MAX_DURATION_MS, 15 * 60 * 1000);

@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { __testHooks as H } from "../server.js";
@@ -47,7 +48,7 @@ function reset() {
 }
 
 reset();
-const player = H.makePlayer("ord-svc-1");
+const player = makeEstablishedPlayer(H, "ord-svc-1");
 H.normalizePlayer(player);
 player.cash = 50_000;
 player.rep = 120;
@@ -128,7 +129,7 @@ const fail = H.completeOrderForPlayer(player, { orderId: "missing", braceletIds:
 assert.equal(fail.ok, false);
 
 reset();
-const rejectPlayer = H.makePlayer("ord-svc-reject");
+const rejectPlayer = makeEstablishedPlayer(H, "ord-svc-reject");
 H.normalizePlayer(rejectPlayer);
 rejectPlayer.cash = 20_000;
 rejectPlayer.orders = [{
@@ -168,7 +169,7 @@ assert.equal(rejectPlayer.orders.length, 1, "拒收不应销单");
 assert.equal(rejectPlayer.cash, 20_000, "拒收不应付款");
 
 for (const [score, cracked, expectedPay] of [[4, false, 1250], [2, false, 1000], [2, true, 750]]) {
-  const customer = H.makePlayer(`order-fit-${expectedPay}`);
+  const customer = makeEstablishedPlayer(H, `order-fit-${expectedPay}`);
   H.normalizePlayer(customer);
   customer.orders = [{ id: `fit-${expectedPay}`, client: "熟客", pay: 5000, rep: 8, quantity: 1,
     persona: { motive: "炫富", personality: "计较", temper: 1.15 },

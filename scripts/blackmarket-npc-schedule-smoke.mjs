@@ -1,3 +1,4 @@
+import { makeEstablishedPlayer } from "./fixtures/established-player.mjs";
 import assert from 'node:assert/strict';
 import { performance } from 'node:perf_hooks';
 import { NPC_TARGET_STALLS, NPC_MARKET_REFRESH_MS, npcRuleForStall } from '../shared/domain/blackmarket/npc-rules.js';
@@ -19,8 +20,8 @@ try {
  const initial=structuredClone(stalls());
  assert.equal(maintainNpcBlackmarket(now+1).changed,false);
  assert.deepEqual(stalls(),initial,'visits must not reroll the world');
- const buyer=H.makePlayer('dynamic-buyer'); buyer.cash=10000000; buyer.achievementPoints=buyer.achievementPointsBonus=9999; H.state.players.set(buyer.id,buyer);
- const other=H.makePlayer('dynamic-other'); other.cash=10000000; other.achievementPoints=other.achievementPointsBonus=9999; H.state.players.set(other.id,other);
+ const buyer=makeEstablishedPlayer(H, 'dynamic-buyer'); buyer.cash=10000000; buyer.achievementPoints=buyer.achievementPointsBonus=9999; H.state.players.set(buyer.id,buyer);
+ const other=makeEstablishedPlayer(H, 'dynamic-other'); other.cash=10000000; other.achievementPoints=other.achievementPointsBonus=9999; H.state.players.set(other.id,other);
  const stone=stalls().find(s=>s.id==='bm-npc:stone'); const row=stone.items[0];
  assert.equal(H.buyGoodsFromStallForPlayer(buyer,stone.id,row.id,row.price).ok,true);
  assert.equal(H.buyGoodsFromStallForPlayer(other,stone.id,row.id,row.price).ok,false,'shared stock is sold once');
